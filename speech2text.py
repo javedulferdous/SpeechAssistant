@@ -10,11 +10,14 @@ def speech_recognition():
     with mic as source:
             r.adjust_for_ambient_noise(source)
             audio = r.listen(source)
-            if  not audio:
-                print("Didn't find any word")
-            else:
-                print("Recorded!!")
-    textinput = r.recognize_google(audio)
+    try:
+        textinput = r.recognize_google(audio)
+        print("Recorded!!")
+    except sr.UnknownValueError:
+        print("Speech could not understand audio")
+    except sr.RequestError as e:
+        print("Could not request results from ; {0}".format(e))
+
     return textinput
 
 def semantic_ranking(x):
@@ -25,7 +28,7 @@ def semantic_ranking(x):
     tr = pytextrank.TextRank()
     nlp.add_pipe(tr.PipelineComponent, name="textrank", last=True)
     y = "[find], [me], [an], [iPhone], [at], [the], [cheapest], [price]"
-    doc = nlp(y)
+    doc = nlp(x)
 
     for p in doc._.phrases:
         #print("{:.2f} {:5d}  {}".format(p.rank, p.count, p.text))
@@ -37,13 +40,12 @@ def semantic_ranking(x):
     return unit_vector, unit_text
 
 def main():
-    #textinput = speech_recognition()
-    textinput = "find me an iPhone at the cheapest price."
-    unit, text = (semantic_ranking(textinput))
+    textinput = speech_recognition()
+    #textinput = "find me an iPhone at the cheapest price."
+    unit, text = semantic_ranking(textinput)
     res = "\n".join("{:.2f} {}".format(x, y) for x, y in zip(unit, text))
     print(res)
     #print(unit, text)
-
 
 
 if __name__ == "__main__":
