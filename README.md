@@ -4,4 +4,4 @@
 `pip install -r requirements.txt`
 
 ### Usage
-python speech2text.py
+`python speech2text.py`
