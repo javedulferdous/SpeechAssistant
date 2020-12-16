@@ -6,13 +6,13 @@ import pytextrank
 def speech_recognition():
     r = sr.Recognizer()
     mic = sr.Microphone()
-    print("Start your recording...")
+    print("Ask your query...\a")
     with mic as source:
             r.adjust_for_ambient_noise(source)
             audio = r.listen(source)
     try:
         textinput = r.recognize_google(audio)
-        print("Recorded!!")
+        print("Recorded!!\a")
     except sr.UnknownValueError:
         print("Speech could not understand audio")
     except sr.RequestError as e:
@@ -34,14 +34,20 @@ def semantic_ranking(x):
         #print("{:.2f} {:5d}  {}".format(p.rank, p.count, p.text))
         unit_vector.append(p.rank)
         unit_text.append(p.text)
+    try:
+        sum_ranks = sum(unit_vector)
+        print("sum_ranks", sum_ranks)
+        unit_vector = [ rank/sum_ranks for rank in unit_vector ]
+        print("unit_vector", unit_vector)
 
-    sum_ranks = sum(unit_vector)
-    unit_vector = [ rank/sum_ranks for rank in unit_vector ]
+    except:
+        print("Error")
     return unit_vector, unit_text
 
 def main():
-    textinput = speech_recognition()
-    #textinput = "find me an iPhone at the cheapest price."
+    #textinput = speech_recognition()
+    #print(textinput)
+    textinput = "find me an iPhone at the cheapest price."
     unit, text = semantic_ranking(textinput)
     res = "\n".join("{:.2f} {}".format(x, y) for x, y in zip(unit, text))
     print(res)
