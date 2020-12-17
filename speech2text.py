@@ -2,6 +2,7 @@
 import speech_recognition as sr
 import spacy
 import pytextrank
+from bs4 import BeautifulSoup
 
 def speech_recognition():
     r = sr.Recognizer()
@@ -36,21 +37,44 @@ def semantic_ranking(x):
         unit_text.append(p.text)
     try:
         sum_ranks = sum(unit_vector)
-        print("sum_ranks", sum_ranks)
+        #print("sum_ranks", sum_ranks)
         unit_vector = [ rank/sum_ranks for rank in unit_vector ]
-        print("unit_vector", unit_vector)
+        #print("unit_vector", unit_vector)
 
     except:
         print("Error")
     return unit_vector, unit_text
 
+def search_query(searchQ, searchF):
+    myFile=open(searchQ,'r',encoding="latin-1")
+    soup=BeautifulSoup(myFile,"html5lib")
+    searchF = str(searchF[0])
+    if (searchF.isalpha()==True):
+        searchF = searchF.upper()
+    elif(searchF.isnumeric()==True):
+        searchF = searchF
+    try:
+        print("Search result:\n")
+        for hit in soup.findAll("a", {"class" : "product-title-link line-clamp line-clamp-2 truncate-title"}):
+            if(searchF in hit.text):
+                    print(hit.text)
+    except:
+        links = "No link found"
+
 def main():
+    url=r"C:\Users\jafra\OneDrive\File & Document\Documents\GitHub\SpeechAssistant\Dataset\Walmart.html"
     #textinput = speech_recognition()
     #print(textinput)
-    textinput = "find me an iPhone at the cheapest price."
+    textinput = "find cheapest laptop with 14 screensize"
+    #textinput = "find cheapest laptop with i5 processor"
+    #textinput = "find cheapest laptop with hp Brand"
+
     unit, text = semantic_ranking(textinput)
+    fList = text[1].split()
     res = "\n".join("{:.2f} {}".format(x, y) for x, y in zip(unit, text))
-    print(res)
+    print(res,"\n")
+    search_query(url, fList)
+    print()
     #print(unit, text)
 
 
