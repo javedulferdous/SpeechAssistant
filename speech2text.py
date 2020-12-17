@@ -64,10 +64,10 @@ def search_query(searchQ, searchF):
 def main():
     url=r"C:\Users\jafra\OneDrive\File & Document\Documents\GitHub\SpeechAssistant\Dataset\Walmart.html"
     #textinput = speech_recognition()
-    #print(textinput)
-    textinput = "find cheapest laptop with 14 screensize"
+    textinput = "find laptop with 14 screensize"
     #textinput = "find cheapest laptop with i5 processor"
     #textinput = "find cheapest laptop with hp Brand"
+    print(textinput)
 
     unit, text = semantic_ranking(textinput)
     fList = text[1].split()
