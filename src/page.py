@@ -217,14 +217,23 @@ def get_class_data(searchQ) :
         print("\nTime takes: {:0>2}:{:0>2}:{:05.2f} Seconds\n".format(int(hours),int(minutes),seconds))
         return f_name
 
-def write_CSV(tlist):
+def write_header():
     list_of_header = ["NumOfButton", "NumOfLinks", "commonURL","is_page", "NumberOfValues","pageClass", "name_url"]
+    save_path = 'test/'
+    file_name = "pageList_test_1.csv"
+    completeName = os.path.join(save_path, file_name)
+
+    with open(completeName, "a", newline="") as f:
+        writer = csv.writer(f)
+        writer.writerow(list_of_header)
+
+
+def write_CSV(tlist):
     save_path = 'test/'
     file_name = "pageList_test_1.csv"
     completeName = os.path.join(save_path, file_name)
     with open(completeName, "a", newline="") as f:
         writer = csv.writer(f)
-        #writer.writerow(list_of_header)
         writer.writerows(tlist)
     with open(completeName, "r", newline="") as fr:
         reader = csv.reader(fr)
@@ -232,7 +241,8 @@ def write_CSV(tlist):
         print("[",lines,"].", "rows!")
 
 def main():
-    
+    write_header()
+
     for i in range(0,209):
             print(write_CSV(get_class_data(urllist[i])))
 

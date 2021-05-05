@@ -139,7 +139,7 @@ def get_class_data(searchQ) :
         
         return f_name
 
-def write_CSV(tlist):
+def write_header():
     list_of_header = ["search_innertext", "search_attribute", "Number_of_search_word","search_button_attribute_value","is_button", "sClass", "URL name"]
     save_path = 'test/'
     file_name = "searchList_test_1.csv"
@@ -147,7 +147,15 @@ def write_CSV(tlist):
 
     with open(completeName, "a", newline="") as f:
         writer = csv.writer(f)
-        #writer.writerow(list_of_header)
+        writer.writerow(list_of_header)
+
+def write_CSV(tlist):
+    save_path = 'test/'
+    file_name = "searchList_test_1.csv"
+    completeName = os.path.join(save_path, file_name)
+
+    with open(completeName, "a", newline="") as f:
+        writer = csv.writer(f)
         writer.writerows(tlist)
     with open(completeName, "r", newline="") as fr:
         reader = csv.reader(fr)
@@ -155,6 +163,7 @@ def write_CSV(tlist):
         print("[",lines,"].", "form!")
 
 def main():
+    write_header()
     for i in range(0,209):
             print(write_CSV(get_class_data(urllist[i])))
 

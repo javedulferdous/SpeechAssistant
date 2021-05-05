@@ -175,14 +175,22 @@ def get_class_data(searchQ) :
 
         return f_name
 
-def write_CSV(tlist):
+def write_header():
     list_of_header = ["sort_inner", "sort_attribute", "option_tag_attribute_value","sortClass","textCount","name_url"]
+    save_path = 'test/'
+    file_name = "sort_test_1.csv"
+    completeName = os.path.join(save_path, file_name)
+
+    with open(completeName, "a", newline="") as f:
+        writer = csv.writer(f)
+        writer.writerow(list_of_header)
+
+def write_CSV(tlist):
     save_path = 'test/'
     file_name = "sort_test_1.csv"
     completeName = os.path.join(save_path, file_name)
     with open(completeName, "a", newline="") as f:
         writer = csv.writer(f)
-        #writer.writerow(list_of_header)
         writer.writerows(tlist)
     with open(completeName, "r", newline="") as fr:
         reader = csv.reader(fr)
@@ -190,6 +198,7 @@ def write_CSV(tlist):
         print("[",lines,"].", "form!")
 
 def main():
+    write_header()
     for i in range(0,209):
             print(write_CSV(get_class_data(urllist[i])))
 
