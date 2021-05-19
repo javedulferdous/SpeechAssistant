@@ -1,0 +1,36 @@
+_satellite.pushAsyncScript(function(event, target, $variables){
+   //Saint Maud 221929
+if(_satellite.getVar('Movie ID') == '221929'){
+  //Desktop MOP
+  if(_satellite.getVar('Page Level 2') == 'movie | overview'){
+    //pxl-518
+_satellite.addImage('//insight.adsrvr.org/track/pxl/?adv=y80w81u&ct=0:x35ma8p&fmt=3')
+//pxl-519
+_satellite.loadScript('https://www.googletagmanager.com/gtag/js?id=AW-672271593')
+  window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'AW-672271593');
+gtag('event', 'conversion', {'send_to': 'AW-672271593/7b0dCKOxkMYBEOmZyMAC'});
+
+}
+
+
+//Desktop MSP
+  if(_satellite.getVar('Page Level 2') == 'movie times | by movie'){
+    //pxl-518
+_satellite.addImage('//insight.adsrvr.org/track/pxl/?adv=y80w81u&ct=0:s7biyb6&fmt=3')
+
+//pxl-519
+_satellite.loadScript('https://www.googletagmanager.com/gtag/js?id=AW-672271593')
+  window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'AW-672271593');
+gtag('event', 'conversion', {'send_to': 'AW-672271593/H9sMCIDulsYBEOmZyMAC'});
+
+
+}
+}
+
+});

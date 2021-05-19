@@ -1,0 +1,75 @@
+jQuery(function($){
+
+	// search form tab navigation
+	$('#tabs div').click(function(){
+
+		// remove formatting
+		$('#tabs div').each(function(){
+			$(this).removeClass('active');
+		});
+
+		// add active to clicked tab
+		$(this).addClass('active');
+
+		// if active is sale change 'is_sale' to true else 'false'
+		if($(this).attr('id') == 'tab_search_sale') {
+			$('#is_sales').attr('value', '1'); 
+			$('#srch_bg').removeClass('srch_bg');
+			$('#srch_bg').addClass('srch_bg_sale');
+		}
+		else {
+			$('#is_sales').attr('value', '0'); 
+			$('#srch_bg').removeClass('srch_bg_sale');	
+			$('#srch_bg').addClass('srch_bg');
+		}
+	});
+
+	// toggle category drop down list
+	/*jQuery('#category_dropdown_select').hover(function(){
+		jQuery('#category_dropdown_cont').removeClass('inactive');
+	}, function(){
+		jQuery('#category_dropdown_cont').addClass('inactive');
+		jQuery('#category_dropdown_cont').hover(function(){
+			jQuery('#category_dropdown_cont').removeClass('inactive');
+		},function(){
+			jQuery('#category_dropdown_cont').addClass('inactive');
+		});
+	});
+	jQuery('#category_dropdown_cont li a').click(function(){
+		// update 'category' input
+		jQuery('#category').attr('value', $(this).attr('id').substring(1,10));
+
+		// update category_dropdown_select with the label
+		jQuery('#category_dropdown_select a').html($(this).html() + ' &#9660;');
+
+		// hide select box
+		jQuery('#category_dropdown_cont').addClass('inactive');
+	});*/
+
+	/*$('#category_dropdown_select a').click(function(){
+		$('#category_dropdown_cont').toggleClass('inactive');
+
+		$('#category_dropdown_cont li a').click(function(){
+			// update 'category' input
+			$('#category').attr('value', $(this).attr('id'));
+
+			// update category_dropdown_select with the label
+			$('#category_dropdown_select a').html($(this).html() + ' &#9660;');
+
+			// hide select box
+			$('#category_dropdown_cont').addClass('inactive');
+		});
+	});
+
+	// reset searchbox to all categories
+	$('#all_categories').click(function(){
+		// copy text from link
+		$('#category_dropdown_select a').html($(this).html() + ' &#9660;');
+
+		// empty category value
+		$('#category').attr('value', '');
+
+		// hide select box
+		$('#category_dropdown_cont').addClass('inactive');
+	});*/
+});

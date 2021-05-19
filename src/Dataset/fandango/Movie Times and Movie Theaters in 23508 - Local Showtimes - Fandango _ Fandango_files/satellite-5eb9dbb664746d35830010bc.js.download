@@ -1,0 +1,12 @@
+_satellite.pushAsyncScript(function(event, target, $variables){
+  _satellite.loadScript('https://ak.sail-horizon.com/spm/spm.v1.min.js',function(){
+Sailthru.init({ customerId:  '2fabd633f72865d35dc8021015a0edaa' , isCustom: true,
+autoTrackPageview: false});
+  Sailthru.track('pageview', {
+   url: 'https://api.fandango.com/movies/v2/'+_satellite.getVar('Movie ID'),
+   tags: '<tags>'  
+}); 
+})
+console.log('sail thru pixel set')
+
+});

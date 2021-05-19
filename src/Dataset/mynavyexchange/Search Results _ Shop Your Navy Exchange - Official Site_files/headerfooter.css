@@ -1,0 +1,609 @@
+/* header */
+.headerWrapper input[type="text"],.headerHomeWrapper input[type="text"]{
+	/*background-color: #DCDDDE;*/
+	background-color: transparent;
+	color: #003479;
+	padding: 7px 11px;
+	font-size: 16px;
+	font-style:bold;
+	border: none;
+    padding: 7px 11px;
+    left: 2px;
+    padding: 8px 11px;
+    width: 95%;
+    height: 24px;
+    position: relative;
+    top: 1px;
+}
+
+::placeholder { /* Chrome, Firefox, Opera, Safari 10.1+ */
+  color: #BCBEC0 !important; /* Firefox */
+}
+
+:-ms-input-placeholder { /* Internet Explorer 10-11 */
+  color: #BCBEC0 !important;
+}
+
+::-ms-input-placeholder { /* Microsoft Edge */
+  color: #BCBEC0 !important;
+}
+
+
+
+
+.footerContainer input[type="text"]{
+	background-color: #DCEDFA;
+	color: black;
+	padding: 7px 11px;
+	font-size: 12px;
+	font-style:italic;
+	border: none;
+	width: 130px !important;
+	position:relative;
+	top:-1px;
+	
+}
+
+.footerContainer input[type="text"].noText {
+	color:#003479;
+}
+
+::-webkit-input-placeholder {
+   color: #003479;
+}
+
+:-moz-placeholder { /* Firefox 18- */
+   color: #003479;
+}
+
+::-moz-placeholder {  /* Firefox 19+ */
+   color: #003479;
+}
+
+:-ms-input-placeholder {  
+   color: #003479;
+}
+
+.megaMenuWrapper{
+	white-space:wrap;
+	/*padding-left: 20px;*/
+	text-align: center;
+}
+
+.headerWrapper{
+	background-color: #fff;
+	border-bottom: 1px solid #eeeeee;
+	padding-bottom: 50px;
+	width: 1366px;
+	margin: 0 auto;
+}
+
+.background{
+	background-image: url('../img/common/mainBackGround.png');
+	background-repeat: no-repeat !important;
+	background-position: top right;
+}
+
+.headerHomeWrapper{
+	/*background-color: #fff;*/
+	width: 100%;
+	margin: 0 auto;
+}
+.size1066{
+	width: 1066px;
+	margin: 0 auto;
+} 
+
+
+.noborder{
+	border: none !important;
+}
+
+.headerContent{
+	/*padding: 0px 32px;*/
+	clear:both;
+}
+
+.leftSideNav{
+	display: inline-block;
+}
+
+.rightSideNav{
+	float: right;
+	clear: both;
+	display: inline-block;
+}
+
+.headerWrapper a, .headerHomeWrapper a{
+	/*color: #005596;*/ 
+	color: #003479;
+}
+.columnsFlex {
+	display: flex;
+	flex-flow: row wrap;
+	justify-content: center;
+	margin: 5px 0;
+}
+.headerRight{
+	/*float: right;*/
+	clear: both;
+	/*width: 680px;*/
+	text-align: right;
+	margin-top: 14px;
+	float:left;
+	width:30%;
+}
+.headerCenter{
+	float:left;
+	width:50%;
+}
+
+
+.grayBar{
+	background-color: #c7c8ca; 
+	clear: both;
+	padding: 7px 0;
+	height: 16px;
+}
+
+.navDepartments {
+	margin-top: 1px;
+	height: 40px;
+	width: 1066px;
+	white-space: nowrap;
+}
+
+.navDepartments div{
+	margin: 19px 20px 20px 0;
+	display: inline-block;
+	clear:both;
+}
+
+.navDepartments div:last-child{
+	margin: 19px 0px 20px 0;
+}
+
+/* */
+.head .navDepartments div{
+	margin: 19px 19px 20px 0;
+	display: inline-block;
+	clear:both;
+}
+
+.head .navDepartments div:last-child{
+	margin: 19px 5px 20px 0;
+}
+
+.headerHomeWrapper .navDepartmentsLower a{
+	font-size: 20px !important;
+	margin-bottom: 20px !important;
+}
+
+/* */
+.forwardSlash{
+	margin: 0 7px;
+}
+
+.headerHomeWrapper .navDepartments a{
+	font-size: 15px;
+}
+
+.navDepartments:last-child a{
+	margin-right: 0px;
+}
+
+.headerHomeWrapper .navDepartmentsLower{
+	font-size: 20px;
+	margin-top: 26px;
+}
+
+
+.searchIcon{
+    position: relative;
+    right: 5px;
+    top: 15px;
+    width: 45px;
+    height: 40px;
+}
+
+
+.navSearch{
+	color: #003479;
+	font-weight: bold;
+	width: 270px;
+}
+
+.grayBar a{
+	color: #003479;
+}
+
+.welcomeBack{
+	color: #555555;
+	margin-right: 7px;
+}
+
+.headerLeft{
+	/*width: 135px;*/
+	height: 100px;
+	display: inline-block;	
+	padding-top: 20px;
+	float:left;
+	width:20%;
+}
+
+.headerLeft a{
+	display: block;
+}
+
+.leftSideNav div, .rightSideNav div, .headerLeft div{
+	display: inline-block;
+	vertical-align: top;
+}
+
+.headerNavLinks{
+
+	font-size: 16px;
+
+}
+
+/*footer */
+.footer{
+	/*background-color: #003479;
+	background-image: url('../img/common/lowerbackground.png');
+	background-repeat: no-repeat !important;*/
+	background-position: left bottom;
+	clear: both;
+}
+
+.footerContainer{
+	background-color: #002144;
+	width: 1066px;
+	margin: 0 auto;	
+}
+
+.footerLeft{
+	display: inline-block;
+}
+
+.footerRight{
+	display: inline-block;
+	vertical-align: top;
+	float: right; 
+	width: 470px;
+	margin-top: 16px;
+}
+
+.upperFooterWrapper{
+	padding: 40px 17px 17px;
+}
+
+.connectWithUs{
+	display: inline-block;
+	width: 235px;
+	vertical-align: top;
+}
+
+.connectWithUs p{
+	margin-top: 6px !important;
+}
+
+.footerLinks{
+	display: inline-block;
+	width: 195px;
+}
+
+.siteInfo{
+	width: 773px;
+	margin-top: 26px;
+}
+
+.footerBottom{
+	padding: 0 32px 50px;
+}
+
+.footerLinks .uppercase{
+	margin-bottom: 20px;
+}
+
+
+
+.footerLeft .headingTxt{
+	margin-bottom: 21px;
+}
+
+.footerContainer .secondary-background{
+	padding: 16px ;
+	width: 468px;
+	border-radius:4px;
+}
+
+.socialIcon{
+	margin:30px 2px 0 0;
+}
+
+.partnerIcon{
+	vertical-align: middle !important;
+	margin-top: 20px;
+}
+
+.signUp{
+	border: medium none;
+    color: #FFFFFF;
+    text-decoration: none;
+    text-transform: uppercase;
+    background: url('../img/common/smallblue.png') no-repeat;
+    width: 74px;
+    height: 35px;
+	font-size: 9px;
+	font-weight: bold;
+	position: relative;
+	margin:0px 0px 0px -3px;
+}
+
+.marineLogo{
+	padding-left: 5px;
+}
+
+.navySlogan{
+	padding-left: 15px;
+}
+
+.milstarLogo{
+	padding: 20px 10px 0 16px;
+}
+
+.networkSolutionLogo{
+	padding-top: 14px;
+}
+
+.footerBottom p{
+	font-size: 9px;
+	margin-top:18px;
+}
+
+.footerContainer a{
+	color: #ffcf06
+}
+
+.myCartTxt, .dialogCloseIcon, .dialogUpArrow{
+	display: inline-block;
+}
+
+.dialogCloseIcon{
+	float: right;
+	clear: both;
+	cursor:pointer;
+}
+
+.cartDialogWrapper{
+	width: 376px;
+}
+.cart-wrapper{
+	padding: 12px 14px;
+	width: 376px;
+}
+
+.cartDialog{
+	margin-right: 10px;
+}
+
+.dialogContent{
+	overflow: auto;
+	max-height: 260px;
+}
+
+.dialogContent, .dialogFooter{
+	margin: 15px 9px 15px 9px;
+	width: 384px;
+}
+
+.dialogProductImage, .dialogProductTitle, .dialogProductCost{
+	display: inline-block;
+	vertical-align: top;
+	margin: 10px 0;
+	width: 80px;
+	overflow: hidden;
+}
+
+.dialogProductTitle{
+	width: 125px;
+	margin-left: 25px;
+	line-height: 22px;
+}
+
+.dialogProductCost{
+	width: 102px;
+	margin-left: 00px;
+	text-align: right;
+	line-height: 22px;
+}
+
+.dialogItem{
+	border-bottom: 1px solid #edeeef;
+	height: 100%;
+}
+
+.dialogItem:last-child{
+	border-bottom: none;
+}
+
+.dialogDiscount{
+	font-weight: 100;
+	width: 125px;
+	display:inline-block;
+	text-align: right;
+}
+
+.dialogPrice{
+	font-weight: 100;
+    margin-right: 42px;
+    text-align: right;
+    width: 105px;
+	display: inline-block;
+}
+
+.headerButton{
+	margin-top: 10px;
+}
+
+.dialogPricingWrapper{
+	clear: both;
+	float: right;
+	margin: 10px 0 5px;
+}
+
+.dialogBlueBox{
+	width: 125px;
+	height: 30px;
+	display: inline-block;
+	text-align: center;
+	padding-top: 12px;
+	vertical-align: top;
+	margin-top: 10px;
+}
+
+.fullWidthButton{
+	width: 310px!Important;
+	text-align: center;
+}
+.fullSizedButton{
+	margin-bottom: 0px!Important;
+}
+
+.dialogUpArrow{
+	position: relative;
+	top: -22px;
+    float: right;
+}
+
+/* my profile items*/
+.myAccountlink{
+	height: 14px;
+}
+
+.yellowLink{
+	border-bottom: 3px solid #FFCF06;
+}
+
+.dropDown ul ul {
+	display: none;
+	padding: 15px;
+}
+
+.dropDown ul li:hover > ul {
+	display: block;
+}
+	
+.dropDown ul {
+	/*background: #f3f3f3; */
+	list-style: none;
+	position: relative;
+	display: inline-table;
+}
+	
+	.dropDown ul:after {
+		content: ""; 
+		clear: both; 
+		display: block;
+	}
+	
+	.dropDown ul li {
+		float: left;
+		/*border-bottom: 1px solid #f3f3f3;*/
+	}
+	
+	.dropDown ul li a {
+		display: block; 
+		padding: 0px;
+		color: #000; 
+		text-decoration: none;
+	}
+	
+	.dropDown ul ul li{
+		margin: 0px 14px;
+		width: 197px;
+	}
+	
+	.dropDown ul ul {
+		background: #fff; 
+		border-radius: 0px; 
+		padding: 15px;
+		position: absolute; 
+		right: 0px;
+		top: 45px; 
+		border: 1px solid #f3f3f3;
+	}
+	
+	.dropDown ul ul li a{
+		padding: 11px 16px;
+		border-bottom: 1px solid #f3f3f3;
+	}	
+	
+
+	.dropDown ul ul li a:hover 
+	{
+		background: #f3f3f3;
+		color: #003479 !important;
+	}	
+	
+	.nobottomborder{
+		border-bottom: none !important;
+	}
+/*mega menu css */
+.megaMenuContainer{
+	display: none;
+	position: absolute;
+    width: 1066px;
+    z-index: 5000;
+	border: 1px solid #f3f3f3;
+	background-color: #fff;
+}
+
+.megaMenuCell{
+	display: inline-block;
+	text-align: left;
+    padding: 5px;
+    vertical-align: top;
+    width: 1066px;
+	border-right: 1px solid #fbfbfb;
+}
+
+.megaMenuCell .itemlink{
+	padding: 6px 0 6px 10px;
+}
+
+.megaMenuCell .headerlink{
+	padding: 6px 0;
+}
+
+.megaMenuCell .rightArrowNav{
+	position: relative;
+	top: -2px;
+	left: 2px;
+}
+
+
+.megaMenuCellText{
+	display: inline-block;
+    padding: 8px;
+    vertical-align: top;
+    width: 215px;
+	border-right: 1px solid #fbfbfb;
+}
+
+.megaMenuCellImg{
+	display: inline-block;
+    padding: 8px;
+    width: 191px;
+	border-right: 1px solid #fbfbfb;		
+    float: right;
+    text-align: right;
+    vertical-align: top;
+    width: 232px;
+}
+
+.megaMenuCellImg img{ 
+	width:230px;
+	
+}
+

@@ -1,0 +1,446 @@
+﻿#compMapWrap #dashboard,#compMapWrap #veMap,#comparisonTitle span#noteHotels,#comparisonTitle #toggleMap,div#hotelComparison th.first img,div#hotelComparison th input,div#hotelComparison td input,div#hotelComparison td.pictures a,ul.fc,#ifra,#showimage,div#head p,ul#meta,ul#nav,img.startPic,div.search,div#gallery img,p.teaserLink,.foot,img.keyvisual,div#contentNav,div.contentFooter,a.top,.bookingStat,span.button,fieldset a,.hidePrint,h1 img,.hideForPrint,#toggleMap,#map.hide,.hide,p.tootip,#footerMenuWrap,.jsToggler,#head div.logo img{display:none!important}
+.clearFix{clear:both;height:1cm}
+fieldset a.email{display:block!important}
+.pB{page-break-before:always}
+.box:after,dl:after,fieldset:after{content:" ";display:block;clear:both}
+body{padding-top:0!important}
+*{color:#000;font-family:Arial,Helvetica,sans-serif;font-size:11pt;line-height:1.3;text-decoration:none;margin:0;padding:0}
+ul{margin:0 0 .4cm 1cm}
+ol{list-style:none}
+p{margin-bottom:.4cm}
+h1{font-weight:bold}
+h2,h2 span{font-weight:bold;font-size:15pt;margin:0 0 .8cm 0}
+h3{font-weight:bold;font-size:13pt;margin:0 0 .4cm 0}
+h4{font-weight:bold;font-size:11pt;clear:both}
+.teaser h4{font-weight:bold;font-size:13pt}
+h5{font-weight:bold;font-size:11pt}
+table td,table th{text-align:left;vertical-align:top;font-size:11pt}
+div.teaser,div.col6{border-bottom:1px solid #CCC;padding:0 0 .5cm 0;margin:0 0 .5cm 0}
+#wrap.print div.col6{border-bottom:0}
+div.teaser p{margin-bottom:0}
+.info{color:#666;font-size:9pt}
+div#breadcrumb{border-bottom:1px dotted #CCC;padding:0 0 .2cm 0;margin:65px 0 1.2cm 0;float:left;width:100%}
+div#breadcrumb ol{float:left}
+div#breadcrumb h3{float:left;font-size:10pt}
+div#breadcrumb ol li{display:inline;font-size:10pt;padding:0 0 0 .4cm}
+.right{float:right}
+.bar,.box{clear:both;padding:.1cm .4cm;border:1px solid #c8c8c8;margin:0 0 -1px 0}
+.box{margin:0 0 .25cm 0;*height:1px}
+dl{border-bottom:1px solid #c8c8c8;padding:0 0 .2cm 0;margin:0 0 .2cm 0;*height:1px}
+dt{float:left;width:30%;clear:both;display:block;min-height:10px}
+dd{float:left;width:60%}
+fieldset{border:0;border-bottom:1px solid #f1f1f1;padding:0 0 .2cm 0;margin:0 0 .2cm 0;*height:1px}
+fieldset p{width:16cm;clear:both;float:left}
+fieldset h5{clear:both}
+.box label,.box .desc{float:left;width:30%;clear:both;display:block;min-height:10px}
+.box label.check{float:none;width:90%}
+.box input.text,.box textarea{*float:left;width:50%}
+.box input.small{float:left;width:10%}
+.box input.medium02{float:left;width:30%}
+.box label.elPos{width:auto;clear:none;display:block}
+p.total{border:2px solid #CCC;padding:.2cm}
+ul.legend li,ul.legend li img{float:left;padding:0 .2cm}
+fieldset ul{list-style:none;margin:0;float:none;clear:both}
+fieldset ul.mediadata li label{display:block;float:none!important;width:16cm;background:#fff}
+fieldset ul.mediadata li label{display:block;float:none;width:16cm}
+div#hotelComparison h3{margin:0 0 .2cm 0;font-size:12pt}
+div#hotelComparison h3.special{font-size:18pt;margin-bottom:1cm}
+div#hotelComparison h3.printBreak{page-break-before:always}
+div#hotelComparison table{border-collapse:collapse;border-spacing:0;width:100%}
+div#hotelComparison .bar{padding:0;border:0}
+div#hotelComparison .selectHotel select{border:0}
+div#hotelComparison th,div#hotelComparison td{border-top:1px solid #CCC;padding:.25cm 0}
+div#hotelComparison td.priceBooking{border:0}
+div#hotelComparison td.price a{font-weight:bold}
+div#hotelComparison td.compareInfo span,div#hotelComparison td.distance span{display:block}
+div#hotelComparison th,div#hotelComparison td,div#hotelComparison th *,div#hotelComparison td *{font-size:9pt}
+div#hotelComparison td.space{width:1px}
+div#hotelComparison td ul{list-style:none;margin:0;padding:0}
+#hotellistWrap.print{overflow-x:visible;overflow-y:visible;margin-bottom:12px}
+table.hotellist{width:100%;border-right:solid 1px #d7d7d7;border-left:solid 1px #d7d7d7}
+#tablehead{width:100%;background:#e0ecf8;border-right:solid 1px #d7d7d7;color:#145ca3}
+#tablehead td{font-weight:bold;border:0;background:0;border-bottom:solid 1px #d7d7d7}
+#tablehead td span{font-weight:normal}
+.popup #tablehead{border:1px solid #d7d7d7;margin-bottom:0}
+.popup #tablehead td{border-bottom:solid 2px #fff}
+#tablehead .fc img{margin-right:2%;_margin-right:.2%}
+#tablehead .hd img{margin-right:3%;_margin-right:.4%}
+#tablehead .pc{padding-top:.7cm}
+.hotellist td{border-bottom:solid 1px #d7d7d7;padding:.2cm .1cm .1cm}
+#tablehead .hf,.hotellist .hf{width:8.1%}
+#tablehead .hr,.hotellist .hr{width:7.4%}
+.hotellist .hr span{display:block;margin-bottom:.4em}
+#tablehead .hf,.hotellist .hf{width:8.1%}
+#tablehead .hp{width:12.1%}
+.hotellist .np{width:21.1%}
+.hotellist .np div{clear:both}
+.hotellist span.hp{display:block;float:left;width:60%;background:#FFF}
+.hotellist .hp span{display:block}
+.hotellist .hp span.bonbon{display:inline}
+#tablehead .hi{width:9%}
+.hotellist span.hi{width:40%;display:block;float:left}
+#tablehead .pc,.hotellist .pc{width:4%}
+#tablehead .hd{width:13.9%}
+#tablehead .fc{width:18.2%}
+.hotellist .fc{width:1.75%;padding-right:.2%;padding-left:.2%}
+.hotellist .hd{width:2.5%;padding-right:.3%;padding-left:.3%}
+.hotellist .hd span{display:block;width:28px}
+.hotellist .lastFc{width:8%}
+.hotellist td.last{width:6%}
+.hotellist .hn,#tablehead td.hn{width:18.6%}
+.ListAttention,.noticeBox,.hotelExtern{border:solid 1px #d7d7d7;border-top:0;padding:.2cm}
+div#wrap{xposition:relative}
+div#wrap img.printLogo{position:absolute;top:0;right:0;width:137px;height:51px;display:block!important}
+div#wrap.gal img.printLogo{display:none}
+div#wrap img.cooperationLogo{position:absolute;top:1em;right:11.5em}
+dl.print dt,dl.print dd{float:none;width:100%}
+dl.print dd{margin:0 0 10px 50px}
+dl.print dt{font-weight:bold}
+.selectLanguage{display:none}
+.popup h3,.popup .box{width:95%}
+.popup p.total{width:85%}
+.popup dd p{width:85%}
+dl.confirmation dt{*display:inline-block;font-weight:bold}
+dl.confirmation dd{*display:inline-block;*float:none}
+div#content h4{page-break-after:avoid}
+div#content .summeryHead strong{font-size:1.4em!important}
+div#wrap div#content table.data{width:99%;border-collapse:collapse;border:solid 1px #d7d7d7;margin-left:1px}
+table.data th,table.data td{padding:8px 4px}
+table.data img.tooltip{display:none}
+table.favorites img.tooltip{display:block;border:0}
+table.favorites a.note,table.favorites a.link{display:none}
+#wrap.print #content .basket table tr.second td{padding:0 4px}
+table.data th,table.data td{border-top:solid 1px #d7d7d7}
+table.data th{border-bottom:solid 1px #d7d7d7}
+table.data td.noBorder{border-color:#fff}
+table.data .totalPrice,.totalPrice{text-align:right}
+.totalPrice dl{border-bottom:0}
+.totalPrice dt{padding-right:1em;text-align:right}
+.totalPrice dd.price,.totalPrice dt{display:inline;float:none;font-size:1.4em!important;font-weight:bold;padding:0;width:auto}
+.totalPrice dd{clear:both;display:block;float:none;margin:0;width:auto}
+#content .data .price{text-align:right;white-space:nowrap}
+.totalPrice dt strong,.roomNumber{border:1px solid #000;font-weight:bold;color:#000;padding:2px 4px!important}
+dl.confirmation ul,table.data ul{margin-left:0;list-style:inside}
+p.confirmation{padding:0 0 .8em;border-bottom:1px solid #d7d7d7}
+dl.confirmation{xoverflow:hidden}
+dl.last{border-bottom:0;margin:0}
+dl.detailsPrint dt,dl.detailsPrint dd{float:none;width:100%}
+dl.detailsPrint dd{margin:0 0 .8em;display:block}
+dl.detailsPrint dt{display:block;font-weight:bold;margin:0}
+#wrap.print h5.offerType{font-size:11pt;color:#000;padding:6px 0}
+#routingDirections .count{width:2em}
+#routingDirections .length{width:5em}
+#routingDirections td{padding:.72em .418em}
+.basket #bestpriceGuaranteed{display:none}
+.basket th.roomNr,.basket th.day{border-top:0}
+.basket dl.totalPriceWrap{border:0;font-weight:900}
+.basket dl.totalPriceWrap dt,.basket dl.totalPriceWrap dd{width:auto;margin-right:1em}
+.basket p#taxesNotice{clear:both;float:left}
+.basket td.conditions{display:none}
+.basket dl.totalPriceWrap dt img{display:none}
+.basket p.info.right{clear:both}
+dl.confirmation table.data{margin-bottom:.2cm}
+div.left dl.hsv3Left{float:left;width:30%}
+div.left dl.hsv3Left dt{width:40%}
+div.left dl.hsv3Left dd{width:60%}
+div.left dl.hsv3 dt{width:20%}
+div.left dl.hsv3 dd{width:80%}
+dl.confirmation h4{clear:both}
+thead{display:table-row-group}
+tfoot{display:table-footer-group;clear:both;float:none;overflow:hidden}
+tfoot td{font-weight:900}
+dl.noBorder{border:0}
+div.confirmation{border-bottom:1px solid #f1f1f1;margin:0 0 .2cm 0}
+div.basket{overflow:auto}
+h5.special.clearFix{*overflow:auto;*clear:both}
+div#wrap div#content table.cancelBookingMeanStep{width:100%;margin:0 0 1cm 0}
+div#ICP-License{display:none}
+ul.galleryPrint{margin:1cm 0 0 0}
+ul.galleryPrint li{float:left;border-left:1px solid #bdbcbc;padding:0 .25cm .1cm .25cm;margin-bottom:.1cm;list-style:none}
+ul.galleryPrint li *{font-size:10pt!important}
+ul.galleryPrint li.first{border-left:none;padding:0 .25cm .25cm 0}
+#gallery div.pic{padding-right:0}
+div.cnt span.totalRating{margin:0}
+div#gallery .teaserWrap{position:relative;width:100%;overflow:hidden;clear:both}
+div#gallery .teaserWrap:after{content:'';clear:both;display:block}
+div#gallery .teaserWrap .teaser{clear:none;float:left;padding-bottom:.2cm;border:0;margin:0 .25cm 0 0;width:48%;_width:8cm}
+#gallery div.teaser .lT{border:1px solid #d7d7d7;position:absolute;bottom:.15cm;width:48%;bottom:.15cm;height:500px;margin:0;position:absolute;z-index:0;width:48%;*margin-left:-46.1%;_width:7.975cm;border-width:.025cm;_margin:0 0 0 -98%;height:200px\9}
+#gallery div.teaser h4{background:#e4eff9;border:1px solid #d7d7d7;border-width:1px 0;float:left;padding:.05cm 0;width:8cm;margin-bottom:.25cm;width:100%}
+#gallery div.teaser h4 img{display:inline!important}
+#gallery div.teaser h4 div.am{float:right;margin-right:.1cm;max-width:110px;_width:115px;_margin-right:0}
+#gallery div.teaser h4 div.am img{float:right;margin-right:.05cm}
+#gallery div.teaser h4 span.h4{float:left;display:block;padding-left:.1cm!important;font-size:10pt}
+#gallery div.teaser div.pic p.bigPic span img{display:inline!important}
+#gallery div.pic{float:left;width:134px;width:2.75cm;z-index:2;width:36%}
+#gallery div.pic p.bigPic{border:1px solid #d9d9d9;width:90px;height:90px;overflow:hidden;text-align:center;margin-left:.15cm}
+#gallery div.cnt{font-size:10pt!important;float:left;width:60%;_width:55%}
+#gallery div.cnt *{font-size:9pt!important}
+#gallery div.cnt p.prize span{display:block;float:left;font-size:8pt!important;color:#FFF;background:#5987c0;padding:0 .2em}
+div#wrap #gallery div.cnt p{margin:0 0 .1cm 0!important;clear:both;*margin:0 0 .1cm 0!important;*float:left;*clear:both;*width:100%}
+div#wrap #gallery div.cnt p.prize{margin:0!important;font-size:11pt!important}
+#gallery div.cnt p.prize img,#gallery div.cnt p.prize,#gallery div.cnt p.prize strong{display:block!important;float:left}
+#gallery div.cnt p.prize strong{clear:both;margin-right:.15cm}
+div#wrap div#layout01 div#layout02 #gallery p.totalRating{clear:both;position:relative;width:80%!important;font-size:1.2em;padding:0 1cm 0 .2cm}
+#gallery div.cnt p.totalRating img{margin-bottom:.4em;right:0;top:.1cm;display:block!important;height:9px;overflow:hidden;position:absolute;width:1cm}
+#gallery span.totalRating a{height:9px;display:block}
+#gallery .rating7 a{background-color:#abef01;width:70%}
+#gallery .rating0 a{background-image:none;width:0}
+#gallery .rating1 a{width:10%;background-color:#ff0a00}
+#gallery .rating2 a{width:20%;background-color:#ff3700}
+#gallery .rating3 a{width:30%;background-color:#f60}
+#gallery .rating4 a{width:40%;background-color:#ffb300}
+#gallery .rating5 a{width:50%;background-color:#fbd500}
+#gallery .rating6 a{width:60%;background-color:#d3e501}
+#gallery .rating7 a{width:70%;background-color:#abef01}
+#gallery .rating8 a{width:80%;background-color:#66e001}
+#gallery .rating9 a{width:90%;background-color:#30d604}
+#gallery .rating10 a{width:100%;background-color:#028a01}
+.pagerBreaker,.ie8Bug{clear:both!important;page-break-before:always;position:relative!important;*height:1px}
+.ie8Bug{page-break-before:auto}
+div#wrap div.pagerBreaker img.printLogo,div#wrap div.ie8Bug img.printLogo{display:block!important}
+.popup .bar{width:95%}
+.popup .bar h3{margin:0}
+.popup .current,.popup .forecast{width:30%;float:left}
+.popup .forecast{width:60%;margin-left:4%}
+.popup #weather .forecast table{border-collapse:collapse;border-spacing:0;width:100%}
+#weather .current dl dt{width:75%;clear:left;float:left;font-weight:bold}
+#weather .current dl dd{float:left;margin-bottom:.8em;width:25%}
+#content dl.totalPriceWrap{height:1.425cm;position:relative;text-align:right;background:#fff9b4;border-top:1px solid #ef8202;border-bottom:1px solid #ef8202;clear:left;position:relative;width:95%;margin:.25cm 0;padding:0 .4cm .2cm .4cm}
+.totalPriceWrap dt{display:inline;float:none;position:relative;text-align:right;width:auto;line-height:1.75cm}
+.totalPriceWrap dt span{color:#cc092f;font-size:1.4em!important;font-weight:bold}
+#content dl.totalPriceWrap dt img{position:absolute;bottom:-.525cm;left:-80px}
+#content dl.totalPriceWrap dd.totalPrice{background:0;border:0;clear:none;color:#cc092f;display:inline;float:none;font-size:1.4em!important;font-weight:bold;margin:0;padding:0;text-align:right;width:auto}
+#content dl.totalPrice dt span{color:#cc092f;font-size:1.2em!important}
+.teaserWrap{position:relative;width:100%;overflow:hidden;clear:both;page-break-inside:avoid}
+.teaserWrap:after{content:'';clear:both;display:block}
+.teaserWrap .teaser{clear:none;float:left;padding:.2cm 0;border:0;margin:0 .8cm 0 0;width:47.0%;position:relative;border:1px solid #c8c8c8}
+.teaserWrap div.printRight{margin:0}
+.teaserWrap .teaser p,.teaserWrap .teaser h3,.teaserWrap .teaser h4,.teaserWrap .teaser h5{padding:0 .2cm}
+div.teaser .lT{border:1px solid #c8c8c8;border-top-width:none;position:absolute;bottom:.15cm;width:100%;height:200px;_width:100%}
+div.teaser .lT02{border:1px solid #c8c8c8;border-width:1px 1px 0 1px;position:absolute;top:0;width:100%;height:1px;_width:100%}
+.ratingsummary{float:left;width:50%;margin:1em 0 0 0}
+.ratingsummary .feelbad,.ratingsummary .feelgood,.ratingsummary .feelnice,.help-text .feelbad,.help-text .feelgood,.help-text .feelnice{padding-left:.75cm;position:relative;padding:.4cm 0 0 .75cm;_position:static _padding:.4cm 0 0 0}
+.ratingsummary .feelbad img,.ratingsummary .feelgood img,.ratingsummary .feelnice img,.help-text .feelbad img,.help-text .feelgood img,.help-text .feelnice img{left:0;position:absolute}
+.ratingsummary .feelbad img,.ratingsummary .feelgood img,.ratingsummary .feelnice img,.help-text .feelbad img,.help-text .feelgood img,.help-text .feelnice img{left:0;position:absolute;_position:static}
+.ratingsummary .result img,#jsSummary .ratings img{padding:.4cm 0 0 0;float:left}
+#jsSummary .ratingTxt{float:left}
+#jsSummary .ratingTxt *{display:block}
+.ratingsummary p.result strong,.ratingsummary p.result span{display:block;margin:0 0 0 3cm}
+.ratingsummary p.result strong{padding:.4cm 0 0 0}
+.ratingsummary p.result span{padding:0 0 .375em 0}
+.ratingsummary p.result a.info{font-size:89%!important}
+img.layerContent{display:none}
+dl.rating dt,dl.rating dd{clear:none;float:left;font-weight:normal;margin:0 0 .675em;padding:0}
+dl.rating dd{width:17%}
+dl.rating dt{overflow:hidden;width:32%}
+ul.rating li{float:left;width:90%;clear:both}
+dl.rating dd p.totalRating,ul.rating li p.totalRating,h4.rating p.totalRating,.tdRating p.totalRating,tr.details td p.totalRating{position:relative;padding-left:1.4cm;_position:static;_padding-left:0}
+ul.rating li p.totalRating{float:right}
+dl.rating dd .totalRating,ul.rating li .totalRating,.tdRating .totalRating,h4.rating .totalRating,tr.details td .totalRating{position:absolute;left:0;top:.1cm;_position:static}
+.pos{color:#127f2c}
+.neg{color:#cc092f}
+dl.rating{clear:both}
+div#wrap div#layout01 div#layout02 h4.rating p.totalRating,h4.rating strong{float:left;display:block;clear:none;margin:8px 15px 10px 0}
+div#wrap div#layout01 div#layout02 h4.rating p.totalRating{font-weight:normal;color:#003}
+dl.rating dd img.zeroRating{margin-left:30px}
+span.totalRating a{height:9px;display:block}
+.rating0 a{background-image:none;width:0}
+.rating1 a{width:10%;background-color:#ff0a00}
+.rating2 a{width:20%;background-color:#ff3700}
+.rating3 a{width:30%;background-color:#f60}
+.rating4 a{width:40%;background-color:#ffb300}
+.rating5 a{width:50%;background-color:#fbd500}
+.rating6 a{width:60%;background-color:#d3e501}
+.rating7 a{width:70%;background-color:#abef01}
+.rating8 a{width:80%;background-color:#66e001}
+.rating9 a{width:90%;background-color:#30d604}
+.rating10 a{width:100%;background-color:#028a01}
+dl.legend dt{width:8%;clear:none}
+dl.legend dt,dl.legend dd{clear:none;float:left;height:1.2em;width:25%}
+fieldset.distance{display:none}
+.box .leftCol,.box .rightCol{float:left;width:50%}
+.box .leftCol dl{margin-right:.75cm}
+.box .amenities dt{font-weight:normal;padding-left:28px;width:70%}
+.box .leftCol dt img,.box .rightCol dt img{margin:0 .1cm -.1cm -28px}
+.box .amenities dd{width:20%;margin-bottom:.2cm}
+.approach ol li{position:relative;padding:0 0 10px 28px}
+.approach ol li img{position:absolute;left:0}
+ul.equalHeight{margin:0 0 .4cm 0}
+.equalHeight li{list-style:none;width:20%;float:left;padding:0 0 .25cm 28px;position:relative}
+.equalHeight li{list-style:none;_width:auto;_float:none;_position:static;_padding:0}
+.dualCol li{width:45%}
+li.columnPos0{clear:both;display:block!important}
+.equipement li img{position:absolute;left:0}
+.equipement li img{_position:static}
+.equipement li.disabled{color:#CCC}
+#pic .large{float:left;margin:0 .85cm .45cm 0}
+#pic .large div.img{border:1px solid #c8c8c8;height:257px;width:257px;text-align:center;overflow:hidden}
+p.summeryHead{padding-top:.5cm}
+#wrap.print #tablehead td.fc span,#wrap.print #tablehead td.hd span{text-indent:0;display:inline;float:none!important}
+#jsSummary .rating{clear:both;list-style:none;margin:0}
+#jsSummary .rating,#jsSummary .comments{float:left;width:48%;margin-left:1cm}
+.ratingContainer{margin:0;border-bottom-width:0}
+.dashboardGoogleMap{border-top-width:0;display:none}
+.tdGuestData,.tdRating{padding-top:.3cm}
+.tdComments{border-bottom:1px solid #c8c8c8}
+#hotelComparison table.comparison_1cols{width:297pt!important}
+#hotelComparison table.comparison_2cols{width:474pt!important}
+#hotelComparison table.comparison_3cols,#hotelComparison table.comparison_4cols{width:650pt!important}
+#hotelComparison table.comparison_1cols th,#hotelComparison table.comparison_2cols th,#hotelComparison table.comparison_3cols th,#hotelComparison table.comparison_4cols th{width:120pt!important}
+#hotelComparison table.comparison_1cols td.space,#hotelComparison table.comparison_2cols td.space,#hotelComparison table.comparison_3cols td.space,#hotelComparison table.comparison_4cols td.space{width:5pt!important}
+#hotelComparison table.comparison_4cols td{width:127pt!important}
+#hotelComparison table.comparison_3cols td,#hotelComparison table.comparison_2cols td,#hotelComparison table.comparison_1cols td{width:172pt!important}
+#hotelComparison .ratingLegend .legend{margin:10pt 0!important}
+#hotelComparison .price span.info,#hotelComparison .price a{display:block!important}
+#hotelComparison .bar h3{margin-top:15pt!important}
+table.basketOffers{border-top:1px solid #000;border-left:1px solid #000;margin:1em 0}
+table.basketOffers td,table.basketOffers th{border-right:1px solid #000;border-bottom:1px solid #000;padding:.2em}
+table.basketOffers .newLayout td#basketFooter{border-right:1px solid #FFF}
+table.basketOffers .hrsService{border-bottom:1px solid #000;display:block;font-weight:normal;font-size:10pt}
+table.basketOffers .taxesNotice{display:block;float:left;width:60%;font-weight:normal}
+table.basketOffers .taxesNotice,table.basketOffers .taxesNotice *{font-size:8pt}
+table.basketOffers tfoot .price{display:block;float:left;width:40%;text-align:right}
+table.basketOffers tfoot td.price{display:table-cell;float:none}
+table.basketOffers tfoot .price,table.basketOffers tfoot .price *{font-size:14pt}
+#totalPriceFooter{overflow:hidden;margin:.5em 0 .2em 0;width:100%}
+table.basketOffers ul{margin:0;list-style-position:inside}
+#wrap #content .printTeaserBasketBottom{overflow:visible!important;position:static!important;height:auto!important}
+#wrap #content .col6 .printTeaserBasketBottom .teaser{position:static!important;overflow:visible!important;border:0}
+#wrap .details .IEBug,#wrap .details .IEBug *{position:static!important}
+#breadcrumb h3 br,#breadcrumb li br{display:none;position:absolute}
+.hn .tqSeal{float:right!important}
+.hasTopQualitySeal{max-width:400px}
+.hasTopQualitySeal .wrapper{padding-right:60px;float:left}
+.topQualitySeal{float:left;left:0;margin-left:-60px;position:relative;top:.5cm}
+body.hasDetailsLayer .col7,body.hasDetailsLayer .col2,body.hasDetailsLayer .foot,#jsShowAvailabilityForm{display:none!important}
+#lightbox_close{display:none}
+.rotateMapDivID,.gmnoprint,#calTab,#lightbox_close,.navMediaWrap,.sortRatings,.showDetails,.ratingNav,.bookingButton,.contextHelpLink,.ratingBookingPersonType,.mediaPlayerPrev,.mediaPlayerNext,td.roomOffer .imageWrap,.categoryRatingWrap .toggler,.distanceUnit,.map #dashboard,fieldset.plain,tr.furtherOffers,tr.selectionFootTR,.ratingCircleSmall,.detailsNav,#hotelDetailsHD_veil,#hotelDetailsPriceNav,#availabilityForm{display:none!important}
+.map>div>div:nth-child(8) img{display:none!important}
+.map div[id^="gm_marker"] img{height:50px\9!important}
+.map div[id^="gm_marker"]{background-color:#666\9!important;border:10px solid #666\9!important;height:0\9!important;width:0\9!important}
+#detailsHead .hide{display:block!important}
+#detailsHead #availabilityForm.hide,#detailsHead .jsHideBookingEl{display:none!important}
+.basketWrap,.ratingsWrap,.mapsWrap,.hotelInformationWrap{page-break-before:always;clear:both}
+#hotelDetailsHD{left:auto!important;margin:10px!important}
+#hotelDetailsHD h3{border-top:1px solid #c8c8c8;padding-top:24px;margin-top:24px}
+#hotelDetailsHD ul{margin-left:0}
+#hotelDetailsHD dt{width:35%}
+#hotelDetailsHD dd{width:60%}
+#hotelDetailsHD li{list-style:none}
+#detailsHead{margin:0!important;left:auto!important;position:static!important;top:auto!important}
+.lightboxContent #detailsHead{margin-top:65px!important}
+.travelData{margin-bottom:10px}
+.titleWrap{margin-bottom:10px}
+.titleWrap h2,.titleWrap h2 span{margin-bottom:4px}
+#detailsHead .price{float:right}
+.detailsMedia{clear:both}
+#mediaPlayer{overflow:hidden;height:295px;position:relative}
+ul.mediaPlayerMedia{position:absolute;margin:0}
+ul.mediaPlayerMedia li{list-style:none;float:left;border-left:4px solid #FFF;overflow:hidden}
+.basketWrap{clear:both}
+td .textWrap{height:auto!important}
+.distance,.price{float:left;width:50%;margin-bottom:24px}
+td.distance,td.price{float:none;width:auto;margin-bottom:0}
+td .price{float:none;width:auto}
+.ratingInfo li,.distance li,.price li{list-style:none}
+.ratingCircle{float:left;font-size:30px;padding:10px}
+.ratingDescription{margin-bottom:12px}
+.ratingDescription strong{xdisplay:block;line-height:60px}
+.price{text-align:right}
+.roomPrice .price{text-align:left}
+td.roomTotalPrice .price{text-align:left;font-size:16px;font-weight:bold}
+td.offerSelection select{border:0}
+.price .totalPrice{font-size:16px}
+.price .totalPrice strong{font-size:24px}
+#jsRatings .ratingDescription strong{display:block}
+#jsRatings .ratingItem strong{display:block;line-height:18px}
+.guestData,.ratingDetailsWrap{float:left;width:35%}
+.ratingDetailsWrap{width:60%}
+ul.distance{margin-left:0}
+#jsRatingSummary{border:0}
+.categoryRating{height:auto!important}
+.hotelinformation dt,.hotelinformation dd{margin-bottom:12px}
+.seperator,.ratingItem{clear:both;margin-top:12px}
+.ratingsWrap .rating{float:left;width:35%}
+.ratingItem .rating{float:none;width:auto}
+.categoryRatingWrap{float:left;width:60%}
+#hotelDetailsHD .categoryRatingWrap dt,#hotelDetailsHD .categoryRatingWrap dd{border-top:1px solid #c8c8c8;width:35%;padding:4px 0}
+.categoryRatingWrap dd{text-align:right;width:35%;padding:4px 2% 4px 0}
+.categoryRatingWrap dt.first,.categoryRatingWrap dd.first{border-top:0}
+.ratingItem{border-top:1px solid #c8c8c8;padding-top:10px;float:left;width:100%}
+#hotelDetailsHD .equalHeight li{padding-left:0}
+.col33{float:left;width:100%;clear:both}
+.col33 .distance li{text-align:left}
+.col33 h5{float:left;width:35%}
+.col33 ul,.col33 p{float:left;width:50%}
+.col33 li{width:auto;float:none;padding-bottom:0}
+td.mapMarker span,.pushPin,.mapMarker{width:10px;height:10px;background:#cc092f}
+#hotelinformation dd{margin-bottom:15px}
+#detailsHead.smallGallery .titleWrap{clear:left;float:left;width:60%}
+.smallGaldetailsMedia{clear:both;margin-top:0}
+.smallGallery #bookingField{float:left;width:37%;margin-left:2.5%}
+.smallGallery #bookingField h3{border:0}
+.hrsFreeServices.details{clear:both}
+.smallGallery .hotelInfo .distance li{float:left}
+.smallGallery .hotelInfo,.smallGallery .ratingInfo{float:left;margin-bottom:20px}
+#hotelDetailsHD .hideForScreen{display:inline}
+#hotelDetailsHD #detailsHead .distance li{width:300px}
+#hotelDetailsHD .mediaElement span,#hotelDetailsHD .mediaElement .hdLink,#hotelDetailsHD .mediaElement .videoLink{display:none}
+#hotelDetailsHD #detailsHead .ratingInfo .ratingCircleSmall{display:inline!important}
+.smallGallery .ratingDescription{display:inline}
+.smallGallery .ratingDescription strong{line-height:1.3}
+#jsFavoriteForm #tablehead .hn,#jsFavoriteForm #tablehead .hr,#jsFavoriteForm #tablehead .featuresCol{border-bottom:1px solid #dcdcdc}
+#basketFooter{margin-bottom:.5cm}
+#basketFooter .taxesNotice{display:block}
+.popup .blockRating{float:left;height:4px;width:40px;padding:1px;margin:3px 8px 0 0;border:1px solid #2fb8db;background-color:#fff}
+.popup .blockRating .barRating{height:4px;width:100%;background:0;margin-top:-11px}
+.popup .totalRating span{color:#2fb8db;font-weight:bold}
+.popup .blockRating.rating1 .barRating{width:10%}
+.popup .blockRating.rating2 .barRating{width:20%}
+.popup .blockRating.rating3 .barRating{width:30%}
+.popup .blockRating.rating4 .barRating{width:40%}
+.popup .blockRating.rating5 .barRating{width:50%}
+.popup .blockRating.rating6 .barRating{width:60%}
+.popup .blockRating.rating7 .barRating{width:70%}
+.popup .blockRating.rating8 .barRating{width:80%}
+.popup .blockRating.rating9 .barRating{width:90%}
+.popup .blockRating.rating10 .barRating{width:100%}
+.totalRating *{display:block!important;background:#fff!important;position:relative}
+.totalRating p{margin:0!important}
+.totalRating .ratingCircleSmall .ratingCircleValue{position:absolute;top:10px;left:9px;font-size:20px!important;text-align:center}
+div#content div.detailsPrint .ratings{position:relative}
+div#content div.detailsPrint .ratingDescription,div#content div.detailsPrint .ratingDescription strong,p.totalRating{color:#2fb8db!important}
+div#content div.detailsPrint dl.rating dd{width:22%;margin-left:-40px}
+div#content div.detailsPrint dl.rating dt{margin-top:3px}
+div#content div.detailsPrint h4.rating strong{margin-top:12px}
+div#content div.detailsPrint .ratingCircleValue{position:absolute;top:30px;left:13px;font-size:30px;color:#2fb8db}
+div#content div.detailsPrint .blockRating{position:relative;margin-top:5px;vertical-align:top}
+div#content div.detailsPrint .blockRating .barRating{position:absolute;top:11px;left:0;height:5px;display:block}
+div#content div.detailsPrint .noRating{margin-left:52px}
+div.labelContent{color:white!important;text-align:center!important;width:23px!important}
+.teaserWrap div.teaser .lT,.teaserWrap div.teaser .lT02{display:none}
+#wrap.print #tablehead.hotellist .hd span{display:block!important;float:left!important;text-indent:0;width:23px;height:23px;overflow:hidden;width:25%}
+#tablehead.hotellist .hd span:after{display:block;height:20px;width:20px}
+#wrap.print.popup #tablehead td,#wrap.print.popup .hotellist td{width:auto!important}
+#wrap.print.popup .hotellist .np div{float:left;width:100%}
+#wrap.print.popup .totalRating a img{border:0}
+#wrap.print.popup .hotellist .np .hp{clear:none;width:45%}
+.print-col1{width:15%}
+.print-col2{width:20%}
+.print-col3{width:10%}
+.print-col4{width:15%}
+.print-col4span2{width:35%}
+.print-col5{width:20%}
+.print-col6{width:20%}
+.print-colspan4{width:5%}
+#tablehead.hotellist span.transportActive:after,#tablehead.hotellist span.transport:after{content:url("../../images/wide/_general/_general/icons/ic_print_transport.png")}
+#tablehead.hotellist span.trainActive:after,#tablehead.hotellist span.train:after{content:url("../../images/wide/_general/_general/icons/ic_print_train.png")}
+#tablehead.hotellist span.highwayActive:after,#tablehead.hotellist span.highway:after{content:url("../../images/wide/_general/_general/icons/ic_print_highway.png")}
+#tablehead.hotellist span.airportActive:after,#tablehead.hotellist span.airport:after{content:url("../../images/wide/_general/_general/icons/ic_print_airport.png")}
+#tablehead.hotellist span.citycenterActive:after,#tablehead.hotellist span.citycenter:after{content:url("../../images/wide/_general/_general/icons/ic_print_citycenter.png")}
+#tablehead.hotellist span.sightseeingActive:after,#tablehead.hotellist span.sightseeing:after{content:url("../../images/wide/_general/_general/icons/ic_print_sightseeing.png")}
+#cookieBanner{display:none!important}
+#layoverRegisterWrapper,#loadingPageError{display:none}
+.concur-popup{display:none!important}
+.concur__logo,#concurLogo{height:45px!important}
+.passiveHotelSegment--print-preview,.passiveHotelSegment p{white-space:pre-line}

@@ -1,0 +1,176 @@
+﻿var _tkflg = "n",
+    _tkcapid = "",
+    _tkinDate = "",
+    _tkoutDate = "",
+    _tkdiffDate = "",
+    _tklrgCd = "",
+    _tkyadoNo = "",
+    _tkyadoNo3 = ["", "", ""],
+    _tkvos = "",
+    _tkvospers = "",
+    _tkmtuid = "SbB1iVDbMAHh",
+    _tklocPath = location.pathname,
+    _tkyadcx = "",
+    _tkyadcxSS = "",
+    _tkyadlt = "",
+    _tkyadltSS = "",
+    _tkdphs = "",
+    _tkdphsSS = "",
+    _tkvospersSS = "";
+try {
+    var getQueryStr = function (a) {
+        var b = location.search,
+            c = b.indexOf(a + "=");
+        if (0 > c)
+            return "";
+        a = b.substring(c + a.length + 1);
+        a = -1 < a.indexOf("&") ? a.substring(0, a.indexOf("&")) : a;
+        return -1 < a.indexOf("#") ? a.substring(0, a.indexOf("#")) : a
+    };
+    _tkvos = getQueryStr("vos") ? getQueryStr("vos") : "";
+    //--
+    if (_tkvos) {
+        _tkvospers = _tkvos.substr(0, 13);
+        var nowtime = (new Date).getTime();
+        document.cookie = "_tkvospers=" + _tkvospers + "; path=/; expires=" + (new Date(nowtime + 2592E6)).toUTCString()
+    } else
+        document.cookie && document.cookie.match(/_tkvospers=.*/) && (_tkvospers = document.cookie.match(/_tkvospers=.*/)[0],
+            _tkvospers = _tkvospers.split(";")[0],
+            _tkvospers = _tkvospers.substr(11));
+    //--
+    if ("undefined" != typeof webm_var && webm_var) {
+        var tmpyad1 = webm_var.split(":")[0],
+            tmpyad2 = webm_var.split(":")[1],
+            tmpyad3 = webm_var.split(":")[2];
+        tmpyad1.match(/3[0-9][0-9][0-9][0-9][0-9]/) && tmpyad2.match(/3[0-9][0-9][0-9][0-9][0-9]/) && tmpyad3.match(/3[0-9][0-9][0-9][0-9][0-9]/) ? _tkyadoNo3 = [tmpyad1, tmpyad2, tmpyad3] : tmpyad1.match(/3[0-9][0-9][0-9][0-9][0-9]/) && tmpyad2.match(/3[0-9][0-9][0-9][0-9][0-9]/) ? _tkyadoNo3 = [tmpyad1, tmpyad2, ""] : tmpyad1.match(/3[0-9][0-9][0-9][0-9][0-9]/) && (_tkyadoNo3 = [tmpyad1, "", ""])
+    };
+    var convDate = function (a) {
+        var b = a.getFullYear(),
+            c = 10 > a.getMonth() + 1 ? "0" + (a.getMonth() + 1) : a.getMonth() + 1;
+        a = 10 > a.getDate() ? "0" + a.getDate() : a.getDate();
+        return b + "-" + c + "-" + a
+    };
+    if (document.cookie) {
+        if (document.cookie.match(/jln_m=.*/)) {
+            var temp1 = document.cookie.match(/jln_m=.*/)[0];
+            if (temp1.split("; ")[0]) {
+                var temp2 = temp1.split("; ")[0];
+                temp2.split("#")[2] && (_tkcapid = temp2.split("#")[2])
+            }
+        }
+        if (!_tkcapid && document.cookie.match(/s_cap_id%3D.*%7C/)) {
+            var temp3 = document.cookie.match(/s_cap_id%3D.*%7C/)[0];
+            if (temp3.split("; ")[0]) {
+                var temp4 = temp3.split("%3D")[1];
+                temp4.split("%7C")[0] && (_tkcapid = temp4.split("%7C")[0])
+            }
+        }
+    };
+    if (location.pathname.match(/(^\/smart\/|^\/)[0-4][0-9]0000|yad3[0-9][0-9][0-9][0-9][0-9]|us\/usp1400\/usw1402\.do|us\/usp3000\/usw3001\.do|u(w|s)\/u(w|s)p3200\/u(w|s)w3201init\.do/) && location.search.match(/stayYear=20[0-9]/)) {
+        var _sY = getQueryStr("stayYear"),
+            _sM = getQueryStr("stayMonth"),
+            _sD = getQueryStr("stayDay"),
+            _sC = getQueryStr("stayCount");
+        if (_sY.match(/20[1-9][0-9]/) && _sM.match(/[1-9]|1[0-2]/) && _sD.match(/[1-9]|1[0-9]|2[0-9]|3[0-1]/) && _sC.match(/[1-9]/)) {
+            var _sM = _sM - 1,
+                nowDate = new Date;
+            _tkinDate = convDate(new Date(_sY, _sM, _sD));
+            _tkoutDate = convDate(new Date((new Date(_sY, _sM, _sD)).getTime() + 864E5 * _sC));
+            _tkdiffDate = Math.ceil((new Date(_sY, _sM, _sD) - nowDate) / 864E5)
+        }
+    };
+    _tklocPath.match(/LRG_[0-9][0-9][0-9][0-9][0-9][0-9]/) ? (_tklrgCd = _tklocPath.match(/LRG_[0-9][0-9][0-9][0-9][0-9][0-9]/)[0],
+        _tklrgCd = _tklrgCd.substring(4)) : getQueryStr("lrgCd").match(/^[0-9][0-9][0-9][0-9][0-9][0-9]$/) && (_tklrgCd = getQueryStr("lrgCd").substring(0, 6));
+    _tklocPath.match(/yad3[0-9][0-9][0-9][0-9][0-9]/) ? (_tkyadoNo = _tklocPath.match(/yad3[0-9][0-9][0-9][0-9][0-9]/)[0],
+        _tkyadoNo = _tkyadoNo.substring(3)) : getQueryStr("yadNo").match(/^3[0-9][0-9][0-9][0-9][0-9]$/) && (_tkyadoNo = getQueryStr("yadNo").substring(0, 6));
+    _tkmtuid = navigator.userAgent.match(/iPhone/i) ? "hDo6v7mfxNhP" : navigator.userAgent.match(/Android.*Mobile/i) ? "QiPUrSTNJDYr" : "SbB1iVDbMAHh";
+} catch (e) { };
+
+try {
+    (function () {
+        var queryParam = location.search,
+            nowtime = new Date().getTime(),
+            vosParam = "vos_" + _tkvospers,
+            cookieParam = "_tkvar=",
+            sessionParam = "_tkvarSS=",
+            cookieExpires = "; path=/; expires=" + (new Date(nowtime + 2592e6)).toUTCString(),
+            sessionExpires = "; path=/; expires=" + (new Date(nowtime + 18e5)).toUTCString();
+        _tkvospersSS = _tkvospers;
+
+        if (queryParam.match(/_hs_.*/)) {
+            _tkdphs = _tkdphsSS = queryParam.match(/_hs_.*/)[0].replace("_hs_", "");
+            document.cookie = cookieParam + vosParam + "_hs_" + _tkdphs + cookieExpires;
+            document.cookie = sessionParam + vosParam + "_hs_" + _tkdphs + sessionExpires;
+        }
+        if (document.cookie.match(/_hs_/)) {
+            if (document.cookie.match(/_tkvar=.*/)) {
+                var _tkvarCookie = document.cookie.match(/_tkvar=.*/)[0].split(";")[0].split("_");
+                if (_tkvarCookie[2].match(/.+/) && _tkvarCookie[4].match(/.+/)) {
+                    _tkvospers = _tkvarCookie[2],
+                        _tkdphs = _tkvarCookie[4];
+                }
+            }
+            if (document.cookie.match(/_tkvarSS=.*/)) {
+                var _tkvarSSCookie = document.cookie.match(/_tkvarSS=.*/)[0].split(";")[0].split("_");
+                if (_tkvarSSCookie[2].match(/.+/) && _tkvarSSCookie[4].match(/.+/)) {
+                    _tkvospersSS = _tkvarSSCookie[2],
+                        _tkdphsSS = _tkvarSSCookie[4];
+                    document.cookie = sessionParam + vosParam + "_hs_" + _tkdphsSS + sessionExpires;
+                }
+            }
+        }
+        if (queryParam.match(/cxlt=.*/)) {
+            var cxltParamURL = queryParam.match(/cxlt=([a-z0-9]{1,})/)[1];
+            if (cxltParamURL.length == 28 && /^[0-9a-zA-Z]+$/.test(cxltParamURL)) {
+                _tkyadcx = _tkyadcxSS = cxltParamURL.slice(0, 16);
+                _tkyadlt = _tkyadltSS = cxltParamURL.slice(-12);
+            } else {
+                if (/.{8}(hp|tv|ta)/.test(_tkvospers)){
+                    _tkyadcx = _tkyadcxSS = 'm0kjkkiclxkvkeil';
+                    _tkyadlt = _tkyadltSS = '2d82oi1yo27b';
+                }else if (/^evjln/.test(_tkvospers)){
+                    _tkyadcx = _tkyadcxSS = 'n4lmmcjwmslnm0jt';
+                    _tkyadlt = _tkyadltSS = '35k31b2mj2om';
+                } else if (/^dsjln/.test(_tkvospers)){
+                    _tkyadcx = _tkyadcxSS = 'mhkokchylxjwjogk';
+                    _tkyadlt = _tkyadltSS = '2kq2wn2d02pt';
+                }
+            }
+            if (document.cookie) {
+                document.cookie = cookieParam + vosParam + "_yadcx_" + _tkyadcx + "_yadlt_" + _tkyadlt + cookieExpires;
+                document.cookie = sessionParam + vosParam + "_yadcx_" + _tkyadcxSS + "_yadlt_" + _tkyadltSS + sessionExpires;
+            }
+        }
+        if (!document.cookie.match(/_hs_/)) {
+            if (document.cookie.match(/_tkvar=.*/)) {
+                var _tkvarCookie = document.cookie.match(/_tkvar=.*/)[0].split(";")[0].split("_");
+                if (_tkvarCookie[2].match(/.+/) && _tkvarCookie[4].match(/.+/) && _tkvarCookie[6].match(/.+/)) {
+                    _tkvospers = _tkvarCookie[2],
+                        _tkyadcx = _tkvarCookie[4],
+                        _tkyadlt = _tkvarCookie[6];
+                }
+            }
+            if (document.cookie.match(/_tkvarSS=.*/)) {
+                var _tkvarSSCookie = document.cookie.match(/_tkvarSS=.*/)[0].split(";")[0].split("_");
+                if (_tkvarSSCookie[2].match(/.+/) && _tkvarSSCookie[4].match(/.+/) && _tkvarSSCookie[6].match(/.+/)) {
+                    _tkvospersSS = _tkvarSSCookie[2],
+                        _tkyadcxSS = _tkvarSSCookie[4],
+                        _tkyadltSS = _tkvarSSCookie[6];
+                    document.cookie = sessionParam + vosParam + "_yadcx_" + _tkyadcxSS + "_yadlt_" + _tkyadltSS + sessionExpires;
+                }
+            }
+        }
+    })();
+} catch (e) { }
+
+(function () {
+    window.tkTagVersion = "1.0.1";
+    window.mtuId = _tkmtuid;
+    var a = window,
+        b = a.document,
+        c = b.createElement("script"),
+        d = -1 < a.navigator.userAgent.toLowerCase().indexOf("msie") ? b.documentMode ? 9 > b.documentMode ? !0 : !1 : !0 : !1;
+    c.type = "text/javascript";
+    c.src = a.location.protocol + "//c.tgknt.com/c/j/" + a.mtuId;
+    d ? document.write('<script type="text/javascript" src=' + c.src + ">\x3c/script>") : b.body.appendChild(c)
+})();

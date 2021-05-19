@@ -1,0 +1,152 @@
+
+<!-- saved from url=(0721)https://www.tripadvisor.com/PageMoniker?&servlet=Hotels&userUnique=95950cf3c500837b151d39a4da4b928731c5d3e4&fullPageUrl=https%3A%2F%2Fwww.tripadvisor.com%2FHotels-g35805-Chicago_Illinois-Hotels.html&referringUrl=https%3A%2F%2Fwww.tripadvisor.com%2FTourism-g35805-Chicago_Illinois-Vacations.html&pageTitle=THE+10+BEST+Hotels+in+Chicago%2C+IL+for+2020+%28from+%2468%29+-+Tripadvisor&geoId=35805&curLocId=35805&locIds=114581,2042562,9145578,4356355,87648,1027237,236299,87595,7905734,87603,114604,87654,87573,1389502,250023,87627,10198023,4046139,16669318,90916,293203,225108,15113690,87576,111486,13927661,7181129,87640,2648906,12548391&locPrices=136,127,165,100,79&pixelType=HAC_PRICES_LOADED&puid=X6cpQwokLmQAAClQGSIAAAEF -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>PageMoniker</title>
+<meta name="ROBOTS" content="NOINDEX, NOFOLLOW">
+</head>
+<body data-new-gr-c-s-check-loaded="14.983.0">
+<script>
+(function(deferredTimeout) {
+function getNewPixelContext(pixels, skipFiringPixelsComplete){
+var pixelContext = {
+allPixels: pixels,
+currIndex: -1,
+skipFiringPixelsComplete: skipFiringPixelsComplete
+};
+pixelContext.getNextPixel = function() {
+return this.hasMorePixelsToLoad() ? this.allPixels[++this.currIndex] : false;
+}
+pixelContext.hasMorePixelsToLoad = function() {
+return this.currIndex + 1 < this.allPixels.length;
+}
+return pixelContext;
+}
+var pixelContext = getNewPixelContext([]);
+var skipFiringPixelsComplete = pixelContext.allPixels.length > 0; // wait for the deferred pixels to complete before reporting final results. Except when there are no deferred pixels to report on.
+var fireRightAwayPixels = getNewPixelContext([],  skipFiringPixelsComplete);
+var mergedArrays = pixelContext.allPixels.concat(fireRightAwayPixels.allPixels); // used for reporting.
+var currentServlet = 'Hotels';
+function sendMetricsPayload(payload) {
+try {
+if (navigator && navigator.sendBeacon) {
+navigator.sendBeacon('/MetricsAjax', payload);
+}
+else {
+var request = new XMLHttpRequest();
+request.open('POST', '/MetricsAjax', true);
+request.send(payload);
+}
+} catch (e1) {
+console.log("Unable to post pixel metrics: " + e1);
+}
+}
+function getImgPixelCount() {
+var imgPixels = document.querySelectorAll('img');
+if (imgPixels) {
+return imgPixels.length;
+}
+return 0;
+}
+function getIframePixelCount() {
+var iframePixels = document.querySelectorAll('iframe[data-staggersrc]');
+if (iframePixels) {
+return iframePixels.length;
+}
+return 0;
+}
+function logPixelMetrics(pixelList, useImgCountFromDom) {
+var imgCount = 0;
+var iframeCount = 0;
+if (pixelList) {
+for(var i=0; i < pixelList.length; i++){
+var currPixel = pixelList[i];
+if (currPixel.type === 'IMG') {
+imgCount++;
+}
+else {
+iframeCount++;
+}
+}
+if (useImgCountFromDom) {
+imgCount = getImgPixelCount();
+}
+}
+else {
+imgCount = getImgPixelCount();
+iframeCount = getIframePixelCount();
+}
+var pixelInfo = {
+name: 'pixels_fired',
+labels: [
+currentServlet,
+'HAC_PRICES_LOADED',
+imgCount,
+iframeCount,
+1,
+'',
+''
+]
+};
+sendMetricsPayload('[' + JSON.stringify(pixelInfo) + ']');
+}
+function loadNextPixel(currPC) {
+var pixel = currPC.getNextPixel();
+if (!pixel) {
+if (!currPC.skipFiringPixelsComplete) {
+logPixelMetrics(mergedArrays, false);
+}
+return;
+}
+if (pixel.type === "IFRAME") {
+var iframeObj = document.createElement('iframe');
+iframeObj.id = pixel.id;
+iframeObj.width = "1px";
+iframeObj.height = "1px";
+iframeObj.addEventListener('load', function _loadIframePixelCompleted() {
+iframeObj.removeEventListener('load', _loadIframePixelCompleted);
+setTimeout(function() { loadNextPixel(currPC); }, 0);
+});
+document.body.appendChild(iframeObj);
+iframeObj.src = decodeURIComponent(pixel.src);
+}
+else if (pixel.type === "IMG") {
+var image = new Image();
+image.onload = function() {
+};
+image.src = decodeURIComponent(pixel.src);
+setTimeout(function() { loadNextPixel(currPC); }, 0);             }
+}
+function startPixels(currPC) {
+if (currPC.ttiTooLongTimeOut) {
+clearTimeout(currPC.ttiTooLongTimeOut);
+currPC.ttiTooLongTimeOut = false;
+}
+window.removeEventListener('message', checkIfMessageIsTTIEvent);
+if (!currPC.hasMorePixelsToLoad()) {
+return;             }
+loadNextPixel(currPC);
+}
+function checkIfMessageIsTTIEvent(event) {
+var origin = event.origin || event.originalEvent.origin;
+if (!origin || !origin.includes('tripadvisor')) {
+return;
+}
+var data = event.data;
+if (!data || !data.startsWith || !data.startsWith('TimeToInteractive')) {
+console.log('got a message that is: ' + data);
+return;
+}
+event.stopPropagation();
+startPixels(pixelContext);
+}
+window.addEventListener('message', checkIfMessageIsTTIEvent);             pixelContext.ttiTooLongTimeOut = setTimeout(function() {
+startPixels(pixelContext);
+}, deferredTimeout);
+setTimeout(function() {
+loadNextPixel(fireRightAwayPixels);
+}, 0);
+})( 45000  ); </script>
+
+<!-- st: 123 dc: 0 sc: 12 -->
+<!-- uid: X6cpRwokHDAAAAgyIPQAAACY -->
+</body></html>

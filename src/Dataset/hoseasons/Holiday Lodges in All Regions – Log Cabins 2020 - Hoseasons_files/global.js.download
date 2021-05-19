@@ -1,0 +1,2470 @@
+/* Gateway JS*/
+_websiteRoute = 'lodges/';
+
+
+function whichbrand() {
+	var type = $("#type").val();
+	$(".dropdown").hide();
+	$("#hos_region_" + type).show();
+	if (type == "city-breaks") {
+		$("#hos_nights").hide();
+		$("#hos_nights_" + type).show();
+	} else {
+		$("#hos_nights").show();
+		$("#hos_nights_city-breaks").hide();
+	}
+}
+/* End Gateway JS*/
+function case_insensitive_comp(strA, strB) {
+	return (strA.split("data-src").length > 1 ? strA.split("data-src")[1].toLowerCase() : "").toLowerCase().localeCompare(strB.split("data-src").length > 1 ? strB.split("data-src")[1].toLowerCase() : "");
+}
+
+var path = window.location.pathname;
+if (path.indexOf('/promotions') > -1 || path.indexOf('/special-offers') > -1 && path.indexOf('/special-offers-tcs-2017') == -1) {
+	if (!$('.listing').length) {
+		var $window = $(window);
+		var darknessCSS = { 'visibility': 'visible', 'background': 'rgba(0,0,0,0.8)' };
+		var darknessHTML = '<div class="wrapper" style="background: #fff; position: relative; top:150px; padding: 50px;">\
+							<h1 style="margin-bottom: 20px;">This page has moved</h1>\
+							<p style="margin-bottom:20px;">But don\'t worry, with over 1.5 million satisfied customers every year and award winning accommodation we can find a place that\'s right for you.</p>\
+							<a style="float: none; letter-spacing: 0; max-width:300px" href="/" class="btn btn--primary">Find your perfect break</a>\
+						</div>';
+		if ($window.width() < 768) {
+			$('#darkness-mobile').css(darknessCSS).html(darknessHTML);
+		}
+		else {
+			$('#darkness').css(darknessCSS).html(darknessHTML);
+		}
+	}
+}
+
+if (path.indexOf('/cottages/let-with-us') > -1) {
+	// Override text colour for the letting experience dropdown and force black on the option dropdowns/when the selection changes
+	document.readyState === 'loading'
+		? document.addEventListener('DOMContentLoaded', overrideLettingSelectFieldColour)
+		: overrideLettingSelectFieldColour();
+
+	function overrideLettingSelectFieldColour () {
+		var lettingSelectField = document.querySelector('select[name="00N4I00000EOEXK"]');
+		lettingSelectField.addEventListener('change', function() {
+			lettingSelectField.removeEventListener('change');
+			lettingSelectField.style.color = '#000';
+		})
+	}
+}
+
+//get image size of 400 not 840 on filmstrips
+$(document).ready(function() {
+
+	var items = Array.prototype.slice.call(document.querySelectorAll('.item'));
+
+	items.forEach(function(item) {
+		var url = item.getElementsByClassName('item-image-url')[0].innerText.trim();
+
+		if(url) {
+			var image = item.getElementsByClassName('item-image')[0];
+
+			image.src = url.replace('/840/', '/400/');
+		}
+
+	})
+});
+
+// Global scripts manager
+$(document).ready(function () {
+	if (window.ga) { // ga has been defined, proceed (ga is not defined in partners)
+		ga('require', 'ec');
+	}
+	// Custom Feedbackify functionality and styling
+	FeebackifyUtils.init();
+
+	// classes added to make regions display better for mobile view
+	$('#QuickSearchqsRegionAnchor').click(function () {
+		$('.childRegion').parents('li').addClass('child-region-list');
+	});
+
+	$("#hero--roundal, #reevoo_link, #servicelist .listing .Revoo, #SupplierList .listing .Revoo ").click(function () {
+		setTimeout(function () { $(".lightbox.iframe").addClass('lightboxoverflow'); }, 250);
+	});
+
+	//Remove offer divs if no offer is on...
+	$(".accommsaveAmmount:contains('-')").hide();
+	$(".accommWasPrice:contains('-')").hide();
+
+	$('#global__search--new--moreoptions--toggle').click(function () {
+		if ($(this).hasClass('active-toggle')) {
+			$('#hero--roundal--container').toggleClass('minify-roundal');
+		} else {
+			$('#hero--roundal--container').toggleClass('minify-roundal', false); // remove
+		}
+	});
+
+	//Remove pets if pets drop down is 0...
+	var $body = $("body");
+	if ($body.hasClass('accommodation-page')) {
+		var petslengthcheck = $('#AvailabilitySearch1_adlPets > select > option').length;
+		if (petslengthcheck === 1) {
+			$('#AvailabilitySearch1_adlPets').parent().hide();
+		}
+	}
+	if ($body.hasClass('park-page')) {
+		var petslengthcheck = $('#AvailabilitySearch_adlPets > select > option').length;
+		if (petslengthcheck === 1) {
+			$('#AvailabilitySearch_adlPets').parent().hide();
+			$('#infant').css({
+				'border-right': '1px solid #c8c8c8',
+				'border-radius': '0 3px 3px 0'
+			});
+		}
+	}
+
+	// trigger hotJar if user has already booked
+	if ((typeof getCookie === 'function') && (window.hj)){
+		if (getCookie('hasBooked') === 'true' && window.location.href.indexOf('confirmation') < 0) {
+			hj('trigger', 'hasBooked');
+		}
+	}
+
+	//Use the last minute lodge deals link in the nav to populate the last minute breaks pod
+	var lMinuteLnk = document.getElementById('lodges-last-minute-deals');
+	if (lMinuteLnk){
+		var lMinuteBreaksPod = document.getElementsByClassName('last-minute-deals-discounts')[0];
+		if (lMinuteBreaksPod) lMinuteBreaksPod.href = lMinuteLnk.href;
+	}
+
+	// add master JS & CSS if doesn't exist (fixes bugs on companions and partners)
+	if (typeof MasterJS === 'undefined') {
+		var masterJsScriptTag = document.createElement('script')
+		masterJsScriptTag.setAttribute('src', '/master.js');
+		document.head.appendChild(masterJsScriptTag);
+	}
+	if (document.querySelector('link[href="/master.css"]') === null) {
+		var masterCssLinkTag = document.createElement('link');
+		masterCssLinkTag.setAttribute('rel', 'stylesheet');
+		masterCssLinkTag.setAttribute('href', '/master.css');
+		document.head.appendChild(masterCssLinkTag);
+	}
+
+});
+$(document).on('click', '#ajaxsortlabel', function () {
+	if ($(this).hasClass('active')) {
+		$('.radio-button').hide();
+		$(this).removeClass('active');
+	} else {
+		$('.radio-button').show();
+		$(this).addClass('active');
+	}
+});
+
+// Simple Lightbox
+function openSimpleLightbox(content, isGallery, disableClose, initLightboxGallery, isHtml) {
+	var html = '',
+		type = '';
+	$('html,body').addClass('noscroll');
+	if (content instanceof jQuery && !isGallery) {
+		html = content.html();
+		type = 'notification';
+	} else if (isGallery) {
+		html = content.html();
+		type = 'gallery';
+		galleryId = '#' + content.find('.gallerycontent').attr('id');
+	} else if(isHtml) {
+		html = content.innerHTML;
+	}
+	else {
+		html = '<iframe src="' + content + '" width="100%" height="100%"></iframe>';
+		type = 'iframe';
+	}
+	var lightBox = '<div class="lightbox-bg"><div class="lightbox-container"><div class="lightbox ' + type + ' ' + (disableClose ? 'disable-close' : '') + '"><div class="lightbox-inner">' + (!disableClose ? '<div onclick="closeSimpleLightbox();" class="lightbox-close">X</div>' : '') + '<div class="lightbox-content"></div></div></div></div>';
+
+
+	$('body').addClass('creating').prepend(lightBox);
+	$('.lightbox-content').html(html);
+	$('.lightbox-bg').fadeIn('medium', function () {
+		$('body').removeClass('creating');
+		if (isGallery) {
+			if (typeof initLightboxGallery == 'function') {
+				initLightboxGallery();
+			}
+
+		}
+	});
+	return false;
+}
+
+
+function closeSimpleLightbox() {
+	$('html,body').removeClass('noscroll');
+	if (!$('.lightbox').hasClass('disable-close')) {
+		$('.lightbox-bg').fadeOut('medium', function () {
+			$('.lightbox-bg').remove();
+		});
+	}
+}
+
+
+$(document).on('click', function (event) {
+	if (!$(event.target).closest('.lightbox').length && !$('body').hasClass('creating')) {
+		closeSimpleLightbox();
+	}
+});
+
+
+$(document).on('click', '.simple-toggle', function () {
+	var id = '#' + $(this).attr('data-id');
+	id = $(id);
+	if (id.hasClass('show')) {
+		id.removeClass('show');
+	} else {
+		$('.simple-toggle-content').removeClass('show');
+		id.addClass('show');
+	}
+	return false;
+});
+
+
+$(document).ready(function () {
+	$('.site-tab').each(function () {
+		var $this = $(this),
+			href = $this.attr('href'),
+			newUrl = '';
+
+
+		if (href.indexOf('?') > 0) {
+			newUrl = href + '&tab=lodge__info';
+		} else {
+			newUrl = href + '?tab=lodge__info';
+		}
+
+
+		$this.attr('href', newUrl);
+	});
+	$('#site-tab').each(function () {
+		var href = $('#sitetab').attr('href'),
+			newUrl = '';
+
+
+		if (href.indexOf('tab=lodge__info') > 0) {
+			newUrl = href;
+		} else {
+			newUrl = href + '?tab=lodge__info';
+		}
+		$(this).attr('href', newUrl);
+	});
+});
+
+
+$(window).load(function () {
+	$('#SupplierReviewsFrom').trigger('change');
+	FeebackifyUtils.initPageScrollFading();
+});
+
+
+$(document).on('click', '#sitetab', function () {
+	LoadMap();
+});
+
+
+// Booking JS
+$(document).ready(function () {
+	var holidayPrice = $('#divTotalCost').text();
+	var bookTodayFor = $('#divTodayPay').text();
+
+
+	if (holidayPrice == bookTodayFor) {
+		$('#final-breakdown').hide();
+	}
+
+
+
+});
+
+
+
+$(document).ready(function () {
+	var heroImage = $('.main--heronew');
+	if(GlobalJS.isNotLandal()) {
+		if (heroImage.length > 0) {
+			var backgroundImage = heroImage.css('background-image'),
+				backgroundImageUrl = '';
+
+			if (backgroundImage.indexOf('url("') > -1) {
+				backgroundImageUrl = backgroundImage.replace('url("', '').replace('")', '');
+			} else if (backgroundImage.indexOf('url(') > -1) {
+				backgroundImageUrl = backgroundImage.replace('url(', '').replace(')', '');
+			}
+
+			if (backgroundImage !== 'none' && backgroundImageUrl.length > 0) {
+				$.ajax({
+					type: 'head',
+					url: backgroundImageUrl,
+					error: function (e) {
+						if (e.status == 404) {
+							var body = $('body');
+							if (body.hasClass('lodges')) {
+								heroImage.css('background-image', 'url("/lodges/assets/lodges--hero3-desktop.jpg?v=02fe306c97d2d90e9cff6a6acf148351")');
+							} else if (body.hasClass('parks')) {
+								heroImage.css('background-image', 'url("/holiday-parks/assets/parks--hero7-desktop.jpg?v=db74def04232fa1eb2e702f141e32257")');
+							} else if (body.hasClass('boats')) {
+								heroImage.css({
+									'background-image': 'url("/boat-holidays/assets/boats--hero2-desktop.jpg?v=762460a2f176db12079154d4811d79f0")',
+									'background-position': '50% 10%',
+								});
+							} else if (body.hasClass('city')) {
+								heroImage.css('background-image', 'url("/city-breaks/assets/cb-hero-desktop.jpg?v=3354c4e5f7a09d6b8003411570dd7d83")');
+							}
+						}
+					}
+				});
+			}
+		}
+	}
+});
+
+$(document).ready(function () {
+	var partners = "partners.hoseasons.co.uk";
+	var website_domain = window.location.host;
+	if (website_domain.indexOf(partners) > -1) {
+		if (window.location.pathname.indexOf('summary') > -1){
+			var local_TLC = window.location.pathname.split('/')[1].toLowerCase();
+			function partnerMessage() {
+				$('#section--progress').attr("style", "z-index: 0!important;");
+				$('#shared-availability').show();
+				$('#warning .action-container').hide();
+				$('#warning .warning p').hide();
+			}
+			function partnerStyle() {
+				$('#warning .warning p:nth-child(4)').css('margin-top', '15px');
+				$('#warning .warning a').css('color', '#87b926');
+				$('.overlay').css('position', 'fixed');
+			}
+			switch (local_TLC) {
+				case "tes":
+					// partnerMessage();
+					// $('#warning .warning').append('<p>We are experiencing some technical issues on our website.</p><p>Because we don\'t want you to miss out on your perfect getaway call us now on <a href="tel:0345 498 6031">0345 498 6031</a> - please have your validated Token Code to hand.</p>');
+					// partnerStyle();
+					break;
+				case "t50":
+					// partnerMessage();
+					// $('#warning .warning').append('<p>We are experiencing some technical issues on our website.</p><p>Because we don\'t want you to miss out on your perfect getaway call us now on <a href="tel:0345 498 6065">0345 498 6065</a> - please have your validated Token Code to hand.</p>');
+					// partnerStyle();
+					break;
+				case "lfs":
+					// partnerMessage();
+					// $('#warning .warning').append('<p>We are experiencing some technical issues on our website.</p><p>Because we don\'t want you to miss out on your perfect getaway call us now on <a href="tel:0345 498 6066">0345 498 6066</a> - please have your validated Token Code to hand.</p>');
+					// partnerStyle();
+					break;
+				case "lf2":
+					// partnerMessage();
+					// $('#warning .warning').append('<p>We are experiencing some technical issues on our website.</p><p>Because we don\'t want you to miss out on your perfect getaway call us now on <a href="tel:0345 498 6069">0345 498 6069</a> - please have your validated Token Code to hand.</p>');
+					// partnerStyle();
+					break;
+				case "at5":
+					// partnerMessage();
+					// $('#warning .warning').append('<p>We are experiencing some technical issues on our website.</p><p>Because we don\'t want you to miss out on your perfect getaway call us now on <a href="tel:0345 498 6107">0345 498 6107</a> - please have your validated Token Code to hand.</p>');
+					// partnerStyle();
+					break;
+				case "at1":
+					// partnerMessage();
+					// $('#warning .warning').append('<p>We are experiencing some technical issues on our website.</p><p>Because we don\'t want you to miss out on your perfect getaway call us now on <a href="tel:0345 498 6199">0345 498 6199</a> - please have your validated Token Code to hand.</p>');
+					// partnerStyle();
+					break;
+			}
+		}
+		showStrapLine();
+	} else if (website_domain.indexOf('travelagents.hoseasons') > -1) {
+		showStrapLine();
+	}
+	function showStrapLine() {
+		var strapline = document.getElementById('strapline');
+		if (strapline) {
+			if (strapline.getElementsByTagName('i')[0].nextElementSibling !== null){
+				strapline.classList.add('vshow')
+			}
+		}
+	}
+	if ($('body').hasClass('park-page')) {
+		if (!$('#lodges__amenities__facilities ul li').html().length > 0) {
+			$('#section_amenities').hide(); $('#section_about').css('width', '100%');
+		}
+	}
+	$('#my-account-menu').mouseover(function () {
+		$('.nav-menu.my-account').show();
+	}).mouseout(function () {
+		$('.nav-menu.my-account').hide();
+	});
+
+	function isTablet() {
+		var width = $(window).width();
+		var maxWidth = 768;
+		var isTablet;
+
+		if (width < maxWidth) {
+			isTablet = true;
+		} else {
+			isTablet = false;
+		}
+		return isTablet;
+	}
+
+	$('.nav > .nav__group--0 > .nav__link').hover(function () {
+		if (!isTablet()) {
+			$(this).clearQueue().delay(500).queue(function (nxt) {
+				$(this).find('.nav__group').css('display', 'block');
+				nxt();
+			});
+		}
+
+	}, function () {
+		if (!isTablet()) {
+			$(this).clearQueue().find('.nav__group').removeAttr('style');
+		}
+
+	});
+
+
+
+
+	if ($('#servicelist > li:first-child > div.listing__info > div.listing__actions__btns > div.now__price').hasClass('datesearchTrue')) {
+		$('#sortorder21').hide();
+		$('#accom-list-multi #sortorder21').show();
+	}
+	else {
+		$('#accom-list-multi #sortorder21').hide()
+		$('#sortorder21').hide();
+	}
+
+});
+
+// Fix ipad display of find holiday CTA for partners/TAs
+
+$(document).ready(function () {
+	if ($('.accommodation-page #servicelist').html()) {
+		if ($('.accommodation-page #servicelist').html().trim().length < 1) {
+			$('.accommodation-page #accommodation-title').hide();
+		}
+	}
+});
+
+// Hoseasons localStorage helper functions
+; (function (exports) {
+	var store = {
+		getItem: function (key) {
+			// Key: name of the item to return
+			var dataObj = storeObj(localStorage[this.keyName]);
+			localStorage[store.keyName] = JSON.stringify(dataObj);
+			return dataObj[key];
+		},
+		setItem: function (key, val) {
+			// Key: name of the item to return.
+			// Val: Value to store to the key. Can be of any JSON type.
+			var dataObj = storeObj(localStorage[this.keyName]);
+			dataObj[key] = val;
+			localStorage[this.keyName] = JSON.stringify(dataObj);
+			return dataObj[key];
+		},
+		addViewed: function (product, bForceAdd) {
+
+			var keyName = options.viewedKeyName,
+				maxSize = options.viewedMax,
+				oaRecentlyViewed = store.getItem(keyName);
+
+			if (bForceAdd) {
+				// product has been forced in, do not check for duplicates
+				return pushHistory(product, keyName, maxSize, true);
+			}
+
+			if (valUnique(oaRecentlyViewed, product.site_code, 'site_code')) {
+				// value is unique, push as normal
+				return pushHistory(product, keyName, maxSize, true);
+			} else {
+				// product is already in oaRecentlyViewed re-order oaRecentlyViewed so that the current item is brought back to index 0
+				var i,
+					oReorderedProduct;
+				for (var i = 0; i < oaRecentlyViewed.length; i++) {
+					if (oaRecentlyViewed[i].site_code === product.site_code) {
+						oReorderedProduct = oaRecentlyViewed.splice(i, 1)[0];
+						oaRecentlyViewed.unshift(oReorderedProduct);
+						break;
+					}
+				}
+				// clear out the existing list
+				this.clearRecentlyViewedList();
+				// re-add the products back into the list in the new order
+				for (var i = (oaRecentlyViewed.length - 1); i >= 0; i--) {
+					this.addViewed(oaRecentlyViewed[i], true);
+				}
+				// return existing item
+				return oReorderedProduct;
+			}
+		},
+		addSearched: function (search) {
+			return pushHistory(search, options.searchedKeyName, options.searchedMax);
+		},
+		clearRecentlyViewedList: function () {
+			this.setItem('recently_viewed', []);
+			this.viewed = [];
+		}
+	};
+
+	var valUnique = function (arr, val, key) {
+		if (arr) {
+			if (arr.length === 0) {
+				return true;
+			}
+			for (var i = 0; i < arr.length; i++) {
+				obj = arr[i];
+				if (obj[key] === val) {
+					return false;
+				}
+			}
+		}
+		return true;
+	}
+
+	var options = {};
+
+	var storeObj = function (raw) {
+		var obj = {};
+		if (raw !== '') {
+			obj = JSON.parse(raw);
+		}
+		return obj;
+	}
+	var getOrSetStore = function (name) {
+		if (localStorage[name] === undefined) {
+			localStorage[name] = '';
+		}
+		store.keyName = name;
+		store.searched = store.getItem(options.searchedKeyName) || [],
+			store.viewed = store.getItem(options.viewedKeyName) || []
+		return store;
+	}
+
+	var pushHistory = function (element, keyName, maxSize, bReverseArrayOrder) {
+		// Most recent item is added to the start of the array
+		var elementArr = store.getItem(keyName) || [];
+
+		if (elementArr.length === maxSize) {
+			// Remove oldest element from array
+			if (bReverseArrayOrder) {
+				elementArr.pop();
+			} else {
+				elementArr.shift();
+			}
+		}
+		if (bReverseArrayOrder) {
+			elementArr.unshift(element);
+		} else {
+			elementArr.push(element);
+		}
+		return store.setItem(keyName, elementArr);
+	}
+
+	var validKeyName = function (keyName) {
+		var re = /\s|-/;
+		return re.test(keyName) === false;
+	}
+
+	exports.hoseasonsStore = function (keyName, params) {
+		var p = params || {};
+		// Usage: var store = new hoseasonsStore('hoseasons_data');
+		if (!validKeyName(keyName)) {
+			console.error('Invalid localStorage key name.');
+			return;
+		}
+
+		// Set options if supplied or apply defaults.
+		options = {
+			viewedMax: p.viewedMax || 5,
+			searchedMax: p.searchedMax || 15,
+			viewedKeyName: p.viewedKeyName || 'recently_viewed',
+			searchedKeyName: p.searchedKeyName || 'recently_searched'
+		}
+
+		return getOrSetStore(keyName);
+	}
+})(this);
+// breadcrumb querystring URLs
+$(function () {
+	$('.breadcrumbs a').removeAttr('onclick');
+	var currUrl = window.location.href,
+		queryString = currUrl.split('?')[1];
+	if (queryString) {
+		$('.breadcrumbs a').not(':eq(0),:eq(1)').each(function () {
+			var $this = $(this);
+			var currLink = $this.attr('href');
+			var newLink = currLink + '?' + queryString;
+			$this.attr('href', newLink);
+		});
+	}
+});
+
+// Feedbackify Scroll fix - Author Michael Grant
+var FeebackifyUtils = function () {
+
+	var m_screenHeight = null,
+		m_fnScrollThrottle = null,
+		m_bFeedbackIsVisible = null,
+		m_bFeedbackFading = null;
+
+	function fnInit() {
+		addCustomClickHandlers();
+	}
+
+	function addCustomClickHandlers() {
+		// Add listener to the feedbackify tab
+		var fbTab = document.querySelector("#feedbackify, fby-tab");
+		if (fbTab) {
+			fbTab.addEventListener("click", openFeedbackify, false);
+		} else {
+			var iInterval = setInterval(function () {
+				/*
+				Set an interval to allow browser catchup to render the third party tab. The tab can take a while to
+				load into the dom on mobile.
+				*/
+				fbTab = document.querySelector("#feedbackify, fby-tab");
+				if (fbTab) {
+					clearInterval(iInterval);
+					fbTab.addEventListener("click", openFeedbackify, false);
+				}
+			}, 500);
+		}
+	}
+
+	function openFeedbackify(oEvent) {
+		// prevent user scroll
+		document.body.style.overflow = "hidden";
+		document.addEventListener("touchmove", preventTouchMove, true);
+
+		// Dom handling
+		var oFbyForm = document.getElementById("fby-form") || document.getElementsByClassName("fby-form")[0];
+		if (oFbyForm) {
+			oFbyForm.addEventListener("click", closeFeedbackify, true);
+		} else {
+			var iInterval = setInterval(function () {
+				/*
+				Set an interval to allow browser catchup to render the third party tab. The tab can take a while to
+				load into the dom on mobile.
+				*/
+				oFbyForm = document.getElementById("fby-form") || document.getElementsByClassName("fby-form")[0];
+				if (oFbyForm) {
+					clearInterval(iInterval);
+					oFbyForm.addEventListener("click", closeFeedbackify, true);
+				}
+			}, 1000);
+		}
+	}
+
+	function closeFeedbackify(oEvent) {
+		setTimeout(function () { // allow dom catchup
+			// If the form has been killed off by user interaction
+			if (!document.getElementById("fby-form")) {
+				// enable user scroll
+				document.body.style.overflow = "auto";
+				document.removeEventListener("touchmove", preventTouchMove, true);
+			}
+		}, 50);
+	}
+
+	function preventTouchMove(oEvent) {
+		oEvent.preventDefault();
+	}
+
+	function fnInitPageScrollFading() {
+
+		// Start: Handle feedbackify fade in/out
+		var iWindowWidth = document.documentElement.clientWidth;
+		if (iWindowWidth < 768) {
+
+			// Set vars
+			m_screenHeight = (iWindowWidth < 351) ? 600 : 550;
+			m_fnScrollThrottle = GlobalJS.Utils.throttle(handleScrollFeedbackify, 200);
+			m_bFeedbackIsVisible = false;
+			m_bFeedbackFading = false;
+
+			// Set Y fade threshold
+			if (iWindowWidth > 640) {
+				m_screenHeight = 650;
+			}
+
+			// Determin inital visibility
+			if (window.pageYOffset > m_screenHeight) {
+				m_bFeedbackIsVisible = true;
+				fadeIn();
+			}
+
+			// Add scroll event listener
+			window.addEventListener('scroll', m_fnScrollThrottle, true);
+		}
+	}
+
+	// Choked scroll handler for feedbackify
+	function handleScrollFeedbackify() {
+		if (!m_bFeedbackFading) { // if previous fade animation has finished
+			if (window.pageYOffset > m_screenHeight) {
+				if (!m_bFeedbackIsVisible) {
+					fadeIn();
+				}
+			} else {
+				if (m_bFeedbackIsVisible) {
+					fadeOut();
+				}
+			}
+		}
+	}
+
+	function fadeIn() {
+		m_bFeedbackFading = true;
+		$('#feedbackify').fadeIn(500, function () {
+			m_bFeedbackFading = false;
+			m_bFeedbackIsVisible = true;
+		});
+	}
+
+	function fadeOut() {
+		m_bFeedbackFading = true;
+		$('#feedbackify').fadeOut(500, function () {
+			m_bFeedbackFading = false;
+			m_bFeedbackIsVisible = false;
+		});
+	}
+
+	return {
+		init: fnInit,
+		initPageScrollFading: fnInitPageScrollFading
+	}
+
+}();
+$(function () {
+	if ($(window).width() < 768) {
+		var screenHeight = 550;
+		if ($(window).width() < 351) {
+			screenHeight = 600;
+		}
+		if ($(window).width() > 640) {
+			screenHeight = 650;
+		}
+		$(window).scroll(function () {
+			if ($(window).scrollTop() > screenHeight) {
+				$('#feedbackify').fadeIn(500);
+			} else {
+				$('#feedbackify').fadeOut(500);
+			}
+		});
+	}
+	// hide grid & list view buttons when no search results on map page
+	if (window.location.href.indexOf('/map/') !== -1) {
+		var checkForList = $('.mapSearchList').html();
+		if (!checkForList) {
+			$('.display-options').hide();
+		}
+	}
+});
+
+var GlobalJS = function () {
+
+	/*
+	The intention for this namespace is to wrap all the javascript in global.js
+	Add the above code into here as and when appropriate - see MG if unclear
+	*/
+
+	var m_sMinYearToApplyLowDeposit = "2021",
+		m_sLowDeptQualifyingYear = m_sMinYearToApplyLowDeposit;
+
+	// temporary variable for cottages 2 week ld
+	var cottagesTempValue;
+
+	// Public Methods
+	function fnInit() {
+    gaOrientationEvents();
+		if (fnGetBrand() === 'holiday parks' || fnGetBrand() === 'lodges') {
+			fnHideSpecialFeatures();
+		}
+	}
+
+	// -------------------------------------------------------------------------
+	// UTILITY METHODS MODULE
+	var oUtils = function () {
+
+		/*
+		This module should house re-usable utility functions that can be used across the site.
+		*/
+
+		function fnGetObjectAsString(oObject) {
+			var sString = '';
+			Object.keys(oObject).forEach(function(key) {
+				if (sString !== '') {
+					sString += ",";
+				}
+				sString += String(key) + '=' + String(oObject[key]);
+			});
+			return sString;
+		}
+
+		function fnGetDateAsString(oDate) {
+			if (oDate) {
+				return oDate.getDate() + '-' + parseInt(oDate.getMonth() + 1) + '-' + oDate.getFullYear();
+			} else {
+				return '';
+			}
+		}
+
+		function fnThrottle(func, wait, options) {
+			/*
+			Returns a function, that, when invoked, will only be triggered at most once during a given window of time. Normally, the throttled function will run as much as it can, without ever going more than once per wait duration; but if youâ€™d like to disable the execution on the leading edge, pass {leading: false}. To disable execution on the trailing edge, ditto.
+			*/
+			var context, args, result;
+			var timeout = null;
+			var previous = 0;
+			if (!options) options = {};
+			var later = function() {
+				previous = options.leading === false ? 0 : new Date().getTime();
+				timeout = null;
+				result = func.apply(context, args);
+				if (!timeout) context = args = null;
+			};
+			return function() {
+			var now = new Date().getTime();
+			if (!previous && options.leading === false) previous = now;
+			var remaining = wait - (now - previous);
+			context = this;
+			args = arguments;
+			if (remaining <= 0 || remaining > wait) {
+				if (timeout) {
+					clearTimeout(timeout);
+					timeout = null;
+				}
+				previous = now;
+				result = func.apply(context, args);
+				if (!timeout) context = args = null;
+			} else if (!timeout && options.trailing !== false) {
+				timeout = setTimeout(later, remaining);
+			}
+			return result;
+			};
+		};
+
+		return {
+			getObjectAsString: fnGetObjectAsString,
+			getDateAsString: fnGetDateAsString,
+			throttle: fnThrottle
+		};
+	}();
+
+	function DateBoundary(oDateStart, oDateEnd) {
+		this.start = oDateStart;
+		this.end = oDateEnd;
+
+		this.isBetween = function (oDate) {
+			return (oDate >= this.start && oDate <= this.end);
+		}
+	}
+
+	function strToDate(arg) {
+		if (arg instanceof Date) return arg;
+
+		//takes dd/mm/yyyy || dd-mm-yyyy and converts to date object
+		var now  = new Date(),
+			dateArray = arg.split(/\/|-/g);
+
+		if(dateArray[0].length == 4) {
+			/* year first */
+			return new Date(dateArray[0],dateArray[1]-1,dateArray[2])
+		} else {
+			if(dateArray[2].length == 2) {
+				dateArray[2] = dateArray[2].replace(/\d{2,}$/, '20$&');
+			}
+			/* day first */
+			return new Date(dateArray[2],dateArray[1]-1,dateArray[0])
+		}
+	}
+
+	// END UTILITY METHODS MODULE
+	// -------------------------------------------------------------------------
+
+	function fnIsQualifiedForDeposit(oSearchDate) {
+
+		/*
+		an optional oSearchDate can be passed into this method to see if a specific date qualifies (ie from calendar picker on product page)
+		if oSearchDate is not passed, use the query string as usual
+		*/
+
+		var dateToday = new Date(),
+			oDeposit = {bQualified: false, sType: "normal", oSearchDate: null};
+
+		if (!oSearchDate) { // optional search date isn't passed, use query string
+			if (window.location.href.indexOf('nights=') > -1) { // If it is a dated search
+				var sSearchDate = getParameterByName(window.location.search, 'start'),
+					saSearchDate = sSearchDate.split('-'),
+					oSearchDate = new Date(saSearchDate[2], (saSearchDate[1] - 1), saSearchDate[0]); // year, month, day
+			} else { // non dated search return not qualified
+				return oDeposit;
+			}
+		}
+		oDeposit.oSearchDate = oSearchDate; // set search date
+
+		switch(fnGetBrand()) {
+			case "boats" :
+				oDeposit.bQualified = false;
+				return oDeposit;
+				break;
+			case "lodges" :
+			case "holiday parks" :
+			case "holiday parks in europe" :
+			case "landal" :
+				/*
+				This is currently hard-coded to handle a 10 week lead from booking and the year being greater than m_sMinYearToApplyLowDeposit to qualify for a low deposit booking.
+				This can be made more dynamic in the future if other lead times and yearly dates are needed.
+				*/
+				var iSearchYear = parseInt(oSearchDate.getFullYear(),10);
+				// second date in qualifyingBoundary is latest date low depost can be applied
+				var qualifyingBoundary = new DateBoundary(strToDate('1/8/2019'),strToDate('31/12/2021'));
+				var SearchDateObj = (!oSearchDate) ? strToDate(sSearchDate) : oSearchDate;
+
+				if (iSearchYear >= parseInt(m_sMinYearToApplyLowDeposit,10) && qualifyingBoundary.isBetween(SearchDateObj)) { // If the year is greater than or equal to the qualifying year and within booking boundary
+					if (isSearchWithinDaysThreshold(oSearchDate, dateToday)) {
+						m_sLowDeptQualifyingYear = String(iSearchYear);
+						oDeposit.bQualified = true;
+						oDeposit.sType = "low"; // set deposit type to low
+					}
+				}
+				return oDeposit;
+			break;
+			case "cottages" :
+			/*
+				This is currently hard-coded to handle a 10 week lead from booking and the year being greater than m_sMinYearToApplyLowDeposit to qualify for a low deposit booking.
+				This can be made more dynamic in the future if other lead times and yearly dates are needed.
+				*/
+				// doesn't apply for same min year
+				var noAdults = getParameterByName(window.location.href, 'adult');
+				m_sMinYearToApplyLowDeposit = "2021";
+				var iSearchYear = parseInt(oSearchDate.getFullYear(),10);
+				var qualifyingBoundary = new DateBoundary(strToDate('10/10/2019'),strToDate('31/12/2021'));
+				var SearchDateObj = (!oSearchDate) ? strToDate(sSearchDate) : oSearchDate;
+				var todayIs = new Date();
+				var lowdepend = strToDate('31-03-2020');
+
+				// if (todayIs < lowdepend){ // condition only needed for end date
+					if (iSearchYear >= parseInt(m_sMinYearToApplyLowDeposit,10) && qualifyingBoundary.isBetween(dateToday) && parseInt(noAdults) < 10) {
+						// 2020 or 2021 UNDER 10 SLEEPS
+						if (isSearchWithinDaysThreshold(oSearchDate, dateToday)) {
+							m_sLowDeptQualifyingYear = String(iSearchYear);
+							oDeposit.bQualified = true;
+							oDeposit.sType = "low"; // set deposit type to low
+						}
+					} else if (iSearchYear == 2021 && qualifyingBoundary.isBetween(dateToday) && parseInt(noAdults) > 10) {
+						// 2021 OVER 10 SLEEPS
+						// if (isSearchWithinDaysThreshold(oSearchDate, dateToday)) {
+						// 	m_sLowDeptQualifyingYear = String(iSearchYear);
+						// 	oDeposit.bQualified = true;
+						// 	oDeposit.sType = "low"; // set deposit type to low
+						// }
+					}
+				// }
+				return oDeposit;
+			break;
+			default :
+				return oDeposit;
+		}
+	}
+
+	function fnGetLowDepositQualifyingYear() {
+		return String(m_sLowDeptQualifyingYear);
+	}
+
+	function fnGetLowDepositDiscountThreshold() {
+
+		// Return the low deposit discount price threshold
+		// Setting the threshold to -1 means that there will ALWAYS be a low deposit
+		var iRegularDepositPriceThreshold;
+		switch (fnGetBrand()) {
+			case "boats":
+				//iRegularDepositPriceThreshold = -1; // no threshold, always a low deposit
+				iRegularDepositPriceThreshold = 2000;
+
+				break;
+			case "cottages":
+				// The current page is the product page
+				if (document.body.classList.contains('cottages--pd') || (document.body.classList.contains('cottages') && document.body.classList.contains('search-results'))) {
+					// Look at number of people sleeping, if 10 or less then apply low deposit
+					var iSleeps = parseInt($("#accommodationsleepscount").val(), 10);
+					// current calendar year based on pd availability calendar
+					if (document.getElementById('availability-calendar') && document.getElementById('availability-calendar').value !== undefined) {
+						var sCalendarYear = document.getElementById('availability-calendar').value.split('/')[2];
+					} else {
+						var sCalendarYear = MasterJS.getQueryStringParameterByName(window.location.href, 'start');sCalendarYear = sCalendarYear.split('-')[2];
+					}
+
+					if (iSleeps < 10) { // less than 10 enables cottages low deposit offer
+						iRegularDepositPriceThreshold = -1;
+					} else if (sCalendarYear != '2021' && iSleeps > 10) {
+						// Over 10 sleeps and not 2021 - enable for 2020 only
+						iRegularDepositPriceThreshold = 0;
+					}
+				} else if (digitalData) { // Check if it's the summary page
+					if (digitalData.hasOwnProperty('page')) {
+						if (digitalData.page.hasOwnProperty('pageName')) {
+							if (digitalData.page.pageName.split(":")[1].toLowerCase() === "summary") {
+
+								// Is the Low deposit value visible or set?
+								var oDepositValue = $('#depositValue');
+								if (oDepositValue.length > 0) {
+									// Yes - There is a deposit to Apply
+									if (parseInt(oDepositValue.text().replace(/[^0-9\.-]+/g, "")) < 70) {
+										// If the deposit value is less than £70
+										// Trigger low deposit
+										iRegularDepositPriceThreshold = -1;
+									} else {
+										// Trigger normal deposit
+										iRegularDepositPriceThreshold = 0;
+									}
+								} else {
+									// Fallback for errors, trigger normal deposit
+									iRegularDepositPriceThreshold = 0;
+								}
+							}
+						}
+					}
+				}
+				break;
+			case "lodges":
+			case "holiday parks":
+			case "holiday parks in europe" :
+			default:
+				iRegularDepositPriceThreshold = 2000; // default to 2000
+		}
+		return iRegularDepositPriceThreshold;
+	}
+
+	function fnGetLowDepositAmount(iPrice) {
+		/* Calculate deposit based on a passed in price, this needs to be updated when low deposit pricing updates*/
+		// sYear currently only used by product details page for calendar
+		var vDeposit = ""; // variable type
+		switch (fnGetBrand()) {
+			case "lodges":
+			case "holiday parks":
+			case "boats":
+			case "landal":
+				if (iPrice <= 1000) {
+					vDeposit = 35;
+					// change deposit amount for 2020, only needed if differs from 2019
+					// current calendar year based on pd availability calendar
+					if (document.getElementById('availability-calendar') && document.getElementById('availability-calendar').value !== undefined) {
+						var sCalendarYear = document.getElementById('availability-calendar').value.split('/')[2];
+					}
+					if (sCalendarYear) {
+						// run product detail functions
+						if (sCalendarYear === '2021') {
+							vDeposit = 25
+						}
+					} else if (window.location.href.indexOf('2021') > -1) {
+						// other 2020 searches
+						vDeposit = 25;
+					}
+					// end 2020 changes
+				} else if (iPrice > 1000 && iPrice <= 1500) {
+					vDeposit = 75;
+				} else if (iPrice > 1500 && iPrice <= 2000) {
+					vDeposit = 100;
+				}
+				break;
+			case "holiday parks in europe":
+				if (iPrice <= 1000) {
+					vDeposit = 25;
+					// change deposit amount for 2021, only needed if differs from 2020
+					// current calendar year based on pd availability calendar
+					if (document.getElementById('availability-calendar') && document.getElementById('availability-calendar').value !== undefined) {
+						var sCalendarYear = document.getElementById('availability-calendar').value.split('/')[2];
+					}
+					if (sCalendarYear) {
+						// run product detail functions
+						if (sCalendarYear === '2021') {
+							vDeposit = 25
+						}
+					} else if (window.location.href.indexOf('2021') > -1) {
+						// other 2021 searches
+						vDeposit = 25;
+					}
+					// end 2021 changes
+				} else if (iPrice > 1000 && iPrice <= 1500) {
+					vDeposit = 75;
+				} else if (iPrice > 1500 && iPrice <= 2000) {
+					vDeposit = 100;
+				}
+				break;
+			case "cottages":
+				vDeposit = 25;
+				// Set deposit value based on number of Sleeps
+				// var noAdults = MasterJS.getQueryStringParameterByName(window.location.href, 'adult');
+				// if (noAdults && parseInt(noAdults) > 10) {
+				// 	vDeposit = 75;
+				// } else {
+				// 	var lowdep25end = strToDate('24-02-2020'),
+				// 	lowdep30end = strToDate('06-03-2020'),
+				// 	lowdep50end = strToDate('01-04-2020'),
+				// 	todayIs = new Date();
+
+				// 	vDeposit = 25;
+
+				// 	if (todayIs > lowdep25end){
+				// 		vDeposit = 30
+				// 	}
+
+				// 	if (todayIs > lowdep30end){
+				// 		vDeposit = 50
+				// 	}
+
+				// 	if (todayIs > lowdep50end){
+				// 		vDeposit = null
+				// 		//No low deposit after 31/03/20
+				// 	}
+				// }
+
+
+				// **** OLD STUFF BELOW ****
+				// change deposit amount for 2020, only needed if differs from 2019
+				// current calendar year based on pd availability calendar
+				// if (document.getElementById('availability-calendar') && document.getElementById('availability-calendar').value !== undefined) {
+				// 	var sCalendarYear = document.getElementById('availability-calendar').value.split('/')[2];
+				// }
+				// if (sCalendarYear) {
+				// 	// run product detail functions
+				// 	if (sCalendarYear === '2020' || cottagesTempValue === 25) {
+				// 		vDeposit = 25
+				// 	}
+				// } else if (window.location.href.indexOf('2020') > -1 || cottagesTempValue === 25) {
+				// 	//temporary amount or part of if for 2 week ld cottages
+				// 	// other 2020 searches
+				// 	vDeposit = 25
+				// }
+				// end 2020 changes
+				break;
+		}
+		return vDeposit;
+	}
+
+	// Private
+	function isSearchWithinDaysThreshold(oSearchDate, dateToday) {
+		var iDays = 70, // 10 weeks
+			singleDay = 24 * 60 * 60 * 1000,
+			dateDifference = (oSearchDate.getTime() - dateToday.getTime()) / (singleDay);
+
+		//console.log("Todays date is " + dateToday + " And the searched date is " + oSearchDate);
+		//console.log("And the difference in days is " + dateDifference);
+		if (dateDifference >= iDays) { // If the search is at least 10 weeks away
+			return true;
+		}
+		return false;
+	}
+
+	// -------------------------------------------------------------------------
+	// BLUR IMAGE LOADER MODULE - Authors (Michael Grant/Tom Sherman)
+	var oBlurImageLoader = function () {
+		function fnLoadImage(el, options, callback) {
+			if (typeof jQuery === 'function' && el instanceof jQuery) {
+				el = el[0];
+			}
+			if (typeof options === 'undefined') {
+				options = {};
+			}
+			if (typeof options.thumbPattern === 'undefined') {
+				options.thumbPattern = 'thumb_';
+			}
+			if (typeof callback === 'undefined') {
+				callback = null;
+			}
+
+			var thumbnail = el.getElementsByTagName('img')[0];
+
+			if(thumbnail) {
+				var img = new window.Image();
+
+				img.thumbnail = thumbnail;
+				img.addEventListener('load', imageLoaded, false);
+
+				img.thumbnail.imageLoader = el;
+				img.thumbnail.callback = callback;
+				img.src = thumbnail.src.replace(options.thumbPattern, '');
+			}
+		}
+
+		function imageLoaded(event) {
+			var img = event.target;
+			img.removeEventListener('load', imageLoaded, false);
+			img.thumbnail.imageLoader.style.backgroundImage = 'url(' + img.src + ')';
+			img.thumbnail.classList.add('kill-thumb');
+			img.thumbnail.addEventListener('transitionend', thumbnailFadeFinished, false);
+		}
+
+		function thumbnailFadeFinished(event) {
+			var thumbnail = event.target;
+			// now remove thumbnail when transistion has finished
+			thumbnail.removeEventListener('transitionend', thumbnailFadeFinished, false);
+			thumbnail.imageLoader.removeChild(event.target);
+			thumbnail.imageLoader.dataset.loaded = 'true';
+			event.target = null;
+			if (thumbnail.callback) {
+				thumbnail.callback(thumbnail.imageLoader);
+			}
+		}
+
+		return {
+			loadImage: fnLoadImage
+		};
+	}();
+	// END BLUR IMAGE LOADER MODULE
+	// -------------------------------------------------------------------------
+
+	// -------------------------------------------------------------------------
+	// DYNIMAGE MODULE - Author (Tom Sherman)
+	var oDynImg = function () {
+		/**
+		* Adds or removes a batch of event listeners. Only used for legacy fallback method.
+		* @param {function} fn The event handler.
+		* @param {array} eventPattern A two dimensional array.
+		* Each array in `eventPattern` contains two elements, the related DOM node and an
+		* array of events.
+		* @param {bool} remove Set to true to remove event listeners.
+		*/
+		function multiBind(fn, eventPattern, remove) {
+			eventPattern.forEach(function (handler) {
+				var obj = handler[0];
+				var events = handler[1];
+				events.forEach(function (event) {
+					remove ? obj.removeEventListener(event, fn) : obj.addEventListener(event, fn);
+				});
+			});
+		}
+
+		/**
+		* Initialises the default dynimg for handling scrolling.
+		* @param {NodeList} nodes A list of DOM nodes to lazy load.
+		* @param {function} fnLoad The function to call on the element to load it's full contents.
+		* @param {obj} options Options object to pass through to `fnLoad`
+		*/
+		function lazyInit(nodes, fnLoad, options) {
+			var documentEvents = ['scroll', 'touchmove'];
+			var windowEvents = ['orientationchange', 'resize'];
+			if (typeof options === 'undefined') {
+				options = {};
+			}
+			lazyLoad(nodes, fnLoad, options, [
+				[document, documentEvents],
+				[window, windowEvents]
+			]);
+		}
+
+		/**
+		* Handles the lifecycle of the IntersectionObserver object as well as providing a fallback
+		* for browsers who don't support it yet.
+		* In both cases, we call `fnLoad` and pass in the elements and options
+		* @param {NodeList} nodes A list of DOM nodes to lazy load.
+		* These will be passed to `fnLoad` once they become visible.
+		* @param {function} fnLoad The function to call on the element to load it's full contents.
+		* @param {obj} options Options to pass through to `fnLoad`.
+		* @param {array} eventPattern A two dimensional array.
+		* Each array in `eventPattern` contains two elements, the related DOM node and an
+		* array of events.
+		*/
+
+		function lazyLoad(nodes, fnLoad, options, eventPattern) {
+			var elements = Array.prototype.slice.call(nodes);
+			if (typeof options === 'undefined') {
+				options = {};
+			}
+
+			// A bool which reads true if the fallback function is currently running
+			var active = false;
+			var fallback = function () {
+				if (!elements.length) {
+					// There are no more elements to lazy load, so we'll unbind everything.
+					multiBind(fallback, eventPattern, true);
+				}
+				if (!active) {
+					active = true;
+					setTimeout(function () {
+						elements.forEach(function (element) {
+							if ((element.getBoundingClientRect().top <= window.innerHeight && element.getBoundingClientRect().bottom >= 0) && window.getComputedStyle(element).display !== 'none') {
+								fnLoad(element, options, function (el) {
+									elements.splice(elements.indexOf(el), 1);
+								});
+							}
+						});
+						active = false;
+					}, 200);
+				}
+			};
+
+			if (elements.length) {
+				// This compatibility check has been taken from https://github.com/WICG/IntersectionObserver/blob/gh-pages/polyfill/intersection-observer.js
+				if ('IntersectionObserver' in window && 'IntersectionObserverEntry' in window && 'intersectionRatio' in window.IntersectionObserverEntry.prototype) {
+					var elementObserver = new window.IntersectionObserver(function (entries, observer) {
+						entries.forEach(function (entry) {
+							// entry.intersectionRect.height > 0 is for Edge
+							if (entry.isIntersecting || entry.intersectionRect.height > 0) {
+								fnLoad(entry.target, options, function (element) {
+									observer.unobserve(element);
+									// Remove element from the active elements array, leaving only elements
+									// yet to be loaded
+									elements.splice(elements.indexOf(element), 1);
+									if (elements.length === 0) {
+										// All elements have been loaded, disconnect the observer.
+										observer.disconnect();
+									}
+								});
+							}
+						});
+					});
+					elements.forEach(function (element) {
+						elementObserver.observe(element);
+					});
+				} else if (eventPattern) {
+					// If IntersectionObserver isn't available, we'll do things the old way.
+					fallback();
+					multiBind(fallback, eventPattern);
+				}
+			}
+		}
+		return {
+			load: lazyLoad,
+			init: lazyInit
+		};
+	}();
+	// END DYNIMAGE MODULE
+	// -------------------------------------------------------------------------
+
+	// LOCATION BY DISTANCE MODULE
+	var oLocationByDistanceHandler = function() {
+
+		var m_oLocationSearchProperties = null,
+			m_oPreviousValidLocationProperties = null,
+			m_sDefaultLocationPlaceholder = 'Enter holiday location...',
+			m_bStoreLocation = false,
+			m_oRadiusDropdown = null,
+			m_bMapsAPILoaded = false,
+			// Optional
+			m_oNoResults = null,
+			m_oLocationProperties = null,
+			m_oDefaultType = 'List',
+			m_oTypeDropdown = null,
+			m_bPreventSearch = false; // used to stop the results of a search from triggering further functionality, only used in fallback cases
+
+		// Public
+		function fnInit(oLocationSearchProperties) {
+			/*
+			Handles location by distance functionality
+			required properties:
+				oLocationInput - a location input element
+				oRadiusDropdown - a dropdown control to allow the user to choose a specififed distance
+			optional properties:
+				bStoreLocation - if the caller doesn't want to execute an immediate navigation, set this property to true, this will cause the location to be stored within GlobalJS.LocationByDistanceHandler for later use
+				oSearchButton - a button to submit the search
+				oTypeDropdown - a dropdown which chooses the type of search ('Map' or 'List'), if omitted, the type will default to 'List'
+				oNoResults - an element to hide/show based upon whether the search results are valid (show if not valid), if omitted, functionality will be ignored
+				fnTextInputFocusCallback: function called when text input field recieves focus
+				fnLocationSearchSuccessCallback: function called when search has completed
+			*/
+
+			m_oLocationSearchProperties = oLocationSearchProperties;
+
+			m_oRadiusDropdown = m_oLocationSearchProperties.oRadiusDropdown;
+			m_oRadiusDropdown.addEventListener('change', function(oEvent) {
+				if (m_oLocationProperties) {
+					handleStorageOfDistance(m_oLocationProperties);
+				}
+			});
+
+			// Optional
+			if (m_oLocationSearchProperties.hasOwnProperty('oTypeDropdown')) {
+				m_oTypeDropdown = m_oLocationSearchProperties.oTypeDropdown;
+			}
+			if (m_oLocationSearchProperties.hasOwnProperty('oNoResults')) {
+				m_oNoResults = m_oLocationSearchProperties.oNoResults;
+			}
+			if (m_oLocationSearchProperties.hasOwnProperty('bStoreLocation')) {
+				m_bStoreLocation = m_oLocationSearchProperties.bStoreLocation;
+			}
+
+			// Focus handler for the search input control
+			m_oLocationSearchProperties.oLocationInput.addEventListener('focus', function(oEvent) {
+				if (m_oNoResults) {
+					m_oNoResults.style.display = 'none';
+					if (m_oLocationSearchProperties.hasOwnProperty('fnTextInputFocusCallback')) {
+						m_oLocationSearchProperties.fnTextInputFocusCallback();
+					}
+				}
+			});
+
+			// Keypress handler for the search input control
+			m_oLocationSearchProperties.oLocationInput.addEventListener('keydown', function(oEvent) {
+				if (oEvent.keyCode === 13) {
+					m_oLocationSearchProperties.oLocationInput.blur();
+				}
+			});
+
+			if (m_oLocationSearchProperties.hasOwnProperty('oSearchButton')) {
+				// Click handler for the search submit button
+				m_oLocationSearchProperties.oSearchButton.addEventListener("click", searchHandler);
+			}
+
+		}
+		function fnGetLocationProperties() {
+			// Also look for the distance again (it could have changed)
+			var oLocationProperties = null;
+			if (m_oLocationProperties) {
+				oLocationProperties = m_oLocationProperties;
+			} else if (m_oPreviousValidLocationProperties){ // fallback last safe search
+				oLocationProperties = m_oPreviousValidLocationProperties;
+			}
+			if (oLocationProperties) {
+				if (m_oRadiusDropdown.value !== oLocationProperties.sDistanceSearchInMiles) {
+					handleStorageOfDistance(oLocationProperties);
+				}
+			}
+			return oLocationProperties;
+		}
+		function fnGetLocationlabel() {
+			var oLocationProperties = null;
+			if (m_oLocationProperties) {
+				oLocationProperties = m_oLocationProperties;
+			} else if (m_oPreviousValidLocationProperties){ // fallback last safe search
+				oLocationProperties = m_oPreviousValidLocationProperties;
+			}
+			if (oLocationProperties) {
+				// set the string in the following format: Lowestoft, UK within 30 miles
+				return "Within " + oLocationProperties.sDistanceSearchInMiles + " miles of " + oLocationProperties.sSearchDestination;
+			}
+			return null;
+		}
+		function fnSearchForLocation() {
+			searchHandler(null);
+		}
+		function fnClearLocationProperties() {
+			m_oLocationProperties = null;
+			m_oPreviousValidLocationProperties = null;
+		}
+		function fnHaltSearch() {
+			m_bPreventSearch = true;
+		}
+
+		function fnSearchForCurrentLocation() {
+
+			if (!m_bMapsAPILoaded) { // maps is NOT loaded, attempt load of the Lib
+				// api
+				loadMapsAPI(function() { // maps loaded, recall searchForLocation method
+					fnSearchForCurrentLocation();
+				});
+				return false;
+			}
+
+			m_bPreventSearch = false;
+			locationValid(true);
+			// Try HTML5 geolocation.
+			if (navigator.geolocation) {
+				navigator.geolocation.getCurrentPosition(function(position) {
+					// Found the location, returned a lat and lng
+					if (!m_bPreventSearch) {
+						// current location returned
+						var geocoder = new google.maps.Geocoder();
+						geocoder.geocode(
+							{location: {lat: position.coords.latitude, lng: position.coords.longitude}}, // bias filtering toward the uk (doesn't restrict, only bias)
+							function(results, status) {
+								if (status == 'OK') {
+									if (!m_bPreventSearch) {
+										// allow the search to proceed
+										locationValid(true);
+										var sSearchDestination = getSearchDestination(results[0].address_components), // the returned destination from the search
+											sDistance = String(m_oLocationSearchProperties.oRadiusDropdown.value),
+											sType = m_oTypeDropdown ? String(m_oTypeDropdown.value) : m_oDefaultType; // Map or List or default 'List'
+										buildSearchByLatLngUrl(results[0], sSearchDestination, sDistance, sType);
+										dispatchLocationSuccessCallback(true, sSearchDestination);
+									}
+								} else {
+									console.log('Geocode was not successful for the following reason: ' + status);
+									if (!m_bPreventSearch) {
+										locationValid(false);
+										dispatchLocationSuccessCallback(false);
+									}
+								}
+							}
+						);
+					}
+
+				}, function(oError) {
+					locationValid(false);
+					if (oError && oError.code === 1) {
+						/*
+						PERMISSION_DENIED
+						The acquisition of the geolocation information failed because the page didn't have the permission to do it.
+						*/
+						if (window.LocationAndDistanceUIHandler) {
+							LocationAndDistanceUIHandler.setUserDeniedAccessMessage();
+						}
+					}
+					dispatchLocationSuccessCallback(false);
+				});
+			} else {
+				// Browser doesn't support Geolocation
+				locationValid(false);
+				dispatchLocationSuccessCallback(false);
+			}
+		}
+
+		// Private
+		function loadMapsAPI(fnCallback) {
+
+			if (window.google && window.google.hasOwnProperty('maps')) {
+				// google.maps is already present on the page, no need to load
+				fnCallback();
+				return false;
+			}
+
+			var sAPIKey = 'AIzaSyB0dvEbmH_A-6tmbzSl3WmwiQQhdYoMDQ4',
+				oMapsAPIScript = document.createElement('script');
+			oMapsAPIScript.async = true;
+			oMapsAPIScript.addEventListener('load', function(oEvent) {
+				m_bMapsAPILoaded = true;
+				fnCallback();
+			});
+			document.getElementsByTagName('head')[0].appendChild(oMapsAPIScript);
+			oMapsAPIScript.src = 'https://maps.googleapis.com/maps/api/js?key=' + sAPIKey;
+		}
+		function dispatchLocationSuccessCallback(bSuccess, sSearchDestination) {
+			if (m_oLocationSearchProperties.hasOwnProperty('fnLocationSearchSuccessCallback')) {
+				m_oLocationSearchProperties.fnLocationSearchSuccessCallback(bSuccess, sSearchDestination);
+			}
+		}
+		function getSearchDestination(oaAddressComponents) {
+			// search for postal town
+			var sSearchDestination = searchForComponentType(oaAddressComponents, 'postal_town');
+			if (!sSearchDestination) {
+				// search for postal town failed, search for county
+				sSearchDestination = searchForComponentType(oaAddressComponents, 'administrative_area_level_2');
+			}
+			return sSearchDestination;
+		}
+		function searchForComponentType(oaAddressComponents, sType) {
+			for (var i = 0; i < oaAddressComponents.length; i++) {
+				var oComponent = oaAddressComponents[i],
+					saTypes = oComponent.types;
+				for (var j = 0; j < saTypes.length; j++) {
+					if (saTypes[j] === sType) { // found the requested type
+						return oComponent.short_name;
+					}
+				}
+			}
+			return null;
+		}
+		function searchHandler(oEvent){
+			if (oEvent) {
+				oEvent.preventDefault();
+			}
+			var sLocation = String(m_oLocationSearchProperties.oLocationInput.value),
+				sDistance = String(m_oLocationSearchProperties.oRadiusDropdown.value),
+				sType = m_oTypeDropdown ? String(m_oTypeDropdown.value) : m_oDefaultType; // Map or List or default 'List'
+			searchForLocation(sLocation, sDistance, sType);
+		}
+		function handleStorageOfDistance(oLocationProperties) {
+			// rebuild oLocationProperties.sLocationQuery, always assumes unit is 'miles'
+			oLocationProperties.sLocationQuery = oLocationProperties.sLocationQuery.replace("miles="+String(oLocationProperties.sDistanceSearchInMiles), "miles="+String(m_oRadiusDropdown.value));
+			// update sDistanceSearchInMiles
+			oLocationProperties.sDistanceSearchInMiles = m_oRadiusDropdown.value;
+		}
+		function searchForLocation(sLocation, sDistanceSearchInMiles, sType) {
+
+			if (!m_bMapsAPILoaded) { // maps is NOT loaded, attempt load of the Lib
+				// api
+				loadMapsAPI(function() { // maps loaded, recall searchForLocation method
+					searchForLocation(sLocation, sDistanceSearchInMiles, sType);
+				});
+				return false;
+			}
+
+			/* Example:
+			sLocation 'Lowestoft'
+			sDistanceSearchInMiles '30'
+			sType 'Map' returns a map search or 'List' returns a normal search list
+			*/
+
+			m_bPreventSearch = false;
+			locationValid(true);
+			if (sLocation.length < 2 || sLocation === m_sDefaultLocationPlaceholder) {
+				locationValid(false);
+				dispatchLocationSuccessCallback(false);
+				return false;
+			}
+
+			var geocoder = new google.maps.Geocoder();
+			geocoder.geocode(
+				{address: sLocation, region:'uk'}, // bias filtering toward the uk (doesn't restrict, only bias)
+				function(results, status) {
+					if (status == 'OK') {
+						if (!m_bPreventSearch) {
+							// allow the search to proceed
+							locationValid(true);
+							buildSearchByLatLngUrl(results[0], results[0].address_components[0].long_name, sDistanceSearchInMiles, sType);
+							dispatchLocationSuccessCallback(true);
+						}
+					} else {
+						console.log('Geocode was not successful for the following reason: ' + status);
+						if (!m_bPreventSearch) {
+							locationValid(false);
+							dispatchLocationSuccessCallback(false);
+						}
+					}
+				}
+			);
+		}
+		function locationValid(bValid){
+			// Callback for location search string validity, will get passed true  if the location is valid, use to hide/show noResultsMessage element
+			if (m_oNoResults) {
+				bValid ? m_oNoResults.style.display = "none" : m_oNoResults.removeAttribute('style');
+			}
+			if (!bValid) {
+				if (m_oLocationProperties) {
+					// there is a previous valid location, store the last valid location and use as a fallback if the user makes a current invalid search
+					m_oPreviousValidLocationProperties = m_oLocationProperties;
+				}
+				m_oLocationProperties = null;
+			} else {
+				if (m_oNoResults) {
+					m_oNoResults.style.display = 'none';
+				}
+			}
+		}
+		function buildSearchByLatLngUrl(oResults, sSearchDestination, sDistanceSearchInMiles, sType) {
+			var sLat = oResults.geometry.location.lat(),
+				sLng = oResults.geometry.location.lng();
+			if (oResults.address_components[0].types[0] === 'postal_code') {
+				// if it's a post code, remove spaces
+				sSearchDestination = sSearchDestination.replace(/\s+/g, '');
+			}
+			var	sQuery = 'lat=' + sLat + "&lng=" + sLng + '&location=' + sSearchDestination + '&miles=' + sDistanceSearchInMiles;
+			if(typeof lpURL!=='undefined'){
+				var sURL = './' + lpURL + sType +'?'+ sQuery;
+				console.log(sURL);
+			}else{
+				var sURL = '/lodges/' + sType + '?' + sQuery;
+				console.log(sURL);
+			}
+
+			if (!m_bStoreLocation) {
+				// Navigate immediately
+				window.location = sURL;
+				console.log(sURL);
+			} else {
+				// store properties for later use
+				m_oLocationProperties = {
+					oResults: oResults,
+					sLocationQuery: sQuery,
+					sFormattedAddress: oResults.formatted_address,
+					sSearchDestination: sSearchDestination,
+					sLat: sLat,
+					sLng: sLng,
+					sDistanceSearchInMiles: sDistanceSearchInMiles,
+					sType: sType
+				};
+			}
+		}
+
+		return {
+			init: fnInit,
+			getLocationProperties: fnGetLocationProperties,
+			getLocationlabel: fnGetLocationlabel,
+			searchForLocation: fnSearchForLocation,
+			searchForCurrentLocation: fnSearchForCurrentLocation,
+			clearLocationProperties: fnClearLocationProperties,
+			haltSearch: fnHaltSearch
+		}
+	}();
+
+	function fnPodClickHandler(oEvent) {
+		oEvent.preventDefault();
+		var link;
+		if (oEvent.target.href) {
+			link = oEvent.target;
+		} else {
+			// If we have clicked the blurred image before it's loaded, step up to the parent link.
+			link = oEvent.target.parentElement;
+		}
+		var timeout = null;
+		var navigate = function () {
+			window.location.href = link.href;
+			clearTimeout(timeout);
+			timeout = null;
+		}
+		timeout = setTimeout(navigate, 1000);
+		try {
+			ga('ec:setAction', 'promo_click');
+			ga('send', 'event', 'Internal Promotions', 'click', link.dataset.name, {
+				hitCallback: navigate
+			});
+		} catch (err) {
+			navigate();
+		}
+	}
+
+	function fnThrottle(func, wait, options) {
+		/*
+		Returns a function, that, when invoked, will only be triggered at most once during a given window of time. Normally, the throttled function will run as much as it can, without ever going more than once per wait duration; but if you’d like to disable the execution on the leading edge, pass {leading: false}. To disable execution on the trailing edge, ditto.
+		*/
+		var context, args, result;
+		var timeout = null;
+		var previous = 0;
+		if (!options) options = {};
+		var later = function () {
+			previous = options.leading === false ? 0 : new Date().getTime();
+			timeout = null;
+			result = func.apply(context, args);
+			if (!timeout) context = args = null;
+		};
+		return function () {
+			var now = new Date().getTime();
+			if (!previous && options.leading === false) previous = now;
+			var remaining = wait - (now - previous);
+			context = this;
+			args = arguments;
+			if (remaining <= 0 || remaining > wait) {
+				if (timeout) {
+					clearTimeout(timeout);
+					timeout = null;
+				}
+				previous = now;
+				result = func.apply(context, args);
+				if (!timeout) context = args = null;
+			} else if (!timeout && options.trailing !== false) {
+				timeout = setTimeout(later, remaining);
+			}
+			return result;
+		};
+	};
+
+	// Utlities
+	function fnGetBrand() {
+		/*return brandtype.toLowerCase();*/
+		if (document.location.href.indexOf('/boat-holidays') > -1) {
+			//Remove low despoit offer for European Boats by using accommodationCode for the product page and the acode from the URL on the summary pages.
+			var aCode;
+
+			var france = document.location.href.indexOf('/france'),
+			germany = document.location.href.indexOf('/germany'),
+			belgium = document.location.href.indexOf('/belgium'),
+			holland = document.location.href.indexOf('/holland'),
+			italy = document.location.href.indexOf('/italy');
+
+			if (france > -1 || germany > -1 || belgium > -1 || holland > -1 || italy > -1) {
+				return "european boats";
+			} else {
+				if (typeof queryDict === 'object' && typeof queryDict.acode !== "undefined") {
+					aCode = queryDict.acode;
+				} else if (typeof accommodationCode !== "undefined") {
+					aCode = accommodationCode;
+				}
+
+				var regex = new RegExp('^eb', 'i');
+				var res = regex.test(aCode);
+
+				if (res === true) {
+					return "european boats";
+				} else {
+					return "boats";
+				}
+			}
+
+
+		} else if (document.location.href.indexOf('/holiday-parks') > -1) {
+			if (document.location.href.indexOf('/holiday-parks-in-europe') > -1) {
+				return "holiday parks in europe";
+			}
+			return "holiday parks";
+		} else if (document.location.href.indexOf('/lodges') > -1) {
+			return "lodges";
+		} else if (document.location.href.indexOf('/cottages') > -1) {
+			return "cottages";
+		} else if (document.location.href.indexOf('/city-breaks') > -1) {
+			return "city breaks";
+		} else if (document.location.host.indexOf('landal') > -1) {
+			return 'landal';
+		}
+	}
+
+	function fnDetectIEorEdge() {
+		var sUa = window.navigator.userAgent,
+			iMSIE = sUa.indexOf('MSIE '), // IE 10
+			iTrident = sUa.indexOf('Trident/'); // IE 11
+		iEdge = sUa.indexOf('Edge'); // Edge
+		if (iMSIE > 0 || iTrident > 0 || iEdge > 0) {
+			// IE 10 or below, IE 11 or Edge
+			return true;
+		}
+		// other browser
+		return false;
+	}
+
+	// Enhanced ecommerce tracking
+	function fnGaSendProductList(xhrResponseData, listName) {
+
+		if (window.ga) { // ga has been defined, proceed (ga is not defined in partners)
+			var jsonResponse = JSON.parse(xhrResponseData);
+			var resultSet = null;
+
+			if (jsonResponse.ServiceResultSet !== '') {
+				resultSet = JSON.parse(jsonResponse.ServiceResultSet);
+			} else if (jsonResponse.SupplierResultSet !== '') {
+				resultSet = JSON.parse(jsonResponse.SupplierResultSet);
+			} else {
+				return;
+			}
+
+			if (resultSet.ItemTemplate.length > 0) {
+				// Service list eg. accommodation list, boat/cottage search results
+				if (jsonResponse.ServiceResultSet !== '') {
+					var siteCode = '';
+
+					if ($('#hdnAccomSiteCode').val()) {
+						siteCode = $('#hdnAccomSiteCode').val() + '\|';
+					}
+
+					resultSet.ItemTemplate.forEach(function (item, index) {
+						try {
+							ga('ec:addImpression', {
+								'id': siteCode + item.ServiceCode,
+								'name': item.Name,
+								'brand': 'Hoseasons',
+								'position': index + 1,
+								'list': listName
+							});
+						} catch (e) { }
+					});
+					// Supplier list eg. L & P search retults
+				} else if (jsonResponse.SupplerResultSet !== '') {
+					resultSet.ItemTemplate.forEach(function (item, index) {
+						try {
+							ga('ec:addImpression', {
+								'id': item.SupplierCode + '\|' + '_site_',
+								'name': item.Name,
+								'brand': 'Hoseasons',
+								'position': index + 1,
+								'list': listName
+							});
+						} catch (e) { }
+					});
+				}
+				ga('send', 'event', 'Ecommerce', 'Impressions', listName, { nonInteraction: true });
+			}
+		}
+	}
+
+	function fnStoreCurrentSearch(bRebuildQueryString) {
+
+		// elements
+		var bStoreSearch = false,
+			oHdnStartDate = $('#hdnStartDate'),
+			oHdnDuration = $('#hdnDuration'),
+			oHdnRange = $('#hdnRange'),
+			oHdnAdults = $('#hdnAdults'),
+			oHdnChildren = $('#hdnChildren'),
+			oHdnInfants = $('#hdnInfants'),
+			oHdnPets = $('#hdnPets'),
+			oDDLDuration = $('#ddlDurations'),
+			oDDLRange = $('#ddlFlexibility'),
+			oDDLAdults = $('#ddlAdults'),
+			oDDLChildren = $('#ddlChildren'),
+			oDDLInfants = $('#ddlInfants'),
+			oDDLPets = $('#ddlPets');
+
+		var sURL = window.location.href.replace("#servicelist", ""), // remove #servicelist from product pages
+			sSplitURL = sURL.split("?"),
+			sQuery = sSplitURL[1];
+
+		if (sQuery) { // there is a query string
+			var saParams = sQuery.split("&");
+			bStoreSearch = hasQueryParam(sQuery, "adult");
+
+			if (bRebuildQueryString) { // Call has requested the query string to be rebuilt from dates, duration
+				// Start Date
+				var oDateSelection = $('#dateSelection');
+				if (oDateSelection.length > 0) { // #dateSelection exists on product pages
+					var oRegEx = new RegExp('/', 'g');
+					setParam(saParams, "start", oDateSelection.attr('data-val').replace(oRegEx, "-"));
+				} else {
+					setParam(saParams, "start", oHdnStartDate.val() || $('#datepickerdatepicker').val());
+				}
+				// Duration
+				setParam(saParams, "nights", $('#Bookingnights').val() || oHdnDuration.val() || oDDLDuration.val());
+				// Adults
+				setParam(saParams, "adult", $('#Bookingadult').val() || oHdnAdults.val() || oDDLAdults.val());
+				// Children
+				setParam(saParams, "child", $('#Bookingchild').val() || oHdnChildren.val() || oDDLChildren.val());
+				// Infants
+				setParam(saParams, "infant", $('#Bookinginfant').val() || oHdnInfants.val() || oDDLInfants.val());
+				// Pets
+				setParam(saParams, "pets", $('#Bookingpets').val() || oHdnPets.val() || oDDLPets.val());
+
+				var sQuery = "";
+				for (var i = 0; i < saParams.length; i++) {
+					sQuery = sQuery + "&" + saParams[i];
+				}
+				sURL = sSplitURL[1] + "?" + sQuery;
+			}
+		}
+
+		if (bStoreSearch) {
+			// Store search in localstorage
+			var store = new hoseasonsStore('hoseasons_data'),
+				searchObj = {
+					location: $('#QuickSearchqsRegionAnchor').text().trim(),
+					url: sURL,
+					website_id: $('#hdnWebsiteId').val() || hiddenwebsiteid || '',
+					start_date: oHdnStartDate.val() || $('#datepickerdatepicker').val(),
+					duration: oHdnDuration.val() || oDDLDuration.val(),
+					range: oHdnRange.val() || oDDLRange.val(),
+					party: {
+						adults: oHdnAdults.val() || oDDLAdults.val(),
+						children: oHdnChildren.val() || oDDLChildren.val(),
+						infants: oHdnInfants.val() || oDDLInfants.val(),
+						pets: oHdnPets.val() || oDDLPets.val()
+					},
+					date: new Date()
+				};
+			store.addSearched(searchObj);
+		}
+	}
+
+	function hasQueryParam(sQuery, sParamName) {
+		return !(sQuery.indexOf(sParamName) === -1);
+	}
+
+	function setParam(saParams, sParam, vValue) {
+		var bFoundParam = false;
+		for (var i = 0; i < saParams.length; i++) {
+			if (saParams[i].indexOf(sParam + "=") > -1) {
+				bFoundParam = true;
+				saParams[i] = String(sParam + "=" + vValue);
+				break;
+			}
+		}
+		if (!bFoundParam) { // no param found, add it into the query string
+			saParams.push(String(sParam + "=" + vValue));
+		}
+	}
+
+	function fnHandleSearchControlValues(bResetToDefault) {
+
+		/*
+		Handles the setting of initial values for gateway and brand home pages
+		If there is user saved search then this data is applied, otherwise default data is applied
+		*/
+
+		if (document.body.classList.contains('gateway')) {  // Gatewayc
+			handleInitialValuesForGatewayControls(bResetToDefault);
+		}
+		if (document.body.classList.contains('product--home')) {  // Brand homepage
+			handleInitialValuesForBrandHomePage(bResetToDefault);
+		}
+	}
+
+	// function to check if not on Landal
+	function fnIsNotLandal() {
+		if (window.location.host.indexOf('landal') > -1) {
+			return false;
+		}
+		return true;
+	}
+
+	function handleInitialValuesForGatewayControls(bResetToDefault) {
+		// retrieve previous search results from local storage
+		var oaSearchedList = hoseasonsStore('hoseasons_data').searched,
+			bApplyDefaultSearchDate = true;
+
+		if (typeof(bResetToDefault) !== 'undefined' && bResetToDefault) {
+			oaSearchedList = null;
+		}
+
+		if (oaSearchedList) {
+			if (oaSearchedList.length > 0) {
+
+				var sSavedSearchURL = oaSearchedList[oaSearchedList.length - 1].url; // reference to the last search the user made
+				if (sSavedSearchURL) {
+					var	sSavedSearchQuery = sSavedSearchURL.split("?")[1];
+					if (sSavedSearchQuery) {
+						if (sSavedSearchQuery.indexOf("adult") > -1) {
+							// there are party details
+							var iGuestCount = 0,
+								iPetCount = 0,
+								saSavedSearchQueryParams = sSavedSearchQuery.split("&"),
+							oSavedSearchQueryParams = {};
+
+							// build an object representing the query string params
+							for (var i = 0; i < saSavedSearchQueryParams.length; i++) {
+								var sSplitParam = saSavedSearchQueryParams[i].split("=");
+								oSavedSearchQueryParams[sSplitParam[0]] = sSplitParam[1];
+							}
+
+							// If search has a start date
+							if (oSavedSearchQueryParams.hasOwnProperty("start")) {
+								// Check if start date is equal to or greater than now
+								var saDate = oSavedSearchQueryParams.start.split('-'),
+									oSearchDate = new Date(saDate[2] + "-" + saDate[1] + "-" + saDate[0]),//YYYY/MM/DD
+									oTodaysDate = new Date();
+								if (!isNaN(oSearchDate.getTime())) {
+									oTodaysDate.setHours(0,0,0,0); // reset todays time to 0 (do not compare time, only days/month/year)
+									if (oSearchDate >= oTodaysDate) {
+										applyDate(oSearchDate, oSavedSearchQueryParams.start);
+									}
+								}
+							}
+
+							// If search has a duration
+							if (oSavedSearchQueryParams.hasOwnProperty("nights")) {
+								$('#hos_nights').val(oSavedSearchQueryParams.nights);
+								$('#hos_nights_city-breaks').val(oSavedSearchQueryParams.nights);
+							}
+
+							// If search has a flexibility
+							if (oSavedSearchQueryParams.hasOwnProperty("range")) {
+								// apply flexibility to control
+								var iIndex;
+								switch (parseInt(oSavedSearchQueryParams.range)) {
+									case 3 :
+										iIndex = 0;
+									break;
+									case 7 :
+										iIndex = 1;
+									break;
+									case 0 :
+										iIndex = 2;
+									break;
+								}
+								setSelectedOption(document.getElementById('flexibility'), iIndex);
+							}
+
+							// If search has adult party comp, set selected option and update guest count
+							if (oSavedSearchQueryParams.hasOwnProperty("adult")) {
+								var iAdults = parseInt(oSavedSearchQueryParams.adult);
+								iGuestCount = iGuestCount + iAdults;
+								setSelectedOption(document.getElementById('adults'), iAdults, true);
+							}
+							// If search has children party comp, set selected option and update guest count
+							if (oSavedSearchQueryParams.hasOwnProperty("child")) {
+								var iChildren = parseInt(oSavedSearchQueryParams.child);
+								iGuestCount = iGuestCount + iChildren;
+								setSelectedOption(document.getElementById('children'), iChildren);
+							}
+							// If search has infants party comp, set selected option and update guest count
+							if (oSavedSearchQueryParams.hasOwnProperty("infant")) {
+								var iInfants = parseInt(oSavedSearchQueryParams.infant);
+								iGuestCount = iGuestCount + iInfants;
+								setSelectedOption(document.getElementById('infants'), iInfants);
+							}
+							// If search has pets party comp, set selected option and update pet count
+							if (oSavedSearchQueryParams.hasOwnProperty("pets")) {
+								iPetCount = parseInt(oSavedSearchQueryParams.pets);
+								setSelectedOption(document.getElementById('pets'), iPetCount);
+							}
+
+							// Update party placeholder value
+							var sPartySummary = String(iGuestCount + " guest");
+							if (iGuestCount > 1) {
+								sPartySummary = String(iGuestCount + " guests");
+							}
+							if (iPetCount === 1) {
+								sPartySummary = sPartySummary + String(", " + iPetCount + " pet");
+							} else if (iPetCount > 1) {
+								sPartySummary = sPartySummary + String(", " + iPetCount + " pets");
+							}
+							document.getElementById('party').setAttribute('placeholder', sPartySummary);
+
+							updateDateText(); // defined in app.min.js
+							updateDates(); // defined in iu-controls.js
+							updatePartyValues(); // defined in iu-controls.js
+						}
+					}
+				}
+			}
+		}
+
+		if (bApplyDefaultSearchDate) {
+
+			var oDefaultSearchCriteria = fnGetDefaultSearchCriteria(),
+				sDefaultDuration = String(oDefaultSearchCriteria.iDuration),
+				oDatePicker = $('#datepickerdatepicker'),
+				oNavCalendar = $('#nav-calendar');
+
+			// *** COMMENTING OUT TO STOP DEFAULT DATE LOGIC ***
+			// Update calendar duration dropdown
+			// $('#hos_nights option').removeAttr('selected');
+			// $('#hos_nights option[value=' + sDefaultDuration + ']').attr('selected','selected');
+			// document.getElementById('hos_nights').value = sDefaultDuration;
+
+			//13-12-2018 (format)
+			// $('#hidden-date').val(oDefaultSearchCriteria.sDateFormat);
+			// oNavCalendar.datepicker("setDate", oDefaultSearchCriteria.oNextStartBookingDate);
+			// oNavCalendar.datepicker("refresh");
+			// $('.ui-state-default.ui-state-highlight.ui-state-active').click();
+			// oDatePicker.datepicker();
+			// oDatePicker.datepicker('setDate', oDefaultSearchCriteria.oNextStartBookingDate);
+
+			// updateDateText();
+			// updateDates();
+			// *** END DEFAULT DATE LOGIC ***
+
+			// *** temp set custom start date ***
+			// Update calendar duration dropdown
+			$('#hos_nights option').removeAttr('selected');
+			$('#hos_nights option[value=7]').attr('selected','selected');
+			document.getElementById('hos_nights').value = '7';
+
+			var tempDefaultDate = '04-07-2020';
+			$('#hidden-date').val(tempDefaultDate);
+			oNavCalendar.datepicker("setDate", tempDefaultDate);
+			oNavCalendar.datepicker("refresh");
+			$('.ui-state-default.ui-state-highlight.ui-state-active').click();
+			oDatePicker.datepicker();
+			oDatePicker.datepicker('setDate', tempDefaultDate);
+
+			updateDateText();
+			updateDates();
+			//  *** end custom start date ***
+
+			// Recall activeStateDeals method in footer to update roundal hrefs
+			if (window.activeStateDeals) {
+				activeStateDeals();
+			}
+		}
+
+		function applyDate(oDate, sDate) {
+			bApplyDefaultSearchDate = false;
+			var oNavCalendar = $('#nav-calendar');
+			$('#hidden-date').val(sDate);
+			oNavCalendar.datepicker("setDate", oDate);
+			oNavCalendar.datepicker("refresh");
+		}
+	}
+
+	function handleInitialValuesForBrandHomePage() {
+		// retrieve previous search results from local storage
+		var oaSearchedList = hoseasonsStore('hoseasons_data').searched,
+			bApplyDefaultSearchDate = true,
+			oDatePicker = null;
+
+		if (oaSearchedList) {
+			if (oaSearchedList.length > 0) {
+				var oLastSearch = oaSearchedList[oaSearchedList.length - 1], // reference to the last search the user made
+					oStartDate = oLastSearch.start_date, // The search start date
+					oParty = oLastSearch.party; // The party details
+
+				// Party
+				// Adults
+				applyPreviousPartySearchToControl(document.getElementById('ddlAdults'), parseInt(oParty.adults), true);
+				// Children
+				applyPreviousPartySearchToControl(document.getElementById('ddlChildren'), parseInt(oParty.children));
+				// Infants
+				applyPreviousPartySearchToControl(document.getElementById('ddlInfants'), parseInt(oParty.infants));
+				// Pets
+				applyPreviousPartySearchToControl(document.getElementById('ddlPets'), parseInt(oParty.pets));
+
+				// Date
+				if (oStartDate !== "") { //"DD/MM/YYYY"
+					oDatePicker = $('#datepickerdatepicker');
+					if (oDatePicker) {
+						// check the search date, if it is less than todays date, remove the search date from the url
+						var saDate = oStartDate.split('/'),
+							oSearchDate = new Date(saDate[2] + "-" + saDate[1] + "-" + saDate[0]),//YYYY/MM/DD
+							oTodaysDate = new Date();
+						if (!isNaN(oSearchDate.getTime())) {
+							// the search date is a valid date
+							oTodaysDate.setHours(0, 0, 0, 0); // reset todays time to 0 (do not compare time, only days/month/year)
+							if (oSearchDate >= oTodaysDate) {
+								// apply the date to the calender
+								applyDate(oSearchDate); //new Date("12-30-2018") - manual date test //MM/DD/YYY
+							}
+						}
+					}
+				}
+
+				// Duration
+				if (oLastSearch.hasOwnProperty("duration")) {
+					document.getElementById("ddlDurations").value = parseInt(oLastSearch.duration);
+				}
+
+				// Flexibility
+				if (oLastSearch.hasOwnProperty("range")) {
+					document.getElementById("ddlFlexibility").value = parseInt(oLastSearch.range);
+				}
+			}
+		}
+
+		if (bApplyDefaultSearchDate) {
+			if (document.body.classList.contains('boats--home')) {
+				applyDate(new Date('2018-03-30'));
+			} else {
+				applyDate(new Date());
+			}
+		}
+
+		function applyDate(oDate) {
+			bApplyDefaultSearchDate = false;
+			oDatePicker = $('#datepickerdatepicker');
+			$('#nav-calendar').datepicker("setDate", oDate);
+			$('.ui-state-default.ui-state-highlight.ui-state-active').click();
+			oDatePicker.datepicker();
+			oDatePicker.datepicker('setDate', oDate);
+		}
+	}
+
+	function applyPreviousPartySearchToControl(oCombo, iGuests, bAdults) {
+		var iNumOptions = oCombo.querySelectorAll('option').length,
+			iIndexOffset = 0;
+		if (iGuests <= iNumOptions) {
+			// Last searched is within range, set combo to value. Do not change if value is out of range
+			if (GlobalJS.getBrand() === "boats") {
+				iIndexOffset = bAdults ? 2 : 0;
+			} else {
+				iIndexOffset = bAdults ? 1 : 0;
+			}
+			oCombo.selectedIndex = iGuests - iIndexOffset;
+		}
+	}
+
+	function setSelectedOption(oSelect, iValue, bAdults) {
+		var options = oSelect.querySelectorAll('option')
+		for (var i = 0; i < options.length; i++) {
+			options[i].removeAttribute('selected');
+		}
+		var iIndex = iValue;
+		if (bAdults) {
+			iIndex = iValue - 1;
+		}
+		options[iIndex].setAttribute('selected', 'selected');
+	}
+
+	function fnGetDefaultSearchCriteria() {
+
+		var oDate = new Date(),
+			iDay = oDate.getDay(),
+			iHours = oDate.getHours(),
+			iDuration = null,
+			bIsWeekend = false,
+			oNextStartBookingDate = null;
+
+		// Check if current day and time is between friday 12pm and Monday 12pm
+		if (iDay > 4 || iDay < 2 ) {
+			// Within Day Range
+			switch (iDay) {
+				case 5: // Friday
+					if (iHours >= 12) {	bIsWeekend = true; }
+					break;
+				case 1: // Monday
+					if (iHours < 12) { bIsWeekend = true; }
+					break;
+				default :
+				bIsWeekend = true;
+			}
+		}
+
+		if (bIsWeekend) {
+			// Is the weekend, book for the week starting on the next monday (1)
+			oNextStartBookingDate = getSpecificDay(oDate, 1);
+			// Book for 4 nights
+			iDuration = 4;
+		} else {
+			// Is the week, book for the weekend starting on the next friday (5)
+			oNextStartBookingDate = getSpecificDay(oDate, 5);
+			// Book for 3 nights
+			iDuration = 3;
+		}
+
+		var iDay = oNextStartBookingDate.getDate(),
+			iMonth = oNextStartBookingDate.getMonth() + 1, // for display
+			iYear = oNextStartBookingDate.getFullYear(),
+			sDateFormat = String(iDay + "-" + iMonth + "-" + iYear);
+
+		return {
+			oNextStartBookingDate: oNextStartBookingDate,
+			sDateFormat: sDateFormat,
+			iDuration: iDuration
+		}
+	}
+
+	// Private Methods
+	function getParameterByName(url, name) {
+		name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
+		var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
+			results = regex.exec(url);
+		return results === null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
+	}
+
+	function gaOrientationEvents() {
+		if (mobileAndTabletcheck() && window.ga) { // ga has been defined, proceed (ga is not defined in partners)
+			var cachedOrientation = '';
+			var rotating = false;
+			var timeOut = null;
+
+			ga('send', 'event', 'Orientation', 'Page load', (window.innerWidth > window.innerHeight) ? 'landscape' : 'portrait', {
+				nonInteraction: true
+			});
+
+			window.addEventListener('resize', function (e) {
+				if (cachedOrientation !== (window.innerWidth > window.innerHeight) ? 'landscape' : 'portrait') {
+					clearTimeout(timeOut);
+					timeOut = setTimeout(function () {
+						var currentOrientation = (window.innerWidth > window.innerHeight) ? 'landscape' : 'portrait';
+						if (cachedOrientation !== currentOrientation) {
+							cachedOrientation = currentOrientation;
+							ga('send', 'event', 'Orientation', 'Orientation change', cachedOrientation, {
+								nonInteraction: true
+							});
+						}
+					}, 2000);
+				}
+			});
+		}
+	}
+
+	function getSpecificDay(oDate, iDayOfWeek) {
+		// Return the date for a specific future day
+		var specificDate = new Date(oDate),
+			iDaysOffset = (iDayOfWeek + 7 - specificDate.getDay()) % 7;
+		specificDate.setDate(specificDate.getDate() + iDaysOffset);
+		return specificDate;
+	}
+
+	// GA Orientation change tracking
+	function mobileAndTabletcheck() {
+		var check = false;
+		(function (a) { if (/(android|bb\d+|meego).+mobile|avantgo|bada\/|blackberry|blazer|compal|elaine|fennec|hiptop|iemobile|ip(hone|od)|iris|kindle|lge |maemo|midp|mmp|mobile.+firefox|netfront|opera m(ob|in)i|palm( os)?|phone|p(ixi|re)\/|plucker|pocket|psp|series(4|6)0|symbian|treo|up\.(browser|link)|vodafone|wap|windows ce|xda|xiino|android|ipad|playbook|silk/i.test(a) || /1207|6310|6590|3gso|4thp|50[1-6]i|770s|802s|a wa|abac|ac(er|oo|s\-)|ai(ko|rn)|al(av|ca|co)|amoi|an(ex|ny|yw)|aptu|ar(ch|go)|as(te|us)|attw|au(di|\-m|r |s )|avan|be(ck|ll|nq)|bi(lb|rd)|bl(ac|az)|br(e|v)w|bumb|bw\-(n|u)|c55\/|capi|ccwa|cdm\-|cell|chtm|cldc|cmd\-|co(mp|nd)|craw|da(it|ll|ng)|dbte|dc\-s|devi|dica|dmob|do(c|p)o|ds(12|\-d)|el(49|ai)|em(l2|ul)|er(ic|k0)|esl8|ez([4-7]0|os|wa|ze)|fetc|fly(\-|_)|g1 u|g560|gene|gf\-5|g\-mo|go(\.w|od)|gr(ad|un)|haie|hcit|hd\-(m|p|t)|hei\-|hi(pt|ta)|hp( i|ip)|hs\-c|ht(c(\-| |_|a|g|p|s|t)|tp)|hu(aw|tc)|i\-(20|go|ma)|i230|iac( |\-|\/)|ibro|idea|ig01|ikom|im1k|inno|ipaq|iris|ja(t|v)a|jbro|jemu|jigs|kddi|keji|kgt( |\/)|klon|kpt |kwc\-|kyo(c|k)|le(no|xi)|lg( g|\/(k|l|u)|50|54|\-[a-w])|libw|lynx|m1\-w|m3ga|m50\/|ma(te|ui|xo)|mc(01|21|ca)|m\-cr|me(rc|ri)|mi(o8|oa|ts)|mmef|mo(01|02|bi|de|do|t(\-| |o|v)|zz)|mt(50|p1|v )|mwbp|mywa|n10[0-2]|n20[2-3]|n30(0|2)|n50(0|2|5)|n7(0(0|1)|10)|ne((c|m)\-|on|tf|wf|wg|wt)|nok(6|i)|nzph|o2im|op(ti|wv)|oran|owg1|p800|pan(a|d|t)|pdxg|pg(13|\-([1-8]|c))|phil|pire|pl(ay|uc)|pn\-2|po(ck|rt|se)|prox|psio|pt\-g|qa\-a|qc(07|12|21|32|60|\-[2-7]|i\-)|qtek|r380|r600|raks|rim9|ro(ve|zo)|s55\/|sa(ge|ma|mm|ms|ny|va)|sc(01|h\-|oo|p\-)|sdk\/|se(c(\-|0|1)|47|mc|nd|ri)|sgh\-|shar|sie(\-|m)|sk\-0|sl(45|id)|sm(al|ar|b3|it|t5)|so(ft|ny)|sp(01|h\-|v\-|v )|sy(01|mb)|t2(18|50)|t6(00|10|18)|ta(gt|lk)|tcl\-|tdg\-|tel(i|m)|tim\-|t\-mo|to(pl|sh)|ts(70|m\-|m3|m5)|tx\-9|up(\.b|g1|si)|utst|v400|v750|veri|vi(rg|te)|vk(40|5[0-3]|\-v)|vm40|voda|vulc|vx(52|53|60|61|70|80|81|83|85|98)|w3c(\-| )|webc|whit|wi(g |nc|nw)|wmlb|wonu|x700|yas\-|your|zeto|zte\-/i.test(a.substr(0, 4))) check = true; })(navigator.userAgent || navigator.vendor || window.opera);
+		return check;
+  }
+
+  // Hide custom marketing features from search results & supplier pages
+	function fnHideSpecialFeatures() {
+		var docBody = document.getElementsByTagName('body')[0];
+		if (docBody && (docBody.id === 'body_searchresults' || docBody.classList.contains('park-page'))) {
+			// this only applies to lodges and parks
+			// add features to hide to feature array
+			// add price filters to hide to price array
+			var arrFeaturesToHide = ['10993', '11013', '11186', '11005', '11003', '11001', '10972', '11306', '11310', '11312', '11799', '11942', '11944', '12030', '11975', '12040', '12030'],
+				arrPriceRangeToHide = ['0-300', '0-400'],
+				filterContainer = document.getElementsByClassName('filter-tag-list')[0],
+				selectedFilters = filterContainer.children;
+			for (var i = 0; i < arrFeaturesToHide.length; i++) { // loop through feature codes in array
+				// hide the options to select/deselect feature
+				$('a[data-params="features=' + arrFeaturesToHide[i] + '"]').parent('li').hide();
+				if (window.location.href.indexOf('features=' + arrFeaturesToHide[i]) > -1) { // second part only needs to run if filter is active
+					// if to hide selected features box if hidden feature is only one selected
+					if (selectedFilters.length === 1) {
+						filterContainer.style.display = 'none';
+						document.getElementsByClassName('active-filters')[0].style.display = 'none';
+					}
+				}
+			}
+			for (var o = 0; o < arrPriceRangeToHide.length; o++) { // loop through price codes in array
+				// only hide from price range section of filters, not from selected filters
+				$('#divPriceFilter a[data-params="pricerange=' + arrPriceRangeToHide[o] + '"]').parent('li').hide();
+			}
+		}
+	}
+
+  function fnHideBoatSpecialFeature() {
+		// this only applies to boats
+		// add features to hide to this array
+		var arrFeaturesToHide = ['11298', '11300', '11867'],
+			filterContainer = document.getElementsByClassName('filter-tag-list')[0],
+			selectedFilters = filterContainer.children;
+		for (var i = 0; i < arrFeaturesToHide.length; i++) { // loop through feature codes in array
+			// hide the options to select/deselect feature
+			$('a[data-params="features=' + arrFeaturesToHide[i] + '"]').parent('li').hide();
+			if (window.location.href.indexOf('features=' + arrFeaturesToHide[i]) > -1) {
+				// if to hide selected features box if hidden feature is only one selected
+				if (selectedFilters.length === 1) {
+					filterContainer.style.display = 'none';
+					document.getElementsByClassName('active-filters')[0].style.display = 'none';
+				}
+			}
+		}
+	}
+
+
+	return {
+		init: fnInit,
+		Utils: oUtils,
+		isQualifiedForDeposit: fnIsQualifiedForDeposit,
+		getLowDepositQualifyingYear: fnGetLowDepositQualifyingYear,
+		getLowDepositDiscountThreshold: fnGetLowDepositDiscountThreshold,
+		getLowDepositAmount: fnGetLowDepositAmount,
+		getBrand: fnGetBrand,
+		BlurImageLoader: oBlurImageLoader,
+		DynImg: oDynImg,
+		gaSendProductList: fnGaSendProductList,
+		storeCurrentSearch: fnStoreCurrentSearch,
+		podClickHandler: fnPodClickHandler,
+		throttle: fnThrottle,
+		detectIEorEdge: fnDetectIEorEdge,
+		getDefaultSearchCriteria: fnGetDefaultSearchCriteria,
+		LocationByDistanceHandler: oLocationByDistanceHandler,
+		handleSearchControlValues: fnHandleSearchControlValues,
+		isNotLandal: fnIsNotLandal,
+    hideFeatures: fnHideSpecialFeatures,
+		hideBoatFeatures: fnHideBoatSpecialFeature,
+	}
+}();
+GlobalJS.init();
+
+/*
+TODO: The following method should be deleted (now added to GlobalJS closure above), but first update the method call in sr-footer-scripts.js as well as the SR page for cottages from detectIEorEdge() to GlobalJS.detectIEorEdge()
+*/
+// global function to check for IE or Edge
+function detectIEorEdge() {
+	var sUa = window.navigator.userAgent,
+		iMSIE = sUa.indexOf('MSIE '), // IE 10
+		iTrident = sUa.indexOf('Trident/'); // IE 11
+	iEdge = sUa.indexOf('Edge'); // Edge
+	if (iMSIE > 0 || iTrident > 0 || iEdge > 0) {
+		// IE 10 or below, IE 11 or Edge
+		return true;
+	}
+	// other browser
+	return false;
+}
+
+
+// functions to only run on lodges parks search results and supplier product details on ajax/back button
+if (GlobalJS.getBrand() === 'holiday parks' || GlobalJS.getBrand() === 'lodges' || GlobalJS.getBrand() === 'landal') {
+	$(document).ajaxComplete(function(event, request, settings) {
+		if (settings.url.indexOf('/HoseasonsSearchResultHandler') > -1) {
+		setTimeout(function() {
+			GlobalJS.hideFeatures();
+		}, 0);
+		}
+	});
+	window.addEventListener('popstate', function () {
+		if (history.pushState) {
+		setTimeout(function() {
+			GlobalJS.hideFeatures();
+		}, 0);
+		}
+	});
+	window.addEventListener('load', function () {
+		GlobalJS.hideFeatures();
+	});
+}
+
+// functions to only run on boats on ajax/back button
+if (window.location.href.indexOf('boat-holidays') > -1) {
+	$(document).ajaxComplete(function(event, request, settings) {
+		if (settings.url.indexOf('/HoseasonsSearchResultHandler') > -1) {
+		setTimeout(function() {
+				SRFooterScripts.hideBoatFeatures();
+		}, 0);
+		}
+	});
+	window.addEventListener('popstate', function () {
+		if (history.pushState) {
+			setTimeout(function() {
+				SRFooterScripts.hideBoatFeatures();
+			}, 0);
+		}
+	});
+}

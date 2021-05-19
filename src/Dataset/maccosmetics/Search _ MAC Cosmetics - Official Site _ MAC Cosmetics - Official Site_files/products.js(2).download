@@ -1,0 +1,173 @@
+site.endeca.results.products = jQuery.extend( true, {}, generic.endeca.results.products, {
+
+    createResult: function( args ) {
+        if ( args.result.matched ) { //matched on a product property
+            args.templatePath = this.childTemplatePath || "/templates/endeca/products/result.tmpl";
+            args.result.context = 'product';
+            this.setRestrictGroup( args.result );
+            var skus = args.result.skus;
+            for ( var i = 0; i < args.result.skus.length; i++ ) {
+                args.result.skus[i] = this.modifySku(args.result.skus[i]);
+            }
+            this._super( args );
+        } else { //matched on a sku property
+            args.templatePath = this.childTemplatePathSku || "/templates/endeca/products/sku-result.tmpl";
+            
+            var product = jQuery.extend( {}, args.result );
+            var skus = args.result.skus;
+            for ( var i = 0; i < skus.length; i++ ) {
+                if ( this.configuration.limit && this.resultNodes.length >= this.configuration.limit ) {
+                    break;
+                }
+                skus[i] = this.modifySku(skus[i]);
+                //sku_as_product
+                product['sku_as_product'] = 1;
+                product['skus'] = [skus[i]];
+
+                this.setRestrictGroup( args.result );
+
+                args.result = jQuery.extend( {}, product );
+
+                this._super( args );
+            }
+        }
+    },
+
+    setPreOrderMessage: function(trKey, dateStr) {
+          var msg = site.translations.product[trKey] || '';
+          if (msg) {
+            return msg.replace(/::release_date::/, dateStr);
+          }
+    },
+
+    modifySku: function(sku) {
+          sku['isPreOrder'] = this.testPreOrderSku(sku);
+
+          function _isPro() {
+              var is_pro = site.userInfoCookie.getValue('is_pro');
+              return is_pro == "1";
+          }
+
+          function _isRewardsEligible() {
+              // LOYALTY_ACTIVE_FLAG && ACCEPTED_LOYALTY_TERMS
+              var is_rewards_eligible = site.userInfoCookie.getValue('is_rewards_eligible');
+              return is_rewards_eligible == "1";
+          }
+          if (sku.RESTRICT_GROUP) {
+              sku['disabled_class'] = !(_isRewardsEligible() || _isPro()) ? 'disabled' : '';
+          }
+
+          if(sku['isPreOrder']) {
+              var shipDays = parseInt(site.translations.product.ship_days || '1');
+      var preorder_date_format = Drupal.settings.globals_variables.preorder_date_format || '';
+              var relDate = this.getReleaseDate(sku);
+              var shipDate = new Date(relDate);
+              var days = relDate.getDate();
+              if (!isNaN(shipDays)) {
+                  days += shipDays;
+                  shipDate.setDate(days);
+              }
+      var getDateStr = function(d) {
+        var formatted_date = '';
+        var yyyy = d.getFullYear(),
+            mm = ('0' + (d.getMonth() + 1)).slice(-2),
+            dd = ('0' + d.getDate()).slice(-2);
+        switch (preorder_date_format) {
+          case 'YYYY/MM/DD':
+            formatted_date = yyyy + '/' + mm + '/' + dd;
+            break;
+          case 'DD/MM':
+            formatted_date = dd + '/' + mm;
+            break;
+          default :
+            formatted_date = d.getMonth() + 1;
+            formatted_date += '/';
+            formatted_date += d.getDate();
+            break;
+        }
+        return formatted_date;
+      };
+              var relDateStr = getDateStr(relDate);
+              var shipDateStr = getDateStr(shipDate);
+              if (sku.isShoppable) {
+                  sku['preorder_desc'] = this.setPreOrderMessage('sppprod_preorder_ships_by_desc', shipDateStr);
+              } else {
+                  sku['preorder_desc'] = this.setPreOrderMessage('mpp_preorder_non_shoppable_msg', shipDateStr);
+              }
+              sku['preorder_inv_noshop'] = this.setPreOrderMessage('preorder_noshop_msg', relDateStr);
+              sku['preorder_shop'] = this.setPreOrderMessage( 'mpp_preorder_shoppable_msg', shipDateStr);
+              sku['pre_order_btn'] = this.setPreOrderMessage( 'pre_order_btn', shipDateStr);
+              sku['preorder_non_shop'] = this.setPreOrderMessage( 'mpp_preorder_non_shoppable_msg', relDateStr);
+          }
+          return sku;
+    },
+
+    setRestrictGroup: function( result ) {
+        if ( result ) {
+            // unless RESTRICT_GROUP is already set for the product in .Net
+            if ( typeof result.RESTRICT_GROUP == 'undefined' ) {
+                // if at least one sku does not have RESTRICT_GROUP set, product should have RESTRICT_GROUP set to 0
+                result.RESTRICT_GROUP = 1;
+                for ( var i = 0; i < result.skus.length; i++ ) {
+                    if ( !result.skus[i].RESTRICT_GROUP ) {
+                        result.RESTRICT_GROUP = 0;
+                        break;
+                    }
+                }
+            }
+        }
+    },
+
+    testPreOrderSku: function(s) {
+        var v = 0;
+        var roundDate = function(d) {
+          if (!_.isDate(d)) return null;
+          d.setMinutes(0);
+          d.setHours(0);
+          d.setMilliseconds(0);
+          d.setSeconds(0);
+          return d;
+        }
+        var curDate = new Date(s.responseDate);
+        var relDate = this.getReleaseDate(s) || new Date(curDate);
+
+        curDate = roundDate(curDate);
+        relDate = roundDate(relDate);
+
+        var flag = (s.MISC_FLAG == 15);
+        if (_.isDate(curDate)
+             && _.isDate(relDate)
+             && flag
+             && curDate.getTime() < relDate.getTime() ) { // pre-order state
+          v = 1;
+        }
+        return v;
+    },
+
+    getReleaseDate: function(s) {
+        var relDate = null;
+        if (s.RELEASE_DATE) {
+          var rawDateStr = '' + s.RELEASE_DATE;
+          if (rawDateStr.match(/^\d{6}$/)) {
+            relDate = new Date();
+            var fullyearInt = parseInt('20' + rawDateStr.substr(0,2));
+            var monthInt = parseInt(rawDateStr.substr(2,2)) - 1;
+            var dayInt = parseInt(rawDateStr.substr(4,2));
+            relDate.setFullYear(fullyearInt, monthInt, dayInt);
+          }
+        }
+        return relDate;
+    },
+    
+    reset: function() {        
+        if (    site &&
+                site.productApp &&
+                site.productApp.nukeProducts
+        ) {
+            site.productApp.nukeProducts();
+        }
+        
+        this._super();
+    }
+    
+});

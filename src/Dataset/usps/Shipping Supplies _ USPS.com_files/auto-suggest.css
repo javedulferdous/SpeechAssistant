@@ -1,0 +1,47 @@
+/* Auto-Suggest (type ahead) */
+.atg_store_autoSuggest{
+  position: relative;
+  opacity: 0; /* widget is initially hidden */
+  filter: alpha(opacity = 0); /* for old IE */
+  zoom:1; /* for old IE */
+}
+
+.atg_store_autoSuggest.hide{
+  display:none;
+}
+
+.atg_store_autoSuggest li{
+  width:100%;
+}
+
+.atg_store_autoSuggest li a{
+  width:98%;
+  padding:5px 0 5px 2%;
+  color:#000;
+  display: inline-block;
+}
+
+.atg_store_autoSuggest li a:hover,
+.atg_store_autoSuggest li a.selected{
+  background: #EFEFEF;
+}
+
+.atg_store_autoSuggest span.highlight{
+  font-weight: bold;
+}
+
+.atg_store_autoSuggest ul{
+  position: absolute;
+  min-width:250px;
+  min-height:22px;
+  background: #fff;
+  border: ridge #ABADB3 1px;
+  z-index: 101;
+  top:0px;
+  left:0;
+  font-size: 1.2em;
+}
+
+.atg_store_autoSuggest span.indent{
+  padding-left: 20px;
+}

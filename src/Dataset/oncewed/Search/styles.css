@@ -1,0 +1,576 @@
+html, body, div, span, applet, object, iframe,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+a, abbr, acronym, address, big, cite, code,
+del, dfn, em, img, ins, kbd, q, s, samp,
+small, strike, strong, sub, sup, tt, var,
+b, u, i, center,
+dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td,
+article, aside, canvas, details, embed,
+figure, figcaption, footer, header, hgroup,
+menu, nav, output, ruby, section, summary,
+time, mark, audio, video {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  font-size: 100%;
+  font: inherit;
+  vertical-align: baseline;
+}
+/* HTML5 display-role reset for older browsers */
+article, aside, details, figcaption, figure,
+footer, header, hgroup, menu, nav, section {
+  display: block;
+}
+body {
+  line-height: 1;
+}
+ol, ul {
+  list-style: none;
+}
+blockquote, q {
+  quotes: none;
+}
+blockquote:before, blockquote:after,
+q:before, q:after {
+  content: '';
+  content: none;
+}
+table {
+  border-collapse: collapse;
+  border-spacing: 0;
+}
+
+*{
+  box-sizing: border-box;
+  cursor: pointer;
+}
+
+/* AD SPECIFIC STYLES */
+
+#container {
+  position: absolute;
+  opacity: 1;
+}
+
+#mainContainer {
+  position: absolute;
+  opacity: 0;
+}
+
+#colorbar {
+  position: absolute;
+  top: 0px;
+  left: 0px;
+}
+
+#logo {
+  position: absolute;
+  width: 300px;
+  height: 250px;
+  top: -1px;
+  left: -1px;
+}
+
+#f1_bg_color,#f2_bg_color,#f3_bg_color,#f4_bg_color,
+#f5_bg_color,#f6_bg_color,#f7_bg_color,#f8_bg_color {
+  position: absolute;
+  width: 300px;
+  height: 250px;
+  top: -1px; left: -1px;
+}
+
+#f1_bg,#f2_bg,#f3_bg,#f4_bg,
+#f5_bg,#f6_bg,#f7_bg,#f8_bg{
+  position: absolute;
+  width: 300px;
+  height: 250px;
+  top: -1px;
+  left: -1px;
+}
+
+#f1_product_img,#f2_product_img,#f3_product_img,#f4_product_img,
+#f5_product_img,#f6_product_img,#f7_product_img,#f8_product_img {
+  position: absolute;
+  width: 300px;
+  height: 250px;
+  top: -1px;
+  left: -1px;
+}
+
+#f1_shadow,#f2_shadow,#f3_shadow,#f4_shadow,#f5_shadow,#f6_shadow,#f7_shadow,#f8_shadow{
+    position: absolute;
+    width: 240px;
+    height: 40px;
+    top: 210px;
+    left: 100px;
+    background: radial-gradient(ellipse at center, rgba(179,179,179,0) 0%, rgba(255,255,255,0) 50%, rgba(255,255,255,0) 100%);
+
+    border-radius: 300px/50px;
+}
+
+#headline1_txt,#headline2_txt,#headline3_txt,#headline4_txt,
+#headline5_txt,#headline6_txt,#headline7_txt,#headline8_txt,
+#pricePrefix_txt, #price_txt, #promo_txt {
+  position: absolute;
+  width: 280px;
+  /* opacity: 0; */
+  font-family: 'proxima-nova', sans-serif;
+}
+
+#disclaimer1_txt,#disclaimer2_txt,#disclaimer3_txt,#disclaimer4_txt,
+#disclaimer5_txt,#disclaimer6_txt,#disclaimer7_txt,#disclaimer8_txt
+{
+  position: absolute;
+  width: 280px;
+  font-family: 'proxima-nova', sans-serif;
+}
+
+#price_cont {
+  position: absolute;
+  width: 280px;
+  top: 178px;
+  left: 11px;
+}
+
+#specialOffer_cont {
+  position: absolute;
+  top: 204px;
+  left: 12px;
+}
+
+#price_txt, #promo_txt {
+  width: auto;
+  height: auto;
+  position: relative;
+}
+
+#price_txt, #promo_cont {
+  display: inline-block;
+}
+
+#price_txt {
+  margin-right: 5px;
+}
+
+#promo_cont{
+  position: relative;
+}
+
+#specialOfferSubTxt {
+  font-weight: 500;
+}
+
+#specialOfferTxt,#specialOfferSubTxt {
+  position: absolute;
+  width: 200px;
+  font-family: 'proxima-nova', sans-serif;
+}
+
+#promo_slash {
+  justify-content: center;
+  align-items: center;
+  display: -webkit-flex;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: -moz-box;
+  display: flex;
+
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0px;
+}
+
+#slash {
+  transform: rotateZ(-10deg);
+  background-color: white;
+  position: absolute;
+  height: 3px;
+  width: 100%;
+  left: 0px;
+}
+
+#cta {
+  position: absolute;
+  z-index: 10;
+  font-family: 'proxima-nova', sans-serif;
+  width: 88px;
+  padding: 5.5px 0px;
+  border-radius: 11px;
+  text-align: center;
+}
+
+sup {
+  position: relative;
+  top: -0.6em;
+  left: 0.05em;
+  font-size: 0.56em;
+  font-weight: 700;
+}
+
+#failsafe_img {
+  position: absolute;
+  width: 300px;
+  height: 250px;
+  display: none;
+}
+
+#newicon_img {
+  position: absolute;
+  width: 300px;
+  height: 250px;
+  opacity: 0;
+}
+
+#clicktag1,
+#clicktag2,
+#clicktag3,
+#clicktag4,
+#clicktag5,
+#clicktag6,
+#clicktag7,
+#clicktag8 {
+  position: absolute;
+  width: 300px;
+  height: 250px;
+  display: block;
+}
+
+/* FONT STYLES / WEIGHTS */
+
+.light   { font-weight: 300; }
+
+.regular { font-weight: 400; }
+
+.medium  { font-weight: 500; }
+
+.bold    { font-weight: 700; }
+
+.black   { font-weight: 900; }
+
+@media screen and (-ms-high-contrast: active), (-ms-high-contrast: none) {
+    #slash {
+      margin-top: -2%;
+    }
+
+    sup {
+      font-size: 0.65em;
+    }
+}
+
+/*/////////////// *** CAROUSEL *** ////////////////////*/
+
+.flexCol {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    display: -webkit-flex;
+    -webkit-flex-direction: column;
+    -webkit-align-items: center;
+}
+
+.flexRow {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    display: -webkit-flex;
+    -webkit-flex-direction: row;
+    -webkit-align-items: center;   
+}
+
+#hitall {
+    width: 100%;
+    height: 100%;
+}
+
+.itemHitAll {
+    position: absolute;
+    top: 0px;
+    left:0px;
+    height: 250px;
+    width: 300px;
+  /*background-color: rgba(255,0,0,0.2);*/
+}
+
+#carouselContainer{
+    top:0px;
+    left:0px;
+    height: 250px;
+    width:300px;
+    position: absolute;
+}
+
+#eventsholder {
+    opacity: 0;
+    top:0px;
+    left:0px;
+    position: absolute;
+    height: 100%;
+}
+
+.slick-list, .slick-track{
+  height: 100%;
+}
+
+.slick-cloned .eventTextBlock{
+  opacity: 1 !important;
+}
+
+.eventItem {
+    height: 200px;
+    width: 300px;
+    align-items: flex-start;
+    -webkit-align-items: flex-start; 
+    overflow: hidden;
+    background-size: 300px 250px;
+}
+
+.eventTextBlock { 
+    opacity: 0; 
+    width: 300px;
+    align-items: flex-start;
+    -webkit-align-items: flex-start;
+}
+
+#navHolder {
+    position: absolute;
+    top: 225px;
+    left: 111px;
+    overflow: hidden;
+}
+
+#nav {
+    display: table;
+    margin: 0 auto;
+}
+
+.navDots {
+    position: relative;
+    width: 11px;
+    height: 11px;
+    border-radius: 50%;
+    background-color: #808184;
+    margin-top: 0px;
+    margin-right :5px;
+    float: left;
+}
+
+.navhitall {
+    position: absolute;
+    display: block;
+    left: 0px;
+    top: 0px;    
+    height:100%;  
+    width: 100%;
+    /*background-color: rgba(0, 0, 0, 0.6); */
+}
+
+#carouselnewicon_img {
+  position: absolute;
+  width: 300px;
+  height: 250px;
+  opacity: 0;
+}
+
+#carouselcolorbar {
+  position: absolute;
+  top: 0px;
+  left: 0px;
+}
+
+#carouselcta {
+  position: absolute;
+  z-index: 10;
+  font-family: 'proxima-nova', sans-serif;
+  width: 88px;
+  padding: 5.5px 0px;
+  border-radius: 11px;
+  text-align: center;
+}
+
+#carousellogo {
+    position: absolute;
+    left: 10px;
+    top: 5px;
+    max-width: 165px;
+    height: 35px;
+    width: auto;
+    background-size: 100%;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+.carouselProductWrap{
+    position: relative;
+    left: 0;
+    top: 0;
+    width: 300px;
+    height: 250px;
+    word-wrap: break-word;
+}
+
+.carouselName{   
+    position: absolute;
+    width: auto;
+    height: auto;
+    word-wrap: normal;
+    font-size: 16px; 
+    font-family: 'proxima-nova', sans-serif;
+    font-weight: 700;
+    color: #fff;
+    transform: translateY(-50%);
+    top: 50%;
+    text-transform: uppercase;
+    line-height: 16px;
+    letter-spacing: -0.2px;
+}
+
+.carouselNameCont{   
+    position: absolute;
+    width: 115px;
+    height: 85px;
+    top: 60px;
+    left: 10px;
+}
+
+.carouselImageWrap{
+    position: absolute;
+    overflow: hidden;
+    width: 300px;
+    height: 250px;
+}
+
+.carouselImage {   
+    position: relative;
+    left: 125px;
+    top: 39px;
+    max-width: 200px;
+    height: 200px;
+    width: 100%;
+    background-size: 100%;
+    background-repeat: no-repeat;
+    background-position: center;
+/*
+    object-fit: contain;
+    object-position: center;
+*/
+}
+
+.carouselLogoImageWrap{
+    position: absolute;
+    overflow: hidden;
+    width: 300px;
+    height: 250px;
+}
+
+.carouselLogoImage {   
+    position: absolute;
+    left: 10px;
+    top: 0px;
+    max-width: 165px;
+    height: 44px;
+    width: 100%;
+    background-size: 100%;
+    background-repeat: no-repeat;
+    background-position: center;
+    opacity: 0;
+    -webkit-transition: opacity .5s linear;
+    -moz-transition: opacity .5s linear;
+    -ms-transition: opacity .5s linear;
+    transition: opacity .5s linear;
+}
+
+.transition {
+    -webkit-transition: opacity .167s linear;
+    -moz-transition: opacity .167s linear;
+    -ms-transition: opacity .167s linear;
+    transition: opacity .167s linear;
+}
+.carouselPricePrefix {
+    position: absolute;
+    left: 10px;
+    top: 148px;
+    font-family: 'proxima-nova', sans-serif;
+    font-size: 12px;
+    font-weight: 300;
+    letter-spacing: 0.1px;
+    color: #fff;
+    width: inherit;
+    height: auto;
+    display: inline-block;
+    overflow: hidden;
+}
+
+.carouselPriceWrap {
+    position: absolute;
+    overflow: hidden;
+    width: 300px;
+    height: 250px;
+}
+
+.carouselPrice {
+    position: relative;
+    left: 10px;
+    top: 160px;
+    font-family: 'proxima-nova', sans-serif;
+    font-size: 23px;
+    font-weight: 700;
+    color: #fff;
+    letter-spacing: -0.5px;
+    width: auto;
+    height: auto;
+    display: inline-block;
+    padding-right: 5px;
+    overflow: hidden;
+}
+
+.carouselPriceHead {
+    position: absolute;
+    left: 10px;
+    top: 186px;
+    font-family: 'proxima-nova', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    color: #fff;
+    letter-spacing: -0.4px;
+    width: inherit;
+    height: auto;
+    display: inline-block;
+    overflow: hidden;
+}
+
+.carouselPriceSub {
+    position: absolute;
+    left: 11px;
+    top: 202px;
+    font-family: 'proxima-nova', sans-serif;
+    font-size: 8px;
+    font-weight: 300;
+    color: #fff;
+    letter-spacing: -0.5px;
+    width: auto;
+    height: auto;
+    display: inline-block;
+    overflow: hidden;
+}
+
+.carouselSalePriceWrap {
+    position: relative;
+    display: inline-block;
+    left: 80px;
+    top: 188px;
+}
+
+.carouselSalePrice {
+    position: absolute;
+    width: inherit;
+    height: auto;
+    font-family: 'proxima-nova', sans-serif;
+    top: -22px;
+}
+
+.opacity_ie {
+    opacity: inherit;
+}

@@ -1,0 +1,10 @@
+_satellite.pushAsyncScript(function(event, target, $variables){
+  try {
+window.s_c_il[0].clearVars();
+window.hwDtm.page.omModule = '';
+window.hwDtm.page.link = '';
+}catch(e) {
+  console.log('clearing:' + e);
+}
+
+});

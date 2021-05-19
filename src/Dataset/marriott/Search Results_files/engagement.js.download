@@ -1,0 +1,133 @@
+  (function(){
+         
+     var ecConfig={};            
+    var removeSpecialChars = function(s){
+		if(s){
+			return s.replace(/[=~!@#$%^&*() ]/,'');
+		}
+	   };
+	
+  	var getUrlParams = function(){
+  		    var match, pl     = /\+/g,  // Regex for replacing addition symbol with a space
+  			search = /([^&=]+)=?([^&]*)/g,
+  			decode = function (s) { return decodeURIComponent(s.replace(pl, " ")); },
+  			query  = window.location.search.substring(1);
+  
+  			var urlParams = {};
+  			if(query){
+  				while (match = search.exec(query)){
+  					urlParams[decode(match[1])] = decode(match[2]);
+  				}
+  			}
+  			return urlParams;
+  	};
+  	
+  	var getPageSegments = function(){
+  		var loc = location.href.substring(location.protocol.length+2);
+  		var queryString = location.search.replace('?', '');
+  		var pathArray = null;
+  		pathArray = loc.split('?'+queryString)[0].split('/');
+  		//console.log(pathArray);
+  		var segments = [];
+  		
+  		for(var i=1; i<pathArray.length; i++){
+  			if(pathArray[i]){
+  				segments.push(pathArray[i]);
+  			}
+  		}
+  		var urlParams = getUrlParams();
+  		for(var i in urlParams){
+  			var urlParam = urlParams[i];
+  			if(urlParam){
+  				segments.push(i+urlParam);
+  			}
+  		}
+  		//console.log(segments);
+  		return segments;
+  	};
+
+	var getParameterByName = function(url, name){
+		var queryString = "";
+		if(url && url.indexOf('?')!=-1){
+			queryString = '?' + url.split('?')[1];
+		} else {
+			return null;
+		}
+		name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
+		var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
+			results = regex.exec(queryString);
+		return results == null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
+	};
+  
+	var getSearchKeyword = function(){
+		try{
+			var ref = document.referrer;
+			return getParameterByName(ref, 'q');
+		}catch(e){}
+	};
+    var getSessionTime= function(){
+        var sTime=0;
+        if(typeof(Storage) !== "undefined") {
+            var sessionCreation = localStorage.getItem('ecSession') ;
+            if(sessionCreation){
+              sTime = new Date().getTime()-sessionCreation;
+            }else {
+               localStorage.setItem('ecSession', new Date().getTime());
+            }
+       }
+       return sTime;
+    }
+    
+	var $ = function(s){
+		var a=document.querySelectorAll(s);
+		return (a.length>1 ? a : a[0]);
+	};
+  
+       window.ecq = function(r){
+             var s=2, e=1;
+             //console.log('eventName: '+r.e);
+             if(!r.skw){
+				      r.skw = getSearchKeyword();
+              r. sg = getPageSegments();
+              //e = r.e;
+			}
+			var sw=screen.width;
+      var sh=screen.height;
+			var queryString = 'sw='+sw+'&sh='+sh+'&sTime='+ getSessionTime() +'&r=' + s +'&rb='+encodeURIComponent(document.referrer);;
+			for(var i in r){
+				if(r[i] && typeof r[i]=='object' && r[i].length>0){
+					for(var j=0; j<r[i].length; j++){
+						queryString += '&' + i + '=' + encodeURIComponent(r[i][j]);
+					}
+				} else {
+					queryString += '&' + i + '=' + encodeURIComponent(r[i]);
+				}
+			}
+
+			var rootElem1 = $('#ec-base');
+			var ifrm = document.createElement('iframe');
+			ifrm.src = '//tracking.engageclick.com/tracker/t?' + queryString;
+			rootElem1.appendChild(ifrm);  
+     };
+     
+	var rootElem = $('#ec-base');
+	if(!rootElem){
+		rootElem = document.createElement('div');
+		rootElem.setAttribute('id', 'ec-base');
+		rootElem.style.display = 'none';
+		document.body.appendChild(rootElem);
+	}
+
+
+
+  
+
+   if(typeof trxque!=='undefined')
+     trxque.forEach(function(trx){
+        if(trx.a2){     
+         ecTrx(trx.a,trx.a1,trx.a2);
+        }else{   
+         ecTrx(trx.a,trx.a1);
+        }               
+    }); 
+})();

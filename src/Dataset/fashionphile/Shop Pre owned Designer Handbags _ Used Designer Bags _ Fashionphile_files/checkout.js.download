@@ -1,0 +1,887 @@
+(function ($) {
+    $('.place-order').on('click', function () {
+        disableButton($(this));
+        $(this).submit();
+    });
+    var previousCountry = $('[name=shipping_country], [name=billing_country]').val();
+
+    var businessInputChangeHandler = function () {
+        var $this = $(this);
+        var $businessNameInputWrapper = $('[name=shipping_business]').closest('.col-sm-12');
+
+        if ($this.is(':checked')) {
+            $businessNameInputWrapper.show();
+        } else {
+            $businessNameInputWrapper.hide();
+        }
+    };
+
+    var sameAsShippingAddressInputChangeHandler = function () {
+        var $this = $(this);
+
+        if ($this.is(':checked')) {
+            copyShippingAddressToBillingAddress();
+            $('[name=shipping_country], [name=billing_country]').trigger('change', true);
+            $this.prop('checked', true);
+        }
+    };
+
+    var copyShippingAddressToBillingAddress = function () {
+        $('[data-shipping-value]').each(function () {
+            var $input = $(this);
+
+            $input.val($input.data('shipping-value'));
+        });
+    };
+
+    var $paymentInformationWrappers = $('\
+            [name=card_number],\
+            [name=expiration_month],\
+            [name=expiration_year],\
+            [name=verification_number],\
+            [name=save_card]\
+        ').closest('.form-group');
+
+    var previouslySavedCardInputChangeHandler = function () {
+        if ($(this).val() === "0") {
+            $('[name=payment_method]').closest('.form-group').show();
+            $paymentInformationWrappers.show();
+        } else {
+            $('[name=payment_method]').closest('.form-group').hide();
+            $paymentInformationWrappers.hide();
+        }
+    };
+
+    var paymentMethodInputChangeHandler = function () {
+        if($('#authorize_net_payment_profile_id').length && $('#authorize_net_payment_profile_id').val() !== "0") {
+            $('#authorize_net_payment_profile_id').closest('.form-group').show();
+            $paymentInformationWrappers.hide();
+        } else if ($(this).val() === 'paypal') {
+            $('#authorize_net_payment_profile_id').closest('.form-group').hide();
+            $paymentInformationWrappers.hide();
+        } else {
+            $('#authorize_net_payment_profile_id').closest('.form-group').show();
+            $paymentInformationWrappers.show();
+        }
+    };
+
+    var layawayItemInputChangeHandler = function () {
+        var $this = $(this);
+
+        $('[name=use_account_balance]').trigger('change');
+        
+        if ($this.is(':checked')) {
+            showLayawayDownpaymentField($this);
+            $('.edd').hide()
+        } else if (window.shippingPage.method === 'ship') {
+            $('.edd').show()
+            hideLayawayDownpaymentField($this);
+        } else {
+            hideLayawayDownpaymentField($this);
+        }
+    };
+
+    var showLayawayDownpaymentField = function ($this) {
+        $this.closest('.item-layaway').find('.item-layaway-downpayment').show();
+    }
+
+    var hideLayawayDownpaymentField = function ($this) {
+        $this.closest('.item-layaway').find('.item-layaway-downpayment').hide();
+    }
+
+    var billingInfoMatchesShippingInfo = function () {
+        var isMatching = true;
+
+        $('[data-shipping-value]').each(function () {
+            var $input = $(this);
+
+            if ($input.val() != $input.data('shipping-value')) {
+                isMatching = false;
+            }
+        });
+
+        return isMatching;
+    };
+
+    var addressInputsChangeHandler = function () {
+        if (!billingInfoMatchesShippingInfo()) {
+            $('[name=same_as_shipping_address]').prop('checked', false);
+        }
+    };
+
+    var shippingRequest = null;
+
+    var shippingCalculationInputsChangeHandler = function () {
+        $('#shipping_address_verified').val(0);
+        if ($('[name=shipping_postal_code]').val() !== ""
+            && $('[name=shipping_address_1]').val() !== ""
+            && $('[name=shipping_country]').val()) {
+            $("#processing").show();
+            $(".shipping-results").hide();
+            debouncedCalculateShipping();
+        }
+    };
+
+    function titleCase(str) {
+        let splitStr = str.toLowerCase().split(' ');
+        for (let i = 0; i < splitStr.length; i++) {
+           splitStr[i] = splitStr[i].charAt(0).toUpperCase() + splitStr[i].substring(1);
+        }
+
+        return splitStr.join(' ');
+    }
+
+    $('#delivery_method_pick_up_in_store').on('click', function () {
+        $('.customer_shipping_info input').prop('readonly', true);
+        $('.customer_shipping_info_state select').attr('readonly', true);
+    });
+
+    $('#delivery_method_ship').on('click', function () {
+        $('.customer_shipping_info input').prop('readonly', false);
+        $('.customer_shipping_info_state select').attr('readonly', false);
+    });
+
+    var calculateShipping = function () {
+        var company = $('[name=shipping_business]').val(),
+            street1 = $('[name=shipping_address_1]').val(),
+            street2 = $('[name=shipping_address_2]').val(),
+            city = $('[name=shipping_city]').val(),
+            state = $('[name=shipping_state]').val(),
+            postal = $('[name=shipping_postal_code]').val(),
+            country = $('[name=shipping_country]').val(),
+            taxableTotal = $('[name=taxable_total]').val(),
+            closestPickUpLocations = $('').val();
+            shipping_address_verified = $('#shipping_address_verified').val();
+        if (shippingRequest) {
+            shippingRequest.abort();
+            shippingPage.requestAborted();
+        }
+        shippingRequest = $.get('/shipping/calculate', {
+            postal: postal,
+            country: country,
+            company: company,
+            street1: street1,
+            street2: street2,
+            city: city,
+            state: state,
+            taxableTotal: taxableTotal,
+            closestPickUpLocations: closestPickUpLocations,
+            shipping_address_verified: shipping_address_verified
+        });
+        shippingRequest.done(shippingPage.shippingRequestEvent);
+    };
+
+    var debouncedCalculateShipping = $.debounce(800, false, calculateShipping);
+
+    var formatShippingResponse = function (response) {
+        var html = '';
+        var currentMethod = $('[name=shipping_method]').val();
+
+        if ('messages' in response && response.messages.length) {
+            $.each(response.messages, function (i, message) {
+                html += '<div class="alert alert-danger">' + message + '</div>';
+            });
+        } else {
+            $.each(response.rates, function (i, method) {
+                var checked = "";
+                if (method.type == currentMethod) {
+                    checked = " checked";
+                }
+                html += '<div class="radio">';
+                html += '<label rel="popover" data-option="shipping_popup" data-placement="top" data-method="' + method.type + '">';
+                html += method.type + ' - ' + method.formattedRate ;
+                html += '<input type="radio" name="shipping_method_temporary" data-rate="' + method.rate + '" data-edd="' + method.eddMinDate + ' | ' + method.eddMaxDate + '" value="' + method.value + '"' + checked + '>';
+                html += '</label>';
+                html += '</div>';
+                if( method.eddMinDateDisplay !== undefined ) {
+                    html += '<div class="edd"><i>Estimated delivery ' + method.eddMinDateDisplay + ' - ' + method.eddMaxDateDisplay + '</i></div>';
+                }
+            });
+
+            html += '<div class="shipping_edd_info">FASHIONPHILE is open Monday-Friday 7 am - 5 pm (Pacific Time) and we only ship during these hours. ' +
+                'If you place an order on a weekend, holiday, or outside of our normal business hours, the item will be prepared for shipment the following business day.</div>';
+        }
+
+        $('.shipping-results').html(html);
+        shippingPage.shippingResultsReady();
+    };
+
+    window.formatShippingResponseExport = function(response) {
+        formatShippingResponse(response);
+            $(".shipping-results").show();
+            bindShippingInputEvents();
+            if (!response.messages.length && response.error) {
+                addressVerificationError(response.error)
+            } else if (response.street1) {
+                checkMatchingAddress(response);
+            }
+            $("#processing").hide();
+            bindPopoverEvent();
+    };
+
+    var bindPopoverEvent = function () {
+        $('[rel=popover]').popover({
+            html: true,
+            trigger: 'manual',
+            animation: false,
+            content: function () {
+                var target = $(this).attr('data-option');
+                return $('#' + target).html();
+            }
+        }).on("click", function () {
+            updateShippingPopup($(this).attr('data-method'));
+            var _this = this;
+            $(this).popover("show");
+            $(this).siblings(".popover").on("mouseleave", function () {
+                $(_this).popover('hide');
+            });
+        }).on("mouseleave", function () {
+            var _this = this;
+            setTimeout(function () {
+                if (!$(".popover:hover").length) {
+                    $(_this).popover("hide")
+                }
+            }, 2000);
+        });
+    };
+
+    var addressVerificationError = function (error) {
+        var html = '';
+        html += '<h4>Address Unconfirmed</h4>';
+        html += '<p>Please verify your shipping address is correct. Only proceed to the next step if you are sure your address looks right.</p><p>' + error + '</p>';
+        html = shippingErrorTemplate(html);
+        $('[data-content=address_verification]').html(html);
+    };
+
+    var checkMatchingAddress = function (address) {
+        var error = null;
+        if (address.street1.toUpperCase() != $('[name=shipping_address_1]').val().toUpperCase()) {
+            error = true;
+        }
+        if (address.street2.toUpperCase() != $('[name=shipping_address_2]').val().toUpperCase()) {
+            error = true;
+        }
+        if (address.city.toUpperCase() != $('[name=shipping_city]').val().toUpperCase()) {
+            error = true;
+        }
+        if (address.zip != $('[name=shipping_postal_code]').val()) {
+            error = true;
+        }
+        if (address.state != $('[data-type=state-selector]').val()) {
+            error = true;
+        }
+        if (address.country != $('#country-selector').val()) {
+            error = true;
+        }
+        if (error) {
+            var html = '',
+                street1 = address.street1.toLowerCase(),
+                street2 = address.street2.toLowerCase(),
+                city = address.city.toLowerCase(),
+                state = address.state ? address.state : '';
+            html += '<h4>Confirm Your Address</h4>';
+            html += '<p>It looks like it\'s possible your address is different from the one you entered.  To use this updated address, click the button below.  Otherwise, please verify your address and continue.</p>';
+            html += '<p><address>';
+            html += '<span class="capitalize">' + street1 + '</span><br>';
+            if (address.street2) {
+                html += '<span class="capitalize">' + street2 + '</span><br>';
+            }
+            html += '<span class="capitalize">' + city + (state.length ? ', ' + state : '') + '</span><br>';
+            html += address.zip;
+            html += '</address></p>';
+            html += '<p class="text-center"><button type="button" class="btn btn-default" data-action="use_verified_address">Use This Address</button></p>';
+            html = shippingErrorTemplate(html);
+            $('[data-content=address_verification]').html(html);
+            $('[data-action=use_verified_address]').on('click', function () {
+                shippingPage.clearStates();
+                $('#country-selector').val(address.country).trigger('change');
+                $('#addressVerification').modal('hide');
+                $('[name=shipping_address_1]').val(street1);
+                $('[name=shipping_address_2]').val(street2);
+                $('[name=shipping_city]').val(city);
+                $('[data-type=state-selector]').each((i,ele) => { $(ele).val(state); });
+                $('[name=shipping_postal_code]').val(address.zip);
+                $('[data-content=address_verification]').html('');
+                shippingPage.useThisAddressEvent();
+            });
+        }
+    };
+
+    var shippingErrorTemplate = function (message) {
+        var html = '';
+        html += '<div class="alert alert-warning alert-dismissible" role="alert">';
+        html += '<button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">×</span><span class="sr-only">Close</span></button>';
+        html += message;
+        html += '</div>';
+        return html;
+    };
+
+    var updateShippingPopup = function (method) {
+        var html = '';
+        html += '<p>All items are shipped with Signature Confirmation.</p>';
+        if (method != 'Ground') {
+            html += '<p>Orders made Monday thru Friday (excluding holidays) before 12:00 noon PST are eligible to be shipped the same day. </p><p> Orders made on weekends, holidays, or weekdays after 12:00 noon PST will ship the next business day.</p>';
+        }
+        $('[data-content=shipping_info]').html(html);
+    };
+
+    var bindShippingInputEvents = function () {
+        var $shippingMethodInput = $('[name=shipping_method_temporary]');
+        $shippingMethodInput.on('click', updateShipping);
+    };
+
+    var updateShipping = function (e) {
+        var $currentTarget = $(e.currentTarget);
+        var rate = $currentTarget.data('rate');
+        var method = $currentTarget.val();
+        var edd = $currentTarget.data('edd');
+
+        $('[name=shipping_method]').val(method);
+        $('[name=shipping_rate]').val(rate);
+        $('[name=shipping_method_edd]').val(edd);
+    };
+
+    window.countryInputChangeHandler = function (e, initializing) {
+        var $this = $(this);
+        var $stateText = $this.closest('.row').find('[name=shipping_state], [name=billing_state], [name=state], [name=main_state]');
+        var $stateSelect = $this.closest('.row').find('.state-select');
+        var countries = window.countries || [];
+
+        $stateSelect.empty();
+        if (countries[$this.val()]) {
+            $.each(countries[$this.val()], function (index, state) {
+                var $option = $('<option>');
+                $option.text(state);
+                $option.attr('value', index);
+                $stateSelect.append($option);
+                if (index == $stateText.val()) {
+                    $stateSelect.val(index);
+                }
+            });
+        }
+
+        if (countries[$this.val()]) {
+            $stateText.hide();
+            $stateSelect.show();
+            $stateSelect.trigger('change');
+        } else {
+            $stateSelect.hide();
+            if (!initializing && countries[previousCountry]) {
+                $stateText.val('');
+            }
+            $stateText.show();
+        }
+        if ($('[name=shipping_country]').length) {
+            if ($('[name=shipping_country]').val() != 'US' && $('[name=shipping_country]').val() != 'PR') {
+                $('[data-content=internationalShippingTerms]').removeClass('hidden');
+            } else {
+                $('[data-content=internationalShippingTerms]').addClass('hidden');
+            }
+        }
+
+        previousCountry = $this.val();
+    };
+
+    window.stateSelectChangeHandler = function (e) {
+        $select = $(e.currentTarget);
+        var $stateText = $select.closest('.row').find('[name=shipping_state], [name=billing_state], [name=state]');
+
+        $stateText.val($select.val());
+    };
+    $('.state-select').on('change', window.stateSelectChangeHandler);
+
+    var acceptLayawayTermsHandler = function () {
+        if (this.checked) {
+            $('#layawayPreview').modal('show');
+        }
+    };
+
+    var isLayaway = function () {
+        isPayment = window.location.pathname.indexOf('layaway-payment') > -1;
+
+        return isPayment || $('.item-layaway-checkbox').is(':checked');
+    };
+
+    var usingAccountBalance = function () {
+        return $('[name=use_account_balance]').is(':checked');
+    };
+
+    var accountBalanceCoversAmountDue = function () {
+        return accountBalanceValue() >= orderTotalValue();
+    };
+
+    var useAccountBalanceToggleHandler = function () {
+        var orderTotal = orderTotalValue(),
+            amountDue = Math.max(parseFloat(orderTotal - accountBalanceValue()).toFixed(2), 0),
+            $savedCreditCard = $('[name=authorize_net_payment_profile_id]').closest('.form-group'),
+            $paymentMethod = $('[name=payment_method]').closest('.form-group');
+
+        $savedCreditCard.show();
+        $paymentMethod.show();
+
+        if ($('[name=payment_method]').val() === 'paypal') {
+            $('#authorize_net_payment_profile_id').closest('.form-group').hide();
+            $paymentInformationWrappers.hide();
+        } else {
+            $('#authorize_net_payment_profile_id').closest('.form-group').show();
+            $paymentInformationWrappers.show();
+        }
+        if (usingAccountBalance()) {
+            updateAmountDue(amountDue);
+
+            if (amountDue === 0) {
+                $savedCreditCard.hide();
+                $paymentMethod.hide();
+                $paymentInformationWrappers.hide();
+            }
+        } else {
+            updateAmountDue(orderTotal);
+        }
+    };
+
+    var downPaymentInputChangeHandler = function (event) {
+        var amountDue = accounting.unformat($('[name=order_total]').val()),
+            value = accounting.unformat($(this).val());
+
+        if (value > amountDue) {
+            $(this).val(amountDue);
+        } else {
+            $(this).val(value);
+        }
+
+        $(this).trigger('update');
+    };
+
+    function applyGiftCard() {
+        var code = $('[name=gift_card_code]').val();
+        $('[data-action=apply-gift-card]').append('<span>&nbsp;<i class="fa fa-spinner fa-spin"></i></span>').prop('disabled', true);
+        $.ajax({
+            url: '/checkout/apply-gift-card',
+            data: {
+                gift_card_code: code
+            },
+            type: 'POST'
+        }).done(function (response) {
+            $('[data-action=apply-gift-card]').prop('disabled', false).find('span').remove();
+            if (response.success) {
+                renderSummary(response.summary);
+                $('[data-gift-card-input]').hide();
+
+                if (response.summary.paying_with_gift_cards) {
+                    $('[name=payment_method]').closest('.form-group').hide();
+                    $paymentInformationWrappers.hide();
+                }
+            } else {
+                $('#giftCardResponseMessage').html(response.message);
+                $('#giftCardResponse').removeClass('hidden');
+            }
+        });
+    }
+
+    function newsletterSubscribe() {
+        var email = $('.email-signup [name=email]').val();
+        $.ajax({
+            url: '/newsletters/subscribe',
+            data: {
+                email: email,
+                type: 'subscribe'
+            },
+            type: 'POST'
+        });
+
+        $('.email-signup .cta-form').hide();
+        $('.email-signup .cta-form btn').prop('disabled', true);
+        $('.email-signup .cta-success').show();
+    }
+
+    function removeGiftCard() {
+        var code = $(this).data('gift-card-code');
+
+        $('[data-action=remove-gift-card]').hide().after('<i class="fa fa-spinner fa-spin"></i>');
+
+        $.ajax({
+            url: '/checkout/remove-gift-card',
+            data: {
+                gift_card_code: code,
+                _method: 'DELETE'
+            },
+            type: 'POST'
+        }).done(function (response) {
+            $('[data-action=remove-gift-card]').show().siblings('i').remove()
+            if (response.success) {
+                renderSummary(response.summary);
+                $('[data-gift-card]').remove();
+                $('[data-gift-card-input]').show();
+            }
+        });
+    }
+
+    function renderSummary(summary) {
+        $('[data-subtotal]').html(accounting.formatMoney(summary.subtotal));
+        $('[data-shipping-rate]').html(accounting.formatMoney(summary.shipping));
+        $('[data-tax]').html(accounting.formatMoney(summary.tax));
+        $('[data-discount-total]').html("-" + accounting.formatMoney(summary.discounts));
+        if (summary.coupon_total) {
+            $('[data-coupon-amount]').html("-" + accounting.formatMoney(summary.coupon_total));
+            $('[data-coupon-row]').removeClass('hidden');
+            $('[data-coupon-input]').addClass('hidden');
+        } else {
+            $('[data-coupon-row]').addClass('hidden');
+        }
+        $('[data-order-total]').html(accounting.formatMoney(summary.order_total));
+        $('[data-gift-card]').remove();
+        if (summary.gift_card_amount_due) {
+
+            $('[data-order-total]').closest('tr').after(
+            '<tr data-gift-card>' +
+                '<th>Gift Card: <small class="text-muted gift-card-code">' +
+                summary.gift_card_code + ' - ' + accounting.formatMoney(summary.gift_card_balance) +
+                '</small></th>' +
+                '<td data-gift-card-amount-due>- ' +
+                accounting.formatMoney(summary.gift_card_amount_due) +
+                '<a href="#" data-action="remove-gift-card" data-gift-card-code="' + summary.gift_card_code + '">' +
+                '<span class="glyphicon glyphicon-remove"></span></a>' +
+                '</td>' +
+            '</tr>');
+        }
+        updateAmountDue(summary.amount_due);
+        $('[data-action=remove-gift-card]').click(removeGiftCard);
+    }
+
+    var updateAmountDue = function (amount) {
+        $('[data-amount-due]').html(accounting.formatMoney(amount));
+    };
+
+    var accountBalanceValue = function () {
+        return parseFloat($('[name=account_balance]').val());
+    };
+
+    var orderTotalValue = function () {
+        if (isLayaway()) {
+            return parseFloat($('[name*=down_payment]').val());
+        } else {
+            return parseFloat($('[name=order_total]').val());
+        }
+    };
+
+
+    function signatureModal(){
+        $('#removeSignature').modal('show');
+        let acceptLiability = false;
+        checkSignature(acceptLiability);
+    }
+
+    let signatureCheckbox = $('input[name=is_signature_required]');
+
+    $('[name=signature_not_required]').on('click',function() {
+        let acceptLiability = true;
+        checkSignature(acceptLiability);
+    });
+
+    function checkSignature(acceptLiability) {
+        if (acceptLiability) {
+            signatureCheckbox.removeAttr('checked');
+        } else {
+            signatureCheckbox.prop('checked', true);
+        }
+    }
+
+    $(function () {
+        signatureCheckbox.click(signatureModal);
+        $('label[for="is_signature_required"]').click(signatureModal);
+
+        $('[data-action=apply-gift-card]').click(applyGiftCard);
+        $('[data-action=remove-gift-card]').click(removeGiftCard);
+
+        $('[data-action=newsletter-subscribe]').click(newsletterSubscribe);
+
+        var $downPaymentInput = $('[name*=down_payment]');
+        $downPaymentInput.on('change', downPaymentInputChangeHandler);
+        $downPaymentInput.on('change update', function () {
+            $useAccountBalanceToggle.trigger('change');
+        });
+
+        var $businessInput = $('[name=shipping_is_business_address]');
+        $businessInput.on('change', businessInputChangeHandler);
+        $businessInput.trigger('change');
+
+        var $previouslySavedCardInput = $('#authorize_net_payment_profile_id');
+        $previouslySavedCardInput.on('change', previouslySavedCardInputChangeHandler);
+        $previouslySavedCardInput.trigger('change');
+
+        var $paymentMethodInput = $('[name=payment_method]');
+        $paymentMethodInput.on('change', paymentMethodInputChangeHandler);
+        $paymentMethodInput.trigger('change');
+
+        var $sameAsShippingAddressInput = $('[name=same_as_shipping_address]');
+        $sameAsShippingAddressInput.on('change', sameAsShippingAddressInputChangeHandler);
+        $sameAsShippingAddressInput.trigger('change');
+
+        var $useAccountBalanceToggle = $('[name=use_account_balance]');
+        $useAccountBalanceToggle.on('change', useAccountBalanceToggleHandler);
+        $useAccountBalanceToggle.trigger('change');
+
+        $('.item-layaway-checkbox').each(function () {
+            $(this).on('change', layawayItemInputChangeHandler);
+            $(this).trigger('change');
+        });
+
+        var $addressInputs = $('[data-shipping-value]');
+        $addressInputs.on('change input', addressInputsChangeHandler);
+
+        var $calculateShippingButton = $('[data-action="calculate shipping"]');
+        $calculateShippingButton.on('click', calculateShipping);
+
+        var $countryInputs = $('[name=shipping_country], [name=billing_country], [name=country]');
+        $countryInputs.on('change', countryInputChangeHandler).trigger('change');
+        if ($('[name=shipping_note]').length) {
+            $countryInputs.trigger('change', true);
+        }
+
+        var $shippingCalculationInputs = $('[data-action=calculate-shipping]');
+        $shippingCalculationInputs.on('input change', shippingCalculationInputsChangeHandler);
+        $shippingCalculationInputs.trigger('change');
+
+        $('#shipping_address_verified').on('change', function(){
+            debouncedCalculateShipping();
+        });
+
+        $(".navbar-toggle").click(function () {
+            $("html, body").animate({ scrollTop: 0 }, "fast");
+            $('.navbar').addClass('navbar_shadow');
+        });
+
+        var $acceptTermsToggle = $('[name=accept_layaway_terms]');
+        $acceptTermsToggle.on('click', acceptLayawayTermsHandler);
+
+        $("#edit_billing").click(function () {
+            $('#hidden_payment_info').toggleClass('hidden');
+        });
+
+        $('.progress-bar').each(function () {
+            var $this = $(this);
+
+            $this.css('width', $this.data('width'));
+        });
+
+    });
+
+
+    $('#checkCoupon').click(function (e) {
+
+        $('#checkCoupon').append('<span>&nbsp;<i class="fa fa-spinner fa-spin"></i></span>').prop('disabled', true);
+        var code = $('#code').val();
+        var token = $('input[name=_token]').val();
+        $.post('/check-coupon', { code: code, _token: token })
+            .done(function (response) {
+                $('#checkCoupon').prop('disabled', false).find('span').remove();
+                var message;
+                if (Array.isArray(response.message)) {
+                    message = response.message.join("<br />");
+                } else {
+                    message = response.message;
+                }
+                $('#couponResponse').removeClass('hidden');
+                $('#couponResponseMessage').html(message);
+
+                if (response.summary) {
+                    renderSummary(response.summary);
+                }
+            });
+    });
+
+    // Settings for jQuery Validation plugin
+    // https://jqueryvalidation.org/
+    if ($("#billing-form").length) {
+        var form = $("#billing-form");
+        form.validate({
+            rules: {
+                billing_first_name: "required",
+                billing_last_name: "required",
+                billing_address_1: "required",
+                billing_city: "required",
+                billing_state: "required",
+                billing_country: "required",
+                billing_postal_code: "required",
+                card_number: {
+                    required: true,
+                    creditcard: true
+                },
+                verification_number: {
+                    required: true,
+                    digits: true,
+                    minlength: 3,
+                    maxlength: 4
+                }
+            },
+            submitHandler: function (form) {
+                form.submit();
+            }
+        });
+    };
+    // Asynchronous transition to checkout review,
+    // including the client-side validation above
+    $("#continue-to-review").click(function () {
+        disableButton($(this));
+        if (form.valid()) {
+            if ($("#payment_method").val() === 'paypal') {
+                form.submit();
+                return;
+            }
+            $(".review-order-wrapper,.place-order").addClass('is-active');
+            $(".terms-policy").show();
+            $(".progress-bar").css('width', '70%');
+            $(".step-3").removeClass("active");
+            $(".step-4").addClass("active");
+            $("#continue-to-review,.billing-wrapper,.item-layaway,.coupon-code-group,.gift-card-group,#back-to-shipping").addClass("hidden");
+            $("#back-to-billing").removeClass("hidden");
+            $("#billing-first-name").text($("#billing_first_name").val());
+            $("#billing-last-name").text($("#billing_last_name").val());
+            $("#billing-address-1").text($("#billing_address_1").val());
+            if ($("#billing_address_2").val() === "") {
+                $("#no-break-on-empty").remove();
+            } else {
+                $("#billing-address-2").text($("#billing_address_2").val());
+            }
+            $("#billing-city").text($("#billing_city").val());
+            $("#billing-state").text($("#billing_state").val());
+            $("#billing-postal-code").text($("#billing_postal_code").val());
+            if($("#billing_country").val() == 'US'){
+                $("#billing-country").hide();
+            } else {
+                $("#billing-country").show().text($("#billing_country").val());
+            }
+
+            var paymentMethod = '';
+            if ($("#authorize_net_payment_profile_id").val() !== "0" && typeof $("#authorize_net_payment_profile_id").val() !== 'undefined') {
+                paymentMethod = $("#authorize_net_payment_profile_id option:selected").text();
+            } else if (!accountBalanceCoversAmountDue()) {
+                paymentMethod = 'Card ending in ' + $("#card_number").val().slice(-4) + "<br />" + ' Exp: ' + $("#expiration_month").val() + '/' + $("#expiration_year").val();
+            }
+            if (usingAccountBalance()) {
+                paymentMethod = 'Applying <strong>' + accounting.formatMoney(Math.min(orderTotalValue(), accountBalanceValue())) + '</strong> Store Credit<br />' + paymentMethod;
+            }
+            $("#payment-method").html(paymentMethod).val();
+            $("#billing-phone").text($("#billing_phone").val());
+            $("#billing-email").text($("#billing_email").val());
+
+            $('#layaway-payment-amount').html(accounting.formatMoney($('[id^=down_payment]').val()));
+            $('#layaway-payment').removeClass('hidden');
+
+            if ($('input[name="payment_type"]:checked').val() === 'recurring') {
+                $('#layaway-schedule-term').html($('#paymentSchedule input[type="radio"]:checked').val()).css('textTransform', 'capitalize');
+                var $startDate = moment($('input[name="schedule_payment_start_date"]').val()).format("MMMM DD, YYYY");
+                $('#layaway-schedule-start-date').html($startDate);
+                $('#layaway-schedule-term-row').removeClass('hidden');
+                $('#layaway-schedule-start-date-row').removeClass('hidden');
+
+                $('#layaway-payment').addClass('hidden');
+            }
+            $('input[name="payment_type"]:checked').val() === 'recurring' ? $('input.place-order').val("Schedule Payments") : $('input.place-order').val("Submit Payment");
+            $(".alert:visible").hide();
+            reenableButton($(this));
+        } else {
+            reenableButton($(this));
+        }
+    });
+
+    var saveButton = $('.checkout-cta .continue-button');
+    var poBoxValidationMessage = $('[data-content=address-po-box-warning-message]');
+    poBoxValidationMessage.hide();
+    var pattern = new RegExp(/^ *((#\d+)|((box)[-. \/\\]?\d+)|(.*p[ \.]? ?(o|0)[-. \/\\]? *-?((box)|b|(#|num)?\d+))|(p(ost)? *(o(ff(ice)?)?)? *((box)|b)? *\d+)|(p *-?\/?(o)? *-?box)|post office box|((box)|b) *(number|num|#)? *\d+|(num|number|#) *\d+)/i);
+
+    $('input[name=shipping_address_1]').focusout(function() {
+        if ($(this).val().match(pattern)) {
+            poBoxValidationMessage.show();
+            saveButton.prop("disabled",true);
+        } else {
+            poBoxValidationMessage.hide();
+            saveButton.prop("disabled",false);
+        }
+    });
+
+    $('input[name=shipping_address_2]').focusout(function() {
+        if ($('input[name=shipping_address_1]').val().match(pattern) || $(this).val().match(pattern)) {
+            poBoxValidationMessage.show();
+            saveButton.prop("disabled",true);
+        } else {
+            poBoxValidationMessage.hide();
+            saveButton.prop("disabled",false);
+        }
+    });
+
+    // Transition from review back to billing
+    $("#back-to-billing").click(function () {
+        $(".review-order-wrapper,.place-order").removeClass('is-active');
+        $(".terms-policy").hide();
+        $(".progress-bar").css('width', '50%');
+        $(".step-3").addClass("active");
+        $(".step-4").removeClass("active");
+        $("#continue-to-review,.billing-wrapper,.item-layaway,.coupon-code-group,.gift-card-group,#back-to-shipping").removeClass("hidden");
+        $("#back-to-billing").addClass("hidden");
+        $('#layaway-payment').addClass('hidden');
+        $('#layaway-schedule-term-row').addClass('hidden');
+        $('#layaway-schedule-start-date-row').addClass('hidden');
+    });
+
+
+    $('[data-not-verified]').on('change', () => {
+        if ($('#authorize_net_payment_profile_id').val() === "0") {
+            return;
+        }
+        $.get('/checkout/register_device').done((response) => {
+            renderModal(response);
+
+            $('[data-content=verify-response]').html('An email with your registration code has been sent to ' + $('[data-content=user-email]').html() + '. Enter the code below to complete your device registration.');
+            $('[data-action=send-code]').on('click', sendCode);
+            $('[data-action=register-device]').on('click', registerDevice);
+        });
+    });
+
+    let sendCode = () => {
+        $.ajax({
+            type: "GET",
+            url: "/api/account-verification",
+            headers: {
+                "Accept": "application/x.fashionphile.v1+json",
+                "Authorization": "bearer " + appToken
+            }
+        }).done(() => {
+            $('[data-content=verify-response]').html('An email with your registration code has been sent to ' + $('[data-content=user-email]').html() + '. Enter the code below to complete your device registration.');
+            $('[data-content=send-code]').hide();
+            $('[data-content=verify-code]').show();
+        });
+    };
+    let registerDevice = () => {
+        $.ajax({
+            type: "POST",
+            url: "/api/account-verification",
+            data: {
+                code: $('#authentication_code').val()
+            },
+            headers: {
+                "Accept": "application/x.fashionphile.v1+json",
+                "Authorization": "bearer " + appToken
+            }
+        }).done((response) => {
+            if (!response.success) {
+                $('[data-content=verify-response]').html('The code inputted was incorrect. Please try again.');
+                return;
+            }
+
+            $('#remoteModal').modal('hide');
+
+        });
+    };
+})(jQuery);
+
+var disableButton = function (button) {
+    var text = button.html();
+    button.attr({ 'disabled': true, 'data-text': text }).html('Processing <span class="loading-wrapper"><i class="loading-logo small white"></i></span>');
+};
+
+
+var reenableButton = function (button) {
+    var text = button.data('text');
+    button.html(text).attr('disabled', false)
+};

@@ -1,0 +1,60 @@
+/* CSS for favorites on PMP */
+
+.products_grid {
+	position: relative;
+}
+
+.favorites-heart {
+	position: absolute;
+	right: 20px;
+	top: 5px;
+}
+.favorites-heart .background {
+	position: relative;
+	right: 0px;
+	top: 0px;
+}
+.favorites-heart .outline {
+	position: absolute;
+    right: 3px;
+    top: 3px;
+    cursor: pointer;
+}
+.favorites-heart .fill {
+	position: absolute;
+    right: 3px;
+    top: 2px;
+    cursor: pointer;
+}
+.favorites-heart .hidden {
+	display: none;
+}
+.favorites-notice {
+	position: absolute;
+    background-color: #ffffff;
+    background-size: cover;
+    border-radius: 5px;
+    padding: 10px;
+    border: 2px solid #8c8c8cab;
+    white-space: nowrap;
+    z-index: 1;
+    box-shadow: 2px 2px 17px #8c8c8cab;
+}
+.favorites-notice .indicator {
+	width: 11px;
+	height: 22px;
+	transform: scaleY(-1) rotate(90deg);
+	position: absolute;
+	top: -16px;
+}
+.favorites-notice .message {
+	font-family: Gotham Book;
+	font-size: 13px;
+	color: #222222;
+	text-decoration: none solid rgb(34, 34, 34);
+	line-height: 15px;
+	text-align: center;
+}
+.favorites-notice .message a {
+	text-decoration: underline solid rgb(34, 34, 34);
+}

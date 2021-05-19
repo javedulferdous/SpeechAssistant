@@ -1,0 +1,238 @@
+if(!window.jQuery)
+{
+   var script = document.createElement('script');
+   script.type = "text/javascript";
+   script.setAttribute("src", "//ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js");
+   document.head.appendChild(script);
+}
+
+window.onload = function(){
+
+var instockObj    = {};
+window.instockObj = instockObj;
+jQuery(document).ready(function(){
+  var instform = '<div class="instock-form"> <ul> <li> Enter your email address to be notified when this item is back in stock </li><li> <input type="email" value="" placeholder="Email Address" name="EMAIL" id="mail" class="nwsletter"/> </li><li style="display: none;"> <input type="text" placeholder="First Name" name="FNAME" id="FNAME" class="nwsletter" value=""/> </li><li style="display: none;"> <input type="text" placeholder="Last Name" name="LNAME" id="LNAME" class="nwsletter" value=""/> </li><li> <input type="hidden" name="product_id" id="product_id" value="%%GLOBAL_ProductId%%"/> <input type="hidden" name="product_stock" id="product_stock" value="0"/> <input type="hidden" name="product_title" id="product_title" value="%%GLOBAL_ProductName%%"/> <input type="hidden" name="store_url" id="store_url" value="%%GLOBAL_ShopPath%%"/> <input type="hidden" name="" id="admin_email" value="%%GLOBAL_AdminEmail%%"/> <input type="hidden" name="product_sku" id="product_sku" value=""/> <input type="button" class="btn newsletter" value="NOTIFY ME" name="subscribe" id="instock-subscribe"/> </li><li> <div class="msg-inst"> <div class="form-popup-msg"> <div class="msg-content" > <div class="msg"></div></div></div></div></li></ul> </div>';  
+  instockObj = {
+    vars:{
+        sku:'',
+        url:'//instockalerts.co/instocka_app/client-insert',
+        stencil:{"initstock":false,"btn_bg_color":"","btn_color":"","product_id":"","options":[],"attributes":[],"variants":[]},
+        variantId:'',
+        variantSku:'',
+        tosend: false
+    },
+    inst_1:function(){
+        window.stencilUtils.api.productAttributes.optionChange(instockObj.vars.stencil.product_id, instockObj.vars.stencil.attributes, (err, response) => {
+                if(response.data.variantId != undefined){
+                    instockObj.vars.stencil.variantId = response.data.variantId;
+                    instockObj.vars.stencil.variantSku = response.data.sku;
+                }
+                if(response.data.instock == true){
+                    $('#notify').hide();
+                    $('#instock-notify-box .instock-form').hide();
+                    instockObj.vars.stencil.tosend = false;
+                }else{
+                    $('#notify').show();
+                    $('#instock-notify-box .instock-form').show();
+                    instockObj.vars.stencil.tosend = true;
+                }
+            });
+    },
+    tosend:function(email){
+        var store_url = instockObj.replacehttp(location.origin);
+        var product_id = instockObj.vars.stencil.product_id;
+        var options = instockObj.vars.stencil.variants;
+        if(options.length == 0){
+            options = '';
+        }else{
+            options = JSON.stringify(options)
+        }
+        if(instockObj.vars.stencil.variantSku == undefined){
+            instockObj.vars.stencil.variantSku = '';
+        }
+        var params = 'email='+encodeURIComponent(email)+'&product_id='+product_id+'&store_url='+store_url+'&options='+options+'&variant_sku='+instockObj.vars.stencil.variantSku;
+        var url = this.vars.url;
+        var valida = false;
+        if(!valida){ 
+            instockObj.senddata(url,params);
+        }else{
+          $('.form-popup-msg').show();
+          var noconnect = "Cannot connect to server<small style='text-transform:none;display:block;'>if current url has 'https' maybe can work replacing this one with 'http'</small>";
+          setTimeout(function(){ $('.form-popup-msg .msg').html(noconnect);},700);
+        } 
+    },
+    replacehttp:function(str){
+        var patt = /http:\/\/|https:\/\//g;
+        var result = str.replace(patt,'');
+        return result;
+    },
+    validateString:function(str){
+        var patt = /https:\/\//g;
+        var result = patt.test(str);
+        return result;
+    },
+    validateEmail:function(email) { 
+        var re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+        return re.test(email);
+    },
+    senddata:function(url,params){//only work with http
+    //console.log(url);
+    //console.log(params);
+    //return true;
+        var Url=url;
+        var Params=params;
+        $('.form-popup-msg').show();
+        $('.form-popup-msg').css('position','inherit');
+        $.ajax({
+            type: 'GET',
+            url: Url,
+            data:Params,
+            async: true,
+            jsonpCallback: 'jsonp_callback',
+            contentType: "application/x-www-form-urlencoded;charset=UTF-8",
+            dataType: 'jsonp',
+            success: function(r) {
+                $('.msg-content').text(r.msg);
+                $('.instock-form #mail').val('');
+            },
+            error: function(e) {
+                alert(e.message);
+            }
+        });
+    }, 
+    optionAttrs:function(attr_id,index){//array , number
+        var prod_id = $('#product_id').val();
+        data='product_id='+prod_id+'&'+attr_id[index].name+'='+attr_id[index].id+'&w=getProductAttributeDetails';
+        $.ajax({
+            url: '/remote.php',
+            type: 'POST',
+            dataType: 'json',
+            data: data,
+            success: function (response) {
+                var stock = response.details.instock || false;
+                if(stock == true){
+                    return false;
+                }
+                var next = index+1;
+                if(typeof attr_id[next] != 'undefined'){
+                  instockObj.optionAttrs(attr_id,next);
+                }else{
+                  $('#instock-notify-box .instock-form').show();
+                  $('#notify').show();
+                  return false;
+                }
+            }
+        });   
+    },
+    options:function(){//loop for single option
+        $("form").each(function() {
+            var r = $(this).attr("data-cart-item-add")
+            if (r != undefined){
+                formItem = this;
+                instockObj.vars.stencil.product_id = $(this).find("input:hidden[name=product_id]").val();
+                instockObj.vars.stencil.attributes = $(this).serialize();
+                instockObj.inst_1();
+                // if(options.length > 3 && instockObj.vars.stencil.variantId != undefined){
+                //     for(var i=2; i<(options.length-1); i++){
+                //         instockObj.vars.stencil.options.push(options[i]);
+                //     }
+                // }
+                // var n =[],t,r,u;
+                // for ($(this).find(":input").each(function() {
+                //         var i = $(this).attr("required"),
+                //             t;
+                //         i != undefined && this.name.indexOf("attribute") > 0 && (t = $.inArray(this.name, n), t < 0 && n.push(this.name))
+                //     }), t = !0, i = 0; i < n.length; i++)r = $("select[name='" + n[i] + "']").val(), u = $("input[name='" + n[i] + "']:checked").val(), u == undefined && r == undefined && (t = !1) ;
+            }
+        });
+    },
+    timeuse:false,
+    timeout:function(){
+        // if(instockObj.timeuse==true){
+        setTimeout(function(){instockObj.options();},500);
+        // }
+    },
+    
+    stencil_init:function(){
+        var r = null, formItem;
+        $("form").each(function() {
+            var r = $(this).attr("data-cart-item-add");
+            if (r != undefined){
+                formItem = this;
+                instockObj.vars.stencil.product_id = $(this).find("input:hidden[name=product_id]").val();
+                instockObj.vars.stencil.attributes = $(this).serialize();
+                $(formItem).find(":input").each(function() {
+                    if($(this).is(":checked")){
+                        var name = this.name;
+                        t = $.inArray(name, instockObj.vars.stencil.options);
+                        if(t<0){
+                            instockObj.vars.stencil.options.push(name);
+                        }
+                    }
+            });
+            }
+        });
+        //instockObj.vars.stencil:{initstock:false,btn_bg_color:'',btn_color:'',product_id:''};
+        var box = document.createElement("div"); 
+        box.setAttribute("id", "instock-notify-box");
+        $(box).insertBefore(formItem);
+        var instockForm = $("#instock-notify-box");
+        instockForm.html(instform);
+        instockObj.inst_1();
+        instockObj.submit();
+        //console.log(instockObj.vars.stencil);
+    },
+    monitor:function(){
+        $("input[name^='attribute[']").click(function(e) {
+            instockObj.options();
+            var name = e.currentTarget.name;
+            t = $.inArray(name, instockObj.vars.stencil.options);
+            if(t<0){
+                instockObj.vars.stencil.options.push(name);
+            }
+        })
+    },
+    validateEmail: function(email) {
+    var re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+        return re.test(String(email).toLowerCase());
+    },
+    submit: function(){
+        $('#instock-subscribe').click(function(e){
+            var instockForm = e.currentTarget.closest('.instock-form');
+            var email = $(instockForm).find("input[name=EMAIL]").val();
+            if(instockObj.vars.stencil.tosend && instockObj.vars.stencil.variantId!=undefined){
+                if(instockObj.vars.stencil.options.length > 0){
+                    instockObj.vars.stencil.variants = [];
+                    for(var i = 0; i<instockObj.vars.stencil.options.length; i++){
+                        var n = $("input[name^='"+ instockObj.vars.stencil.options[i]+"']:checked").val();
+                        var obj = {"id": instockObj.vars.stencil.options[i].substring(10,12),"value":n};
+                        instockObj.vars.stencil.variants.push(obj);
+                    }
+                }
+                $(".msg-content").text('Processing');
+                $('.form-popup-msg').show();
+            }else if(instockObj.vars.stencil.tosend && instockObj.vars.stencil.variantId == undefined && instockObj.vars.stencil.options.length == 0){
+                $(".msg-content").text('Processing');
+                $('.form-popup-msg').show();
+            }else{
+                $(".msg-content").text('Please select all the options');
+                $('.form-popup-msg').show();
+            }
+            if(email != undefined && instockObj.validateEmail(email)){
+                instockObj.tosend(email);
+            }else{
+                $(".msg-content").text('Please enter a valid email address');
+                $('.form-popup-msg').show();
+            }
+        });
+    },
+    init:function(){
+        instockObj.stencil_init();
+        // instockObj.inst_1();
+        instockObj.monitor();
+    }
+  }
+  instockObj.init();
+})
+
+}//window onload end

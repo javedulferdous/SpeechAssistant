@@ -1,0 +1,204 @@
+var JALAN = JALAN || {};
+JALAN.COMMON = {};
+
+JALAN.COMMON.TOOLTIP1 = {
+	init : function(){
+		this.setParameters();
+		this.bindEvent();
+	},
+	setParameters : function(){
+		this.$trigger = $('.jsc-tooltip-target-1');
+	},
+	bindEvent : function(){
+		this.$trigger.each(function(){
+			var $target = $(this).next('.jsc-open-menu');
+			$(this).on('mouseover',function(){
+				$target.stop(true,true);
+				$target.fadeIn();
+			});
+			$(this).on('mouseout',function(){
+				$target.stop(true,true);
+				$target.fadeOut(500);
+				$target.on('mouseover',function(){
+					$target.stop(true,true);
+					$(this).fadeIn();
+				});
+				$target.on('mouseout',function(){
+					$(this).fadeOut();
+				});
+			});
+		});
+	}
+}
+
+
+JALAN.COMMON.PLAN_ACCORDION = {
+	SLIDE_INTERVAL : 300,
+	init : function(){
+		this.setParameters();
+		this.setText();
+		// this.setAccordion();
+		this.executeAccordion();
+		this.countContents();
+	},
+	setParameters : function(){
+		this.language = $('#wrapper').data('language');
+		if(this.language === 'en'){
+			this.openText = 'More plans';
+			this.closeText = 'Less plans';
+		}else if(this.language === 'cn'){
+			this.openText = '更多的产品';
+			this.closeText = '较少的产品';
+		}else if(this.language === 'tn'){
+			this.openText = '更多的產品';
+			this.closeText = '較少的產品';
+		}else if(this.language === 'kr'){
+			this.openText = '보다 많은 플랜';
+			this.closeText = '보다 적은 플랜';
+		}else if(this.language === 'fr'){
+			this.openText = 'Plus de forfaits';
+			this.closeText = 'Moins de forfaits';
+		}else if(this.language === 'th'){
+			this.openText = 'แพ็คเกจมากขึ้น';
+			this.closeText = 'แพ็คเกจน้อยลง';
+		}else if(this.language === 'id'){
+			this.openText = 'Paket lebih banyak';
+			this.closeText = 'Paket lebih sedikit';
+		}else if(this.language === 'my'){
+			this.openText = 'Lebih pelan';
+			this.closeText = 'Kurang pelan';
+		}else{
+			return;
+		}
+
+		this.$wrapper = $('.jsc-accordion-wrapper');
+		this.$list = this.$wrapper.find('.jsc-target-content');
+		this.$contents = this.$list.find('li');
+		this.$trigger = this.$wrapper.find('.jsc-plan-trigger');
+	},
+	setText : function(){
+			this.$trigger.text(this.openText);
+	},
+	setAccordion : function(){
+		this.$wrapper.each(function(){
+			var len = $(this).find('.jsc-target-content').children('li').length;
+			if(len <= 3){
+				$(this).find('.plan-display-btn').remove();
+				return;
+			}
+			var $contents = $(this).find('.jsc-target-content').children('li:gt(2)');
+			$contents.hide();
+		});
+	},
+	executeAccordion : function(){
+		var myself = this;
+		this.$trigger.on('click',function(){
+			var $wrapper = $(this).parents('.jsc-accordion-wrapper');
+			var $target = $wrapper.find('.jsc-target-content').children('li:gt(2)');
+			if($target.is(':hidden')){
+				$target.slideDown(myself.SLIDE_INTERVAL,myself.keepStatus);
+				$(this).text(myself.closeText);
+				$(this).removeClass('plan-display-down');
+				$(this).addClass('plan-display-up');
+				$(this).next('.jsc-plan-num').hide();
+				$(this).css('padding-right','25px');
+			}else{
+				$target.slideUp(myself.SLIDE_INTERVAL,myself.keepStatus);
+				$(this).text(myself.openText);
+				$(this).removeClass('plan-display-up');
+				$(this).addClass('plan-display-down');
+				$(this).next('.jsc-plan-num').show();
+				$(this).css('padding-right','40px');
+			}
+		});
+	},
+	countContents : function(){
+		this.$wrapper.each(function(){
+			var $numBox = $(this).find('.jsc-plan-num');
+			var num = $(this).find('.jsc-target-content').children('li').length;
+			if(num < 3){
+				return;
+			}
+			var hiddenNum = num - 3;
+			$numBox.text('('+hiddenNum+')');
+		});
+	}
+}
+
+JALAN.COMMON.ROOM_ACCORDION = {
+	SLIDE_INTERVAL : 300,
+	init : function(){
+		this.setParameters();
+		this.setText();
+		this.bindEvent();
+		this.countContetns();
+	},
+	setParameters : function(){
+		this.language = $('#wrapper').data('language');
+        if(this.language === 'en'){
+            this.openText = 'More rooms';
+            this.closeText = 'Less rooms';
+        }else if(this.language === 'cn'){
+            this.openText = '更多的房间';
+            this.closeText = '较少的房间';
+        }else if(this.language === 'tn'){
+            this.openText = '更多的房間';
+            this.closeText = '較少的房間';
+        }else if(this.language === 'kr'){
+            this.openText = '보다 많은 객실';
+            this.closeText = '보다 적은 객실';
+        }else if(this.language === 'fr'){
+            this.openText = 'Plus de chambres';
+            this.closeText = 'Moins de chambres';
+        }else if(this.language === 'th'){
+            this.openText = 'ห้องพักมากขึ้น';
+            this.closeText = 'ห้องพักน้อยลง';
+        }else if(this.language === 'id'){
+            this.openText = 'Kamar lebih banyak';
+            this.closeText = 'Kamar lebih sedikit';
+        }else if(this.language === 'my'){
+            this.openText = 'Lebih bilik';
+            this.closeText = 'Kurang bilik';
+        }else{
+            return;
+        }
+
+		this.$wrapper = $('.jsc-accordion-wrapper:gt(4)');
+		this.$trigger = $('.jsc-more-room');
+		this.$txt = $('.jsc-more-room-txt');
+		this.$numBox = $('.jsc-room-num');
+		this.$triggerBox = $('.jsc-more-room-box');
+	},
+	setText : function(){
+		this.$txt.text(this.openText);
+	},
+	bindEvent : function(){
+		this.$trigger.on('click',$.proxy(this.executeAccordion,this));
+	},
+	executeAccordion : function(){
+		var myself = this;
+		if(this.$wrapper.is(':hidden')){
+			this.$wrapper.slideDown(this.SLIDE_INTERVAL);
+			this.$trigger.removeClass('room-display-down');
+			this.$trigger.addClass('room-display-up');
+			this.$txt.text(myself.closeText);
+			this.$numBox.hide();
+		}else{
+			this.$wrapper.slideUp(this.SLIDE_INTERVAL)
+			this.$trigger.removeClass('room-display-up');
+			this.$trigger.addClass('room-display-down');
+			this.$txt.text(myself.openText);
+			this.$numBox.show();
+		}
+	},
+	countContetns : function(){
+		var hiddenNum = this.$wrapper.length;
+		this.$numBox.text('(' +hiddenNum+ ')')
+	}
+}
+
+$(function(){
+	JALAN.COMMON.TOOLTIP1.init();
+	JALAN.COMMON.PLAN_ACCORDION.init();
+	JALAN.COMMON.ROOM_ACCORDION.init();
+});

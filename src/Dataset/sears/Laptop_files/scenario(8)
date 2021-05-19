@@ -1,0 +1,156 @@
+window.DigitalFeedback['https://digitalfeedback.us.confirmit.com/api/digitalfeedback/loader/prod/scenario?programKey=vfTGhk&scenarioId=592&programVersion=83'] = function (api) {
+var pid = 'p3090889362';
+var cntstr = 'Blank';
+var invstr = 'DemoInvite';
+var checkPage = true;
+var pagesNeeded = 4;
+var pages = ["www.sears","m.sears.com"];
+var linkScenario = "Sears";
+var sdelay = 8;  // number of seconds to delay before showing invite
+var cookieExpire = 30;  // 60 day expiration
+var randomcheck = isNthVisitor // see 'global variables' for setting.
+var isdt = true;
+
+var cookiename = pid + 'S_done';
+var expireseconds = cookieExpire*24*60*60;
+
+console.log("CONF - " + linkScenario);
+
+if(ConfirmitCookies.get(cookiename))
+{
+ console.log("CONF - survey cookie present - Exiting.");
+ return;
+}
+
+if( checkPage )
+{
+  	var loc = ""+document.location.href;
+	var loclc = loc.toLowerCase();
+	var isOnPage = false;
+
+	for(var i=0;i<pages.length;++i)
+	{
+		if(loclc.indexOf(pages[i].toLowerCase()) != -1)
+		{
+			isOnPage = true;
+			break;
+		}
+	}
+
+	if(!isOnPage)
+	{
+		console.log("CONF - Scenario: " + linkScenario + " - not on page.  Exiting.");
+		return;
+	}
+
+  	if(loclc.indexOf("m.sears") != -1)
+    {
+        var cntstr = 'SearsKmart';
+        isdt = false;
+		console.log("CONF - Scenario: " + linkScenario + " - Mobile, container.");
+    }
+  
+}
+
+		
+var pageCount = +sessionStorage.getItem('Svisited_page_count');
+sessionStorage.setItem('Svisited_page_count', ++pageCount);
+  console.log("CONF - Pages Visited: " + pageCount);
+
+if (pageCount < pagesNeeded) {
+  console.log("CONF - Pages Visited: " + pageCount + " - page count check not passed.  exiting.");
+  return;
+}
+
+if (!randomcheck) {
+  console.log("CONF - Percent check not passed. exiting.");
+ return;
+}
+
+var customerinfostring = ConfirmitCookies.get("cust_info");
+if(customerinfostring)
+{
+    console.log("CONF - cust info cookie present...");
+console.log(customerinfostring)
+var cleancustomerinfostring = customerinfostring.replace(/\\/g, "");
+
+var myObj = JSON.parse(cleancustomerinfostring);
+var cinfo = myObj.customerinfo;
+}
+else
+{
+console.log("CONF - cust info cookie missing...");
+var cinfo = {};
+cinfo.isSYWR = "";
+cinfo.isGuest = "";
+cinfo.sywrNo = "";
+cinfo.sessionID = "";
+cinfo.memberID = "";
+}
+
+var irp = ConfirmitCookies.get("irp");
+var pn = s.pageName;
+var estr = s.prop62;
+var url = ""+document.location.href;
+var syw = cinfo.isSYWR ? cinfo.isSYWR : "0"
+var cpncde = ""
+var crtid = ConfirmitCookies.get("Cartid");
+var usrtyp = cinfo.isGuest ? cinfo.isGuest : "1";
+var sywid = cinfo.sywrNo ? cinfo.sywrNo : "0";
+var shcevn = ConfirmitCookies.get("ot");
+var shcprev = s.prop52;
+var shcp1 =  s.prop1;
+var shcp12 =  s.prop12;
+var shcp27 =  s.prop27;
+var shcref = ""+document.referrer;
+var shce26 = s.eVar26;
+var shce45 = s.eVar45;
+var ssid = cinfo.sessionID ? cinfo.sessionID : "0";
+var smid = cinfo.memberID ? cinfo.memberID : "0";
+
+
+var xyz = api()
+  .invite(invstr)
+  .container(cntstr)
+  .survey(pid)
+
+setTimeout(
+  function() {
+  xyz.data({
+   'IRP': irp,
+   'PN': pn,
+   'Error': estr,
+   'URL': url,
+   'SYW': syw,
+   'CpnCde': cpncde,
+   'Cartid': crtid,   
+   'UsrTyp': usrtyp,
+   'SYWID': sywid,
+   'shc_envir': shcevn,
+   'shc_prev': shcprev,
+   'shc_prop1': shcp1,   
+   'shc_prop12': shcp12,
+   'shc_prop27': shcp27,
+   'shc_referer': shcref,
+   'shc_evar26': shce26,
+   'shc_evar45': shce45,
+   'sessionID': ssid,
+   'memberID': smid,
+   'platform' : isdt ? '1' : '2'
+   })
+  xyz.show();
+ConfirmitCookies.set(cookiename, '1', {path : '/', expiry : expireseconds});
+console.log("CONF - Scenario: " + linkScenario + " - invite shown.")
+	if( isdt )
+	{
+		xyz.events.showContainer.on(
+		  function(args){
+			window.open(args.surveyUrl, '_blank','fullscreen=no,height=500,width=600,location=no');
+		  });
+      console.log("CONF - Scenario: " + linkScenario + " - Desktop - New Window.")
+	}  
+  }, 
+  sdelay*1000);
+
+console.log("CONF - Scenario: " + linkScenario + " running.  " + sdelay +  " seconds till survey.....");
+};

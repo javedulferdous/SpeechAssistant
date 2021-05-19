@@ -1,0 +1,53 @@
+/*
+    Sitewide Endeca configuration.
+    Anything set here will be used as the default for all settings used by the endeca instances
+    on the page. These can be overwritten in the instance configuration files for each
+    endeca instance.
+
+*/
+var endecaGlobal = endecaGlobal || {};
+
+jQuery(document).ready(function() {
+    site.endeca.configuration = {
+        query: {
+            MDEXHost: 'localhost',
+            MDEXPort: Drupal.settings.endeca.ports.mdex,
+            logHost: generic.endeca.generic.env.domain.match(/www/) ? 'njlndca01' : 'localhost',
+            logPort: Drupal.settings.endeca.ports.log,
+            
+            defaultDimensionIds: [ 8089, 8051, 8053, 8062, 8127 ],
+            
+            configuredRangeFilters: {
+                skuShoppable: 's_shoppable|GT+0',
+                skuPromotional: 's_promotional|GT+0',
+                skuSearchable: 's_searchable|GTEQ+1',
+                productTrFlag: 'p_TR_FLAG|LT+1',
+                productDisplayable: 'p_displayable|GT+0',
+                productShoppable: 'p_shoppable|GT+0'
+            },
+            
+            defaultRangeFilters: ['skuSearchable'],
+                    
+            configuredRecordFilters: {
+                products: 'rec_type:product',
+                content: 'rec_type:content',
+                locale: 'locale:' + ( jQuery.cookie('LOCALE') || Drupal.settings.endeca.locale ),
+                activeSkus: 'NOT(s_INVENTORY_STATUS:5),NOT(s_INVENTORY_STATUS:4)',
+                discontinued: 'NOT(s_discontinued:1)',
+                notPro: 'OR(NOT(s_PRO_FLAG:1),s_MISC_FLAG:33)'
+            },
+            
+            defaultRecordFilters: !endecaGlobal.ispro ? ['notPro'] : ''
+            
+        },
+        
+        mustacheMappings: Drupal.settings.productAppTemplates,
+    
+        coremetricsEnabled: false,
+        omnitureEnabled: true,
+    
+        contentzones: {},
+        mixins: {}
+    
+    };
+});

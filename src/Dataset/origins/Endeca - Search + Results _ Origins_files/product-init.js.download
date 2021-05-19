@@ -1,0 +1,72 @@
+(function($, prodcat) {
+  $(document).on('product.init', '.js-product', function() {
+    var $product = $(this);
+    var prodData = prodcat.data.getProduct($product.data('product-id'));
+    var routePrefix = !!prodData && prodData.shaded ? '/shade/' : '/sku/';
+    var hash = location.hash;
+    var shadeNameAfter = hash.split('#' + routePrefix)[1];
+    var isSPP = $product.hasClass('product-full');
+    var skuBaseId;
+
+    // Check for sku routing in the SPP url
+    if (isSPP) {
+      skuBaseId = /^\d+$/.test(shadeNameAfter) ? shadeNameAfter : $product.attr('data-sku-base-id');
+    } else {
+      skuBaseId = $product.attr('data-sku-base-id') ? $product.attr('data-sku-base-id') : $product.data('sku-base-id');
+    }
+
+    try {
+      Drupal.behaviors.selectBox.attach(this);
+    } catch (e) {
+      // console.log('Drupal.behaviors.selectBox.attach failed in product.init.');
+    }
+
+    // if defaultSku is Sold Out, pick first shoppable sku
+    if (!!skuBaseId && !!prodData && !prodData.defaultSku.isShoppable && prodData.skus.length > 1) {
+      var validSku = _.findWhere(prodData.skus, {isShoppable: 1});
+      skuBaseId = !!validSku ? validSku.SKU_BASE_ID : skuBaseId;
+    }
+
+    // Route callbacks.
+    var routerDeriveRoute = {
+      deriveSku: function(checkSku) {
+        if (!isSPP) {
+          return;
+        }
+        var skuData = prodcat.data.getSku(checkSku);
+        if (skuData) {
+          skuBaseId = skuData.SKU_BASE_ID;
+        }
+      },
+      deriveSppShade: function(shadeName) {
+        if (!isSPP) {
+          return;
+        }
+        prodcat.ui.routeNoSpaces = decodeURIComponent(shadeName).split('_').join(' ');
+        var skuMatchArray = prodData.skus.filter(function(sku) {
+          return prodcat.ui.routeNoSpaces === sku.SHADENAME;
+        });
+        skuBaseId = skuMatchArray.length ? skuMatchArray[0].SKU_BASE_ID : skuBaseId;
+      }
+    };
+
+    var routes;
+    if (!!prodData && prodData.shaded) {
+      routes = {
+        '/shade/:shadeName': routerDeriveRoute.deriveSppShade
+      };
+    } else {
+      routes = {
+        '/sku/:skuID': routerDeriveRoute.deriveSku
+      };
+    }
+
+    var router = Router(routes);
+    router.init();
+    if (!!skuBaseId) {
+      $(this).trigger('product.skuSelect', [skuBaseId]);
+    }
+    // update inventory status:
+    $(this).trigger('product.updateInvStatus');
+  });
+})(jQuery, window.prodcat = window.prodcat || {});

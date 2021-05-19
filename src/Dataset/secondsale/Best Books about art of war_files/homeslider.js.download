@@ -1,0 +1,1 @@
+jQuery(document).ready(function($){var homesliderConfig={speed:500,timeout:$('.homeslider').data('interval'),nav:true,random:false,pause:$('.homeslider').data('pause'),maxwidth:"",namespace:"homeslider",before:function(){},after:function(){}};$(".rslides").responsiveSlides(homesliderConfig);});

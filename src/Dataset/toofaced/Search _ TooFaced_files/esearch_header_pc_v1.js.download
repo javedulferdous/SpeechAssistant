@@ -1,0 +1,27 @@
+(function($) {
+
+  Drupal.behaviors.esearchHeaderPcV1 = {
+    urldecode: function(str) {
+      return decodeURIComponent((str + '')
+        .replace(/%(?![\da-f]{2})/gi, function() {
+          return '%25';
+        })
+        .replace(/\+/g, '%20'));
+    },
+
+    attach: function(context, settings) {
+      var qs = generic.env.parsedQuery(),
+          undef;
+
+      if (qs.search != undef && qs.search.length > 0) {
+        var $form   = $('.search-form'),
+            $search = $('.js-end-search-term', $form);
+
+        // Replace the placeholder and value
+        $search.attr('value', this.urldecode(qs.search));
+
+      }
+    }
+  };
+
+})(jQuery);

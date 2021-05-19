@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<!-- saved from url=(0204)file:///C:/Users/jafra/OneDrive/Desktop/New%20Dataset/swansonvitamins/Vitamins%20and%20Supplements,%20Natural%20Health%20Products,%20Organic%20Foods%20-%20Swanson%20Health%20Products_files/chatButton.html -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="initial-scale=1,user-scalable=no,maximum-scale=1,width=device-width">
+
+	<title></title>
+	<link href="./screen(1).css" media="screen, projection" rel="stylesheet" type="text/css" id="theme_css">
+	<script type="text/javascript">
+		function buttonClick() {
+			var spanChatButton = document.getElementById('spanChatButton');
+			var divChatButton = document.getElementById('divChatButton');
+
+			if (spanChatButton.classList[0] === "chat-icons-min") {
+				displayButton(true);
+				parent.postMessage({ messageType: 'chatButtonClick', data: { minimize: true } }, '*');
+			}
+			else {
+				displayButton(false);
+				parent.postMessage({ messageType: 'chatButtonClick', data: { minimize: false } }, '*');
+			}
+		}
+
+		function bindEvent(element, eventName, eventHandler) {
+			if (element.addEventListener) {
+				element.addEventListener(eventName, eventHandler, false);
+			}
+			else if (element.attachEvent) {
+				element.attachEvent('on' + eventName, eventHandler);
+			}
+		}
+
+		function createCSSStyle(cssClass, cssProperty) {
+			var style = document.getElementById('chatButtonProfileStyle');
+
+				if (style === null) {
+					var styleID = document.createElement('style');
+
+					styleID.type = 'text/css';
+					styleID.id = 'chatButtonProfileStyle';
+					document.getElementsByTagName('head')[0].appendChild(styleID);
+					style = document.getElementById('chatButtonProfileStyle');
+				}
+				style.sheet.insertRule(cssClass + ' { ' + cssProperty + ' } ', 0);
+		}
+
+		function displayButton(isShow) {
+			if (isShow === true) {
+				spanChatButton.classList.remove("chat-icons-min");
+				spanChatButton.classList.add("chat-icons-max");
+				divChatButton.classList.remove('chat-button-circle');
+				divChatButton.classList.add('chat-button-rectangle');
+				document.getElementById('chatButton').style.display = 'block';
+				document.getElementById('chatBtnText').style.display = 'block';
+				document.getElementById('chatMinimize').style.display = 'none';
+			}
+			else {
+				spanChatButton.classList.remove('chat-icons-max');
+				spanChatButton.classList.add('chat-icons-min');
+				divChatButton.classList.remove('badge1');
+				divChatButton.classList.remove('chat-button-rectangle');
+				divChatButton.classList.add('chat-button-circle');
+				divChatButton.removeAttribute('data-badge');
+				document.getElementById('chatButton').style.display = 'none';
+				document.getElementById('chatMinimize').style.display = 'block';
+				document.getElementById('chatBtnText').style.display = 'none';
+			}
+		}
+
+		bindEvent(window, 'message', function (event) {
+			var spanChatButton = document.getElementById('spanChatButton');
+			var divChatButton = document.getElementById('divChatButton');
+			var mt = event.data.messageType;
+			var md = event.data.data;
+
+			if (mt === 'messageCount' && md.msgCount > 0) {
+				divChatButton.classList.add('badge1');
+				divChatButton.setAttribute('data-badge', md.msgCount);
+			}
+
+			if (mt === 'chatProfile' && md.chatProfile) {
+				divChatButton.style.display = 'block';
+				divChatButton.style.backgroundColor = md.chatProfile.topBarColor;
+				createCSSStyle('.svg-icon', 'fill:' + md.chatProfile.topBarTextColor);
+				document.getElementById("chatBtnText").style.fontFamily = md.chatProfile.font;
+				document.getElementById("chatBtnText").style.color = md.chatProfile.topBarTextColor;
+				document.getElementById('chatBtnText').innerHTML = md.chatProfile.LiveChatText;
+				document.getElementById('divChatButton').setAttribute('title', md.chatProfile.LiveChatText);
+				if (md.chatProfile.chatButtonPosition === 'BottomRight') {
+					divChatButton.style.right = '0';
+				}
+				else {
+					divChatButton.style.left = '0';
+				}
+			}
+
+			if (mt === 'resize' && md.minimize === true) {
+				displayButton(true);
+			}
+
+			if ((mt === 'isPopIn' && md.isPopIn === true) || (mt === 'resize' && md.minimize === false)) {
+				displayButton(false);
+			}
+			if ((mt === 'isPopOut' && md.isPopOut === true)) {
+				displayButton(true);
+			}
+		});
+	</script>
+<style type="text/css" id="chatButtonProfileStyle"></style></head>
+<body data-new-gr-c-s-check-loaded="14.981.0">
+	<div id="divChatButton" class="chat-button chat-button-rectangle" style="display: block; background-color: rgb(0, 131, 61); right: 0px;" onclick="buttonClick();" title="Live Chat">
+		<span id="chatBtnText" class="chat-button-min-text" style="font-family: Roboto; color: rgb(255, 255, 255); display: block;">Live Chat</span>
+		<span id="spanChatButton" class="chat-icons-max">
+			<svg id="chatButton" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 32 32" style="display: block;">
+				<path class="svg-icon maxSvg" d="M29.333,9.333H26.667v12H9.333V24a1.337,1.337,0,0,0,1.333,1.333H25.333l5.333,5.333v-20A1.337,1.337,0,0,0,29.333,9.333Zm-5.333,8v-12A1.337,1.337,0,0,0,22.667,4H5.333A1.337,1.337,0,0,0,4,5.333V24l5.333-5.333H22.667A1.337,1.337,0,0,0,24,17.333Z" transform="translate(-1.333 -1.333)"></path>
+			</svg>
+			<svg id="chatMinimize" xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48" style="display:none;">
+				<defs>
+					<style>
+						.minSvgBg {
+							fill: none;
+						}
+					</style>
+				</defs>
+				<path class="svg-icon minSvg" d="M33.17,17.17,24,26.34l-9.17-9.17L12,20,24,32,36,20Z"></path>
+				<path class="minSvgBg" d="M0,0H48V48H0Z"></path>
+			</svg>
+		</span>
+	</div>
+
+
+</body></html>

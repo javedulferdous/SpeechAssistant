@@ -1,0 +1,60 @@
+_satellite.pushAsyncScript(function(event, target, $variables){
+  // Brahms the Boy 2 218575
+if(_satellite.getVar('Movie ID') == '218575'){
+//Desktop MOP
+if(_satellite.getVar('Page Level 2') == 'movie | overview'){
+  
+  //pxl-476
+(function(e,t,n){if(e.snaptr)return;var a=e.snaptr=function(){a.handleRequest?a.handleRequest.apply(a,arguments):a.queue.push(arguments)};a.queue=[];var s='script';r=t.createElement(s);r.async=!0;r.src=n;var u=t.getElementsByTagName(s)[0];u.parentNode.insertBefore(r,u);})(window,document,'https://sc-static.net/scevent.min.js');
+snaptr('init', '9facb70d-d058-4d10-b87f-65afdd223c9d', {'user_email': '_INSERT_USER_EMAIL_'});
+snaptr('track', '9facb70d-d058-4d10-b87f-65afdd223c9d', 'PAGE_VIEW');
+  //pxl-462
+  _satellite.loadScript('https://www.googletagmanager.com/gtag/js?id=AW-721024847')
+  window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'AW-721024847');
+gtag('event', 'conversion', {'send_to': 'AW-721024847/bSocCKm9xLsBEM_u59cC'});
+ 
+  //pxl-461
+  _satellite.loadScript('https://www.googletagmanager.com/gtag/js?id=AW-701844529')
+  window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'AW-701844529');
+gtag('event', 'conversion', {'send_to': 'AW-701844529/XOu3CNSh1rsBELGY1c4C'});
+ 
+
+    }
+
+}
+
+// Brahms the Boy 2 218575
+if(_satellite.getVar('Movie ID') == '218575'){
+//Desktop MSP
+if(_satellite.getVar('Page Level 2') == 'movie times | by movie'){
+  
+  //pxl-476
+(function(e,t,n){if(e.snaptr)return;var a=e.snaptr=function(){a.handleRequest?a.handleRequest.apply(a,arguments):a.queue.push(arguments)};a.queue=[];var s='script';r=t.createElement(s);r.async=!0;r.src=n;var u=t.getElementsByTagName(s)[0];u.parentNode.insertBefore(r,u);})(window,document,'https://sc-static.net/scevent.min.js');
+snaptr('init', '9facb70d-d058-4d10-b87f-65afdd223c9d', {'user_email': '_INSERT_USER_EMAIL_'});
+snaptr('track', '9facb70d-d058-4d10-b87f-65afdd223c9d', 'PAGE_VIEW');
+    //pxl-462
+  _satellite.loadScript('https://www.googletagmanager.com/gtag/js?id=AW-721024847')
+  window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'AW-721024847');
+gtag('event', 'conversion', {'send_to': 'AW-721024847/bSocCKm9xLsBEM_u59cC'});
+  //pxl-461
+  _satellite.loadScript('https://www.googletagmanager.com/gtag/js?id=AW-701844529')
+  window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'AW-701844529');
+gtag('event', 'conversion', {'send_to': 'AW-701844529/XOu3CNSh1rsBELGY1c4C'});
+
+
+      }
+
+}
+});

@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<!-- saved from url=(0095)https://s0.2mdn.net/1384245/1585327356572/20D30080_over$750_Savings_Eyechart_300x250/index.html -->
+<html id="html" class=""><!--<![endif]--><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+<title>Progressive</title>
+<link href="./css(1)" rel="stylesheet">
+<link rel="stylesheet" type="text/css" href="./main(1).css">
+<script type="text/javascript">
+    
+  (function() {
+    var MAX_URL_PARAM_LENGTH = 34;
+    var CLICK_X_URL_KEY = 'nx';
+    var CLICK_Y_URL_KEY = 'ny';
+    var CREATIVE_DIMENSIONS_KEY = 'dim';
+    var AD_URL_PARAM = '&adurl=';
+
+    var relegateNavigation = '';
+    var urlParamMap = {};
+
+    urlParamMap[CLICK_X_URL_KEY] = null;
+    urlParamMap[CLICK_Y_URL_KEY] = null;
+    urlParamMap[CREATIVE_DIMENSIONS_KEY] = null;
+
+    var handleClickTagMessage = function(e) {
+      try {
+        var eventData = JSON.parse(e.data);
+      } catch (err) {
+        return;
+      }
+      if (eventData.isInitClickTag) {
+        if (eventData.clickTags) {
+          for (var i = 0; i < eventData.clickTags.length; i++) {
+            var clkTag = eventData.clickTags[i];
+            window[clkTag.name] = clkTag.url;
+          }
+        } else if (eventData.clickTag) {
+          window.clickTag = eventData.clickTag;
+        }
+        relegateNavigation = eventData.relegateNavigation;
+      }
+    };
+
+    var storeClickCoordinates = function(e) {
+      urlParamMap[CLICK_X_URL_KEY] = Math.round(e.clientX);
+      urlParamMap[CLICK_Y_URL_KEY] = Math.round(e.clientY);
+    };
+
+    var getCreativeDimensions = function() {
+      return window.innerWidth + 'x' + window.innerHeight;
+    }
+
+    var getExitClickParams = function(e) {
+      urlParamMap[CREATIVE_DIMENSIONS_KEY] = getCreativeDimensions();
+
+      var exitParams = '';
+      for (var key in urlParamMap) {
+        exitParams += '&' + key + '=';
+        if (urlParamMap[key] !== null) {
+          exitParams += urlParamMap[key];
+        }
+      }
+      return exitParams;
+    }
+
+    var appendExitClickParams = function(url) {
+      var adUrlIndex = url.toLowerCase().indexOf(AD_URL_PARAM);
+      var paramsToBeAdded = getExitClickParams();
+      if (adUrlIndex > -1 && paramsToBeAdded.length <= MAX_URL_PARAM_LENGTH) {
+        url = url.substr(0, adUrlIndex) + paramsToBeAdded +
+          url.substr(adUrlIndex);
+      };
+      return url;
+    };
+
+    if (open.call) {
+      window.open = function(open) {
+        return function(url, name, features) {
+          url = appendExitClickParams(url);
+          if (relegateNavigation === 'parent') {
+            var message = {'clickTag': url, 'isPostClickTag': true};
+            parent.postMessage(JSON.stringify(message), '*');
+          } else {
+            var args = [url, name];
+            if (features) {
+              args.push(features);
+            }
+            open.apply(window, args);
+          }
+        };
+      }(window.open);
+    }
+
+    if (window.addEventListener) {
+      window.addEventListener(
+          'message', handleClickTagMessage, false);
+      window.addEventListener('mousedown', storeClickCoordinates, true);
+    } else {
+      window.attachEvent('onmessage', handleClickTagMessage);
+    }
+  })();
+    
+  </script></head>
+
+<body onload="banner.init();" data-new-gr-c-s-check-loaded="14.982.0">
+	<div id="ad">
+		
+		<div id="stage">
+
+			<div id="border" class="in"></div>
+
+			<div id="logo" class="in"></div>
+
+			<div id="f1">
+				<div id="border-blur" class=""></div>
+				<div id="chart-blur" class=""></div>
+				<div id="chart" class="out"></div>
+			</div>
+			
+			<div id="f2">
+				<div id="t1" class="in">
+					<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="64px" height="25px">
+						<path fill-rule="evenodd" fill="rgb(0, 0, 0)" d="M57.564,5.482 C56.998,4.916 56.266,4.633 55.369,4.633 C54.737,4.633 54.196,4.811 53.747,5.168 C53.299,5.525 53.074,5.974 53.074,6.514 C53.074,6.994 53.217,7.407 53.503,7.754 C53.788,8.100 54.155,8.394 54.604,8.633 C55.053,8.873 55.726,9.192 56.623,9.589 L57.557,9.987 C59.586,10.864 61.118,11.894 62.154,13.077 C63.189,14.260 63.706,15.739 63.706,17.514 C63.706,19.625 63.100,21.295 61.886,22.524 C60.672,23.753 59.041,24.367 56.991,24.367 C54.992,24.367 53.436,23.617 52.325,22.118 L52.325,24.092 L48.409,24.092 L48.409,16.259 L52.325,16.259 C52.406,17.616 52.756,18.648 53.373,19.357 C53.990,20.066 54.823,20.420 55.874,20.420 C56.578,20.420 57.172,20.181 57.656,19.701 C58.140,19.222 58.383,18.641 58.383,17.957 C58.383,17.264 58.105,16.629 57.549,16.053 C56.993,15.477 56.047,14.898 54.711,14.316 C52.437,13.317 50.787,12.241 49.762,11.088 C48.737,9.936 48.225,8.610 48.225,7.111 C48.225,5.938 48.495,4.867 49.036,3.898 C49.576,2.930 50.323,2.167 51.277,1.611 C52.230,1.056 53.268,0.778 54.390,0.778 C55.287,0.778 56.103,0.961 56.838,1.328 C57.572,1.696 58.179,2.236 58.658,2.950 L58.658,1.038 L62.574,1.038 L62.574,8.014 L58.658,8.014 C58.495,6.892 58.130,6.048 57.564,5.482 ZM39.199,12.725 L39.199,10.369 C39.954,10.308 40.525,10.158 40.913,9.918 C41.300,9.679 41.568,9.306 41.716,8.801 C41.863,8.297 41.938,7.575 41.938,6.637 L39.199,6.637 L39.199,1.068 L44.752,1.068 L44.752,6.392 C44.752,8.564 44.298,10.163 43.391,11.188 C42.483,12.213 41.086,12.725 39.199,12.725 ZM32.070,4.954 L28.491,4.954 L28.491,20.175 L31.933,20.175 L31.933,24.092 L19.006,24.092 L19.006,20.175 L22.509,20.175 L22.509,4.954 L19.006,4.954 L19.006,10.308 L15.090,10.308 L15.090,1.038 L35.956,1.038 L35.956,10.308 L32.070,10.308 L32.070,4.954 ZM0.587,20.175 L4.060,20.175 L4.060,4.954 L0.587,4.954 L0.587,1.038 L13.621,1.038 L13.621,4.954 L10.072,4.954 L10.072,20.175 L13.621,20.175 L13.621,24.092 L0.587,24.092 L0.587,20.175 Z"></path>
+					</svg>
+				</div>
+				<div id="t1a" class="final"></div>
+				<div id="t1b" class="in">
+					<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="120px" height="25px">
+						<path fill-rule="evenodd" fill="rgb(0, 0, 0)" d="M119.130,20.279 L119.130,24.217 L112.070,24.217 L106.841,14.081 L104.195,14.081 L104.195,20.279 L107.102,20.279 L107.102,24.217 L94.967,24.217 L94.967,20.279 L98.151,20.279 L98.151,4.975 L94.967,4.975 L94.967,1.038 L108.194,1.038 C110.758,1.038 112.765,1.579 114.216,2.660 C115.667,3.742 116.392,5.309 116.392,7.359 C116.392,8.774 116.062,9.964 115.400,10.928 C114.739,11.892 113.736,12.676 112.393,13.281 L116.131,20.279 L119.130,20.279 ZM109.240,5.637 C108.676,5.196 107.907,4.975 106.933,4.975 L104.195,4.975 L104.195,10.359 L106.410,10.359 C108.861,10.359 110.086,9.446 110.086,7.621 C110.086,6.739 109.804,6.078 109.240,5.637 ZM82.816,20.279 L85.784,20.279 L84.677,16.342 L78.663,16.342 L77.433,20.279 L80.524,20.279 L80.524,24.217 L70.280,24.217 L70.280,20.279 L73.141,20.279 L77.648,4.975 L74.556,4.975 L74.556,1.038 L89.722,1.038 L89.722,4.975 L86.600,4.975 L91.445,20.279 L94.213,20.279 L94.213,24.217 L82.816,24.217 L82.816,20.279 ZM81.770,5.914 L79.694,12.912 L83.723,12.912 L81.770,5.914 ZM48.701,20.279 L51.500,20.279 L51.500,4.975 L48.701,4.975 L48.701,1.038 L69.142,1.038 L69.142,8.374 L64.697,8.374 L64.697,4.975 L57.514,4.975 L57.514,10.297 L63.313,10.297 L63.313,14.204 L57.514,14.204 L57.514,20.279 L64.697,20.279 L64.697,16.849 L69.142,16.849 L69.142,24.217 L48.701,24.217 L48.701,20.279 ZM26.460,20.279 L29.767,20.279 L29.767,4.975 L26.460,4.975 L26.460,1.038 L39.211,1.038 L39.211,4.975 L35.812,4.975 L35.812,20.279 L42.656,20.279 L42.656,13.127 L47.194,13.127 L47.194,24.217 L26.460,24.217 L26.460,20.279 ZM10.418,19.195 C11.403,19.877 12.535,20.218 13.817,20.218 C15.396,20.218 16.768,19.672 17.932,18.580 C19.095,17.488 19.877,16.050 20.277,14.265 L24.845,16.434 C23.123,21.807 19.303,24.494 13.387,24.494 C10.844,24.494 8.621,24.007 6.719,23.032 C4.817,22.058 3.353,20.674 2.328,18.880 C1.302,17.085 0.790,14.988 0.790,12.589 C0.790,10.323 1.318,8.282 2.374,6.467 C3.430,4.652 4.889,3.230 6.750,2.199 C8.611,1.169 10.695,0.653 13.002,0.653 C15.801,0.653 18.124,1.376 19.970,2.822 L19.970,1.038 L23.907,1.038 L23.907,9.190 L19.970,9.190 C18.811,6.247 16.878,4.775 14.171,4.775 C12.828,4.775 11.636,5.124 10.595,5.821 C9.554,6.519 8.744,7.470 8.165,8.674 C7.585,9.879 7.296,11.215 7.296,12.681 C7.296,14.055 7.570,15.314 8.119,16.457 C8.667,17.601 9.434,18.513 10.418,19.195 Z"></path>
+					</svg>
+				</div>
+				
+				</div>
+				<div id="flo" class="in"></div>
+
+				<!--  frame 3 text  -->
+        		<div id="rectangle1">
+					<div id="text" class="in"></div>
+				</div> 
+				
+				<div id="rectangle2" class="slide">
+					<div id="quote" class="in"></div>
+				</div>
+
+			</div>
+	
+	<!-- -- end content ----------------------------------------- --> 
+	
+	<!-- -- CTA ------------------------------------------------- -->
+
+			<div id="bgExitArea"></div>
+ 
+	</div> 
+ 
+    <script src="./main.js(1).download"></script>
+
+    <script>
+		var clickTag = "";
+	</script>
+
+
+
+</body></html>

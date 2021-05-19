@@ -1,0 +1,1512 @@
+/**
+ * Copyright © 2018 Wyomind. All rights reserved.
+ * See LICENSE.txt for license details.
+ */
+
+
+define(['jquery', 'underscore', 'mage/template', 'jquery/ui'], function ($, _, mageTemplate) {
+    'use strict';
+	
+    return {
+
+        /**
+         * Elasticsearch requesters cache (contains the results of the requests)
+         */
+        cache: [],
+        /**
+         * Has the first load of the products ended (useful for the infinite scroll: don't trigger the scroll if the first load has not ended)
+         */
+        firstLoadFinished: false,
+        /**
+         * Did we reach the end of the infinite scroll?
+         */
+        infiniteScrollNoMoreProduct: false,
+        /**
+         * Is a request being processed?
+         */
+        isRequestProcessing: false,
+        /**
+         * Are template hints enabled?
+         */
+        templateHintsEnabled: false,
+        /**
+         * Last request result
+         */
+        lastRequestData: "",
+        /**
+         * Global parameters
+         */
+        config: {
+            elasticsearchUrl: "",
+            storeCode: "",
+            filterableAttributes: {},
+            infiniteScroll: {
+                enabled: false,
+                offset: 600
+            },
+            theme: {},
+            displayInputBoxesForPriceFilter: false,
+            ajaxCart: {
+                enabled: false
+            },
+            addToCompare: {
+                enabled: false
+            },
+            highlightEnabled: true,
+            layerUpdateMethod: 1, // 1: disabled, 0: hidden, -1: no update
+            labels: {},
+            customerGroupId: 0
+        },
+        /**
+         * Search options
+         */
+        search: {
+            categoryId: -1,
+            searchTerm: ""
+        },
+        /**
+         * Paging options
+         */
+        paging: {
+            from: "0",
+            size: "0"
+        },
+        /**
+         * Sorting options
+         */
+        sorter: {
+            order: 'position',
+            direction: 'asc'
+        },
+        /**
+         * Price sliders limit
+         */
+        prices: {
+            min: 0,
+            max: 0
+        },
+
+        /**
+         * Current filters applied
+         */
+        filters: {},
+        /**
+         * Configurable products data cached
+         */
+        configurableIndex: {},
+        configurableImages: {},
+
+
+        /**
+         * Underscore.js templates selectors
+         */
+        templateSelectors: {
+            productItems: "#eln-product-items-template",
+            productItem: "#eln-product-item-template",
+            productAmount: "#eln-product-amount-template",
+            productPaging: "#eln-product-paging-template",
+            pricesFilter: "#eln-product-prices-filter-template",
+            textSwatchFilter: "#eln-product-text-swatch-filter-template",
+            visualSwatchFilter: "#eln-product-visual-swatch-filter-template",
+            breadcrumb: "#eln-product-breadcrumb-filter-template",
+            attributeFilter: "#eln-product-attribute-filter-template",
+            ratingsFilter: "#eln-product-ratings-filter-template",
+            categoryFilter: "#eln-product-category-filter-template",
+            categoryItemFilter: "#eln-product-category-filter-item-template"
+        },
+        /**
+         * Underscore.js containers target
+         */
+        contentSelectors: {
+            productItems: "#eln-product-products ol.product-items",
+            productItem: "#eln-product-products ol.product-items li.product-item",
+            productAmount: "#product-amount",
+            productPaging: "#product-paging-bottom",
+            product: "#eln-product-products",
+            filters: "[data-role=eln-filters-content]",
+            breadcrumb: "[data-role=eln-breadcrumb-content]",
+            attributeFilter: "[data-role=eln-product-attribute-filter-content]",
+            ratingsFilter: "[data-role=eln-product-ratings-filter-content]",
+            categoryFilter: "[data-role=eln-product-category-filter-content]",
+            categoryItemFilter: "[data-role=eln-product-category-filter-item-filter-content]",
+            textSwatchFilter: "[data-role=eln-product-text-swatch-filter-content]",
+            visualSwatchFilter: "[data-role=eln-product-visual-swatch-filter-content]",
+            pricesFilter: "[data-role=eln-product-prices-filter-content]",
+        },
+        /**
+         * Containers phtml references (only for template hints)
+         */
+        contentTemplateFiles: {
+            product: "view/frontend/templates/listing/products.phtml",
+            productItems: "view/frontend/templates/listing/products/grid.phtml",
+            productItem: "view/frontend/templates/listing/products/grid.phtml",
+            productAmount: "view/frontend/templates/listing/products/amount.phtml",
+            productPaging: "view/frontend/templates/listing/products/paging.phtml",
+            pricesFilter: "view/frontend/templates/layer/renderer/price.phtml",
+            textSwatchFilter: "view/frontend/templates/layer/renderer/textSwatch.phtml",
+            visualSwatchFilter: "view/frontend/templates/layer/renderer/visualSwatch.phtml",
+            breadcrumb: "view/frontend/templates/layer/breadcrumb.phtml",
+            attributeFilter: "view/frontend/templates/layer/renderer/attribute.phtml",
+            ratingsFilter: "view/frontend/templates/layer/renderer/rating.phtml",
+            categoryFilter: "view/frontend/templates/layer/renderer/categories.phtml",
+            categoryItemFilter: "view/frontend/templates/layer/renderer/categories.phtml",
+            filters: "view/frontend/templates/layer/filters.phtml",
+        },
+
+        /**
+         * Init observers for the debug popup
+         */
+        initDebugObservers: function () {
+
+            // enable template hints
+            $(document).on('click', '#eln-debug-enable-template-hints', function () {
+                this.toggleTemplateHints(true);
+            }.bind(this));
+
+            // disable template hints
+            $(document).on('click', '#eln-debug-disable-template-hints', function () {
+                this.toggleTemplateHints(false);
+            }.bind(this));
+
+            // display the last request result
+            $(document).on('click', '#eln-debug-show-last-request-data', function () {
+                require(['jquery', 'jquery/ui', 'Magento_Ui/js/modal/modal', "elasticsearchcore_jsonview"], function ($) {
+                    $("#eln-debug-show-last-request-data-modal").modal({
+                        "type": "slide",
+                        "title": "Last Request Data",
+                        "modalClass": "mage-new-category-dialog form-inline",
+                        buttons: []
+                    });
+                    $("#eln-debug-show-last-request-data-modal").html("");
+                    $("#eln-debug-show-last-request-data-modal").JSONView(JSON.stringify(this.lastRequestData));
+                    $("#eln-debug-show-last-request-data-modal").modal("openModal");
+                }.bind(this));
+            }.bind(this));
+
+        },
+
+        /**
+         * Init observers for the mode switcher (grid/list)
+         */
+        initModeSwitcherObservers: function () {
+
+            $(document).on('click', '.eln-modes a.el.modes-mode', function (evt) {
+                $.cookie('eln_mode', evt.target.id.replace('mode-', ''), {path: '/'});
+                if ($(evt.target).parents(".ultimo").length > 0) {
+                    document.location.reload();
+                    return false;
+                }
+                if (evt.target.id === "mode-grid") {
+                    $('.eln-modes a#mode-list.mode-list.el.active').removeClass('active');
+                    $('.eln-modes a#mode-grid.mode-grid.el').addClass('active');
+                    $('span#eln-product-products').find("div.list").removeClass('list').removeClass('products-list').addClass('grid').addClass('products-grid');
+                } else if (evt.target.id === "mode-list") {
+                    $('.eln-modes a#mode-grid.mode-grid.el.active').removeClass('active');
+                    $('.eln-modes a#mode-list.mode-list.el').addClass('active');
+                    $('span#eln-product-products').find("div.grid").removeClass('grid').removeClass('products-grid').addClass('list').addClass('products-list');
+                }
+                return false;
+            });
+
+        },
+
+        /**
+         * Init configurable product observers (options selection)
+         */
+        initConfigurableProductObservers: function () {
+            $(document).on('click', '.eln-product-item-details .swatch-option', function (evt) {
+                var elt = $(evt.target);
+                // unselect other option values
+                elt.parent().find('.swatch-option').removeClass('selected');
+                // select this value
+                elt.addClass('selected');
+                // product id
+                var productId = elt.attr('product-id');
+                // attribute id
+                var attributeId = elt.attr('attribute-id');
+                // option id
+                var optionId = elt.attr('option-id');
+                $('#cart-super-attribute-' + productId + '-' + attributeId).val(optionId);
+                // all option selected
+                var selected = $(elt.parents(".eln-product-item-details")[0]).find(".swatch-option.selected");
+                var selection = {};
+                selected.each(function () {
+                    selection[$(this).attr('attribute-id')] = $(this).attr('option-id');
+                });
+                // search the simple product id
+                var simpleProductId = -1;
+                _.each(this.configurableIndex[productId], function (data, key) {
+                    if (_.isEqual(data, selection)) {
+                        simpleProductId = key;
+                    }
+                }.bind(this));
+                // simple product id found
+                if (simpleProductId !== -1
+                    && typeof this.configurableImages[productId] !== "undefined"
+                    && typeof this.configurableImages[productId][simpleProductId] !== "undefined"
+                    && typeof this.configurableImages[productId][simpleProductId]['img'] !== "undefined") {
+                    $('#product-image-' + productId).attr('src', this.configurableImages[productId][simpleProductId]['img']);
+                    // display the image matching the simple product (if it exists)
+
+                }
+
+            }.bind(this));
+        },
+
+        /**
+         * Init paging observers (page change, limitation change)
+         */
+        initPagingObservers: function () {
+
+            // pages
+            $(document).on('click', 'div.eln-product-paging div.page', function (evt) {
+				//alert("hfgh");
+                var fromSize = evt.target.id.replace("page_", "").split("_");
+                this.paging.from = fromSize[0];
+                this.paging.size = fromSize[1];
+                this.loadProducts();
+            }.bind(this));
+
+            // - limit
+            $(document).on('change', 'div.eln-limiter select#limiter', function (evt) {
+                this.paging.from = "0";
+                this.paging.size = evt.target.value;
+                this.loadProducts();
+                $.cookie('eln_limit', evt.target.value, {path: '/'});
+                document.body.scrollTop = 0;
+                document.documentElement.scrollTop = 0;
+            }.bind(this));
+
+        },
+
+        /**
+         * Init sorting observers (sorting field, sort order)
+         */
+        initSortingObservers: function () {
+
+            // - direction
+            $(document).on('click', '.eln-toolbar a.action.sorter-action', function (evt) {
+                if ($(evt.target).hasClass('sort-desc')) {
+                    this.sorter.direction = "asc";
+                    this.paging.from = "0";
+                    this.loadProducts();
+                    $.cookie('eln_dir', "asc", {path: '/'});
+                    $(evt.target).removeClass('active');
+                    $('.eln-toolbar a.action.sorter-action.sort-asc').addClass('active');
+                } else if ($(evt.target).hasClass('sort-asc')) {
+                    this.sorter.direction = "desc";
+                    this.paging.from = "0";
+                    this.loadProducts();
+                    $.cookie('eln_dir', "desc", {path: '/'});
+                    $(evt.target).removeClass('active');
+                    $('.eln-toolbar a.action.sorter-action.sort-desc').addClass('active');
+                }
+                return false;
+            }.bind(this));
+
+            // - order
+            $(document).on('change', '.eln-toolbar select#sorter', function (evt) {
+                this.paging.from = "0";
+                this.sorter.order = evt.target.value;
+                this.loadProducts();
+                $.cookie('eln_order', evt.target.value, {path: '/'});
+                return false;
+            }.bind(this));
+
+        },
+
+        /**
+         * Init observers on filters
+         */
+        initFilterObservers: function () {
+
+            // - clear all
+            $(document).on('click', '.eln-layer-clear-all', function (evt) {
+				//alert('trigger');
+                //this.filters = {};
+                this.loadProducts();
+                return false;
+            }.bind(this));
+
+            // - prices range changed
+            $(document).on('price-range-changed', function (evt, valMin, valMax) {
+                if (parseFloat(valMin) == this.prices.min && parseFloat(valMax) == this.prices.max) {
+                    delete(this.filters.final_price);
+                } else {
+                    this.filters.final_price = {min: valMin, max: valMax};
+                }
+                this.paging.from = "0";
+                this.loadProducts();
+                return false;
+            }.bind(this));
+
+            // prices text input
+            $(document).on('change', '.eln-filter-content.price .eln-price.input-text', function (evt) {
+                var elt = $(evt.target).parent();
+                var selectedMin = elt.find(".input-text.min").val();
+                var selectedMax = elt.find(".input-text.max").val();
+                if (isNaN(selectedMin) || selectedMin === "" || parseFloat(selectedMin) < this.prices.min) {
+                    selectedMin = this.prices.min;
+                }
+                selectedMin = parseFloat(selectedMin);
+                if (selectedMin > this.prices.max) {
+                    selectedMin = this.prices.max;
+                }
+                if (isNaN(selectedMax) || selectedMax === "" || parseFloat(selectedMax) > this.prices.max) {
+                    selectedMax = this.prices.max;
+                }
+                selectedMax = parseFloat(selectedMax);
+                if (selectedMax < this.prices.min) {
+                    selectedMax = this.prices.min
+                }
+                if (selectedMax < selectedMin) {
+                    selectedMax = selectedMin;
+                }
+                $(document).trigger("price-range-changed", [selectedMin, selectedMax]);
+            }.bind(this));
+
+            // - categories treeview
+            $(document).on('click', 'div.eln-filter-item[attribute-code=categories] li.children span.tree', function (evt) {
+                $($(this).parents('li')[0]).toggleClass('active');
+            });
+
+            // - attributes
+            $(document).on('click', 'div.eln-filter-option', function (evt) {
+                // retrieve attribute code + option id
+                var target = evt.target;
+                if (target.tagName !== "A") {
+                    target = $(evt.target).parents("div.eln-filter-option");
+                } else {
+                    target = $(target);
+                }
+
+                if (target.hasClass('disabled')) {
+                    return false;
+                }
+
+                var attributeCode = target.attr("attribute-code");
+                var optionId = target.attr("option-id");
+
+                // swatch
+                if (target.hasClass("swatch-option-link-layered")) {
+                    if (target.find(".swatch-option").hasClass("selected")) {
+                        this.removeFilter(attributeCode, optionId);
+                        target.find(".swatch-option").removeClass("selected");
+                    } else {
+                        this.addFilter(attributeCode, optionId);
+                        target.find(".swatch-option").addClass("selected");
+                    }
+
+                }
+
+                // ratings
+                else if (target.hasClass("rating")) {
+                    if (target.find(".title").hasClass("selected")) {
+                        this.removeFilter(attributeCode, optionId);
+                        target.find(".title").removeClass("selected");
+                    } else {
+                        this.addFilter(attributeCode, optionId);
+                        target.find(".title").addClass("selected");
+                    }
+                }
+
+                // click on the checkbox
+                else if (evt.target.tagName === "INPUT") {
+                    var checked = $(evt.target).attr('checked');
+
+                    if (typeof checked === "undefined") { // unchecked => remove filter
+                        // categories
+                        if (attributeCode === "categories_ids") {
+                            target.parent().find("a.eln-filter-option:not(.disabled) span.title").removeClass('selected');
+                            var uid = jQuery(target.parents("div.block.filter")[0]).attr('uid');
+                            this.updateCategoriesFilter(uid);
+                            // others
+                        } else {
+                            this.removeFilter(attributeCode, optionId);
+                        }
+                    } else {
+                        // categories
+                        if (attributeCode === "categories_ids") {
+                            target.parent().find("a.eln-filter-option:not(.disabled) span.title").addClass('selected');
+                            var uid = jQuery(target.parents("div.block.filter")[0]).attr('uid');
+                            this.updateCategoriesFilter(uid);
+                            // others
+                        } else {
+                            this.addFilter(attributeCode, optionId);
+                        }
+                    }
+                } else { // click on the label + count
+                    var cbx = target.find('input[type="checkbox"]');
+                    var checked = cbx.attr('checked');
+                    if (typeof checked === "undefined") { // unchecked => add filter
+                        // categories
+                        if (attributeCode === "categories_ids") {
+                            target.parent().find("a.eln-filter-option:not(.disabled) input[type=checkbox]").attr('checked', true);
+                            target.parent().find("a.eln-filter-option:not(.disabled) span.title").addClass('selected');
+                            var uid = jQuery(target.parents("div.block.filter")[0]).attr('uid');
+                            this.updateCategoriesFilter(uid);
+                            // others
+                        } else {
+                            target.find("input[type=checkbox]").attr('checked', true);
+                            target.find("span.title").addClass('selected');
+                            this.addFilter(attributeCode, optionId);
+                        }
+                    } else {
+                        // categories
+                        if (attributeCode === "categories_ids") {
+                            target.parent().find("a.eln-filter-option:not(.disabled) input[type=checkbox]").attr('checked', false);
+                            target.parent().find("a.eln-filter-option:not(.disabled) span.title").removeClass('selected');
+                            var uid = jQuery(target.parents("div.block.filter")[0]).attr('uid');
+                            this.updateCategoriesFilter(uid);
+                            // others
+                        } else {
+                            target.find("input[type=checkbox]").attr('checked', false);
+                            target.find("span.title").removeClass('selected');
+                            this.removeFilter(attributeCode, optionId);
+                        }
+                    }
+
+                }
+                return false;
+            }.bind(this));
+
+            // - open/close filter div
+            $(document).on('click', 'div.eln-filter-item div.filter-options-title', function () {
+
+                var parent = $(this).parent();
+                if (!parent.hasClass('active')) {
+                    if ($(this).parents("div.horizontal").length === 1) {
+                        $($(this).parents("div.horizontal")[0]).find(".active").each(function () {
+                            $(this).removeClass('active');
+                        });
+                    }
+                }
+                parent.toggleClass('active');
+            });
+        },
+
+
+        /**
+         * Init observers for the breadcrumb
+         */
+        initBreadcrumbObservers: function () {
+
+
+            // - remove filters after
+            $(document).on('click', 'div.eln-breadcrumb a.remove-after', function (evt) {
+                var target = evt.target;
+                if (target.tagName !== "A") {
+                    target = $(evt.target).parents("a.remove-after");
+                } else {
+                    target = $(target);
+                }
+
+                var attributeCode = target.attr("attribute-code");
+                var after = false;
+                _.each(this.filters, function (values, key) {
+                    if (after) {
+                        delete(this.filters[key]);
+                    }
+                    if (key === attributeCode) {
+                        after = true;
+                    }
+                }.bind(this));
+                this.paging.from = 0;
+                this.loadProducts();
+                return false;
+            }.bind(this));
+
+
+            // - remove filters after and others values
+            $(document).on('click', 'div.eln-breadcrumb a.remove-after-and-others', function (evt) {
+
+                var target = evt.target;
+                if (target.tagName !== "A") {
+                    target = $(evt.target).parents("a.remove-after");
+                } else {
+                    target = $(target);
+                }
+
+                var attributeCode = target.attr("attribute-code");
+                var optionId = target.attr("option-id");
+                var after = false;
+                _.each(this.filters, function (values, key) {
+                    if (after) {
+                        delete(this.filters[key]);
+                    }
+                    if (key === attributeCode) {
+                        after = true;
+                    }
+                }.bind(this));
+                console.log(this.filters);
+                this.filters[attributeCode] = [optionId];
+                this.paging.from = 0;
+                this.loadProducts();
+                return false;
+            }.bind(this));
+
+            // - remove filter
+            $(document).on('click', 'div.eln-breadcrumb a.action.remove', function (evt) {
+				
+                var a = $(evt.target);
+                var attributeCode = a.attr("attribute-code");
+                // if "remove" for all attribute values
+                //var optionId = a.attr("option-id");
+                //this.removeFilter(attributeCode, optionId);
+                // global remove of the filter
+                this.removeFilter(attributeCode);
+				
+                return false;
+            }.bind(this));
+        },
+
+        /**
+         * Init observers for the infinite scroll
+         */
+        initInfiniteScrollObservers: function () {
+            if (this.config.infiniteScroll.enabled) {
+                var deviceAgent = navigator.userAgent.toLowerCase();
+                var agentID = deviceAgent.match(/(iphone|ipod|ipad)/);
+                $(window).scroll(function () {
+                    if (this.infiniteScrollNoMoreProduct) {
+                        $("#eln-infinite-scroll-end").addClass('active');
+                    } else {
+                        if (this.firstLoadFinished && !this.isRequestProcessing) {
+                            if (($(window).scrollTop() + $(window).height()) >= parseInt($(document).height()) - parseInt(this.config.infiniteScroll.offset)
+                                || agentID && ($(window).scrollTop() + $(window).height()) + 150 > $(document).height()) {
+                                this.loadInfiniteScrollProducts();
+                            }
+                        }
+                    }
+                }.bind(this));
+            }
+        },
+
+        /**
+         * Initialize the ajax add to cart observers
+         */
+        initAjaxAddToCartObservers: function () {
+
+            // Add To Cart button
+            $(document).on('click', 'button.eln-ajax-add-to-cart', function (evt) {
+                var elt = $(evt.target);
+                var form = $($(elt).parents("div[data-role=tocart-form]")[0]);
+                var data = {};
+                var error = false;
+                form.find("input").each(function () {
+                    if (!error && $(this).hasClass("swatch-input") && $(this).val() === "") {
+                        error = true;
+                    }
+                    data[$(this).attr('name')] = $(this).val();
+                });
+                var action = form.attr('action');
+
+                if (error) {
+                    var errorMsg = form.parents('li').find('.eln-message-options-error');
+                    $(errorMsg).slideDown();
+                    setTimeout(function () {
+                        $(errorMsg).slideUp();
+                    }, 3000);
+                    return;
+                }
+
+                form.parents('li').find('.loader').addClass('active');
+                $.ajax({
+                    url: action,
+                    method: "post",
+                    global: true, // allow to reload the mini cart
+                    data: data,
+                    dataType: 'json',
+                    success: function (data) {
+                        if (typeof data.backUrl !== "undefined") {
+                            document.location.href = data.backUrl;
+                        } else if (!_.isArray(data)) {
+                            document.location.href = document.location.href;
+                        } else {
+                            form.parents('li').find('.loader').removeClass('active');
+                        }
+                    }
+                });
+            }.bind(this));
+        },
+
+
+        /**
+         * Init all observers
+         */
+        initObservers: function () {
+            this.initDebugObservers();
+            this.initModeSwitcherObservers();
+            this.initConfigurableProductObservers();
+            this.initPagingObservers();
+            this.initSortingObservers();
+            this.initFilterObservers();
+            this.initBreadcrumbObservers();
+            this.initInfiniteScrollObservers();
+            if (this.config.ajaxCart.enabled) {
+                this.initAjaxAddToCartObservers();
+            }
+        },
+
+
+        initPriceSlider: function (valMin, valMax) {
+            $(".eln-filter-content .eln-price-slider").slider({
+                range: true,
+                min: this.prices.min,
+                max: this.prices.max,
+                values: [valMin, valMax],
+                stop: function (event, ui) {
+                    var selectedMin = parseInt(ui.values[0]);
+                    if (isNaN(selectedMin)) {
+                        selectedMin = 0;
+                    }
+                    var selectedMax = parseInt(ui.values[1]);
+                    $(document).trigger("price-range-changed", [selectedMin, selectedMax, this.min, this.max]);
+                }.bind(this),
+                slide: function (event, ui) {
+                    $(".eln-filter-content .price-range .from").html(_.getFormattedPrice(ui.values[0]));
+                    $(".eln-filter-content .price-range .to").html(_.getFormattedPrice(ui.values[1]));
+                    $(".eln-filter-content .eln-price-slider").slider("option", "values", [ui.values[0], ui.values[1]]);
+                }
+            });
+            $(".eln-filter-content .eln-price-slider .ui-slider-handle").addClass("wyomind-primary-bgcolor");
+        },
+
+        /**
+         * Update the categories selected in the filters then reload the products
+         */
+        updateCategoriesFilter: function (uid) {
+            this.filters["categories_ids"] = [];
+            var elts = $('div.block.filter[uid=' + uid + '] .eln-filter-item[attribute-code=categories] span.selected');
+            _.each(elts, function (elt) {
+                this.filters["categories_ids"].push($(elt).attr('category-id'));
+            }.bind(this));
+            if (this.filters["categories_ids"].length == 0) {
+                delete(this.filters["categories_ids"]);
+            }
+            this.paging.from = "0";
+            this.loadProducts();
+        },
+
+        /**
+         * Add a filter to the current filters list, then reload the products list
+         * @param attributeCode
+         * @param optionId
+         */
+        addFilter: function (attributeCode, optionId) {
+            if (typeof this.filters[attributeCode] === "undefined") {
+                this.filters[attributeCode] = [optionId];
+            } else {
+                this.filters[attributeCode].push(optionId);
+            }
+            this.paging.from = "0";
+            this.loadProducts();
+        },
+
+        /**
+         * Remove a filter from the current filters list, then reload the products list
+         * @param attributeCode
+         * @param optionId
+         */
+        removeFilter: function (attributeCode, optionId) {
+            if (attributeCode === "rating") {
+                $("#rating-filter-" + optionId).removeClass("selected");
+            }
+            this.paging.from = "0";
+            if (attributeCode === "final_price" || typeof optionId == "undefined") {
+                delete(this.filters[attributeCode]);
+                this.loadProducts();
+            } else {
+                this.filters[attributeCode] = _.without(this.filters[attributeCode], optionId);
+                if (this.filters[attributeCode].length === 0) {
+                    delete(this.filters[attributeCode]);
+                }
+                this.loadProducts();
+            }
+        },
+
+
+        /**
+         * Make a request to get products list when the infinite scroll is triggered, according to the current filters, page, order, sorting field, etc...
+         */
+        loadInfiniteScrollProducts: function () {
+            this.isRequestProcessing = true;
+            var fullStartTime = Date.now();
+            // display loader
+            $('#eln-infinite-scroll-loader').toggleClass('active');
+            $("#eln-infinite-scroll-end").removeClass('active');
+            this.paging.from = parseInt(this.paging.from) + parseInt(this.paging.size);
+            var data = {
+                "store": this.config.storeCode,
+                "categoryId": this.search.categoryId,
+                "searchTerm": this.search.term,
+                "from": this.paging.from,
+                "size": this.paging.size,
+                "order": this.sorter.order,
+                "direction": this.sorter.direction,
+                "filters": this.filters,
+                "onlyProducts": true,
+                "highlightEnabled": this.config.highlightEnabled,
+                "loadAggregations": false,
+                "customerGroupId": this.config.customerGroupId
+            };
+            var hash = this.hash(JSON.stringify(data));
+            var requestStartTime = Date.now();
+            if (typeof this.cache[hash] !== "undefined") {
+                data = this.cache[hash];
+                this.updateContentInfiniteScroll(data, fullStartTime, requestStartTime, hash);
+            } else {
+
+                $.ajax({
+                    url: this.config.elasticsearchUrl,
+                    method: "POST",
+                    global: false,
+                    data: data,
+                    dataType: "json"
+                }).done(function (data) {
+                    this.updateContentInfiniteScroll(data, fullStartTime, requestStartTime);
+                    this.cache[hash] = data;
+                }.bind(this)).fail(function (jqXHR, textStatus) {
+                    console.log("Request failed: " + textStatus);
+                }.bind(this));
+            }
+        },
+
+        /**
+         * Update the products list contains in the results of the request for the infinite scroll
+         * No need to refresh the filters
+         * @param data
+         * @param fullStartTime
+         * @param requestStartTime
+         * @param cacheHash
+         */
+        updateContentInfiniteScroll: function (data, fullStartTime, requestStartTime, cacheHash) {
+
+            var requestTime = Date.now() - requestStartTime;
+            var renderingStartTime = Date.now();
+            if (data['products'].length < this.paging.size) {
+                this.infiniteScrollNoMoreProduct = true;
+                $("#eln-infinite-scroll-end").addClass('active');
+            }
+
+            _.each(data['products'], function (product) {
+                if (typeof product.configurable_index !== "undefined") {
+                    this.configurableIndex[product.id] = $.parseJSON(product.configurable_index);
+                    this.configurableImages[product.id] = $.parseJSON(product.configurable_images);
+                }
+
+                var htmlItem = mageTemplate(this.templateSelectors.productItem, {
+                    "product": product,
+                    "ajaxCartEnabled": this.config.ajaxCart.enabled,
+                    "addToCompareEnabled": this.config.addToCompare.enabled,
+                    "customerGroupId": this.config.customerGroupId
+                });
+                $(this.contentSelectors.productItems).append(htmlItem);
+
+            }.bind(this));
+
+            if ($("#eln-debug-template").length >= 1) {
+                var fullEndTime = Date.now();
+                var debug = mageTemplate("#eln-debug-template", {
+                    "phpTime": typeof cacheHash !== "undefined" ? 0 : data.time,
+                    "requestTime": requestTime,
+                    "renderingTime": (fullEndTime - renderingStartTime),
+                    "totalTime": (fullEndTime - fullStartTime),
+                    "fromCache": typeof cacheHash !== "undefined",
+                    "cacheHash": cacheHash,
+                    "infiniteScroll": true,
+                    "templateHintsEnabled": this.templateHintsEnabled
+                });
+                $('#eln-debug').html(debug);
+                this.toggleTemplateHints(this.templateHintsEnabled);
+                this.lastRequestData = data;
+            }
+            // hide loader
+            $('#eln-infinite-scroll-loader').toggleClass('active');
+            this.isRequestProcessing = false;
+
+            // ultimo - resize product items block
+            if (this.config.theme.model === "Infortis/ultimo" && this.config.theme.config.equal_height === "1") {
+                this.ULTIMO.setGridItemsEqualHeight();
+            }
+
+            this.updateFormKey();
+        },
+
+        /**
+         * Make a request to get products list according to the current filters, page, order, sorting field, etc...
+         */
+        loadProducts: function (loadAggregations, firstLoad) {
+			
+			
+		
+
+            if (typeof loadAggregations == "undefined") {
+                loadAggregations = this.config.layerUpdateMethod >= 0;
+            }
+            if (typeof firstLoad == "undefined") {
+                firstLoad = false;
+            }
+            $('.eln-loader').removeClass('hide');
+            var fullStartTime = Date.now();
+            // we are not loading products for the infinite scroll
+            $("#eln-infinite-scroll-end").removeClass('active');
+            this.infiniteScrollNoMoreProduct = false;
+            // current parameters for the request
+
+
+            if (firstLoad) {
+                this.filters = this.decodeFilters(document.location.hash.substring(1));
+            }
+
+            var data = {
+                "store": this.config.storeCode,
+                "categoryId": this.search.categoryId,
+                "searchTerm": this.search.term,
+                "from": this.paging.from,
+                "size": this.paging.size,
+                "order": this.sorter.order,
+                "direction": this.sorter.direction,
+                "filters": this.filters,
+                "highlightEnabled": this.config.highlightEnabled,
+                "loadAggregations": loadAggregations,
+                "customerGroupId": this.config.customerGroupId
+            };
+
+            document.location.hash = "#" + this.encodeFilters(this.filters);
+
+            // backup of the opened filter divs
+            var openedFilters = {};
+            $('div > div > div > div.eln-filter-item.active').each(function () {
+                var uid = $(this).parents('div.block.filter').attr('uid');
+                if (typeof openedFilters[uid] === "undefined") {
+                    openedFilters[uid] = [];
+                }
+                openedFilters[uid].push($(this).attr('attribute-code'));
+            });
+            // backup of the opened categories in tree
+            var openedCategories = {};
+            $('li.children.active').each(function () {
+                var uid = $(this).parents('div.block.filter').attr('uid');
+                if (typeof openedCategories[uid] === "undefined") {
+                    openedCategories[uid] = [];
+                }
+                openedCategories[uid].push($(this).attr('category-id'));
+            });
+			
+			
+				
+			
+			
+            // unique hash of the parameters
+            var hash = this.hash(JSON.stringify(data));
+            var requestStartTime = Date.now();
+            // request already in cache?
+            if (typeof this.cache[hash] !== "undefined") {
+				
+				
+                this.updateContent(this.cache[hash], openedFilters, openedCategories, fullStartTime, requestStartTime, hash);
+				
+		
+				
+                $('.eln-loader').addClass('hide');
+            } else {
+                // not in cache => perform an ES request
+                $.ajax({
+                    url: this.config.elasticsearchUrl,
+                    method: "POST",
+                    global: false,
+                    data: data,
+                    dataType: "json"
+                }).done(function (data) {
+					
+					
+                    _.each(data['products'], function (product) {
+                        // cache configurable products data
+                        if (typeof product.configurable_index !== "undefined") {
+                            this.configurableIndex[product.id] = $.parseJSON(product.configurable_index);
+                            this.configurableImages[product.id] = $.parseJSON(product.configurable_images);
+                        }
+                    }.bind(this));
+                    // update the products list with the new products list from ES
+                    this.updateContent(data, openedFilters, openedCategories, fullStartTime, requestStartTime);
+                    // cache the results
+                    this.cache[hash] = data;
+				
+                    $('.eln-loader').addClass('hide');
+
+                }.bind(this)).fail(function (jqXHR, textStatus) {
+                    console.log("Request failed: " + textStatus);
+                    $('.eln-loader').addClass('hide');
+                    $('body.page-products :not(#eln-product-products)>.products.wrapper, body.page-products .toolbar.toolbar-products:not(.eln-toolbar)').css({opacity: 1});
+					
+					
+
+					
+					
+					
+                }.bind(this));
+            }
+        },
+
+        /**
+         * Update the content of the products list and the filters (not infinite scroll)
+         * @param data
+         * @param openedFilters
+         * @param openedCategories
+         * @param fullStartTime
+         * @param requestStartTime
+         * @param cacheHash
+         */
+        updateContent: function (data, openedFilters, openedCategories, fullStartTime, requestStartTime, cacheHash) {
+
+            // hide the Magento native grid
+            $('.eln-main-content').parent().find("> .toolbar.toolbar-products").remove();
+            $('.eln-main-content').parent().find("> .products.wrapper").remove();
+
+			
+			
+				
+			
+			
+			
+            var requestTime = Date.now() - requestStartTime;
+            var renderingStartTime = Date.now();
+            var amount = data['amount'];
+
+            //--------------------------------------------------------------
+            // TOOLBAR
+            // - amount
+            var size = this.paging.size;
+            if (size == 'all') {
+                size = amount['total'];
+            }
+            var to = parseInt(this.paging.from) + parseInt(size);
+            if (to > amount['total']) {
+                to = amount['total'];
+            }
+            var count = mageTemplate(this.templateSelectors.productAmount, {
+                "count": amount['total'],
+                "from": parseInt(this.paging.from) + 1,
+                "to": to,
+                "infiniteScroll": this.config.infiniteScroll.enabled,
+                "labels": this.config.labels
+            });
+            $(this.contentSelectors.productAmount).html(count);
+
+            // Did we load all products: Yes => no infinite scroll, No => infinite scroll possible
+            if (this.paging.size >= amount['total']) {
+                this.infiniteScrollNoMoreProduct = true;
+            }
+
+            //--------------------------------------------------------------
+            // BOTTOM
+            // - paging
+            var paging = "";
+            if (!this.config.infiniteScroll.enabled) {
+                paging = mageTemplate(this.templateSelectors.productPaging, {
+                    "pages": amount['pages'],
+                    "current": amount['current'],
+                    "previous": amount['previous'],
+                    "next": amount['next'],
+                    "size": amount['size']
+                });
+            }
+            $(this.contentSelectors.productPaging).html(paging);
+
+            //--------------------------------------------------------------
+            // PRODUCTS GRID
+            // if the product grid doesn't exist, adding it
+            if ($(this.contentSelectors.productItems).length === 0) {
+                var html = mageTemplate(this.templateSelectors.productItems, {
+                    "count": amount['total']
+                });
+                $(this.contentSelectors.product).html(html);
+            }
+            // fill in the grid with the product
+            $(this.contentSelectors.productItems).html("");
+            _.each(data['products'], function (product) {
+                var htmlItem = mageTemplate(this.templateSelectors.productItem, {
+                    "product": product,
+                    "ajaxCartEnabled": this.config.ajaxCart.enabled,
+                    "addToCompareEnabled": this.config.addToCompare.enabled,
+                    "customerGroupId": this.config.customerGroupId
+                });
+                $(this.contentSelectors.productItems).append(htmlItem);
+            }.bind(this));
+
+            //--------------------------------------------------------------
+            // FILTERS
+            var selectedFilters = data['selectedFilters'];
+            // - filters
+            var filters = data['aggregations'];
+
+            if (!_.isEmpty(filters)) {
+                // cache for the filters (can be several times the same filter [top,left,right])
+                var filtersCache = [];
+                // price sliders config
+                var initSlider = false;
+                // price filters data
+                var min = 0;
+                var max = 0;
+                var valMin = 0;
+                var valMax = 0;
+                // remove all filters
+                $(this.contentSelectors.filters).html("");
+                // add filters elts
+                _.each(this.config.filterableAttributes, function (attributeInfos, uid) { // uid = left,top,right
+                    _.each(attributeInfos, function (attributeInfo) {
+
+                        var attributeCode = attributeInfo[0];
+                        var showResultsCount = attributeInfo[1];
+
+                        // need to add "_ids" at the end of the attribute code?
+                        var code = "";
+                        if (typeof filters[attributeCode] !== "undefined") {
+                            code = attributeCode;
+                        } else if (typeof filters[attributeCode + "_ids"] !== "undefined") {
+                            code = attributeCode + "_ids";
+                        }
+                        if (code !== "") { // the attribute is well a filter
+
+                            // attribute filter already processed => adding it in the dom
+                            if (typeof filtersCache[code] !== "undefined") { // use local cache of the current request
+                                $("[uid=" + uid + "] " + this.contentSelectors.filters).append(filtersCache[code]);
+
+                            } else { // attribute filter not in the cache
+
+                                var filter = filters[code];
+                                var attributeFilter = "";
+
+                                var goahead = 0;
+
+
+                                // price filter
+                                if (code === "final_price") {
+                                    if (filter['min'] != filter['max']) {
+                                        attributeFilter = mageTemplate(this.templateSelectors.pricesFilter, {
+                                            "min": filter['min'],
+                                            "max": filter['max'],
+                                            "valMin": filter['values']['min'],
+                                            "valMax": filter['values']['max'],
+                                            "displayInputBoxesForPriceFilter": this.config.displayInputBoxesForPriceFilter
+                                        });
+                                        initSlider = true;
+                                        min = filter['min'];
+                                        max = filter['max'];
+                                        valMin = filter['values']['min'];
+                                        valMax = filter['values']['max'];
+                                    } else {
+                                        attributeFilter = "";
+                                    }
+                                    // rating filter
+                                } else if (code === "rating") {
+                                    _.each(filter, function (count, rating) {
+                                        goahead += count;
+                                    });
+                                    if (goahead > 0 || this.config.layerUpdateMethod > 0) {
+                                        attributeFilter = mageTemplate(this.templateSelectors.ratingsFilter, {
+                                            "ratings": filter,
+                                            "selected": (typeof selectedFilters[code] !== "undefined") ? selectedFilters[code]['values'] : [],
+                                            "showResultsCount": showResultsCount
+                                        });
+                                    } else {
+                                        attributeFilter = "";
+                                    }
+                                    // categories filter
+                                } else if (code === "categories") {
+                                    _.each(filter, function (category) {
+                                        goahead += ((category.count == -1) ? 0 : category.count);
+                                    });
+                                    if (goahead > 0 || this.config.layerUpdateMethod > 0) {
+                                        attributeFilter = mageTemplate(this.templateSelectors.categoryFilter, {
+                                            "showResultsCount": showResultsCount
+                                        });
+                                    } else {
+                                        attributeFilter = "";
+                                    }
+
+                                    // text swatch attribute filter
+                                } else {
+                                    var goahead = 0;
+                                    _.each(filter.values, function (data, optionId) {
+                                        goahead += data.count;
+                                    });
+                                    if (goahead > 0 || this.config.layerUpdateMethod > 0) { // layerUpdateMethod > 0 => visible and disabled
+                                        if (filter.textSwatch) {
+                                            attributeFilter = mageTemplate(this.templateSelectors.textSwatchFilter, {
+                                                "filter": filter,
+                                                "attributeCode": code,
+                                                "selected": (typeof selectedFilters[code] !== "undefined") ? selectedFilters[code]['values'] : [],
+                                                "showResultsCount": showResultsCount
+                                            });
+
+                                            // visual swatch attribute filter
+                                        } else if (filter.visualSwatch) {
+                                            attributeFilter = mageTemplate(this.templateSelectors.visualSwatchFilter, {
+                                                "filter": filter,
+                                                "attributeCode": code,
+                                                "selected": (typeof selectedFilters[code] !== "undefined") ? selectedFilters[code]['values'] : [],
+                                                "showResultsCount": showResultsCount
+                                            });
+
+                                            // all other attributes
+                                        } else {
+                                            attributeFilter = mageTemplate(this.templateSelectors.attributeFilter, {
+                                                "filter": filter,
+                                                "attributeCode": code,
+                                                "selected": (typeof selectedFilters[code] !== "undefined") ? selectedFilters[code]['values'] : [],
+                                                "showResultsCount": showResultsCount
+                                            });
+
+                                        }
+                                    } else {
+                                        attributeFilter = "";
+                                    }
+                                }
+                                // adding the filter to the cache
+                                filtersCache[code] = attributeFilter; // local caching for the current request
+                                // adding the filter to the dom
+
+                                $("[uid=" + uid + "] " + this.contentSelectors.filters).append(attributeFilter);
+
+                                // populate categories filter treeview
+                                if (code === "categories") {
+                                    if (goahead > 0 || this.config.layerUpdateMethod > 0) {
+                                        var values = [];
+                                        if ((typeof selectedFilters["categories_ids"] !== "undefined")) {
+                                            values = _.keys(selectedFilters["categories_ids"]['values']);
+                                        }
+                                        _.each(filters.categories_ordered, function (category) {
+                                            var categoryContent = mageTemplate(this.templateSelectors.categoryItemFilter, {
+                                                "category": filter[category],
+                                                "selected": _.contains(values, filter[category].id),
+                                                "showResultsCount": showResultsCount
+                                            });
+                                            var parent = $("[uid=" + uid + "] ul#eln-category-" + filter[category].parent);
+                                            if (parent.length === 0) {
+                                                $("[uid=" + uid + "] div[attribute-code=categories] div.eln-filter-content > ul").append(categoryContent);
+                                            } else {
+                                                parent.append(categoryContent);
+                                            }
+                                        }.bind(this));
+                                        filtersCache[code] = $("[uid=" + uid + "] " + this.contentSelectors.filters + " [attribute-code=categories]").outerHTML;
+                                    }
+                                }
+                            }
+                        }
+						
+						
+						
+				
+						
+						
+						
+                    }.bind(this));
+                }.bind(this));
+
+                // initialize price sliders
+                if (initSlider) {
+                    this.prices = {min: parseFloat(min), max: parseFloat(max)};
+                    this.initPriceSlider(valMin, valMax);
+                }
+
+
+                // re-open previously opened filters
+                _.each(openedFilters, function (attributeCodes, uid) {
+                    _.each(attributeCodes, function (attributeCode) {
+                        $("[uid=" + uid + "] [attribute-code=" + attributeCode + "]").addClass('active');
+                    });
+                });
+
+                // re-open previously opened categories
+                _.each(openedCategories, function (categoryIds, uid) {
+                    _.each(categoryIds, function (categoryId) {
+                        $("[uid=" + uid + "] li.children[category-id=" + categoryId + "]").addClass('active');
+                    });
+                });
+            }
+
+            if (!this.firstLoadFinished && $(window).width() >= 768 /* wider than a  smartphone */) {
+                // open all left/right filters
+                $("[uid=left] .eln-filter-item, [uid=right] .eln-filter-item").addClass('active');
+            }
+
+            //--------------------------------------------------------------
+            // BREADCRUMB
+            if ($(this.contentSelectors.breadcrumb).length != 0) {
+                var breadcrumb = mageTemplate(this.templateSelectors.breadcrumb, {
+                    "filters": selectedFilters,
+                    "clear_all": this.config.labels.clear_all
+                });
+                $(this.contentSelectors.breadcrumb).html(breadcrumb);
+					
+			
+				
+				
+            }
+			
+			
+			
+			if($('.filter-current ol li').length == 0 ) {
+				$('.eln-main-content').removeClass('div_space');
+				}else
+				{
+					$('.eln-main-content').addClass('div_space');
+				}
+			
+			
+
+            // DEBUG
+            var fullEndTime = Date.now();
+            if ($("#eln-debug-template").length >= 1) {
+                var debug = mageTemplate("#eln-debug-template", {
+                    "phpTime": typeof cacheHash !== "undefined" ? 0 : data.time,
+                    "requestTime": requestTime,
+                    "renderingTime": (fullEndTime - renderingStartTime),
+                    "totalTime": (fullEndTime - fullStartTime),
+                    "fromCache": typeof cacheHash !== "undefined",
+                    "cacheHash": cacheHash,
+                    "infiniteScroll": false,
+                    "templateHintsEnabled": this.templateHintsEnabled
+                });
+                $('#eln-debug').html(debug);
+                this.toggleTemplateHints(this.templateHintsEnabled);
+                this.lastRequestData = data;
+            }
+
+            if (!this.firstLoadFinished) {
+                $('div.block.filter.wyomind-hidden').removeClass('wyomind-hidden');
+                $('div.eln-main-content.wyomind-hidden').removeClass('wyomind-hidden');
+            }
+
+            // The first load has ended (even if this is not the first load)
+            this.firstLoadFinished = true;
+            // no more request processing
+            this.isRequestProcessing = false;
+
+            // ultimo - resize product items block
+            if (this.config.theme.model === "Infortis/ultimo" && this.config.theme.config.equal_height === "1") {
+                this.ULTIMO.setGridItemsEqualHeight();
+            }
+
+            this.updateFormKey();
+			
+		
+        },
+
+
+        //######################################################################
+        // ULTIMO TOOLS
+        //######################################################################
+        ULTIMO: {
+            /**
+             * Resize the product blocks in the grid (see Infortis_Ultimo theme js scripts)
+             */
+            setGridItemsEqualHeight: function () {
+                var bottomMinSpace = 20; // Minimum space below the button at the bottom of the item
+                var gridItemMaxHeight = 0;
+                var gridItemMaxPaddingBottom = 0;
+                var $listContainer = jQuery('.category-products-grid');
+                var $listItems = $listContainer.children('ol').children();
+                var centered = $listContainer.hasClass('centered');
+                var $row = jQuery();
+                $listItems.each(function () {
+                    var $item = jQuery(this);
+                    var $actionsBlock = $item.find('.actions');
+                    // Check if first item in a row
+                    if ($item.css("clear") === "left") {
+                        // If row not empty, apply the max values to all items in a row
+                        if ($row.length) {
+                            $row.css({
+                                "height": gridItemMaxHeight + "px",
+                                "padding-bottom": gridItemMaxPaddingBottom + "px"
+                            });
+                            // Reset the row collection and reset the max values
+                            $row = jQuery();
+                            gridItemMaxHeight = 0;
+                            gridItemMaxPaddingBottom = 0;
+                        }
+                    }
+                    $row = $row.add($item);
+                    $item.css("height", "auto");
+                    gridItemMaxHeight = Math.max(gridItemMaxHeight, $item.height());
+                    // Use constant bottomMinSpace as bottom offset for the actions container
+                    $actionsBlock.css("bottom", bottomMinSpace + "px");
+                    // Align button to the center
+                    if (centered) {
+                        var objectWidth = $actionsBlock.width();
+                        var availableWidth = $item.width();
+                        var space = availableWidth - objectWidth;
+                        var leftOffset = ~~(space / 2);
+                        $actionsBlock.css("padding-left", leftOffset + "px");
+                    }
+                    // Set bottom padding wich equals to: actions container height + bottomMinSpace
+                    var currentPaddingBottom = bottomMinSpace + $actionsBlock.innerHeight();
+                    gridItemMaxPaddingBottom = Math.max(gridItemMaxPaddingBottom, currentPaddingBottom);
+                    $item.css("padding-bottom", currentPaddingBottom + "px"); // TODO: possibly redundant. Padding will be applied for the entire row.
+                });
+                // Apply the max values to all items in the last row
+                if ($row.length) {
+                    $row.css({
+                        "height": gridItemMaxHeight + "px",
+                        "padding-bottom": gridItemMaxPaddingBottom + "px"
+                    });
+                }
+            }
+        },
+
+
+        //######################################################################
+        // GENERAL TOOLS
+        //######################################################################
+
+        /**
+         * Get a unique hash of a string
+         * @param string
+         * @returns {number}
+         */
+        hash: function (string) {
+            var hash = 0;
+            if (string.length === 0) {
+                return hash;
+            }
+            for (var i = 0; i < string.length; i++) {
+                var char = string.charCodeAt(i);
+                hash = ((hash << 5) - hash) + char;
+                hash = hash & hash; // Convert to 32bit integer
+            }
+            return hash;
+        },
+
+        //######################################################################
+        // DEBUG TOOLS
+        //######################################################################
+
+        /**
+         * Enable the template hints
+         * @param on true => enable, false => disable
+         */
+        toggleTemplateHints: function (on) {
+				
+            // add a hint for all Underscore.js template
+            _.each(this.templateSelectors, function (elt, id) {
+                // remove all hints
+                $(elt + "-th").remove();
+                if (on) { // enabling
+                    var div = $("<div>").addClass("eln-template-hint").addClass("template-hint").attr('id', elt.replace("#", "") + "-th");
+                    div.html("<a name='" + id.toUpperCase() + "'>" + id.toUpperCase() + "</a><br/>elt: " + elt + "<br/>file: " + this.contentTemplateFiles[id]);
+                    // the template dom elt is a script node => adding the hint before the node
+                    div.insertBefore($(elt));
+                }
+            }.bind(this));
+
+            // add a hint for all blocks updated using uUnderscore.js template
+            _.each(this.contentSelectors, function (elt, id) {
+                // remove all hints
+                $(elt + " > .eln-template-hint").remove();
+                if (on) { // enabling template hints
+                    this.templateHintsEnabled = true;
+                    $('#eln-debug-disable-template-hints').show();
+                    $('#eln-debug-enable-template-hints').hide();
+                    var div = $("<div>").addClass("eln-template-hint");
+                    if (typeof this.templateSelectors[id] != "undefined") {
+                        // an underscore.js template exists => add an anchor link to the hint of the underscore.js template
+                        div.html(id.toUpperCase() + "<br/>elt: " + elt + "<br/>_tpl: <a onClick='jQuery(\".template-hint.selected\").removeClass(\"selected\");jQuery(\"" + this.templateSelectors[id] + "-th\").addClass(\"selected\")' href='#" + id.toUpperCase() + "'>" + this.templateSelectors[id] + "</a>");
+                    } else {
+                        div.html(id.toUpperCase() + "<br/>elt: " + elt + "<br/>phtml: " + this.contentTemplateFiles[id]);
+                    }
+                    $(elt).prepend(div);
+                    $(elt).addClass("eln-template-hint-container");
+                } else { // disabling templateh hints
+                    this.templateHintsEnabled = false;
+                    // remove hint class to the container
+                    $(elt).removeClass("eln-template-hint-container");
+                    $('#eln-debug-disable-template-hints').hide();
+                    $('#eln-debug-enable-template-hints').show();
+                }
+            }.bind(this));
+        },
+        getCookie: function (cname) {
+            var name = cname + "=";
+            var decodedCookie = decodeURIComponent(document.cookie);
+            var ca = decodedCookie.split(';');
+            for (var i = 0; i < ca.length; i++) {
+                var c = ca[i];
+                while (c.charAt(0) == ' ') {
+                    c = c.substring(1);
+                }
+                if (c.indexOf(name) == 0) {
+                    return c.substring(name.length, c.length);
+                }
+            }
+            return "";
+        },
+
+        updateFormKey: function () {
+            let formKey = this.getCookie("form_key");
+            $('input[name=form_key]').val(formKey);
+            var as = $('a[href*=\\/form_key\\/]');
+            as.each(function (i) {
+                let link = jQuery(as[i]);
+                let href = link.attr('href').replace(/form_key\/[^\/]+\//, "form_key/" + formKey + "/");
+                link.attr("href", href);
+
+            });
+        },
+
+        encodeFilters: function (filters) {
+            var parameters = "";
+            _.each(filters, function (data, key) {
+                if (parameters !== "") {
+                    parameters += "&";
+                }
+                parameters += key + "=";
+                if (_.isArray(data)) {
+                    parameters += data;
+                } else if (_.isObject(data)) {
+                    var tmp = [];
+                    _.each(data, function (data, key) {
+                        tmp.push(key + ":" + data);
+                    });
+                    parameters += "[" + tmp + "]";
+                } else {
+                    parameters += data;
+                }
+            });
+            return parameters;
+        },
+
+        decodeFilters: function (encoded) {
+            try {
+                var json = {};
+                var args = encoded.split('&');
+                _.each(args, function (elt) {
+                    var arg = elt.split('=');
+                    var key = arg[0];
+                    var data = arg[1];
+                    if (data.startsWith('[')) {
+                        var tmpjson = {};
+                        var tmpdata = data.replace('[', '').replace(']', '').split(',');
+                        _.each(tmpdata, function (prop) {
+                            prop = prop.split(':');
+                            tmpjson[prop[0]] = prop[1];
+
+                        });
+                        data = tmpjson;
+                    } else {
+                        data = data.split(',');
+                    }
+                    json[key] = data;
+                });
+
+                return json;
+            } catch (e) {
+                return {};
+            }
+        }
+
+
+    };
+});
+

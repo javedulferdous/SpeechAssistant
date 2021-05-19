@@ -1,0 +1,189 @@
+    //---------------------------
+    //
+    //  analytics Module Code 0.0.3
+    //
+    //---------------------------
+    ORA.analyticsModule = function(){};
+
+    //Object to contain custom configs
+    ORA.analyticsModule.prototype.oraConfigObj = {
+  "s_disableSeed":true,
+  "alwaysLoad":true,
+  "ora-plugins":{
+    "pp":{
+      "enable":true,
+      "cookieDays":365,
+      "priority":100,
+      "lowerCaseValues":true,
+      "defPrefix":"DCSext",
+      "params":[
+        "dtm_em",
+        "cm_lm",
+        "sha_em",
+        "mi_u"
+      ],
+      "useMostRecent":true,
+      "cookieName":"WTPERSIST"
+    },
+    "cookieCutter":{
+      "readCookies":[
+        {
+          "cookie":{
+            "TEST":"ora.cook_a"
+          },
+          "options":{
+            "persist":true
+          }
+        },
+        {
+          "cookie":{
+            "ORA_FPC":{
+              "id":"ora.c_id",
+              "ss":"ora.c_ss",
+              "lv":"ora.c_lv"
+            }
+          },
+          "options":{
+            "parseOn":":",
+            "parseLv":"="
+          }
+        },
+        {
+          "cookie":{
+            "ELOQUA":{
+              "GUID":"ora.eloqua"
+            }
+          }
+        },
+        {
+          "cookie":{
+            "utag_main":{
+              "_ss":"ora.u_ss",
+              "_st":"ora.u_st",
+              "v_id":"ora.u_vid",
+              "_sn":"ora.u_sn",
+              "ses_id":"ora.u_ses_id"
+            }
+          },
+          "options":{
+            "parseOn":"$",
+            "parseLv":":",
+            "persist":false
+          }
+        }
+      ],
+      "enable":true
+    }
+  },
+  "timezone":0,
+  "enabled":true,
+  "DNTBehavior":"honorDNT",
+  "s_dependencies":"common:running",
+  "defaultCollectionServer":"dc.oracleinfinity.io",
+  "s_useTrackingPipeline":true,
+  "libUrl":"//c.oracleinfinity.io/acs/account/r2iucrrpvi/js/jcp/analytics-production/analytics.js",
+  "accountGuid":"r2iucrrpvi",
+  "tagId":"jcp",
+  "secureCookie":false,
+  "destinations":[
+    {
+      "accountGuid":"r2iucrrpvi"
+    }
+  ],
+  "s_TrackingPipelineTimeout":4000
+};
+
+    if (!(typeof ORA.analyticsModule.prototype.oraConfigObj.enabled && ORA.analyticsModule.prototype.oraConfigObj.enabled === false)){
+
+
+    ORA.analyticsModule.prototype.preinit = function() {
+    };
+
+    // run rules
+    ORA.analyticsModule.prototype.init = function() {
+        try {
+                         if(true) {
+                           //Rule - simple
+                                    this.oraConfigObj.key="value";
+                
+                                if (this.oraConfigObj.doLoad === undefined) {
+                 this.oraConfigObj.doLoad=true;
+                }
+           }
+                    // handle case where it matches none of the rules
+            this.oraConfigObj.doLoad = this.oraConfigObj.doLoad || this.oraConfigObj.alwaysLoad;
+
+                    } catch(e) {
+            ORA.abortModuleHelper("analytics", e);
+        }
+   };
+
+
+    // run any preload scripts
+    ORA.analyticsModule.prototype.preload = function() {
+        try {
+            // get the max conversion timeout from the products for click functionality
+            var currTimeout = 0;
+            if (ORA.analyticsModule.prototype.oraConfigObj["s_conversionTimeout"]) {
+                currTimeout = ORA.analyticsModule.prototype.oraConfigObj["s_conversionTimeout"];
+            }
+            ORA.setLoaderConversionTimeoutDefault(Math.max(currTimeout, ORA.loaderConversionTimeoutDefault()));
+            ORA.Debug.debug("PRELOAD:  Executing preload script");
+            
+
+        } catch(e) {
+            ORA.abortModuleHelper("analytics", e);
+        }
+    };
+
+
+    // load the analytics tag
+    ORA.analyticsModule.prototype.load = function(callback){
+        try {
+            ORA.Debug.debug("LOAD:  Executing load phase");
+            var productName="analytics";
+            var attachId="head";
+            //Load script
+            ORA.productReady.push(['analytics', function () { ORA.analytics.addMutation('ppupdate2', function (msg) { try { if ( msg.payload['cm_lm'] !== undefined){ var cm_lm= msg.payload['cm_lm']; if (cm_lm) { if (Object.prototype.toString.call(cm_lm) === '[object Array]') { cm_lm = cm_lm.pop(); }; var r = cm_lm.split(','); if (r.length == 2 && r[0] == r[1]){cm_lm=r[0];}else if (r.length == 2 && r[0].length >= 4) {cm_lm=r[0];}else {cm_lm=r.join('');} var numbers = /^[0-9]+$/; if (!isNaN(parseFloat(cm_lm)) && isFinite(cm_lm) && cm_lm.match(numbers)) { msg.payload['cm_lm'] = cm_lm; } else { delete msg.payload['cm_lm']; } } if (msg.payload['cm_lm'] === ""){ delete msg.payload['cm_lm']; } } if ( msg.payload['mi_u'] !== undefined){ var mi_u= msg.payload['mi_u']; if (mi_u) { if (Object.prototype.toString.call(mi_u) === '[object Array]') { mi_u = mi_u.pop(); }; var r = mi_u.split(','); if (r.length == 2 && r[0] == r[1]){mi_u=r[0];} else if (r.length == 2 && r[0].length >= 4) {mi_u=r[0];} else {mi_u=r.join('');} var numbers = /^[0-9]+$/; if (!isNaN(parseFloat(mi_u)) && isFinite(mi_u) && mi_u.match(numbers)) { msg.payload['mi_u'] = mi_u; } else { delete msg.payload['mi_u']; } } if (msg.payload['mi_u'] === ""){ delete msg.payload['mi_u']; } } if ( msg.payload['dtm_em'] !== undefined){ var dtm_em= msg.payload['dtm_em']; if (dtm_em) { if (Object.prototype.toString.call(dtm_em) === '[object Array]') { dtm_em = dtm_em.pop(); }; var r = dtm_em.split(','); dtm_em = r.length == 2 && r[0] == r[1] ? r[0] : r[0]; var pattmd5 = /^([A-Fa-f0-9]{32})/; if (pattmd5.test(dtm_em)) { msg.payload['dtm_em'] = dtm_em; } else { delete msg.payload['dtm_em']; } } if (msg.payload['dtm_em'] === ""){ delete msg.payload['dtm_em']; } } if ( msg.payload['sha_em'] !== undefined){ var sha_em= msg.payload['sha_em']; if (sha_em) { if (Object.prototype.toString.call(sha_em) === '[object Array]') { dtm_em = sha_em.pop(); }; var r = sha_em.split(','); sha_em = r.length == 2 && r[0] == r[1] ? r[0] : r[0]; var pattsha256 = /^([A-Fa-f0-9]{64})/; if (pattsah256.test(sha_em)) { msg.payload['sha_em'] = sha_em; } else { delete msg.payload['sha_em']; } } if (msg.payload['sha_em'] === ""){ delete msg.payload['sha_em']; } } } catch (ignore) { } }, 3); }, '_ora_plugins_init']); var fail = function(){ ORA.fireEvent(new ORA.Event(productName+"_"+ORA.Event.LOADER_MODULE_ABORT, ORA.Event.STATUS_SUCCESS)); }; ORA.downloadLib(attachId, callback, fail, 0, true, this.oraConfigObj.libUrl); 
+        } catch(e) {
+            ORA.abortModuleHelper("analytics", e);
+        }
+    };
+
+
+    ORA.analyticsModule.prototype.postload = function(){
+        ORA.Debug.debug("POSTLOAD:  Executing postload analytics complete");
+        try {
+            ORA.Debug.info("LOADER:  ORA.analyticsModule.prototype: postload");
+            //PostLoad script
+            
+        ORA.analytics.setup(ORA.analyticsModule.prototype.oraConfigObj);
+    
+        } catch(e) {
+            ORA.abortModuleHelper("analytics", e);
+        }
+    };
+
+
+    // abort gracefully on timer expire
+    ORA.analyticsModule.prototype.abort = function(){
+        try{
+            ORA.Debug.debug("ABORT:  Executing analyticsModule abort");
+            //Abort script
+            
+
+        } catch(e){
+            ORA.abortModuleHelper("analytics", e);
+        }
+    };
+    } else {
+            ORA.Debug.debug('analytics  module disabled - exiting module setup');
+
+        }
+
+
+    //  setup the product Name
+    ORA.analyticsModule.ProductName = "analytics";
+
+    // register plugin
+    ORA.registerPlugin(ORA.analyticsModule, "production");

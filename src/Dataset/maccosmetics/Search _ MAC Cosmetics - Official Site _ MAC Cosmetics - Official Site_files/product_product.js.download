@@ -1,0 +1,638 @@
+var site = (function($, Drupal, _, site, undefined) {
+  "use strict";
+
+  /**
+   * Product prototype. Directly represents a page_data product object, but also
+   * contains methods that are helpful. Should be responsible for rendering its own
+   * markup
+   *
+   * @constructor
+   * @param {Object} info - State object that looks like:
+   *  {"prodid":"PROD123", "sku":"SKU123"}
+   * @param {Object} data - Raw page_data product object
+   * @param {jQuery} $element - Each Product object refers to DOM elemtn
+   */
+  function Product(info, data, $element) {
+    this.info = info; // Store starting/current STATE, ie current SKU
+    this.$element = $element; // Actual DOM element this Product is tied to
+    this.data = data; // All product data
+    this.rendered = ''; // Store rendered HTML of Product details data before placing back in DOM
+    this.ui = {$shadesMask: $('.shade-picker__colors-mask', this.$element)}; // Store various bits we want saved between modules
+    //this.bindEvents(); // Each Product element needs events bound to it
+    //this.decorateModules(); // Let all the modules in product_modules have a chance to work with the Product
+  }
+
+  // Product is decorated later on by product_modules.js
+  Product.prototype.modules = {};
+
+  /**
+   * Attach all the DOM events to the product, apply all "modules"
+   * @return {Product}
+   */
+  Product.prototype.attachDOM = function() {
+    this.bindEvents();
+    this.decorateModules();
+    return this;
+  };
+
+  /**
+   * Each Product $element on the page acts as a dispatch for all events within it.
+   * Bind all events here.
+   *
+   * @constructor
+   */
+  Product.prototype.bindEvents = function() {
+    var prodObject = this;
+
+    // The Big One. Given sku info and an optional template, render and place in DOM
+    this.$element.on('product:render_sku', function(e, info, template, location) {
+      // see product_modules.productDetails for default detail rendering
+    });
+
+    // Change shade is mostly a synonym for render_sku, above
+    this.$element.on('product:change_sku', function(e, info, template) {
+      prodObject.setState(info);
+      prodObject.$element.trigger('product:render_sku', [info, template]);
+      $(window).trigger("macproMakeVisible")
+    });
+
+    // All shade changes trigger sku changes (for now), trigger the above
+    this.$element.on('product:change_shade', function(e, info, template) {
+      prodObject.setState(info);
+      prodObject.$element.trigger('product:change_sku', [info, template]);
+    });
+
+    // Add to bag
+    this.$element.on('product:add_to_bag', function(e, info, template) {
+      // see product_modules.productAddToBag for default add-to-bag behavior
+    });
+
+    // Add to favorites
+    this.$element.on('product:add_to_faves', function(e, info, template) {
+      // see product_modules.productAddToFavorites for default add_to_faves behavior
+    });
+
+    // Open/close shade picker
+    this.$element.on('product:shade_picker_open_close', function(e, info) {
+      // see product modules for behaviors on this event
+    });
+    this.$element.on('product:shade_picker_close', function(e, info) {
+      // see product modules for behaviors on this event
+    });
+
+    // RPC data returned, give modules a chance to respond, no data sent because
+    // product.data is updated in product.updateData
+    this.$element.on('product:rpc_data_updated', function(e) {
+    });
+
+    // @TODO: Change size selection
+
+    return this;
+  };
+
+  /**
+   * Set state of Product
+   * Not just limited to prodid/sku. Add arbitrary states to check later.
+   *
+   * @param {Object} state Set various states. Defaults are {prodid: XXXX, sku: XXXX}
+   * @param {Bool} [showInDOM] optional, update DOM to reflect state.
+   *  Defaults to showInDOM:true
+   * @returns {Product}
+   */
+  Product.prototype.setState = function(state, showInDOM) {
+    // Show state in DOM default (below evals to true when showInDOM undefined)
+    var show = _.isUndefined(showInDOM) ? true : showInDOM;
+    // Smoosh new state info into existing info, return to var to use on DOM
+    var stateObj = _.extend(this.getState(), state);
+    // Represent state on .product .data and visible DOM
+    if (show) {
+      this.$element.data('product', stateObj).attr('data-product', JSON.stringify(stateObj));
+    }
+    return this;
+  };
+
+  /**
+   * Quick way to ask Product about it's current state
+   * @param {string} [stateItem] Optional string of index of state object. When
+   *  not provided, returns entire state object
+   */
+  Product.prototype.getState = function(stateItem) {
+    // If no arg, return entire state. Else return specific state value
+    return _.isUndefined(stateItem) ? this.info : _.result(this.info, stateItem);
+  };
+
+  /**
+   * Set sku details for a product before rendering.
+   * This has the potential to be really heavy, so let's try to call this only
+   * once when it's really needed.
+   * This will default to current sku state, otherwise uses an info object
+   * sent over.
+   * @param {Object} info
+   * @returns {Product}
+   */
+  Product.prototype.setSkuDetails = function(info) {
+    var prodObject = this;
+
+    // If info arg exists, then use that to set skuid, otherwise get current sku state
+    var skuid = (_.has(info, 'sku')) ? _.result(info, 'sku') : this.getState('sku');
+
+      // moving sku_id to root data for rendering in mustache
+      prodObject.data.SKU_ID = skuid;
+
+      // NOTE: This is actually faster than tracking down specific keys to specifically
+      // render. Smashing all sku keys into product keys is about 30% faster.
+      _.extend(prodObject.data, prodObject.findSkuObject(skuid));
+
+    return this;
+  };
+
+  /**
+   * Update the data (and skus) of a Product, ie when inventory status triggers
+   * @param productData
+   *  Each object that comes over from an RPC call. Looks similar to product/sku object
+   * @returns {Product}
+   */
+  Product.prototype.updateData = function(productData) {
+    var prodObject = this;
+    var originalSkuObject;
+
+    // Loop through skus sent over, update each product sku
+    _.forEach(productData.skus, function(newSku) {
+      // Using new SKU_ID, find the sku object on our original product
+      originalSkuObject = prodObject.findSkuObject(newSku.SKU_ID);
+      // merge new sku data into original Sku data
+      _.extend(originalSkuObject, newSku);
+    });
+
+    // Merge original product data with new product data, minus skus array
+    _.extend(prodObject.data, _.omit(productData, 'skus'));
+
+    // Update product state so we know rpc data has been applied
+    prodObject.setState({'rpc_complete': true});
+
+    // Let the product update itself visually with the new .data. Since this is
+    // being called on a Product, let the product know which skus were affected
+    // in case it's needed.
+    var affectedSkus = _.pluck(productData.skus, 'SKU_ID');
+    prodObject.$element.trigger('product:rpc_data_updated', [affectedSkus]);
+
+    return prodObject;
+  };
+
+  /**
+   * Show inventory information in the DOM, use modules to trigger this. Product
+   * Data will have been updated from RPC calls prior
+   */
+  Product.prototype.showInventoryInformation = function() {
+    var product = this;
+
+    // Remove all status classes from product
+     var removeClasses = [
+      'product--shoppable',
+      'product--not-shoppable',
+      'product--coming-soon',
+      'product--not-coming-soon',
+      'product--orderable',
+      'product--not-orderable',
+      'product--single-not-orderable',
+      'product--preorder'
+    ];
+    _.each(_.range(1,8), function(i) {
+      removeClasses.push('prod_inv_status-' + i);
+    });
+    _.each(_.range(1,4), function(i) {
+      removeClasses.push('prod_life_of_product-' + i);
+    });
+
+    this.$element.removeClass(removeClasses.join(' '));
+
+    var numberOfOccurrenceList = jQuery.grep(this.data.skus, function(sku) {
+      return sku.INVENTORY_STATUS == 7;
+    });
+    if (this.data.skus.length === numberOfOccurrenceList.length) {
+      this.$element.addClass('all-shaded-sold-out');
+    }
+    
+    // check pre-order state
+    if (product.info.sku) {
+      var skuData = _.find(this.data.skus, {'SKU_ID': product.info.sku});
+      if (skuData.isPreOrder) {
+        this.$element.addClass('product--preorder');
+        this.$element.removeClass('product--not-preorder');
+      } else {
+        this.$element.addClass('product--not-preorder');
+        this.$element.removeClass('product--preorder');
+      }
+    }
+    // Now set statuses ones according to our new state
+    this.$element
+      .addClass(!!_.result(this.data, 'isComingSoon') ? 'product--coming-soon' : 'product--not-coming-soon')
+      .addClass(!!_.result(this.data, 'isOrderable') ? 'product--orderable' : 'product--not-orderable')
+      .addClass(!!_.result(this.data, 'isShoppable') ? 'product--shoppable' : 'product--not-shoppable')
+      .addClass('prod_inv_status-' + _.result(this.data, 'INVENTORY_STATUS'))
+      .attr('data-inv-status', _.result(this.data, 'INVENTORY_STATUS'));
+
+    if (!!_.result(this.data, 'LIFE_OF_PRODUCT')) {
+      this.$element.addClass('prod_life_of_product-' + _.result(this.data, 'LIFE_OF_PRODUCT'));
+    }
+
+
+    if (!(this.$element.find('.product__shade-column').attr('class') == "product__shade-column")) {
+      if (this.$element.hasClass('product--not-shoppable')) {
+        this.$element.addClass('product--single-not-orderable');
+      }
+    }
+  };
+
+  /**
+   * Turn a product into markup, stores jQuery markup on Product.rendered
+   *
+   * @param {string} template The template string name that *should* be available
+   * on site.productApp.templates.template
+   * @chainable
+   */
+  Product.prototype.render = function(template) {
+
+    // A safe default for the template we'll mostly need at render time
+    if (_.isUndefined(template)) {
+      template = site.productApp.defaultTemplate;
+    }
+
+    // Add on the power reviews variable to the data
+    if (Drupal.settings.hasOwnProperty('enable_power_reviews')) {
+      this.data.enable_power_reviews = Drupal.settings.enable_power_reviews;
+    }
+
+    // Render the markup for the product, wrap in jQuery object. See
+    // this.decorateDrupalBehaviors() for attaching drupal events
+    var $productMarkup = $(Mustache.render(
+      // the actual template, from that parent app
+      site.productApp.templates[template],
+      // the big ol' data blob
+      this.data,
+      // the parent app list of available partials
+      site.productApp.templates
+    ));
+
+    // Debug
+    //console.count('Product.prototype.render');
+
+    this.rendered = $productMarkup;
+    return this;
+  };
+
+  /**
+   * Add Drupal events to single Product's stored markup
+   *
+   * @chainable
+   */
+  Product.prototype.decorateDrupalBehaviors = function() {
+    Drupal.attachBehaviors(this.rendered);
+    return this;
+  };
+
+  /**
+   * Actually stick this product back on the page
+   *
+   * @param {Object} args Placement args
+   * @config {String} attachpoint String for jQuery selector to attach .rendered to
+   * @chainable
+   */
+  Product.prototype.place = function(args) {
+    // Defaults
+    var placementArgs = {
+      'attachPoint': '#product-detail-attach'
+    };
+    // Override defaults
+    _.extend(placementArgs, args);
+
+    // Take html from .rendered and place within attachPoint element
+    $(placementArgs.attachPoint.toString(), this.$element).html(this.rendered);
+    return this;
+  };
+
+  /**
+   * Allow outside code to register modules that can run against the Product
+   * prototype. Modules are actually defined via site.productApp.productModules[].
+   * See product_modules.js for implementation
+   */
+  Product.prototype.decorateModules = function() {
+    var prodObject = this;
+
+    // Call modules defined in product_modules.js here
+    _.forEach(this.modules, function(prodModule) {
+      // .call applies a function to a new context. Basically our modules are
+      // being called, and passed the full Product object and a shorthand for the
+      // Product.$element jQuery DOM object
+      prodModule.call(
+        prodObject, // context: this Product
+        prodObject, // arg: full Product object
+        prodObject.$element // arg: shorthand to get to the this.$element object
+      );
+    });
+    return this;
+  };
+
+  /**
+   * Sometimes we have a sku id and we want that sku object for this Product
+   * If no skuid passed, get first sku object
+   *
+   * @param string [skuid], id of sku. If none, return first. If all, return array skus
+   */
+  Product.prototype.findSkuObject = function(skuid) {
+    // Early error check and warnings
+    if (_.isEmpty(this.data.skus)) {
+      // commented out console for ie
+      //console.warn("WARNING: Product has no skus.");
+      return {SKU_ID: null};
+    }
+
+    // No skuid? Just return first sku object
+    if (_.isUndefined(skuid)) {
+      return _.first(this.data.skus);
+    }
+
+    // Return all
+    if (skuid === 'all') {
+      return this.data.skus;
+    }
+
+    return _.find(this.findSkuObject('all'), 'SKU_ID', skuid);
+  };
+
+  Product.prototype.findProductObject = function(productid) {
+    // Early error check and warnings
+    if (_.isEmpty(this.data)) {
+      return {PRODUCT_ID: null};
+    }
+
+    // No productid? Just return first product object
+    if (_.isUndefined(productid)) {
+      return _.first(this.data);
+    }
+
+    // Return all
+    if (productid === 'all') {
+      return this.data;
+    }
+
+    return _.find(this.findProductObject('all'), 'PRODUCT_ID', productid);
+  };
+
+  /**
+   * Return sku objects array filtered on an attribute by an array of values
+   *
+   * @param {String} attribute: 'FINISH'
+   * @param {Array} values: ['SHINY', 'PEARL']
+   * @return {Array} skuobjects
+   */
+  Product.prototype.filterSkusByAttribute = function(attribute, values) {
+    if (_.isEmpty(values)) { return; } // eject if not searching for anything
+
+    // Clean args
+    var cleanValues = _.map(values, function(value){ return value.toString().toLowerCase(); });
+    var skuAttribute, isShadeMatch;
+
+    // Filter skus based on array of values
+    return _.filter(this.findSkuObject('all'), function(skuObj) {
+
+      var result = _.result(skuObj, attribute, false); // false default value
+
+      // ATTRIBUTE_COLOR_FAMILY/AREA_OF_FACE/etc may not have actual data yet
+      if ( !result || _.isNull(result)) { return false; }
+
+      // If we DO have data, see if it's in the values sent over. Clean up the
+      // attribute to be more easily searchable. ie AREA_OF_FACE can potentially
+      // have values like "face, neck, cheek"
+
+      // Look over clean values
+      return _.some(cleanValues, function(cleanValue) {
+        // Exact match the cleanValue from the shade List
+        skuAttribute = cleanValue.match(result.toString().toLowerCase().trim());
+        var isShadeMatch = (skuAttribute != null && cleanValue == skuAttribute[0]);
+        return isShadeMatch;
+      });
+    });
+  };
+
+  Product.prototype.filterProductsByAttribute = function(attribute, values) {
+    if (_.isEmpty(values)) { return; } // eject if not searching for anything
+
+    var productAttribute = this.data[attribute] || null;
+    if (!productAttribute || _.isNull(productAttribute)) {
+      return false;
+    }
+    // Clean args
+    var cleanValues = _.map(values, function(value) { return value.toString().toLowerCase(); });
+    productAttribute = productAttribute.split(',');
+    var productValues;
+    for(var i = 0; i < productAttribute.length; i++) {
+        productValues = productAttribute[i].replace("_", " ").toString().toLowerCase().trim();
+        var isMatch = $.inArray(productValues, cleanValues) >= 0 ? 1 : 0;
+        if(isMatch == 1) {
+            break;
+        }
+    }
+
+        return isMatch ? this : false;
+  };
+
+  /**
+   * Hide/show the Product DOM
+   *
+   * @param {String} parentClass Optional, the parent selector string to hide instead of the
+   *  .product class, ie ".grid--mpp__item"
+   */
+  Product.prototype.hideProductDOM = function(parentClass) {
+    if (_.isEmpty(parentClass)) {
+      this.$element.removeClass('js-product-visibility--show').addClass('js-product-visibility--hide js-filtered-product');
+    }
+    else {
+      this.$element.parents(parentClass).removeClass('js-product-visibility--show').addClass('js-product-visibility--hide js-filtered-product');
+    }
+  };
+  Product.prototype.showProductDOM = function(parentClass) {
+    if (_.isEmpty(parentClass)) {
+      this.$element.removeClass('js-product-visibility--hide js-filtered-product').addClass('js-product-visibility--show');
+    }
+    else {
+      this.$element.parents(parentClass).removeClass('js-product-visibility--hide js-filtered-product').addClass('js-product-visibility--show');
+    }
+  };
+
+  /**
+   * Is product Shaded?
+   * @return {Boolean}
+   */
+  Product.prototype.isShaded = function() {
+    return !!_.parseInt(_.result(this.data, 'shaded'));
+  };
+
+  /**
+   * Color helpers
+   *
+   * @type {Product}
+   */
+  Product.prototype.hexRGB = function(skuHex) {
+    var skuColor;
+
+    // Helpful hex to rgb converter
+    function hexToRgb(hex) {
+      // Expand shorthand form (e.g. "03F") to full form (e.g. "0033FF")
+      var shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
+      hex = hex.replace(shorthandRegex, function(m, r, g, b) {
+        return r + r + g + g + b + b;
+      });
+
+      var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+      return result ? {
+        r: parseInt(result[1], 16),
+        g: parseInt(result[2], 16),
+        b: parseInt(result[3], 16)
+      } : null;
+    }
+
+    // If no argument sent over, then get current sku state color
+    if (_.isUndefined(skuHex)) {
+     skuColor = _.result(this.findSkuObject(this.getState('sku')), 'HEX_VALUE_STRING');
+    }
+    else {
+      skuColor = skuHex;
+    }
+
+    return hexToRgb(skuColor);
+  };
+
+  /**
+   * Return the default sku
+   *
+   * @type {Object} sku object
+   */
+  Product.prototype.getDefaultSkuObject = function() {
+    var defaultSkuId = _.result(this.data, 'defaultSku.SKU_ID');
+    return this.findSkuObject(defaultSkuId);
+  };
+
+  /**
+   * Find the first shoppable sku object, starting at the default sku object.
+   * If ALL skus are unshoppable, just returns the default sku object
+   *
+   * @type {Object} sku object
+   */
+  Product.prototype.getFirstShoppableSkuObject = function() {
+    var defaultSkuObject = this.getDefaultSkuObject();
+
+    // Check if default is shoppable
+    if (!!_.result(defaultSkuObject, 'isShoppable')) {
+      return defaultSkuObject;
+    }
+    // Default is not shoppable, find first that is
+    else {
+      var backupSkuObj = _.find(this.findSkuObject('all'), 'isShoppable');
+
+      // If NO skus are found, then just return default, else return found
+      return (_.isUndefined(backupSkuObj)) ? defaultSkuObject : backupSkuObj;
+    }
+  };
+
+
+  Product.prototype.getProSkuObject = function() {
+    var defaultSkuObject = this.getDefaultSkuObject();
+    var proSkuResult = _.result(defaultSkuObject, 'PRO_FLAG');
+    // Check if default is pro
+    if (proSkuResult == 1) {
+      var backupSkuObj = _.find(this.findSkuObject('all'), 'PRO_FLAG', 0);
+
+      // If NO PRO skus are found, then just return default, else return found
+      return (_.isUndefined(backupSkuObj)) ? defaultSkuObject : backupSkuObj;
+    }
+    // Default is not pro, find first that is
+    else {
+      return defaultSkuObject;
+    }
+  };
+
+  /**
+   * Is product Shoppable?
+   * @return {Boolean}
+   */
+  Product.prototype.prouctIsShoppable = function() {
+    return !!_.parseInt(_.result(this.data, 'isShoppable'));
+  };
+
+  /**
+   * Is product Orderable?
+   * @return {Boolean}
+   */
+  Product.prototype.productIsOrderable = function() {
+    return !!_.parseInt(_.result(this.data, 'isOrderable'));
+  };
+
+  /**
+   * Product Badge
+   */
+  Product.prototype.prouctBadge = function() {
+    var defaultSkuObject = this.getDefaultSkuObject();
+    var productBadge = _.result(defaultSkuObject, 'MISC_FLAG_TEXT');
+    return productBadge;
+  };
+
+  /**
+   * return a JS Date obj constructed from SKU.RELEASE_DATE
+   * returns null if field value is not valid format (6 digits)
+   * @return {Date, null}
+   */
+  Product.prototype.getReleaseDate = function(s) {
+    var relDate = null;
+    if (s.RELEASE_DATE) {
+      var rawDateStr = '' + s.RELEASE_DATE;
+      if (rawDateStr.match(/^\d{6}$/)) {
+        relDate = new Date();
+        var fullyearInt = parseInt('20' + rawDateStr.substr(0,2));
+        var monthInt = parseInt(rawDateStr.substr(2,2)) - 1;
+        var dayInt = parseInt(rawDateStr.substr(4,2));
+        relDate.setFullYear(fullyearInt, monthInt, dayInt);  
+      }
+    }
+    return relDate;
+  };
+  
+
+  /**
+   * Is SKU in pre-order state?
+   * test whether today's date < Release date AND MISC_FLAG=15
+   * @return {Boolean}
+   */
+  Product.prototype.testPreOrderSku = function(s) {
+    var v = 0;
+    var roundDate = function(d) {
+      if (!_.isDate(d)) return null;
+      d.setMinutes(0);
+      d.setHours(0);
+      d.setMilliseconds(0);
+      d.setSeconds(0);
+      return d;
+    }
+    var curDate = s.responseDate ? new Date(s.responseDate) : new Date();
+    var relDate = this.getReleaseDate(s) || new Date(curDate);
+    
+    curDate = roundDate(curDate);
+    relDate = roundDate(relDate);
+    var flag = (s.MISC_FLAG == 15);
+    if (_.isDate(curDate)
+         && _.isDate(relDate)
+         && flag
+         && curDate.getTime() < relDate.getTime() ) { // pre-order state
+      v = 1;
+    }        
+    return v;
+  };
+  
+
+  // Used to add modules to the full Product prototype in product_modules.js
+  //site.prodProto = Product;
+  site.prodProto = Product;
+
+  return site;
+
+})(jQuery, Drupal, _, site || {});

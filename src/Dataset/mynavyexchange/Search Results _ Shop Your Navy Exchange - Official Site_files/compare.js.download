@@ -1,0 +1,247 @@
+/**
+* Javascript functionality for the product comparison for subcategory page
+*/
+var maxListSize = 4; // business decision
+var localListValuesArray = new Array();
+$("#error-msg").hide();
+
+$(document).ready(function(){
+	var localList = document.getElementById("listValuesInput");
+	var localListValues;
+	if (null != localList) {
+	    localListValues = document.getElementById("listValuesInput").value;
+	}
+	if (null != localListValues && localListValues != ""){
+		localListValuesArray = localListValues.split(",");
+	}
+   $('#goQuickView').on('click',function(event){
+      var prodid = $(this).attr('prodid');
+      showQuickView(prodid);
+      event.preventDefault();
+   });
+   $(".megaMenuWrapper").on('click', clearAllProductList);
+
+});
+
+// validates the selected number of items and submits the form
+function submitCompareForm() {
+   if (getCheckedElements() > 1 || localListValuesArray.length >= 2) {
+      document.getElementById('compareSubmit').click();
+   } else {
+      // INTEGRATION: display the message "select more than one product"
+   }
+}
+
+// prevent the user from adding more than 4 items to the list
+function checkCompareElements(e,selectedCombo,listSize) {
+   var checked = getCheckedElements();
+   // if the maximum number of product is reached uncheck the current combobox
+
+   if (listSize >= maxListSize || checked >= maxListSize) {
+	   selectedCombo.checked = false;
+	   $("#error-msg").show();
+	   e.stopPropagation();
+	   return false;
+   }
+   return true;
+}
+
+// marks a checkbox as selected
+function keepChecked(selectedCombo){
+   selectedCombo.checked = true;
+}
+
+// returns the current number of checked elements
+function getCheckedElements() {
+   var inputs = document.getElementsByTagName("input");
+   var checked = 0;
+   for (var i = 0; i < inputs.length; i++) {
+      if (inputs[i].type == "checkbox") {
+         if (inputs[i].checked) {
+            checked++;
+         }
+      }
+   }
+   return checked;
+}
+
+function showQuickView(productId){
+   var url = "/pdp/modal/modal-pdp.jsp?productId=" + productId + "&isModal=true&isQuickview=true";
+   displayModal(url);
+}
+
+
+/**
+ * adds a product from the product compare page
+ *
+ * @param productId the product id to add
+ * @param reloadCurrenPage
+ * @returns
+ */
+function addSelectionProductCompare(productId, reloadCurrenPage) {
+  var qty= parseInt($("#prodQtySelection" + productId).val());
+  if ($(".viewOnly").length > 0) {
+     if ($(".viewOnly-errMsg").length > 0) {
+       $("#infoCartProductCompare" + productId).html($(".viewOnly-errMsg").html());
+     }
+  } else {
+    if (qty > 0) {
+      var skuId = getSelectedSkuProductCompare(productId, productId);
+      if (skuId) {
+        dataString = $("#addToCartOptions" + productId).serialize();
+        $.ajax({
+          type: "POST",
+          url: "/global/gadgets/validateAddToCart.jsp",
+          data: dataString,
+          dataType: "json",
+          success: function(data) {
+            if(data.error == "true"){
+              var msg = (data.errorMessage != undefined && $.trim(data.errorMessage) != "") ? data.errorMessage : "Unable to add item to cart";
+              setErrorProductCompare(msg, productId);
+            }  else if(data.error == "false"){
+              cartExpand();
+              setTimeout(function(){  cartContract();  }, 1800 );
+              // if there is protection plan items to display
+              var skuId = $("#catalogRefIds" + productId + '[module=pdp]').val();
+              if ($("#showEppModal" + productId).length > 0){
+                var showEpp = $("#showEppModal" + productId).val();
+                if (showEpp == 'yes') {
+                  var url = "/pdp/replacementPlan.jsp?productId=" + productId + "&skuId=" + skuId;
+                  displayModal(url);
+                }
+              }
+              $.getJSON("/global/gadgets/totalCommerceItemCount.jsp", function(json){
+                var count = json.cartcount;
+                var total = json.carttotal;
+                $(".cartIconItemCount").html(count);
+                $("#cartTotal").html(total);
+                $("html,body").scrollTop(0);
+              });
+            }
+          }
+        });
+      } else {
+        setErrorProductCompare("Select a valid combination", productId);
+      }
+    } else {
+      setErrorProductCompare("Please select quantity", productId);
+    }
+  }
+}
+
+/**
+ * Get the sku defined by the derived pickers linked to the product Id provided
+ * @param productId
+ * @returns
+ */
+function getSelectedSkuProductCompare(productId,categoryId){
+   var current = "";
+   var nonPickerSKU = $("#nonPickerSKU" + productId);
+   if (nonPickerSKU != undefined && nonPickerSKU.val() == "true") {
+	   current = productId;
+	   $("#catalogRefIds" + productId).val($('#sku_' + current).val());
+   } else {
+   $('.derived' + productId + '[catid=' + categoryId + ']').each(function(index){
+     current += $(this).val() + '-';
+   });
+   //removing last dash
+   var length = current.length;
+   current = current.substring(0, length-1);
+   }
+   return $('#sku_' + current).val();
+}
+
+/**
+* Handler to display a generic error message proving a section to display
+*/
+function setErrorProductCompare(msg, productId){
+  $("#infoCartProductCompare" + productId).html(msg)
+}
+
+/**
+ * Handles the checkbox clicks to add or remove items to the compare list.
+ * @param e event
+ * @param selectedCombo
+ * @param productId
+ * @returns {Boolean}
+ */
+function checkboxAddRemoveFromProductList(e, selectedCombo, productId, nttParam) {
+    // prevent the user from adding more than 4 items to the list
+    var selComboUpdated = $(selectedCombo).parent().prev('input');
+    if ($(selComboUpdated).attr('checked') == 'checked') {
+		$(selComboUpdated).prop('checked', false).attr('checked', false).parent().removeClass("clickedCheckBox");
+		$('#compareListSize').val($('#compareListSize').val()-1);
+
+		if ($('#compareListSize').val()==0)
+			$("#compareSelected").attr("href", "#");
+        localListValuesArray = $.grep(localListValuesArray, function(value) {
+            return value != productId;
+        });
+        if (localListValuesArray.length == 0) {
+            $("#clearAllSelected").hide();
+        }
+        $("#removeProductID").val(productId);
+        $.post(null, $("#removeProductForm").serialize());
+		$("#error-msg").hide();
+		$("#clearAllSelected").hide();
+        return false;
+    } else {
+
+	    var isInLimit = checkCompareElements(e, selComboUpdated, localListValuesArray.length);
+
+		if (isInLimit) {
+			var className = $(this).children("input").attr('class');
+			dataString = $("#compareListForm").serialize();
+			$.ajax({
+				type: "POST",
+				url: "/browse/includes/compareListForm.jsp",
+				data: dataString,
+				dataType: "json",
+				success: function(data) {
+					$('#compareListSize').val(data+1);
+					if (data == '4') {
+						$("#error-msg").show();
+						$("#clearAllSelected").show();
+						return false;
+					} else {
+						if (isInLimit) {
+							if ($.inArray(productId, localListValuesArray) == -1) {
+								//add the product if it is not on the product list
+								localListValuesArray.push(productId);
+								$("#addProductID").val(productId);
+								$("#compareSelected").attr("href", "/browse/compare.jsp?prevPageURL="+ window.location.pathname+"&Ntt="+nttParam);
+								$.post(null, $("#addProductListForm").serialize());
+								$(selComboUpdated).prop('checked', true).attr('checked', true).parent().addClass("clickedCheckBox");
+								 $("#clearAllSelected").show();
+
+								 return false;
+							}
+						} else {
+							$("#error-msg").css("style","display:inline");
+						}
+					}
+				}
+			});
+		}else {
+			$("#error-msg").css("style","display:inline");
+		}
+    }
+}
+
+/**
+ * Handles the clear compare list
+ *
+ * @returns {Boolean}
+ */
+function clearAllProductList() {
+    $.post(null, $("#clearProductForm").serialize());
+    $(".yellowCheck").removeClass("clickedCheckBox");
+    $("#error-msg").css("style","display:none");
+    $("input[type=checkbox][checked]").attr("checked",false);
+    localListValuesArray = new Array();
+	$("#compareSelected").attr("href", "#");
+	$("#error-msg").hide();
+	$("#clearAllSelected").hide();
+    return true;
+}
+

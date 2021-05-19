@@ -1,0 +1,187 @@
+(function initDeeplinkAuthPopup(){var HRS_PUW=window.HRS_PUW;
+var DeeplinkAuthPopup=function(){var that=this;
+this.container=$$(".myHRSLightBox");
+this.veil=$$(".lightboxVeil");
+this.closeingElements=$$(".myHRSLightBox .close,.myHRSLightBox .closeLink,.lightboxVeil,.myHRSLightBox.privateRegisterOk .submit");
+this.changeButton=$$(".myHRSLightBox .jsChangeContent");
+this.registerButton=$$(".myHRSLightBox.privateRegister .submit");
+this.infoIcon=$$(".myHRSLightBox .content .infoIcon");
+this.justRegistered=false;
+this.constants={NOT_EMPTY:"NOT_EMPTY",LETTERS_AND_HYPHENS:"LETTERS_AND_HYPHENS",EMAIL:"EMAIL"};
+this.validators={notEmpty:window.validators.validateNotEmpty,email:window.validators.validateEmail,characters:window.validators.validateValidCharacters};
+if(!this.container){return
+}this.init=new function(){that.veil.inject($("wrap"));
+document.onkeypress=function(e){if(e.keyCode===13&&$$(".myHRSLightBox.privateRegister:not(.hide) input.submit").length){that.enterKeyHandling(e)
+}}
+};
+this.validateForm=function validateForm(prefix){var isFormValid=true;
+var forms=$$("form.middleContent");
+var formFields=new Elements();
+forms.each(function(form){var fields=form.getElements("input.text");
+formFields=formFields.concat(fields)
+});
+formFields=formFields.filter(function(field){return field.id.includes(prefix)
+});
+formFields.each(function(field){var results=that.getValidationResults(field,prefix);
+if(!that.validateField(field,results)){isFormValid=false
+}});
+return isFormValid
+};
+this.getValidationResults=function getValidationResults(field,prefix){var result=[];
+switch(field.id){case prefix+"registerPopupPassword":result.push(that.validators.notEmpty(field.value));
+break;
+case prefix+"registerPopupUsername":case prefix+"registerPopupLastname":result.push(that.validators.notEmpty(field.value),that.validators.characters(field.value));
+break;
+case prefix+"registerPopupEmail":result.push(that.validators.email(field.value));
+break;
+default:result.push({valid:true,error:null});
+break
+}return result
+};
+this.validateField=function validateField(field,results){var isFieldValid=true;
+results.each(function(result,i){var isValid=result.valid;
+isValid?that.removeError(field,result.error,i):that.addError(field,result.error);
+if(!isValid){isFieldValid=false
+}});
+return isFieldValid
+};
+this.addError=function addError(selector,error){var errorEmpty=selector.getNext(".error--empty");
+var errorValidation=selector.getNext(".error--validation");
+selector.removeClass("valid");
+selector.addClass("error");
+if(error===that.constants.NOT_EMPTY){if(errorEmpty){errorEmpty.setStyle("display","block")
+}}else{if(errorValidation){errorValidation.setStyle("display","block")
+}}};
+this.removeError=function removeError(selector,error,ruleIndex){var errorEmpty=selector.getNext(".error--empty");
+var errorValidation=(selector).getNext(".error--validation");
+if(ruleIndex===0){selector.removeClass("error")
+}if(error===that.constants.NOT_EMPTY){errorEmpty&&errorEmpty.setStyle("display","none")
+}else{errorValidation&&errorValidation.setStyle("display","none")
+}};
+this.getCurrentGtmPageName=function(){if(dataLayer===undefined||dataLayer.length===0){return""
+}for(var i=dataLayer.length-1;
+i>=0;
+i--){if(dataLayer[i].pageName!==undefined){return dataLayer[i].pageName
+}}return""
+};
+this.addEvents=new function(){that.closeingElements.addEvent("click",function(e){e.stop();
+that.closePopup()
+});
+that.changeButton.addEvent("click",function(e){e.stop();
+that.chengePopup(e)
+});
+that.registerButton.addEvent("click",function(e){e.stop();
+that.setFormFields(this);
+that.register(this)
+});
+$$("#jsIamFreelancer,#iAmFreelancerPopup").addEvent("click",function(e){var companyInput=document.getElementById(this.id+"Input");
+companyInput.disabled=this.checked
+})
+};
+this.closePopup=function(){if(that.justRegistered){var searchForm=$("searchForm");
+if(searchForm){var originalURL=searchForm.getAttribute("action");
+var alteredURL=DWRLoginInstance.removeParam("clientId",originalURL);
+if(window.HotelDetailsLayer){alteredURL=alteredURL+"#hotelId"+window.HotelDetailsLayer.hotelId
+}else{if(window.selectedHotelId&&window.selectedHotelId>0){alteredURL=alteredURL+"#hotelId"+window.selectedHotelId
+}}searchForm.setAttribute("action",alteredURL);
+if(typeof(smeRegisterPopup)!=="undefined"){smeRegisterPopup.closingElement.removeEvent("click",smeRegisterPopup.showHDLayerAgain)
+}window.HRS_PUW.AuthPopupOverlay.instance.hide(true);
+searchForm.submit();
+return
+}else{if(window.location.pathname.slice(0,5)!=="/web3"){window.location.href="/web3"+window.location.pathname+window.location.search
+}else{window.location.reload()
+}}}window.HRS_PUW.AuthPopupOverlay.instance.hide(true)
+};
+this.chengePopup=function(e){var popupType=e.target.getAttribute("data-popup");
+var touchpoint="gtm__business-layover";
+var popupName=popupType==="jsBTLoginForm"?"MyHRS Login Form":"MyHRS Registration Form";
+window.HRS_PUW.AuthPopupOverlay.instance.switchPopup({popup:"."+popupType,touchpoint:touchpoint,popupName:popupName})
+};
+this.isHotelDetailsLayer=function(){return $$("body")[0].hasClass("hasDetailsLayer")
+};
+this.trackSMEregistration=function(rememberLogin){s.linkTrackVars="events,channel,eVar33,eVar65,prop33,prop28,prop25";
+s.prop33=s.eVar33="3;1;11";
+s.eVar65=window.HRS_PUW.AuthPopupOverlay.instance.getTouchpointName();
+s.prop28="SME Registration Overlay";
+s.prop25="6012";
+s.events="event22,event26"+(rememberLogin?",event71":"");
+s.linkTrackEvents=s.events;
+s.tl(true,"o","SME Registration Overlay")
+};
+this.setFormFields=function(thatEl){this.username=document.getElementById(thatEl.getAttribute("data-prefix")+"registerPopupUsername");
+this.lastname=document.getElementById(thatEl.getAttribute("data-prefix")+"registerPopupLastname");
+this.email=document.getElementById(thatEl.getAttribute("data-prefix")+"registerPopupEmail");
+this.password=document.getElementById(thatEl.getAttribute("data-prefix")+"registerPopupPassword")
+};
+this.register=function(thatEl){var prefix=thatEl.getAttribute("data-prefix");
+var authPopupOverlay=window.HRS_PUW.AuthPopupOverlay.instance;
+if(!that.validateForm(prefix)){return
+}var reCaptchaResponse=grecaptcha&&grecaptcha.getResponse(window.recaptchaBT);
+if(!reCaptchaResponse){grecaptcha.execute(window.recaptchaBT);
+return
+}if($$(".myHRSLightBox .loadingAnimation").length){$$(".myHRSLightBox .loadingAnimation").removeClass("hide")
+}that.removeOldErrMsg();
+var rememberLogin=document.getElementById(thatEl.getAttribute("data-prefix")+"registerPopupRemember");
+var newsletter=document.getElementById("registerPopupNewsletter");
+var isFreelancer=document.getElementById("jsIamFreelancer");
+rememberLogin=!rememberLogin?false:rememberLogin.checked;
+newsletter=!newsletter?false:newsletter.checked;
+isFreelancer=!isFreelancer?false:isFreelancer.checked;
+var request=new Request.JSON({method:"post",url:thatEl.getParent(".myHRSLightBox").getElement("form").getAttribute("action"),onSuccess:function(response){if(response.success&&response.success==true){that.justRegistered=true;
+that.container.addClass("hide");
+if(thatEl.getAttribute("data-prefix")=="BT"){document.getElementById("BTregisteredUserName").innerHTML=that.email.value;
+authPopupOverlay.switchPopup({popup:".myHRSLightBox.jsBTRegisterOk"});
+authPopupOverlay.handleRegistrationSuccess(JSON.parse(response.metadataObject),rememberLogin);
+that.trackSMEregistration(rememberLogin)
+}else{document.getElementById("registeredUserName").innerHTML=that.username.value+" "+that.lastname.value;
+authPopupOverlay.switchPopup({popup:".myHRSLightBox.jsPrivateRegisterOk"})
+}if(response.metadataObject){kissmelightbox.changeMetaDataForSmeLayer(JSON.parse(response.metadataObject))
+}if(response.reloadUrl!=undefined&&response.reloadUrl!=""&&response.reloadUrl.length>0){window.location=response.reloadUrl[0]
+}}else{if(response.userExists){document.getElementById(thatEl.getAttribute("data-prefix")+"usernamePopup").value=this.email.value;
+var loginFormType=thatEl.getAttribute("data-prefix")==="BT"?"BT":"MyHrs";
+var loginForm=".js"+loginFormType+"LoginForm";
+authPopupOverlay.handleRegistrationFailure();
+authPopupOverlay.switchPopup({popup:loginForm})
+}else{if(response.errors){authPopupOverlay.handleRegistrationFailure();
+if(response.errors.reCaptcha){that.showRecaptchaError()
+}else{that.showFormErrors(response.errors)
+}}}}that.hideVeil()
+}.bind(this),onError:function(text,error){that.hideVeil();
+authPopupOverlay.handleRegistrationFailure();
+console.log("Error")
+}}).send("doRegister=Register&activity=register"+((that.username)?"&firstName="+that.username.value+"&lastName="+that.lastname.value:"&upgrade=true")+(thatEl.getAttribute("data-prefix")=="BT"?"&freelancer="+isFreelancer+(isFreelancer?"":"&companyName="+document.getElementById("jsIamFreelancerInput").value)+"&email=":"&personalData.email=")+that.email.value+"&password="+(that.password?that.password.value+"&passwordRepeat="+that.password.value:"")+"&newsletterOrdered="+newsletter+"&stayLogIn="+rememberLogin+"&staticRegister=false&acceptConditions=true&noCustomerTaxId=true&reCaptchaResponse="+reCaptchaResponse);
+grecaptcha.reset(window.recaptchaBT)
+};
+this.showRecaptchaError=function showRecaptchaError(){var overlay=$("KisSMELightBox_veilPopup");
+var captchaErrorWrapper=$("captchaErrorWrapper");
+that.container.addClass("hide");
+captchaErrorWrapper&&captchaErrorWrapper.setStyle("display","block");
+overlay.addEvent("click",function(){captchaErrorWrapper.setStyle("display","none")
+})
+};
+this.showFormErrors=function(errors){if(typeof errors.firstName!=="undefined"&&errors.firstName.hasOwnProperty("0")){var errMsg=new Element("div",{"class":"errorMsg"}).inject(that.username,"after");
+errMsg.set("html","<p>"+errors.firstName[0]+"</p>")
+}if(typeof errors.lastName!=="undefined"&&errors.lastName.hasOwnProperty("0")){var errMsg=new Element("div",{"class":"errorMsg"}).inject(that.lastname,"after");
+errMsg.set("html","<p>"+errors.lastName[0]+"</p>")
+}if(typeof errors.email!=="undefined"&&errors.email.hasOwnProperty("0")){var errMsg=new Element("div",{"class":"errorMsg"}).inject(that.email,"after");
+errMsg.set("html","<p>"+errors.email[0]+"</p>")
+}if(typeof errors.companyName!=="undefined"&&errors.companyName.hasOwnProperty("0")){var errMsg=new Element("div",{"class":"errorMsg"}).inject(document.getElementById("jsIamFreelancerInput"),"after");
+errMsg.set("html","<p>"+errors.companyName[0]+"</p>")
+}if(typeof errors["personalData.email"]!=="undefined"&&errors["personalData.email"].hasOwnProperty("0")){var errMsg=new Element("div",{"class":"errorMsg"}).inject(that.email,"after");
+errMsg.set("html","<p>"+errors["personalData.email"][0]+"</p>")
+}if(typeof errors.password!=="undefined"&&errors.password.hasOwnProperty("0")){var errMsg=new Element("div",{"class":"errorMsg"}).inject(that.password,"after");
+errMsg.set("html","<p>"+errors.password[0]+"</p>")
+}if(typeof errors.acceptConditions!=="undefined"&&errors.acceptConditions.hasOwnProperty("0")){var errMsg=new Element("div",{"class":"errorMsg errorMsgInline"}).inject(document.getElementById("BTacceptConditions"),"after");
+errMsg.set("html","<p>"+errors.acceptConditions[0]+"</p>")
+}};
+this.removeOldErrMsg=function(){if($$(".myHRSLightBox .errorMsg").length){$$(".myHRSLightBox .errorMsg").destroy()
+}};
+this.hideVeil=function(){if($$(".myHRSLightBox .loadingAnimation").length){$$(".myHRSLightBox .loadingAnimation").addClass("hide")
+}};
+this.enterKeyHandling=function(event){var registerButton=$$(".myHRSLightBox.privateRegister:not(.hide) input.submit");
+that.setFormFields(registerButton[0]);
+that.register(registerButton[0])
+}
+};
+HRS_PUW.myHRS.DeeplinkAuthPopup=new DeeplinkAuthPopup()
+})();

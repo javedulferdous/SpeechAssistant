@@ -1,0 +1,28 @@
+
+site.endeca.query = site.endeca.generic.Class.create( site.endeca.query, {
+
+	parsedSearchTerm: function( args ) {
+	    var args = args || {};
+	    
+	    var searchTerm = args.searchTerm || this.searchTerm;	    
+	    searchTerm = searchTerm.replace(/\+/g, " ");
+	    
+	    var parsedSearchTerm;
+	    try {
+	        parsedSearchTerm = decodeURIComponent( searchTerm )
+	    } catch (e) {
+	        parsedSearchTerm = searchTerm;
+	    }
+	    
+	    return parsedSearchTerm.match(/[<>\/]/) == null ? parsedSearchTerm : '';
+	},
+
+    onComplete: function(t) {
+        this.completed = 1;
+        this.rawResult = t.responseText;
+        this.jsonResult = jQuery.parseJSON( this.rawResult );
+        this.jsonResult = this.jsonResult || {}
+        this.jsonResult.responseDate = t.getResponseHeader('Date');
+        this.callbackCompleted();
+    }
+});

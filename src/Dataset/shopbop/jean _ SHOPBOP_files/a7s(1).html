@@ -1,0 +1,111 @@
+
+<!-- saved from url=(0098)file:///C:/Users/jafra/OneDrive/Desktop/New%20Dataset/shopbop/jean%20_%20SHOPBOP_files/a7s(1).html -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><script type="text/javascript">
+  function getUrlParameter(sParam) {
+    var sPageURL = window.location.search.substring(1);
+    var sURLVariables = sPageURL.split('&');
+    for (var i = 0; i < sURLVariables.length; i++) {
+      var sParameterName = sURLVariables[i].split('=');
+      if (sParameterName[0] == sParam) {
+        return decodeURIComponent(sParameterName[1]);
+      }
+    }
+    return null;
+  }
+
+  function preExecutePixelScript(obj, config) {
+    if (!config) return;
+
+    switch (config.pixel_name) {
+      case 'convertro':
+        cvoPreHandler(obj, config);
+      case 'rlsa':
+        populateWindowWithKeys(obj);
+        setGoogleCookies(obj);
+    }
+  }
+
+  function postExecutePixelScript(obj, config) {
+    if (!config) return;
+
+    switch (config.pixel_name) {
+      case 'twtr':
+        twtrPostHandler(obj, config);
+    }
+  }
+
+  function createScriptFrame() {
+    var src = getUrlParameter("src");
+    var variable = getUrlParameter("var");
+    var val = getUrlParameter("val");
+    var config = getUrlParameter("config") || "[]";
+    if (src == null || variable == null || val == null) {
+      return;
+    }
+    window[variable] = JSON.parse(val);
+    preExecutePixelScript(window[variable], JSON.parse(config));
+
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src = src;
+    script.onload = function () {
+      postExecutePixelScript(window[variable], JSON.parse(config));
+    };
+    document.body.appendChild(script);
+  }
+
+  function cvoPreHandler(cvo, config) {
+    cvo.csid = config.cvo_bop_id;
+    cvo.page_url = config.page_url;
+    cvo.ref_url = config.ref_url;
+  }
+
+  function twtrPostHandler(twtrOrderConfirmationData, twtrConfig) {
+    var pixelId = twtrConfig.pixelId;
+    var saleQuantity = twtrOrderConfirmationData.quantity;
+    var saleAmount = twtrOrderConfirmationData.subTotal;
+
+    twttr.conversion.trackPid(pixelId, { tw_sale_amount: saleAmount, tw_order_quantity: saleQuantity });
+  }
+
+  /**
+  * rewrite the document.write() for google script
+  * to avoid the issue of writing into a document
+  * from an asynchronously-loaded external script
+  */
+  (function () {
+    var docWrite = document.write;
+    document.write = function (text) {
+      var res = /googleads/.exec(text);
+      if (res) {
+        document.body.innerHTML += text;
+      } else {
+        docWrite(text);
+      }
+    }
+  })();
+
+  /**
+  * For pixels that require multipe global variables to be set,
+  * this function will populate the window variable with all variables
+  * obj = {key1 : value1, key2 : value2}
+  */
+  function populateWindowWithKeys(obj) {
+    if (obj === null) {
+      return;
+    }
+    for (var key in obj) {
+      window[key] = obj[key];
+    }
+  }
+
+  function setGoogleCookies(obj) {
+    if (!obj || !obj.gclaw) {
+      return;
+    }
+
+    document.cookie = "_gcl_aw=" + obj.gclaw;
+  }
+
+  window.onload = createScriptFrame;
+</script></head><body data-new-gr-c-s-check-loaded="14.981.0"><script type="text/javascript" src="./ld.js.download"></script><div id="criteo-tags-div" style="display: none;"></div><iframe height="0" width="0" title="Criteo DIS iframe" style="display: none;" src="./saved_resource.html"></iframe><div id="criteo-tags-div" style="display: none;"></div></body></html>

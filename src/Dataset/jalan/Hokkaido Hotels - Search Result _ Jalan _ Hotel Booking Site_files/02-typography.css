@@ -1,0 +1,51 @@
+@charset "utf-8";
+
+/*-------------------------------------------------------------------------------
+ BASE STYLE
+ -------------------------------------------------------------------------------*/
+
+/* font-family */
+html, input, select, textarea, table, th, td, li ,a {
+	font-family: 'Arial', 'ヒラギノ角ゴ Pro', 'Hiragino Kaku Gothic Pro', 'SimHei', 'Yu Gothic', 'メイリオ', 'Meiryo', 'ＭＳ Ｐゴシック', sans-serif ;
+}
+/* font-style */
+html {
+	line-height: 1.7;
+	font-size: 12px;
+	-webkit-text-size-adjust: 100%;
+}
+/* base font color */
+html, input, select, textarea {
+	color: #464646;
+}
+/* normalize size */
+input, select, textarea {
+	font-size: 100%;
+}
+/* normalize size & weight */
+h1, h2, h3, h4, h5, h6 {
+	font-size: 100%;
+	font-weight: normal;
+}
+/* normalize style & weight */
+strong, em, small {
+	font-style: normal;
+	font-weight: normal;
+}
+
+/*-------------------------------------------------------------------------------
+ ANCHORS STYLE
+ -------------------------------------------------------------------------------*/
+
+a:link		{ color: #FF6B08; }
+a:visited	{ color: #FF6B08; }
+a:hover		{ color: #4480B4; text-decoration: none; }
+a:active	{ color: #FF6B08; text-decoration: none; }
+
+/*-------------------------------------------------------------------------------
+ WEB FONTS
+ -------------------------------------------------------------------------------*/
+@font-face {
+	font-family: 'font1';
+	src: url('https://ufonts.com/fonts/diverda-sans-com-medium.html');
+}

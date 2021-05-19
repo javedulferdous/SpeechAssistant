@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<!-- saved from url=(0033)https://try.abtasty.com/CORS.html -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
+  <title>AB Tasty CDT</title>
+  <script type="text/javascript">
+    (function(){window.onmessage=function(e){if(!e||typeof e.data!=="string")return;try{var payload=JSON.parse(e.data);var data=getData(payload.identifier);switch(payload.method){case"set":data[payload.key]=payload.value;localStorage.setItem(payload.identifier,JSON.stringify(data));break;case"get":var result={key:payload.key,value:data[payload.key]||""};window.parent.postMessage(JSON.stringify(result),"*");break;case"remove":if(!data[payload.key])break;delete data[payload.key];localStorage.setItem(payload.identifier,JSON.stringify(data));break}}catch(e){if(payload.method==="get"){var result={key:payload.key,value:""};window.parent.postMessage(JSON.stringify(result),"*")}}};function getData(identifier){var datas=localStorage.getItem(identifier);return datas?JSON.parse(datas):{}}})();
+  </script>
+</head>
+
+<body data-new-gr-c-s-check-loaded="14.991.0" data-gr-ext-installed="">
+
+
+</body></html>

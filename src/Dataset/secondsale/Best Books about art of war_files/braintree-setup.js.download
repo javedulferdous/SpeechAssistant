@@ -1,0 +1,1 @@
+$(document).ready(function(){$(".payment-options .payment-option input:radio[data-module-name='braintreejs']").on('click',function(e){braintreeSetup();});$("#payment-option-1").prop("checked",true).trigger("click");});

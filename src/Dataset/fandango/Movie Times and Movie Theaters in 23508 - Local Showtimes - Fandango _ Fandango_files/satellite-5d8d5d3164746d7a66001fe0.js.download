@@ -1,0 +1,12 @@
+_satellite.pushAsyncScript(function(event, target, $variables){
+  //210964 Gemini Man
+if(_satellite.getVar('Page Level 2') == 'movie | overview' || _satellite.getVar('Page Level 2') == 'movie times | by movie'){
+if(_satellite.getVar('Movie ID') == '210964'){
+//PXL-291
+  (function(e,t,n){if(e.snaptr)return;var a=e.snaptr=function(){a.handleRequest?a.handleRequest.apply(a,arguments):a.queue.push(arguments)};a.queue=[];var s='script';r=t.createElement(s);r.async=!0;r.src=n;var u=t.getElementsByTagName(s)[0];u.parentNode.insertBefore(r,u);})(window,document,'https://sc-static.net/scevent.min.js');
+
+snaptr('init', '8d735147-8cff-4313-a057-d6541023aad1', {'user_email': '_INSERT_USER_EMAIL_'});
+snaptr('track', '8d735147-8cff-4313-a057-d6541023aad1', 'PAGE_VIEW');
+}
+}
+});

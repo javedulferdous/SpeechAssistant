@@ -1,0 +1,326 @@
+/**
+* c2c.js is used to populate the c2c link on a page based on the array configuration.
+*/	
+
+var ewtLoaded=false;
+
+(function(jQuery,window,document) {
+    'use strict';
+	
+	if(!window.c2c){
+		window.c2c = {};
+	}	
+	function isSameDomain(ajaxDomain){
+		if(ajaxDomain.indexOf(window.location.hostname)>0)
+			return true;
+		else
+			return false;
+	}
+	function getAjaxDomain(){
+		var ajaxDomain = "https://www.verizonwireless.com";
+		var prodHostFlag = false;
+		var spanishTestman = window.location.pathname.indexOf("sdtestman") > -1;
+		var prodHosts = ["www.verizonwireless.com", "es.verizonwireless.com"];
+		var currentHostName = window.location.hostname;
+		if (prodHosts.indexOf(currentHostName) > -1){
+			if (spanishTestman) {
+				prodHostFlag = false;
+			} else {
+				prodHostFlag = true;
+			}
+		}
+		if (!prodHostFlag) {
+			ajaxDomain = "https://"+window.location.hostname;
+		}
+		return ajaxDomain;
+	}
+	
+	var filteredMap = {}, 
+	    isInitilizationRequired = "true",
+		cta_list = [
+			{buttonname: "generic-c2c-container-desktop",				 targeteddiv: ["c2c_container_desktop"],                url:"/content/vzw-engage/c2c/btn.display.generic-c2c-container-desktop.html"},
+			{buttonname: "generic-c2c-container-mobile",  				 targeteddiv: ["c2c_container_mobile"],  				url: "/content/vzw-engage/c2c/btn.display.generic-c2c-container-mobile.html"},
+			{buttonname: "generic-c2c-container-5G-desktop",			 targeteddiv: ["c2c-container-5g-desktop","c2c_container_5g_desktop"],          url:"/content/vzw-engage/c2c/btn.display.generic-c2c-container-5G-desktop.html"},
+			{buttonname: "generic-c2c-container-5G-mobile",  			 targeteddiv: ["c2c-container-5g-mobile","c2c_container_5g_mobile"],  			url: "/content/vzw-engage/c2c/btn.display.generic-c2c-container-5G-mobile.html"},
+			{buttonname: "generic-c2c-container-support-postpay",		 targeteddiv: ["c2c_container_support_postpay"],        url: "/content/vzw-engage/c2c/btn.display.generic-c2c-container-support-postpay.html"},
+			{buttonname: "generic-c2c-container-support-prepay",         targeteddiv: ["c2c_container_support_prepay"],         url: "/content/vzw-engage/c2c/btn.display.generic-c2c-container-support-prepay.html"},
+			{buttonname: "generic-c2c-container-support-sales-consumer", targeteddiv: ["c2c_container_support_sales_consumer"], url: "/content/vzw-engage/c2c/btn.display.generic-c2c-container-support-sales-consumer.html"},
+			{buttonname: "generic-c2c-container-support-sales-business", targeteddiv: ["c2c_container_support_sales_business"], url: "/content/vzw-engage/c2c/btn.display.generic-c2c-container-support-sales-business.html"}
+		];
+		
+	jQuery(document).ready(function (){
+		cta_list = window.c2c.cta_list || cta_list;
+		window.c2c.initializeC2C = initializeC2C;
+		isInitilizationRequired = window.c2c.isInitilizationRequired || isInitilizationRequired;
+		
+		if(isInitilizationRequired === "true"){
+			initializeC2C(cta_list);
+//			if(jQuery('.ewtid').length > 0){
+//				checkEWT();
+//			}
+		}
+	});
+	
+	function initializeC2C(cta_list) {
+		// looping the btn array and triggering the ajax requests, 
+		//storing the result in the filtered Object with key as buttonname
+		for(var i=0; i< cta_list.length; i++){
+			var targetDomElem = cta_list[i].targeteddiv;
+			if(targetDomElem.length > 0){
+				var isAjaxToBeReq = false;
+				filteredMap[cta_list[i].buttonname] = {};
+				// this loop is for to check the availability of class names on the dom
+				for(var j=0; j< targetDomElem.length; j++){
+					if(jQuery('.' + targetDomElem[j]).length > 0){
+						isAjaxToBeReq = true;
+						filteredMap[cta_list[i].buttonname][targetDomElem[j]] = cta_list[i];
+					}
+				}
+				if(isAjaxToBeReq){
+					var ajaxDomain = getAjaxDomain();
+					if(isSameDomain(ajaxDomain))
+						initiateAjaxReq(cta_list[i]);
+					else
+						initiateAjaxPReq(cta_list[i]);
+				}
+			}
+		}
+	}
+
+	// Initiating the ajax request based on the for loop url
+	function initiateAjaxPReq(list){
+		var jsonpMethod = list.buttonname;
+		jsonpMethod = jsonpMethod.replace(/-/g, "");
+		console.log('jsonpMethod', jsonpMethod);
+		return jQuery.ajax({
+			type: 'GET',
+			url: getAjaxDomain() + list.url,
+			dataType: 'jsonp',
+			jsonpCallback: jsonpMethod,
+			jsonp: false,
+			cache: true,
+			success: function(data) {
+				console.log('ajax success callback', data);
+				triggerBtn(data);	
+			},
+			error: function(xhr, status, error){
+				console.log('req failed', error);
+			}
+		});			
+	}
+
+	function initiateAjaxReq(list){
+		return jQuery.ajax({
+			type: 'GET',
+			url: getAjaxDomain() + list.url,
+			dataType: 'text',
+			cache: true,
+			success: function(data) {
+				console.log('ajax success callback', data);
+				var jsonStr = data.substring(data.indexOf("(") + 1, data.lastIndexOf(")"));
+				var jsonObj = JSON.parse(jsonStr);
+				triggerBtn(jsonObj);	
+			},
+			error: function(xhr, status, error){
+				console.log('req failed', error);
+			}
+		});			
+	}
+	//Function parameters comes from ajax success response
+	function triggerBtn(response){
+		try{
+			var hasResponse=false;
+			if(filteredMap[response.btnname]){
+				// this loop is for to append the response on the filtered dom elements class names
+				for(var key in filteredMap[response.btnname]){
+					if(filteredMap[response.btnname].hasOwnProperty(key)){
+						var domElem = jQuery('.' + key);
+						domElem.html(response.htmlSrc);
+						domElem.attr("btName",response.btnname).attr("status",response.isOn);
+						if(response.isOn){
+							for (var k=0; k< domElem.find('a').length; k++){
+								domElem.find('a')[k].addEventListener('click', initClickHandler.bind(this, response.btnname, response.isOn));													
+							}
+							hasResponse=true;
+						}
+					}
+				}
+				if(hasResponse){
+					if(jQuery('.ewtid').length > 0 && ewtLoaded == false){
+						checkEWT();
+					}
+				}
+				
+				delete filteredMap[response.btnname];
+			}
+		} catch(e){
+			console.log(e);
+		}
+	}
+
+	// Initiating the ajax request based on the for loop url
+	/*function initiateAjaxReq(list){
+		return jQuery.ajax({
+			url: list.url,
+			success: function(data){
+				try{
+					if(data && data!=""){
+						if(typeof data=="string"){
+							data = JSON.parse(data);
+						}
+						if(filteredMap[data.btnname]){
+							// this loop is for to replace the response on the filtered dom elements class names
+							for(var key in filteredMap[data.btnname]){
+								if(filteredMap[data.btnname].hasOwnProperty(key)){
+									var domElem = jQuery('.' + key);
+									domElem.html(data.htmlSrc);
+									domElem.attr("btName",data.btnname).attr("status",data.isOn);
+									if(data.isOn){
+										//domElem.find('a')[0].addEventListener('click', initClickHandler.bind(this, data.btnname, data.isOn));
+										//domElem[0].addEventListener('click', initClickHandler.bind(this, data.btnname, data.isOn));
+										for (var k=0; k< domElem.find('a').length; k++){
+											domElem.find('a')[k].addEventListener('click', initClickHandler.bind(this, data.btnname, data.isOn));													
+										}
+									}
+								}
+							}
+							delete filteredMap[data.btnname];
+						}
+					}
+				}
+				catch(e){
+					console.log(e);
+				}
+			},
+			error: function(){}
+		});
+	}*/
+	var firstCartRef = true;
+	// Initializing event listener for dynamically created spans
+	function initClickHandler(c2cUnit, c2cStatus, event){			
+		if(c2cStatus){
+			if( firstCartRef && vzwDL && (vzwDL["page.condition"]=="se_gridwall" || vzwDL["page.condition"]=="se_pdp")){
+				var params = {
+					  SORId: (vzwDL && vzwDL.productDetails && vzwDL.productDetails.productId) ? vzwDL.productDetails.productId:'',
+					  pageTitle: (vzwDL && vzwDL.page && vzwDL.page.pageName) ? vzwDL.page.pageName:'',
+					  flow: (vzwDL && vzwDL.page && vzwDL.page.flowName) ? vzwDL.page.flowName:'',
+					  submitCCInfo: false,
+					};
+				jQuery.ajax({
+					type: 'GET',
+					url: vzwDL&&vzwDL["cp.loggedIn"] == "true"?'/od/cust/auth/cart/clickToCallUpdate':'/onedp/api/cart/clickToCallUpdate',
+					contentType:"text/plain; charset=utf-8",
+					dataType:"json",
+					data:params,
+					success: function(data){
+						if(data && data.output && data.output.referenceNum){
+							firstCartRef = false;
+							window.vzgn_c2cuniqueId = data.output.referenceNum;
+							initClickHandlerWrapped(c2cUnit, c2cStatus, event);	
+						}						
+					},
+					error: function(xhr, status, error){
+						console.log('req failed', error);
+					}
+				});		
+			}else{
+				initClickHandlerWrapped(c2cUnit, c2cStatus, event);
+			}
+		}	
+	}
+	
+	function initClickHandlerWrapped(c2cUnit, c2cStatus, event){			
+		var vzgn_c2cWindowName = "vzw-c2c",
+			vzgn_c2cPopUpConfig = "height=430,width=400,resizable=no,scrollbars=no",
+			vzgn_c2cPopUpSuffix='',
+			vzgn_c2cExtrapath = getAjaxDomain() + "/content/vzw-engage/c2c/";
+			if(typeof vzgn_c2cuniqueId !== 'undefined' &&  vzgn_c2cuniqueId !== null && vzgn_c2cuniqueId!==''){
+				 vzgn_c2cPopUpSuffix = 'display.c2c.'+c2cUnit+'.'+vzgn_c2cuniqueId+'.html';								 
+			}
+			else{
+				 vzgn_c2cPopUpSuffix = 'display.c2c.'+c2cUnit+'.html';
+			}
+
+		if ( typeof winRefs == 'undefined' ) {
+			var winRefs = {};
+		}
+		if ( typeof winRefs[vzgn_c2cWindowName] == 'undefined' || winRefs[vzgn_c2cWindowName].closed ) {
+			if(c2cStatus){
+				winRefs[vzgn_c2cWindowName] =  window.open(vzgn_c2cExtrapath + vzgn_c2cPopUpSuffix, '', vzgn_c2cPopUpConfig);
+			} else {
+				winRefs[vzgn_c2cWindowName].focus()
+			}
+		}
+	}
+	
+	function updateTestVersion (value) {
+		//console.log ("c2c updateTestVersion value  ",value);
+		//var testVersionValue = vzwDL.page.testVersion;
+		//console.log ("cont testVersionValue1 value  ",testVersionValue);
+		//testVersionValue = testVersionValue ? testVersionValue+','+value : value
+		//vzwDL.page.testVersion = testVersionValue;
+		//console.log ("c2c testVersionValue   ",testVersionValue);
+		//console.log ("c2c vzwDL.page.testVersion   ",vzwDL.page.testVersion);
+		
+		console.log ("c2c updateTestVersion value  ",value);
+		var testVersionValue = vzwDL.page.testVersion;
+		
+		if(testVersionValue == "apple chat"){
+		testVersionValue = testVersionValue+','+value;		
+		}else{
+		testVersionValue = value;
+		}
+		vzwDL.page.testVersion = testVersionValue;	
+		console.log ("c2c testVersionValue   ",testVersionValue);
+		console.log ("c2c vzwDL.page.testVersion   ",vzwDL.page.testVersion);
+	}
+	
+	function checkEWT() {
+		console.log ("check for ewt");
+		var currHostName = window.location.origin ? window.location.origin : window.location.protocol +"//"+window.location.hostname;
+		var ewt_url = currHostName + "/support/1d/data/nos/ewt";
+		if  (vzwDL["cp.loggedIn"] == "true") {
+			ewt_url = currHostName + "/support/1d/data/secure/ewt";
+    	}
+		var ewt_vzwdl_testVersion = "";	
+		
+		return jQuery.ajax({
+			type: 'GET',
+			url: ewt_url,
+			dataType: 'json',
+			success: function(rawData) {
+				console.log ("SUCCESS in fetching ewt response!!!",rawData);
+				ewtLoaded=true;
+				if (rawData.errorCode == "00000") {
+					var ewtInMins = rawData.ewt/60;
+					console.log ("ewtInMins is "+ewtInMins);
+					if (ewtInMins >10) {
+						jQuery(".ewtid").text ("Estimated Wait Time > 10 mins");
+						jQuery(".ewtid").css({"color":"#cc4d0f","font-weight":"bold"});
+						ewt_vzwdl_testVersion = "over10";
+					} else if (ewtInMins >6 && ewtInMins <=10 ) {
+						jQuery(".ewtid").text ("Estimated Wait Time 6-10 mins");
+						jQuery(".ewtid").css({"color":"#cc4d0f","font-weight":"bold"});
+						ewt_vzwdl_testVersion = "6-10";
+					} else if (ewtInMins >=3 && ewtInMins <=6 ) {
+						jQuery(".ewtid").text ("Estimated Wait Time 3-6 mins");
+						jQuery(".ewtid").css({"color":"#cc4d0f","font-weight":"bold"});
+						ewt_vzwdl_testVersion = "3-6";
+					}  else {
+						ewt_vzwdl_testVersion = "noEWT";
+                    }  
+				  }
+				if  (vzwDL) {
+            		//vzwDL.page.testVersion = ewt_vzwdl_testVersion;
+					updateTestVersion(ewt_vzwdl_testVersion);
+            	}
+				
+			},
+			error: function (jqXHR, textStatus, errorThrown) {
+			  console.log ("Error in fetching ewt response!!!")
+			}
+		});
+	}
+})(jQuery,window,document);	
+
+

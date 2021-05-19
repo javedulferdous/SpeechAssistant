@@ -1,0 +1,17 @@
+_satellite.pushAsyncScript(function(event, target, $variables){
+   //Dark Waters 220217 MOP/Showtimes
+if(_satellite.getVar('Movie ID') == '220217'){
+  //PXL-284
+var google_conversion_id = 957351794;
+var google_conversion_label = "HqU4CL73vIABEPKOwMgD";
+var google_remarketing_only = false;
+_satellite.loadScript('//www.googleadservices.com/pagead/conversion.js')
+//PXL-285
+var google_conversion_id = 957351794;
+var google_conversion_label = "iOazCITwvIABEPKOwMgD";
+var google_remarketing_only = false;
+_satellite.loadScript('//www.googleadservices.com/pagead/conversion.js')
+
+
+}
+});

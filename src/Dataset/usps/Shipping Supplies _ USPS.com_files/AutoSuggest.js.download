@@ -1,0 +1,475 @@
+var dojoConfig = {
+	tlmSiblingOfDojo: false,
+	isDebug: true,
+	locale: "en",
+	async: false,
+	parseOnLoad: false,
+	debugAtAllCosts: false
+};
+
+var PREFIX_IN = "In ";
+
+define(["dojo/_base/declare", "dojo/dom", "dojo", "dojo/dom-construct", "dojo/on", "dojo/_base/array", "dojo/keys",
+		"dojo/_base/lang", "dojo/dom-class", "dojo/_base/fx", "dojo/_base/event", "dojo/io-query", "dojo/query", "dijit/_Container",
+		"dijit/_WidgetBase", "dijit/_TemplatedMixin", "dojo/text!template/autoSuggest.txt", "dojo/parser", "dojo/ready"],
+	
+	function(declare, dom, dojo, domConstruct, on, array, keys, lang, domClass, fx, event, ioQuery,
+			query, _Container, _WidgetBase, _TemplatedMixin, template, parser, ready) {	
+			
+		ready(function() {
+			return declare("atg.store.widget.AutoSuggest", [_Container,  _WidgetBase, _TemplatedMixin],
+				{
+					debugOn: true,
+					id: "",
+					ajaxUrl: "",
+					contentCollection: "",
+					contentCollection2 : "",
+					siteContextPath: "",
+					minInputLength: 1,
+					searchBoxId: "",
+					submitButtonId: "",
+					animationDuration: 500,
+					totalSuggestions: 0,
+					userInput: "",
+					currentLinkIndex: 0,
+					connections: new Array(),
+					templateString: template,
+					xhr: "",
+					xhr2: "",
+					data: null,
+					
+					startup: function() {						
+						var searchBox = dom.byId(this.searchBoxId);
+						
+						// handle keyup events on search box
+						on(searchBox, 
+							"keyup",
+							this.handleKeyup.bind(this));
+						
+						// handle keypress events on search box
+						on(searchBox, 
+							"keypress",
+							this.handleKeypress.bind(this));						
+						
+						this.hide();
+					},
+					
+					handleKeyup: function(event){
+						switch(event.keyCode) {
+							case keys.DOWN_ARROW:
+							case keys.UP_ARROW:
+								if (this.totalSuggestions > 0) {
+									this.selectSuggestedItem(event.keyCode);
+								}
+							break;
+							case keys.ENTER:
+								if (this.currentLinkIndex > 0) {
+									this.invokeSuggestionItem();
+								}
+							break;
+							case keys.ESCAPE:
+							case keys.LEFT_ARROW:
+							case keys.RIGHT_ARROW:
+								// do nothing more
+							break;
+							default:
+								this.doSearch();
+							break;
+						}
+					},
+
+					handleKeypress: function(event){
+						switch(event.keyCode) {
+							case keys.DOWN_ARROW:
+							case keys.UP_ARROW:
+								event.preventDefault();
+							break;
+							case keys.ENTER:
+								if (this.currentLinkIndex > 0) {
+									event.preventDefault();
+								}
+							break;
+							case keys.TAB:
+							case keys.ESCAPE:
+								this.closeSuggestionList();
+								this.saveUserSearchTerm(this.getUserSearchTerm());
+							break;
+							default:
+							break;
+						}
+					},
+					
+					doSearch: function(){
+						var searchTerm = this.getUserSearchTerm();
+
+						if (searchTerm != this.userInput){
+							if (searchTerm.length >= this.minInputLength){
+								this.requestData(searchTerm, this.contentCollection, this.xhr);
+							} else {
+								this.cancelRequest(this.xhr2);
+								this.cancelRequest(this.xhr);
+								this.hide();
+							}
+							this.saveUserSearchTerm(searchTerm);
+						}
+						
+					},
+
+					getUserSearchTerm: function(){
+						return lang.trim(dom.byId(this.searchBoxId).value.toLocaleLowerCase());
+					},
+
+					saveUserSearchTerm: function(searchTerm){
+						this.userInput = searchTerm.toLocaleLowerCase();
+					},
+
+					addClickEventHandlers: function(){
+						var self = this;
+						var searchBox = dom.byId(this.searchBoxId);
+
+						// add body click handler to close suggestion list
+						// when the user clicks outside the list
+						this.connections.push(
+							on(document,
+								"click",
+								this,
+								self.hide)
+						);
+
+						// add click handler to suggestion list to suppress click
+						// from bubbling to the body handler
+						// i.e. don't close suggestion list when it is clicked
+						this.connections.push(
+							on(self.containerNode,
+								"click",
+								this,
+								function(event){
+									event.stopPropagation();
+								})
+						);
+
+						// add click handler to the search box to suppress click
+						// from bubbling to the body handler
+						// i.e. don't close suggestion list when search box is clicked
+						this.connections.push(
+							on(searchBox,
+								"click",
+								this,
+								function(event){
+									event.stopPropagation();
+								})
+						);
+					},
+
+					removeClickEventHandlers: function(){
+						array.forEach(this.connections, function(handle) {handle.remove();});
+					},
+					
+					requestData: function(searchTerm, contentCollection, xhr){						
+						this.cancelRequest(xhr);
+						
+						var seperator = this.ajaxUrl.indexOf("?") === -1 ? "?" : "&"; 
+						
+						var url =	this.ajaxUrl +
+							seperator +
+							"format=json&Dy=1&assemblerContentCollection=" +
+							contentCollection +
+							"&Ntt=" +
+							searchTerm;
+						
+						if (xhr == this.xhr) {
+							url += "*";	
+						}
+							
+						var self = this;
+						
+						var bindParams={
+							sync: (xhr !== this.xhr),
+							url: url, 
+							headers: { "Accept" : "application/json" },
+							mimetype: "application/json",
+							handleAs: "json",
+							load: function(data, ioArgs) {
+							  self.handleResponse(data,ioArgs);
+							},
+							error: function(data, ioArgs) {
+							  self.handleError(data, ioArgs);
+							},
+							timeout: function(data, ioArgs) {
+							  self.handleError(data, ioArgs);
+							}
+						};
+						
+						if (xhr == this.xhr) {
+							this.xhr = dojo.xhrGet(bindParams);
+						} else {
+							this.xhr2 = dojo.xhrGet(bindParams);
+						}
+					},
+					
+					cancelRequest: function(xhr){
+						if (xhr){
+							xhr.cancel();
+						}
+					},
+					
+					handleResponse: function(data, ioArgs){
+						var autoSuggestData = this.getAutoSuggestData(data);
+
+						if (autoSuggestData) {
+							if (autoSuggestData.dimensionSearchGroups &&
+									autoSuggestData.dimensionSearchGroups.length > 0) {
+								this.createListHtml(autoSuggestData.dimensionSearchGroups);
+								this.show();
+							} else if (autoSuggestData.refinements) {
+								this.createInListItemHtml(autoSuggestData.refinements);
+							} else {
+								this.hide();
+							}
+						}
+					},
+					
+					handleError: function(data, ioArgs){
+						if (data.dojoType=='cancel') {
+							// xhr.cancel triggers the error callback
+							// inspect the data.dojoType, if it's
+							// the result of a cancel we can ignore
+							return;
+						}
+
+						// assuminng we should fail silently
+						// as type ahead is an enhancement and
+						// not critical to being able to peform
+						// a search
+						console.debug("AutoSuggest: in handleError, xhrGet failed");
+					},
+
+					show: function(){
+						domClass.remove(this.domNode, "hide");
+						var fadeArgs = {
+							node: this.domNode,
+							duration: this.animationDuration
+						};
+						fx.fadeIn(fadeArgs).play();
+
+						// reset the currently selected link
+						this.currentLinkIndex = 0;
+
+						this.addClickEventHandlers();
+					},
+
+					hide: function(){
+						var fadeArgs = {
+							node: this.domNode,
+							duration: this.animationDuration
+						};
+						fx.fadeOut(fadeArgs).play();
+						domClass.add(this.domNode, "hide");
+						this.totalSuggestions = 0;
+
+						this.removeClickEventHandlers();
+					},
+					
+					getAutoSuggestData: function(data) {
+						var autoSuggestData = null;
+						
+						if (data.contents && data.contents.length > 0 && data.contents[0].autoSuggest) {
+							var filteredItems = array.filter(data.contents[0].autoSuggest, function(item){
+								return item["@type"] === "DimensionSearchAutoSuggestItem";
+							});
+
+							if (filteredItems && filteredItems.length > 0){
+								autoSuggestData = filteredItems[0];
+							}
+						} else if (data.contents && data.contents.length > 0 && data.contents[0].refinements) {
+							autoSuggestData = data.contents[0];
+						}
+						
+						return autoSuggestData;
+					},
+					
+					createListHtml: function(groups) {
+						domConstruct.empty(this.containerNode);
+						
+						var ul = domConstruct.create("ul", null, this.containerNode, "first");
+						
+						this.createSearchAheadListItemHtml(groups, ul);	
+						this.createOutListItemHtml(groups, ul);
+					},
+					
+					createSearchAheadListItemHtml: function(groups, ul) {
+						var firstSuggestion = groups[0].dimensionSearchValues[0].label.toLowerCase();
+						var startIn = firstSuggestion.indexOf(this.userInput);
+						var searchAheadInput = (startIn) ? firstSuggestion.substring(startIn) : firstSuggestion;
+						var spaceIn = searchAheadInput.indexOf(' ');
+						
+						if (spaceIn !== -1) {
+							searchAheadInput = firstSuggestion.substr(startIn, spaceIn);
+						}
+						searchAheadInput = searchAheadInput.replace(/\W+/g, "");
+						
+						var li = domConstruct.create("li", null, ul);
+						
+						this.createLink(li, groups[0].dimensionSearchValues[0].contentPath + 
+											"/_/Ntt-" + searchAheadInput + "?Dy=1", searchAheadInput, "");
+						
+						this.requestData(searchAheadInput, this.contentCollection2, this.xhr2);
+					},
+					
+					createOutListItemHtml: function(groups, ul) {
+						array.forEach(groups, function(group){
+							array.forEach(group.dimensionSearchValues, function(suggestionItem){
+								this.createListItemHtml(suggestionItem, ul, "");
+								this.totalSuggestions++;
+							}, this);
+						}, this);
+					},
+					
+					createInListItemHtml: function(group) {
+						query("ul", this.containerNode).forEach(function(ul) {
+							array.forEach(group, function(suggestionItem){
+								this.createListItemHtml(suggestionItem, ul, PREFIX_IN);
+								this.totalSuggestions++;
+							}, this);
+						}, this);
+					},
+
+					createListItemHtml: function(suggestionItem, ul, prefix){
+						var action = suggestionItem.contentPath + suggestionItem.navigationState;
+						var text = prefix + suggestionItem.label.toLocaleLowerCase();
+						var ancestorsText = ""; 
+
+						if (suggestionItem.ancestors){
+							array.forEach(suggestionItem.ancestors, function(ancestor){
+								ancestorsText +=  ancestor.label + " > ";
+							});
+						}
+
+						var li = domConstruct.create("li", null, ul);
+
+						this.createLink(li, action, text, ancestorsText);
+					},
+
+					createLink: function(li, action, text, ancestorsText){
+						var innerHtml = ancestorsText + text;
+						var regEx = new RegExp(this.userInput,"gi");
+						var highlight = "<span class='highlight'>" + this.userInput.toLocaleLowerCase() + "</span>";
+						innerHtml = innerHtml.replace(regEx, highlight);
+						
+						if (innerHtml.substring(0, 3) === PREFIX_IN) {
+							innerHtml = "<span class=\"indent\">" + innerHtml + "</span";
+						}
+
+						var link = domConstruct.create("a", {
+									href: this.createLinkHref(action),
+									title: ancestorsText + text,
+									innerHTML: innerHtml},
+								li);
+
+						var self = this;
+
+						// if user clicks on an option in the list
+						// update the value in the search box
+						// and submit the search form... this means
+						// a search will be performed rather than
+						// a dimension value change
+						on(link, "click", function(event){
+							event.stop(event);
+							dom.byId(self.searchBoxId).value = this.innerText || this.textContext || this.text;
+							dom.byId(self.submitButtonId).click();
+						});
+					},
+
+					createLinkHref: function(action){
+						var query = action.substring(action.indexOf("?") + 1, action.length);
+						var queryObject = ioQuery.queryToObject(query);
+
+						queryObject.format = null;
+						queryObject.assemblerContentCollection = null;
+
+						var href = this.siteContextPath + 
+							action.substring(0, action.indexOf("?") + 1) +
+							ioQuery.objectToQuery(queryObject);
+
+						return	href;
+					},
+
+					resetSearchBox: function(){
+						var searchBox = dom.byId(this.searchBoxId);
+						searchBox.value = this.userInput;
+						searchBox.focus();
+						this.currentLinkIndex = 0;
+					},
+					
+					invokeSuggestionItem: function() {
+						var allLinks = query("a", this.containerNode);
+						var currentLink = allLinks[this.currentLinkIndex - 1];
+						currentLink.click();
+					},
+
+					closeSuggestionList: function(){
+						var searchBox = dom.byId(this.searchBoxId);
+						searchBox.focus();
+						this.hide();
+					},
+
+					selectSuggestedItem: function(keyCode){
+						var allLinks = query("a", this.containerNode);
+						var self = this;
+
+						switch(keyCode) {
+							case keys.UP_ARROW:
+								setNextNode(-1);
+							break;
+							case keys.DOWN_ARROW:
+								setNextNode(1);
+							break;
+							default:
+							break;
+						}
+
+						function setNextNode(indexChange){
+
+							var currentLink = allLinks[self.currentLinkIndex - 1];
+
+							if (currentLink){
+								// remove style from currently selected link
+								domClass.remove(currentLink, "selected");
+							}
+
+							self.currentLinkIndex += indexChange;
+
+							if(self.currentLinkIndex < 0){
+								// user has pressed up with no item selected
+								// so move to last link in list
+								self.currentLinkIndex = allLinks.length;
+							}
+
+							// get link at specified index, if it exists
+							currentLink = allLinks[self.currentLinkIndex - 1];
+
+							if(currentLink){
+								// highlight link and update text in search box
+								domClass.add(currentLink, "selected");
+								dom.byId(self.searchBoxId).value = currentLink.innerText || currentLink.textContext || currentLink.text;
+							}
+							else{
+								// user has pressed down from last link
+								// or has pressed up from first link
+								// so reset value in search box to
+								// the user's original input
+								self.resetSearchBox();
+							}
+							
+						}
+
+					}
+				}
+			);
+		});
+	
+		ready(function() {
+			parser.parse();
+		});
+	}
+);

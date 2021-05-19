@@ -1,0 +1,94 @@
+/**
+ * 
+ */
+//var loader = "/onlinesports/skin/frontend/enterprise/onlinesports/images/ajax-loader-tr.gif";
+//var loader = "/skin/frontend/enterprise/onlinesports/images/ajax-loader-tr.gif";
+//var catURL = "/onlinesports/sorting/category/search";
+//var catURL = "/sorting/category/search";
+
+jQuery(function($){
+	var loader = $('#sBaseUrl').attr('sknurl') + "images/ajax-loader-tr.gif";
+	var catURL = $('#sBaseUrl').attr('bsurl') + "sorting/category/index";
+	// Get element id
+	$.fn.id = function(){
+		return $(this).attr('id');
+	};
+	
+	// Send ajax request
+	$.fn.ajaxsend = function(url){
+		// Loader
+		$('div#s_items').empty().html('<div class="ajaxloader"><span>Please wait...</span></div>');
+		$('div#sale_head').empty();
+		//alert(url);
+		// Send
+		$.ajax({
+			url: url,
+			dataType: 'json',
+			type: 'post',
+			data: {},
+			error: function(error, response){
+				// Code here
+			},
+			success: function(response){
+				// Code here
+				if(response.COUNT > 0){
+					attrHeadHtml = "";
+					for(var j=0; j<response.CatHeadCount; j++){
+						attrHeadHtml += '<div class="sale_head_left"> Name (Total)<span>(On Sale)</span> </div>';
+					}
+					$('div#sale_head').empty().html(attrHeadHtml);
+					$('div#s_items').empty().html(response.DATA);
+					/*$("div#s_items").scrollbar({
+					'taille_englobe':250
+					});*/	
+				}
+				else{
+					$('div#s_items').empty().html('<p style="color:#D85909;">No records found.</p>');
+				}
+			},
+			complete: function(){
+				// Code here
+			}
+		});
+	};
+	
+	
+	// Bind click event to anchor element
+	$('button[id=searchgo], div.alphabets > a').bind('click', function(){
+		var _id = $(this).id();
+		var searchstr = $.trim($('input[id=alphacatsearch]').val());
+		if($(this).id() == 'searchgo'){
+			if(searchstr.length < 1){
+				$('input[id=alphacatsearch]').focus();
+				return false;
+			}
+			_id = $('div.alphabets > a.active_alpha').id();
+		}
+		else{
+			$('div.alphabets > a').removeClass('active_alpha');
+			$(this).addClass('active_alpha');
+		}
+		
+		var char = _id.split('_')[1] || 'ALL';
+		var catParam = $('input[id=catParam]').val();
+		
+		// Send request
+		$(this).ajaxsend(catURL + '/?q=' + catParam + '-' + char + '-true-{'+searchstr+'}');
+	});
+	
+	
+	// Clear search
+	$('span[id=searchclear]').click(function(){
+		if($.trim($('input[id=alphacatsearch]').val()).length < 1){
+			return false;
+		}
+		$('input[id=alphacatsearch]').val('');
+		$('div.alphabets > a').removeClass('active_alpha');
+		$('div.alphabets > a#Alpha_ALL').addClass('active_alpha');
+		
+		var catParam = $('input[id=catParam]').val();
+		
+		// Send request
+		$(this).ajaxsend(catURL + '/?q=' + catParam + '-ALL-true');
+	});
+});

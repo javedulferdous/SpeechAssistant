@@ -1,0 +1,37 @@
+extole.define("global_footer589708047.1", ["https://origin.xtlo.net/type=core:clientId=2131529793:coreAssetsVersion=1544591110306/common/dom.js","https://origin.xtlo.net/type=core:clientId=2131529793:coreAssetsVersion=1544591110306/common/zone-url-builder.js","https://origin.xtlo.net/type=core:clientId=2131529793:coreAssetsVersion=1544591110306/common/create-zone-builder.js","text!https://origin.xtlo.net/type=creativeArchive:clientId=2131529793:creativeArchiveId=6885364061475139255:version=1:coreAssetsVersion=1544591110306/html/template.html",
+"https://origin.xtlo.net/type=creativeArchive:clientId=2131529793:creativeArchiveId=6885364061475139255:version=1:coreAssetsVersion=1544591110306/browser-side-variables.js"],function(b,g,d,h,a){return function(c){var e=c.getZone(),f=a.referenceElement&&b.queryFirst(a.referenceElement)||e.getElement();b.addEventListener(f,"click",function(b){b.preventDefault();a.redirectToPromoteDestination?location.href=g(c).promote(e.getName()):d(c).setContentZone(a.enableContentSharing).create("share_experience")});
+b.injectStylesheet("https://origin.xtlo.net/type=creativeArchive:clientId=2131529793:creativeArchiveId=6885364061475139255:version=1:coreAssetsVersion=1544591110306/css/main.css",function(){a.extoleHostedCallToAction&&!a.referenceElement&&(f.innerHTML=h);a.autoPopWidget&&setTimeout(function(){d(c).setContentZone(a.enableContentSharing).create("share_experience")},1E3*a.autoPopDelay)})}});
+extole.define("text!https://origin.xtlo.net/type=creativeArchive:clientId=2131529793:creativeArchiveId=6885364061475139255:version=1:coreAssetsVersion=1544591110306/html/template.html",[],function(){return'<div id="extole-6885364061475139255">\n        <a href="#"  >Refer a Friend</a>\n</div>\n'});
+extole.require([
+    "global_footer589708047.1",
+    "pending-zone-service",
+    "core-root:///common/collection.js"
+], function (
+    legacyRender,
+    pendingZoneService,
+    collection
+) {
+
+    function render(context) {
+        var legacyContext = collection.merge(context, {
+            getCampaign: function () {
+                return {
+                    getId: function () {
+                        return "6885364062121191755";
+                    },
+                     getProgramLabel: function () {
+                        return "refer-a-friend";
+                    }
+                  };
+            },
+            getInputConsumerEvent: function () { return {"id":"6890147538014033532","name":"global_footer","data":{}}; },
+            getStepConsumerEvent: function () { return {"id":"6890147540806419637","name":"promotion_viewed","data":{}}; }
+        });
+        legacyRender(legacyContext);
+    };
+
+    pendingZoneService
+        .get("589708047.1")
+        .resolve(render, "BH9R4ADMBIKFAPA3H377021EI4", "YEAR",              "en");
+
+});

@@ -1,0 +1,14 @@
+_satellite.pushAsyncScript(function(event, target, $variables){
+  try {
+  if (window.location.href.match(/\/home\.html/)) {  
+var myImage = new Image(0, 0);    
+myImage.src="//20803027p.rfihub.com/ca.gif?rb=36012&ca=20803027&ra="+Math.random() * 1e6+"&_o=36012&_t=20803027"; 
+document.body.appendChild(myImage).style.visibility = "none";
+  document.body.removeChild(myImage);
+  }
+} catch (err) {
+   _satellite.notify('Direct Call Rule Error - Page Loaded - Zeta:' + err.message,[3]);
+}
+
+
+});

@@ -1,0 +1,27 @@
+_satellite.pushAsyncScript(function(event, target, $variables){
+  //Desktop MOP Template
+//Harriet 219554
+if(_satellite.getVar('Movie ID') == '219554'){
+  if(_satellite.getVar('Page Level 2') == 'movie | overview'){
+//pxl-312
+        var axel = Math.random() + "";
+        var a = axel * 10000000000000;
+        _satellite.loadScript('//4647142.fls.doubleclick.net/activityi;src=4647142;type=harri0;cat=harri007;dc_lat=;dc_rdid=;tag_for_child_directed_treatment=;tfua=;npa=;ord='+a)
+    
+
+
+}
+}
+//Desktop MSP Template
+
+//Harriet 219554
+if(_satellite.getVar('Movie ID') == '219554'){
+  if(_satellite.getVar('Page Level 2') == 'movie times | by movie'){
+    //pxl-312
+        var axel = Math.random() + "";
+        var a = axel * 10000000000000;
+        _satellite.loadScript('//4647142.fls.doubleclick.net/activityi;src=4647142;type=harri0;cat=harri007;dc_lat=;dc_rdid=;tag_for_child_directed_treatment=;tfua=;npa=;ord='+a)
+
+}
+}
+});

@@ -1,0 +1,8 @@
+_satellite.pushAsyncScript(function(event, target, $variables){
+  try{
+_satellite.track('pageLoaded');
+}
+catch(err) {
+  _satellite.notify("Direct Call Rule Error - Resp SRP List pageLoaded: " + err.message,[3]);
+}
+});

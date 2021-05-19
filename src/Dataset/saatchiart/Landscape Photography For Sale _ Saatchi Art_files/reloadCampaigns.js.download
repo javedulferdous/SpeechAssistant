@@ -1,0 +1,69 @@
+//<script>
+bouncex.tryCatch(function reloadCampaigns(){
+	var newCampaigns = false;
+	bouncex.creatives = false;
+	bouncex.brandStyles = false;
+	bouncex.webfonts = false;
+
+	if (bouncex.gbi) {
+		bouncex.gbi.stacks = false;
+	}
+
+	var newCookie = {"hardID":"1Szc8BS3vcj0ODbLzsGc70nWkG4","softID":"1Szc86m75Yp5TVMICU2RKD369jV","v":{"ever_logged_in_collector":false,"ever_logged_in_artist":false,"pdp_over_1k_viewed":false,"submitted_footer":false,"conversion_aa":0,"conversion_aatrade":0,"conversion_offer":false,"conversion_purchase":false,"items_in_cart":0,"cart_value":0,"visited_cat_1k_2k":false,"visited_cat_2k_5k":false,"visited_cat_5k_10k":false,"visited_cat_10k_max":false,"ibx_test":false,"searchpage_over5":false,"logged_in_collector":false,"user_price_value":false,"user_price_quiz":false,"pdp_over_500_viewed":false,"has_filtered":false,"followers_remaining":false,"user_tracked":false,"submitted_saatchi":false,"submitted_limited":false,"cart":false},"fvt":1603834788,"vid":1604330673969836,"ao":3,"lp":"https%3A%2F%2Fwww.saatchiart.com%2Fall%3Fprice%3D0-500","as":2,"vpv":2,"d":"d","r":"moneyconnexion.com","cvt":1604330673,"sid":15,"gcr":47,"m":0,"did":"7297771255573053397","lvt":1604330806,"campaigns":{"557505":{"lvt":1603834789,"lavid":1,"la":1603834789,"fsa":1603834789,"as":1,"ao":1,"oa":[1603834789],"io":1,"wc":1603834791},"931558":{"vv":1,"lvt":1604330806,"lavid":1604330673969836,"la":1604330806,"av":1,"fsa":1604330806,"as":1,"ao":1,"oa":[1604330806],"io":1,"wcv":1604330811,"wc":1604330811},"1181068":{"lvt":1604330787,"lavid":1604330673969836,"la":1604330675,"fsa":1603834789,"as":1,"ao":2,"oa":[],"vv":1,"av":1},"1242458":{"vv":1,"lvt":1604330675,"lavid":1604330673969836,"la":1604330675,"av":1,"fsa":1604330675,"as":1,"ao":1,"oa":[1604330675],"io":1,"wcv":1604330787,"wc":1604330787}},"hcs_saatchiartcomall":1,"hcs_saatchiartcomphotography":1};	
+	var campaignAdded = false;
+	for (var campaignId in newCampaigns) {
+		if (newCampaigns.hasOwnProperty(campaignId)) {
+			// if campaign cookie does not exist
+			if (!bouncex.cookie.campaigns) {
+				bouncex.cookie.campaigns = {};
+			}
+			if (!bouncex.cookie.campaigns[campaignId]) {
+				campaignAdded = true;
+				bouncex.cookie.campaigns[campaignId] = {lvt:bouncex.cookie.lvt, vv:0};
+			} else if (newCookie.campaigns[campaignId]) {
+				// need to set campaign cookie's activations_sessions to the new cookie as it gets modified in reloadCampaigns
+				campaignAdded = true;
+				bouncex.cookie.campaigns[campaignId].as = newCookie.campaigns[campaignId].as;
+			}
+		}
+	}
+	if (campaignAdded) {
+		bouncex.setBounceCookie();
+	}
+
+	for (var campaignId in bouncex.campaigns) {
+		if (bouncex.campaigns.hasOwnProperty(campaignId)) { //copy state vars
+			if (newCampaigns[campaignId]) {
+				newCampaigns[campaignId].ap = bouncex.campaigns[campaignId].ap;
+				newCampaigns[campaignId].repressed = Boolean(bouncex.campaigns[campaignId].repressed);
+			}
+
+			if (newCampaigns[campaignId] &&
+				bouncex.campaigns[campaignId].ad_visible &&
+				newCampaigns[campaignId].html.replace(/fsa=(\d+)&|width=(\d+)&|height=(\d+)&/gi,'') == bouncex.campaigns[campaignId].html.replace(/fsa=(\d+)&|width=(\d+)&|height=(\d+)&/gi,'')) {
+								newCampaigns[campaignId] = bouncex.campaigns[campaignId];
+			} else if (newCampaigns[campaignId] && bouncex.isGbi2Campaign(campaignId) && bouncex.campaigns[campaignId].gbi.hasBegunAuction) {
+								newCampaigns[campaignId] = bouncex.campaigns[campaignId];
+			} else {
+				bouncex.destroy_ad(campaignId);
+			}
+		}
+	}
+
+	bouncex.campaigns = newCampaigns;
+	newCampaigns = {};
+
+	bouncex.debug = false;
+		bouncex.setBounceCookie();
+	if (bouncex.campaigns) {
+		for (var campaignId in bouncex.campaigns) {
+			if (bouncex.campaigns[campaignId].ad_visible && typeof bouncex.repressCampaigns === 'function') {
+				bouncex.repressCampaigns(campaignId);
+			}
+		}
+		bouncex.loadBounceCss(bouncex.initActivationFuncs);
+	}
+		bouncex.loadBrandStyles();
+	bouncex.loadWebfonts();
+
+	})();

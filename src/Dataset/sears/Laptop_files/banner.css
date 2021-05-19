@@ -1,0 +1,465 @@
+@charset "UTF-8";
+
+body, body * {
+    vertical-align:baseline;
+    border:0 none;
+    outline:0;
+    padding:0;
+    margin:0;
+    background-repeat:no-repeat;
+    font-smooth: always;
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+    -webkit-font-smoothing: subpixel-antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    -webkit-text-stroke: 1px transparent;
+}
+div{
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 600;
+}
+
+sup, sub {
+    font-size: 10px;
+    vertical-align: baseline;
+    position: relative;
+    top: -8px;
+}
+sub { 
+    top: 4px; 
+}
+
+ft-dynamic{
+    -webkit-transform: translateZ(0) scale(1.0, 1.0);
+    transform: translateZ(0) scale(1.0, 1.0);
+}
+
+#container {
+    box-sizing:border-box;
+    -moz-box-sizing:border-box;
+    -webkit-box-sizing:border-box;
+    border:1px solid #000;
+    cursor:pointer;
+    width:160px;
+    height:600px;
+    left:0px;
+    top:0px;
+    overflow: hidden;
+}
+
+#loading{
+    position: absolute;
+    top:0px;
+    left:0px;
+}
+
+#content {
+    width: 100%;
+    height: 100%;
+    top: 0px;
+    left: 0px;
+    background-color: #fff;
+    overflow: hidden;
+    position: relative;
+    color:#00558d;
+}
+
+#exitBtn {
+    visibility:visible;
+    background-color: #000;
+    opacity:0;
+    width:100%;
+    height: 100%;
+    position: absolute;
+    top:0px;
+    left:0px;
+}
+
+.bg_colorContainer{
+	overflow: hidden;
+}
+
+#vortex{
+    position: absolute;
+    top:0px;
+    left: 0px;
+}
+
+
+/* STEPS */
+
+.step{
+    position:absolute;
+}
+
+#step1, #step2, #step3, #step4, #step5, #step6{
+    top:0px;
+    left:0px;
+    width: 100%;
+    height: 100%;
+}
+
+#copyTxt1, #copyTxt2, #copyTxt3, #copyTxt4, #copyTxt5, #copyTxt6, #copyTxt7, #copyTxt8, #copyTxt9{
+    position: relative;
+    font-weight: 500;
+    font-size: 20px;
+    -webkit-transform: translateZ(0) scale(1.0, 1.0);
+    transform: translateZ(0) scale(1.0, 1.0);
+    text-align: center;
+    margin-bottom: 8.5px;
+    min-height: 25.3px;
+}
+
+#copyTxt4, #copyTxt5, #copyTxt6, #copyTxt7, #copyTxt8, #copyTxt9{
+  font-weight: 500;  
+}
+
+.textWrapper {
+    top: 0px;
+    height: 101px;
+    width: 100%;
+    -webkit-transform: translateZ(0) scale(1.0, 1.0);
+    transform: translateZ(0) scale(1.0, 1.0);
+}
+
+.textWrapper .divText {
+    position: relative;
+}
+
+.imageWrapper {
+    top: 0px;
+    width: 100%;
+    height: 213px;
+}
+
+/* ENDFRAME */
+
+/* PRICEPOINT */
+
+#pricepointWrapper, #lookupWrapper{
+    position:absolute;
+    width:160px;
+    height:160px;
+}
+#lookupWrapper{
+    top: 0px;
+    left:0px;
+    width: 100%;
+    height: 100%;
+}
+#lookupWrapper .lookup{
+    width: 100%;
+    position: absolute;
+}
+
+#pricepointWrapper{
+    top: 73px;
+    left: 0px;
+}
+
+#pricepointWrapper .pricepointAlign{
+    position:absolute;
+    width: 100%;
+    bottom: 0px;
+}
+#pricepointWrapper .pricepointAlign{
+    text-align: center;
+}
+#pricepointWrapper .pricepointAlign #price{
+    display: inline-block;
+}
+
+#productNameWrapper{
+    height:79px;
+    position:absolute;
+    width: 100%;
+}
+
+#productNameTxt2{
+    font-weight: 300;
+    margin-bottom: 1.5px;
+    font-size: 13px;
+    text-align: center;
+    line-height: 16.5px;
+    margin-left: 3.3px;
+}
+
+
+#productNameTxt1{
+    font-size: 32px;
+    text-align: center;
+    margin-bottom: 12.5px;
+    font-weight: 700;
+}
+
+#price{
+    vertical-align: top;
+    font-size: 52px;
+    text-align: center;
+    font-weight: 400;
+}
+
+#price .inline{
+    display: inline-block;
+    vertical-align: top;
+}
+
+#textPriceDollars{
+    font-size: 42px;
+    margin-top: -14.85px;
+    text-align: center;
+    margin-left: -12.1px;
+    font-weight: 500;
+}
+#txtCentsGroup{
+    font-size: 15.75px;
+    text-align: left;
+    margin-left: -12.375px;
+    margin-top: -5.7025px;
+    font-weight: 700;
+}
+#mos{
+    margin-top: 0px;
+    font-size: 11.56px;
+    font-weight: 300;
+}
+
+#dollarSign{
+    font-size: 16.25px;
+    margin-top: -5px;
+    text-align: right;
+    font-weight: 500;
+
+}
+#termsTxt1, #termsTxt2{
+    font-size: 10px;
+	line-height: 12px;
+    margin-top: -34px;
+    font-weight: 400;
+}
+#termsTxt2{
+    margin-top: 0px;
+}
+
+#priceQualifierTxt{
+    font-weight: 300;
+    margin-left: 0px;
+    text-align: center;
+    font-size: 12.51px;
+    margin-bottom: 7.5px;
+    line-height: 17.52px;
+    margin-top: 17px;
+}
+#priceQualifierTitle{
+    font-weight: 600;
+    text-align: center;
+    margin-bottom: 7.5px;
+    line-height: 19.52px;
+    font-size:15px;
+}
+.legalWrapper{
+    position: absolute;
+    top: 480px;
+    width: 100%;
+    height:30px;
+}
+
+.legalTxt {
+    position: absolute;
+    font-size: 9px;
+    line-height: 12px;
+    font-weight: 500;
+    text-align: center;
+    bottom: 0px;
+}
+
+
+hr{
+    margin-top: 7px;
+    border-top: 1px solid white;
+}
+
+#copyTxt13{
+    font-size: 13px;
+}
+#copyTxt14{
+    font-size: 36px;
+    font-weight: 700;
+    margin-top: -7.2px;
+}
+#copyTxt15{
+    font-size: 13px;
+     margin-top: -7.8px;
+}
+
+
+
+/* FOOTER */
+#webbugs{
+    position:absolute;
+    width: 126px;
+    top:0px;
+    left:0px;
+}
+#webbugs .webbug{
+    text-align: center;
+    display: inline-block;
+    color:#004784;
+    font-size: 11px;
+    line-height: 12px;
+    position:absolute;
+    width:100%;
+    height:auto;
+}
+#ctaTxt{
+    font-size: 12px;
+    line-height: 13.7px;
+    width: 94%;
+    left:0%;
+    text-align: center;
+    color: white;
+    font-weight: 500;
+}
+
+#cta img{
+    display: block;
+}
+#logo, #logo2{
+    position: absolute;
+    top: 556px;
+    left: 43px;
+}
+
+#bulletTxt1, #bulletTxt2, #bulletTxt3{
+    font-size: 17px;
+}
+
+/* HELPERS */
+
+.divImage{
+    position:absolute;
+    top:0px;
+    left:0px;
+}
+
+.divImage img{
+    max-width: 100%;
+}
+
+.footerWrapper{
+    position: absolute;
+    height: 85px;
+    top: 229px;
+    width: 100%;
+}
+
+#ctaButtonImg {
+    position: absolute;
+    top: 0;
+	left:0;
+    width: 144px;
+    height: 31px;
+    background-color: transparent;
+    text-align: center;
+}
+
+
+#cta {
+    position: absolute;
+    top: -7px;
+	left:8px;
+    width: 144px;
+	height: 30px;
+    background-color: transparent;
+    line-height: 31px;
+    text-align: center;
+    font-size: 12px;
+    font-weight: 500;
+	color: #285a93;
+}
+
+
+.wrapperButton{
+    position: absolute;
+    right: 21px;
+    max-width: 50%;
+}
+.wrapperBrand{
+    position: absolute;
+    text-align: center;
+    width: 100%;
+}
+
+#divTextCta{
+    position:absolute;
+	top:-35px;
+	left:5%;
+    margin-top: 1px;
+    font-weight: 500;
+    font-size: 10px;
+    line-height: 12px;
+    display: inline-block;
+    width: 90%;
+}
+
+.divText{
+    position:absolute;
+    top:122px;
+    left:0px;
+    width: 100%;
+    font-size: 22px;
+    line-height: 25.3px;
+    text-align: center;
+}
+
+#ctaSheenGroup{
+    position:absolute;
+    top:0px;
+    left:0px;
+}
+
+
+
+/**
+ * Align left middle
+ */
+.alm{
+    top:50%;
+    -moz-transform: translate(0%, -50%);
+    -webkit-transform: translate(0%, -50%);
+    transform: translate(0%, -50%);
+}
+/**
+ * Align center middle
+ */
+.acm{
+    top:50%;
+    left:50%;
+    -moz-transform: translate(-50%, -50%);
+    -webkit-transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%);
+}
+
+/**
+ * Align botom
+ */
+.alb{
+    top: auto;
+    bottom: 0px;
+    width: 94%;
+    left:3%;
+}
+
+/**
+ * Full wrapper
+ */
+.fullWrapper{
+    position:absolute;
+    width:94%;
+    left:3%;
+    top:0px;
+    height: 100%;
+    -webkit-transform: translateZ(0) scale(1.0, 1.0);
+    transform: translateZ(0) scale(1.0, 1.0);
+}
+

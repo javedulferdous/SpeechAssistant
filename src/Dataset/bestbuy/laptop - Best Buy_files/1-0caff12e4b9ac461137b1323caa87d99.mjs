@@ -1,0 +1,2 @@
+(window.gvpc_shop_display_ad=window.gvpc_shop_display_ad||[]).push([[1],{18:function(o){o.exports=JSON.parse('{"openModal":"openModal","fancyComponent":"fancyComponent","modalYouClickedOpen":"modalYouClickedOpen"}')},19:function(o,n,p){"use strict";p.r(n);var a=p(18);n.default={common:a}}}]);
+//# sourceMappingURL=1-0caff12e4b9ac461137b1323caa87d99.mjs.map

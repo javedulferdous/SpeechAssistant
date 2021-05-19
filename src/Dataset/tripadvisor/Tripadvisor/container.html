@@ -1,0 +1,773 @@
+<!DOCTYPE html>
+<!-- saved from url=(0070)https://tpc.googlesyndication.com/safeframe/1-0-37/html/container.html -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    
+    <title>SafeFrame Container</title>
+    <script>
+(function(){var n=this||self;var w={};var y=function(a){y[" "](a);return a};y[" "]=function(){};var B=null,G=function(a){var b=a.length,c=3*b/4;c%3?c=Math.floor(c):-1!="=.".indexOf(a[b-1])&&(c=-1!="=.".indexOf(a[b-2])?c-2:c-1);var d=new Uint8Array(c),f=0;C(a,function(g){d[f++]=g});return d.subarray(0,f)},C=function(a,b){function c(q){for(;d<a.length;){var e=a.charAt(d++),k=B[e];if(null!=k)return k;if(!/^[\s\xa0]*$/.test(e))throw Error("Unknown base64 encoding at char: "+e);}return q}H();for(var d=0;;){var f=c(-1),g=c(0),h=c(64),p=c(64);if(64===p&&-1===f)break;b(f<<2|g>>4);64!=h&&(b(g<<4&240|h>>2),64!=p&&b(h<<6&192|p))}},H=function(){if(!B){B={};for(var a="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789".split(""),b=["+/=","+/","-_=","-_.","-_"],c=0;5>c;c++)for(var d=a.concat(b[c].split("")),f=0;f<d.length;f++){var g=d[f];void 0===B[g]&&(B[g]=f)}}};var I=function(a,b){if(a)for(var c in a)Object.prototype.hasOwnProperty.call(a,c)&&b.call(void 0,a[c],c,a)};var J=function(a,b){var c=void 0===c?{}:c;this.error=a;this.context=b.context;this.msg=b.message||"";this.id=b.id||"jserror";this.meta=c};var K=/^https?:\/\/(\w|-)+\.cdn\.ampproject\.(net|org)(\?|\/|$)/,L=function(a,b){this.a=a;this.b=b},M=function(a,b){this.url=a;this.g=!!b;this.depth=null};var N=function(a){n.google_image_requests||(n.google_image_requests=[]);var b=n.document.createElement("img");b.src=a;n.google_image_requests.push(b)};var O=function(){this.c="&";this.f=!1;this.b={};this.i=0;this.a=[]},Q=function(a,b){var c={};c[a]=b;return[c]},S=function(a,b,c,d,f){var g=[];I(a,function(h,p){(h=R(h,b,c,d,f))&&g.push(p+"="+h)});return g.join(b)},R=function(a,b,c,d,f){if(null==a)return"";b=b||"&";c=c||",$";"string"==typeof c&&(c=c.split(""));if(a instanceof Array){if(d=d||0,d<c.length){for(var g=[],h=0;h<a.length;h++)g.push(R(a[h],b,c,d+1,f));return g.join(c[d])}}else if("object"==typeof a)return f=f||0,2>f?encodeURIComponent(S(a,b,c,d,f+1)):"...";return encodeURIComponent(String(a))},T=function(a,b,c,d){a.a.push(b);a.b[b]=Q(c,d)},V=function(a){var b="https://pagead2.googlesyndication.com/pagead/gen_204?id=jserror&",c=U(a)-27;if(0>c)return"";a.a.sort(function(k,m){return k-m});for(var d=null,f="",g=0;g<a.a.length;g++)for(var h=a.a[g],p=a.b[h],q=0;q<p.length;q++){if(!c){d=null==d?h:d;break}var e=S(p[q],a.c,",$");if(e){e=f+e;if(c>=e.length){c-=e.length;b+=e;f=a.c;break}a.f&&(f=c,e[f-1]==a.c&&--f,b+=e.substr(0,f),f=a.c,c=0);d=null==d?h:d}}a="";null!=d&&(a=f+"trn="+d);return b+a+""},U=function(a){var b=1,c;for(c in a.b)b=c.length>b?c.length:b;return 3997-b-a.c.length-1};var W=function(a){if(.01>Math.random())try{if(a instanceof O)var b=a;else b=new O,I(a,function(d,f){var g=b,h=g.i++;d=Q(f,d);g.a.push(h);g.b[h]=d});var c=V(b);c&&N(c)}catch(d){}};var X=function(a){var b=a.toString();a.name&&-1==b.indexOf(a.name)&&(b+=": "+a.name);a.message&&-1==b.indexOf(a.message)&&(b+=": "+a.message);if(a.stack){a=a.stack;var c=b;try{-1==a.indexOf(c)&&(a=c+"\n"+a);for(var d;a!=d;)d=a,a=a.replace(/((https?:\/..*\/)[^\/:]*:\d+(?:.|\n)*)\2/,"$1");b=a.replace(/\n */g,"\n")}catch(f){b=c}}return b};var Y=function(a){if(!a)return a;var b=a.toLowerCase();return-1<b.indexOf("<!doctype")||-1<b.indexOf("<html")?a:"<html><head></head><body>"+a+"</body></html>"},Z=function(a){var b=/<startguard>(.*)<endguard>/g.exec(a);return b&&b[1]?b[1]:a};var aa=new function(){this.a=w===w&&"https://ff.doubleclick.net"||""};var ba=/^([^;]+);(\d+);([\s\S]*)$/,ca=function(){var a=window.name,b=ba.exec(a);if(null===b)throw Error("Cannot parse serialized data. "+a.substring(0,50));a=+b[2];var c=b[3];if(a>c.length)throw Error("Parsed content size doesn't match. "+a+":"+c.length);return{j:b[1],content:c.substr(0,a),h:c.substr(a)}};var da=/(<head(\s+[^>]*)?>)/i;(function(a){if(window.name){var b=function(e){try{var k=new O;k.f=!0;T(k,1,"context",507);e.error&&e.meta&&e.id||(e=new J(e,{message:X(e)}));e.msg&&T(k,2,"msg",e.msg.substring(0,512));var m=[e.meta||{}];k.a.push(3);k.b[3]=m;e=n;m=[];var D=null;do{var l=e;try{var z;if(z=!!l&&null!=l.location.href)b:{try{y(l.foo);z=!0;break b}catch(A){}z=!1}var P=z}catch(A){P=!1}if(P){var t=l.location.href;D=l.document&&l.document.referrer||null}else t=D,D=null;m.push(new M(t||""));try{e=l.parent}catch(A){e=null}}while(e&&l!=e);t=0;for(var u=m.length-1;t<=u;++t)m[t].depth=u-t;l=n;if(l.location&&l.location.ancestorOrigins&&l.location.ancestorOrigins.length==m.length-1)for(u=1;u<m.length;++u){var v=m[u];v.url||(v.url=l.location.ancestorOrigins[u-1]||"",v.g=!0)}var E=new M(n.location.href,!1);l=null;var F=m.length-1;for(v=F;0<=v;--v){var r=m[v];!l&&K.test(r.url)&&(l=r);if(r.url&&!r.g){E=r;break}}r=null;var ea=m.length&&m[F].url;0!=E.depth&&ea&&(r=m[F]);var x=new L(E,r);x.b&&T(k,4,"top",x.b.url||"");T(k,5,"url",x.a.url||"");W(k)}catch(A){try{W({context:"ecmserr",rctx:507,msg:X(A),url:x&&x.a.url})}catch(fa){}}};try{var c=ca(),d=JSON.parse(c.h),f=function(e){d.goog_safeframe_hlt&&(n.goog_safeframe_hlt=d.goog_safeframe_hlt);d._context&&(n.AMP_CONTEXT_DATA=d._context);n.sf_={v:c.j,cfg:d};var k=window.document;k.open("text/html","replace");k.write(e);k.close();n.sf_&&(window.name="")},g=void 0===d.encryptionMode?null:d.encryptionMode,h=d.secureFetchFrame,p=d.uid;if(h){var q=new MessageChannel;q.port1.onmessage=function(e){e=Y(e.data).replace(da,'$1<script>window.addEventListener("load", function() {window.parent.postMessage("sf-load:'+(p+'", "*");});\x3c/script>'));a(e,g,f,b);q.port1.close()};window.parent.frames[h].postMessage("sf-ready:"+p,aa.a,[q.port2])}else window.name="",a(c.content,g,f,b)}catch(e){b(e)}}})(function(a,b,c){2===b&&(a=Y((new TextDecoder).decode(G(Z(a)))));c(a)});}).call(this);
+    </script><meta name="viewport" content="initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no"><script>var jscVersion = 'r20201104';</script><script>var google_casm=[];</script><script></script><style>/***** hotelDesktop CSS version 1.0 (Geo Broadening): site/css2/dynamic_ads/hotelDesktop.css *****/
+/***** RESET RULES *****/
+body { padding:0; margin:0;}
+a:link, a:hover, a:active, a:visited { text-decoration:none;}
+
+/***** LOADING STATE ---hide content until we get location data *****/
+.loading .adIcn,
+.loading .ui_loader, 
+.loading i { display:none !important;}
+.loading .container { border:none;}
+/***** END LOADING STATE *****/ 
+
+body.rail { min-height:600px;}
+
+.container { position:relative; box-sizing:border-box; overflow:hidden;
+             margin:0 auto; font-family: Arial,Tahoma,"Bitstream Vera Sans",sans-serif; 
+             border:1px solid #ccc; color:#000a12;
+             background-color:#fff;
+             -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;
+           }
+
+.adIcn { position:absolute; top:5px; right:5px; padding:3px; background-color:#666; border-radius:6px; font-size:9px; font-weight:bold; color:white;}
+.learnMore { position:absolute; z-index:1; bottom:4px; right:4px; font-size:13px; font-weight:bold; color:#069; text-align:right;}
+
+.propName { font-size:16px; line-height:20px;}
+.reviewWrap { white-space:nowrap; text-overflow:ellipsis; overflow:hidden;}
+.reviewCount { font-size:12px; line-height:18px; color:#666; white-space:nowrap; vertical-align:-1px;}
+.ratingWrap { display:inline-block; vertical-align:middle;}
+.ratingWrap .bubble { float:left; margin-right:-1px; transform: rotate(90deg);}
+.noRating .reviewWrap { display:none;}
+.externalIcon { position:relative; top:2px; }
+
+/* fauxCnr used in tall layouts to crop images */
+.priceWrap .fauxCnr { display:none; position:absolute; top:-2px; background:rgba(256,256,256,.55); height:2px; width:2px;}
+.priceWrap .fauxCnr.cnrLft { left:4px;}
+.priceWrap .fauxCnr.cnrRgt { right:4px;}
+.priceWrap .fauxCnr::before, 
+.priceWrap .fauxCnr::after { position:absolute; background:rgba(256,256,256,.45); content:' ';}
+.priceWrap .cnrLft::before { left:0; top:-1px; height:3px; width:1px;}
+.priceWrap .cnrLft::after { left:0; top:1px; height:1px; width:3px;}
+.priceWrap .cnrRgt::before { right:0; top:-1px; height:3px; width:1px;} 
+.priceWrap .cnrRgt::after { right:0; top:1px; height:1px; width:3px;}
+
+.priceWrap .inner { position:absolute; left:0; right:0; top:50%; padding:0 12px; transform:translate(0, -56%);}
+.priceWrap .inner .price { font-size:28px; font-weight:bold; line-height:105%; overflow:hidden; white-space:nowrap; text-overflow:ellipsis;} 
+.priceWrap .inner .price.medium { font-size:24px;}
+.priceWrap .inner .price.long { font-size:20px;} 
+ 
+.priceWrap .inner .price span { display:block; margin-top:-3px; font-weight:normal; font-size:16px; line-height:19px; white-space:nowrap; overflow:hidden; text-overflow: ellipsis;}
+.priceWrap .inner .price.fallback { font-size:16px; font-weight:normal;}
+.priceWrap .inner .price .disclaimer { margin-top:-2px; font-size:12px; line-height:16px; font-weight:normal; color:#666; white-space:normal;}
+
+/* Fluid styles - widest */
+.fluidGrid { display:flex; margin-right:250px;}
+.logoAndName { flex:45; position:relative;} 
+.logoWrap { width:73px; max-width:73px; position:absolute; top:0; bottom:0;}
+.logoWrap .propLogo { display:block; position: absolute; left:50%; top:50%; transform: translate(-50%, -50%); height:55px; image-rendering:-webkit-optimize-contrast; image-rendering:crisp-edges;}
+.propNameRatingWrap { position:absolute; left:73px; top:0; bottom:0; right:0;} 
+.propNameRating { position:absolute; left:0; right:0; top:50%; transform:translateY(-50%); padding-right:4px; overflow:visible;}
+.imgWrap { flex:55; overflow:hidden; border-radius:4px; margin:4px 0; height:103px;} 
+.imgWrap img { width:100%; position:relative; top:50%; left:50%; transform: translate(-50%, -50%);}
+.priceWrap { position:absolute; width:250px; top:0; right:0; bottom:0;}
+
+.distFrom { position:absolute; bottom:7px; left:9px; right:1px; display:none; font-size:12px; color:#666; overflow:hidden; white-space:nowrap; text-overflow:ellipsis;}
+.distFrom .pin { position:relative; top:3px;}
+.distFrom svg { height:13px; width:7px;}
+
+.broadened .priceWrap .distFrom { display:none;}
+.broadened .logoAndName .distFrom { display:block;}
+
+/* handle long prop names on broadened layout */
+@media screen and ( max-width:1000px ) {
+  .broadened .logoAndName .propName { overflow:hidden; white-space:nowrap; text-overflow:ellipsis;}
+}
+
+/* Switch to 728x90 grid at 800px */
+/* widths: logo: 10%, location:29%, image:32% price:29% */
+@media screen and ( max-width:800px ) {
+  .fluidGrid { margin-right:211px;}  
+  .logoAndName { flex:55;}
+  .imgWrap { flex:45; height:80px;}
+  .priceWrap { width:211px;}
+
+  /* Make more room for truncated name */ 
+  .broadened .logoAndName { flex:60;}
+  .broadened .imgWrap { flex:40;}
+  .broadened .logoWrap .propLogo { height:45px; margin-top:-5px;}
+}  
+
+@media screen and ( max-width:727px ) {
+
+  /* grid moves into the logoAndName wrapper */ 
+  .fluidGrid { display:block; margin-right:0;}  
+  .logoAndName { display:flex; flex:none; margin:6px 0 0;}
+  .broadened .priceWrap .distFrom { display:block;}
+  .broadened .logoAndName .distFrom { display:none;}
+ 
+  .logoWrap { flex:24; position:static; bottom:auto;}
+  .logoWrap .logoInner { padding:3px 8px 8px;}
+  .logoWrap .propLogo { position:static; width:auto; height:55px; margin-top:0; transform:none;}
+  .broadened .logoWrap .propLogo { height:55px; margin-top:0;}
+
+  .propNameRatingWrap { flex:76; position:relative; left:auto;}
+  .propNameRating { position:absolute; left:0; right:0; top:50%; transform: translateY(-50%); padding:0 5px 0 0;} 
+  .propName { font-size:16px; font-weight:normal;} 
+ 
+  .imgWrap { height:450px; margin:0 4px;}
+  .imgWrap img { height:100%; width:auto;}
+  
+  .priceWrap { width:auto; margin-top:2px; background-color:#fff;}
+  
+  /* fake rounded corners kick in when property name is long */  
+  .priceWrap .fauxCnr { display:block;}
+  
+  .priceWrap .inner { padding:3px 8px 0; transform:none; overflow:hidden; white-space:nowrap; text-overflow:ellipsis;}
+  .priceWrap .inner .price { display:inline; font-size:28px;}
+  .priceWrap .inner .price.fallback { font-size:16px;}
+  .priceWrap .inner .price span { display:inline; font-size:16px;}
+  .priceWrap .distFrom { position:static; font-size:11px; line-height:13px; margin:0 8px; padding:0 0 4px; border-bottom:1px solid #e5e5e5;}
+
+
+  /* 300x250 layout only*/
+  .container.height250 { height:250px;}
+  .container.height250 .imgWrap { height:110px;} 
+  .container.height250.broadened .imgWrap { height:90px;} 
+  .container.height250 .imgWrap img { height:auto; width:100%; top:50%; left:0; transform:translate(0,-50%);}
+  .container.height250 .propNameRatingWrap { overflow:hidden;}
+  .container.height250 .propNameRating { margin:0;}
+  .container.height250 .propName { overflow:hidden; white-space:nowrap; text-overflow:ellipsis;}
+  .container.height250 .priceWrap { position:static;}
+  .container.height250 .priceWrap .inner { position:static; transform:none;}
+
+  .container.height600 { height:600px;}
+  .container.height600 .logoAndName { margin:20px 0 0;}
+  .container.height600 .propNameRating { position:static; margin:0 0 8px; transform:none;}
+  .container.height600 .propName { white-space:normal;}
+  .container.height600 .priceWrap { position:absolute; top:525px; left:0; right:0; margin:0; overflow:visible;}
+  .container.height600 .priceWrap .inner { position:static;}
+  .container.height600.broadened .priceWrap { top:505px;}
+  .container.height600.broadened .priceWrap .inner { top:28px;}
+
+  /* ratings suppressed */
+  .noRating .container.height250 .propName, 
+  .noRating .container.height600 .propName { padding-top:10px;}
+}
+  
+/* 160x600 layout at 249px - MedRecs support 250w */
+@media screen and ( max-width:249px ) {
+  /* Remove grid */ 
+  .container.height600 .logoAndName { display:block; margin:8px 0 0;}  
+  .container.height600 .logoWrap .logoInner { padding:8px;} 
+  .container.height600 .imgWrap { height:335px;}
+  .container.height600 .propNameRating { position:static; margin:-3px 8px 8px; transform:none; padding:0;}
+  .container.height600 .reviewWrap { white-space:normal;} 
+  .container.height600 .priceWrap { top:494px;} 
+  .container.height600 .priceWrap .inner span, 
+  .container.height600 .priceWrap .inner .price span { display:block;}
+
+  .container.height600.broadened .priceWrap { top:465px;} 
+  .container.height600.broadened .priceWrap .distFrom { white-space:normal;}
+}
+
+/***** PRICE LOADING BUBBLES *****/
+@keyframes pulseDot {
+  0%, 20% { background-color: #ccc; }
+  10% { background-color: #00a680; }
+}
+
+.loaderWrap {
+  display:inline-block !important;
+  width:70px;
+  margin:0 !important;
+}
+
+.ui_loader {
+  display: flex !important;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  justify-content: center;
+  align-items: center;
+  margin:0 !important;
+}
+
+.ui_loader > span {
+  display: inline-block;
+  display: inline-flex;
+  width: 16px;
+  height: 12px;
+  margin: 0 !important;
+}
+
+.ui_loader > span::before {
+  content: '';
+  display: block;
+  width: 12px;
+  height: 12px;
+  border-radius: 12px;
+  margin: auto;
+  background-color: #ccc;
+  animation: pulseDot 1.25s infinite linear both;
+}
+
+.ui_loader>span:nth-child(2)::before {
+  -moz-animation-delay: .25s;
+  -webkit-animation-delay: .25s;
+  animation-delay: .25s;
+}
+
+.ui_loader>span:nth-child(3)::before {
+  -moz-animation-delay: .5s;
+  -webkit-animation-delay: .5s;
+  animation-delay: .5s;
+}
+
+.ui_loader>span:nth-child(4)::before {
+  -moz-animation-delay: .75s;
+  -webkit-animation-delay: .75s;
+  animation-delay: .75s;
+}
+
+.ui_loader>span:nth-child(5)::before {
+  -moz-animation-delay: 1s;
+  -webkit-animation-delay: 1s;
+  animation-delay: 1s;
+}
+/***** END PRICE LOADING BUBBLES *****/
+
+</style></head><body leftmargin="0" topmargin="0" marginwidth="0" marginheight="0" class="rail" data-integralas-id-835b7d42-cf0c-67d3-d895-3715d7bcdbed="" data-new-gr-c-s-check-loaded="14.983.0"><div class="GoogleActiveViewInnerContainer" style="left:0px;top:0px;width:100%;height:100%;position:fixed;pointer-events:none;z-index:-9999;"></div><script src="./ext.js.download"></script><script>window.dicnf = {};</script><script data-jc="42" data-jc-version="r20201104">(function(){/*  Copyright The Closure Library Authors. SPDX-License-Identifier: Apache-2.0 */ 'use strict';window.viewReq=[];const c=a=>{fetch(a,{keepalive:!0,credentials:"include",redirect:"follow",method:"get",mode:"no-cors"}).catch(()=>{{const b=new Image;b.src=a.replace("&amp;","&");viewReq.push(b)}})};window.vu=a=>{if(window.fetch)c(a);else{{const b=new Image;b.src=a.replace("&amp;","&");viewReq.push(b)}}};}).call(this);</script><script>vu("https://securepubads.g.doubleclick.net/pcs/view?xai\x3dAKAOjsv6EbzLanaW2a82Z7jG0-6XgG52SlnUDuO5tQyk10FE91aC6buFnSIAqoRITz7yG0GM1GWZGPhULdKAGFxJtIPeAchfxxawA4fdeNih1bE9EkFM4NlPjk6wnnsCboYCQ86XxldOoVP1yxcgo7SD-iCmp_XvTNS8GLuT8KpCALWsWLv5z5XkLRU-Qv1df8s63lfUZAzwRWcED144gty-7KwBirUIpxblllURQTI0Cidjlg6OEAvMaXxvYre9AhA_xIW3Ixpa884G14efnJFfM85-2ppSPB1CFXS7UaKpmlLDZ6eKpiCX\x26sai\x3dAMfl-YTCmmeKVtrP5Q016xOGRaJfpOml50okhrya7OAwX2o2EgaeFAidpyM16vQz_H3sDXfB9xiTog-3dHsE_Rd6pZXgzGilQbf16X-PX0ZElKurMKOs74jjiQ7PnHofoES50Z8-\x26sig\x3dCg0ArKJSzOxQj5ZInmfsEAE\x26urlfix\x3d1\x26adurl\x3d")</script><div class="GoogleActiveViewElement" data-google-av-cxn="https://pagead2.googlesyndication.com/pcs/activeview?xai=AKAOjsunyb4OIN-HfRzZdeHhYIt4XDbd5DAY9pvOoWySDBEUE023Tyn6Ab0BfZhz0naKMHZl-ghxfT10i3vFw2JJTFiKm9sS7fHq73rKin5Um1o&amp;sig=Cg0ArKJSzCUYGUkzZeiaEAE" data-google-av-adk="595844503" data-google-av-metadata="la=0&amp;xdi=0&amp;" data-google-av-override="-1" data-google-av-dm="2" data-google-av-immediate="" data-google-av-aid="0" data-google-av-naid="1" data-google-av-slift="" data-google-av-cpmav="" data-google-av-btr="https://securepubads.g.doubleclick.net/pcs/view?xai=AKAOjsvka1UK8CJA2oYKO4kd8Us8NXIfTsemBAk--2gM-Cto58w_HqOfyXzhTYneH8fuawGUjX06AwnytAUFlm1OmjT7vk-Uj41gInp1JPNXbcqvpQLgPyVE3qcIxNrZm4wwBYjEC7QyE9ENcGqb4tjOsZj_jb2Je10swPQgSk3zrjQOUdFjQDsjRNf4mZ-MQqI5AdsH8frHUfamu5RpvjGYvrvD3cAG5pPhfGHwQsz9qGqBTTOuQ0uMjHdWwWf69dLLXwVkxZtYQmt5IMmlj_bO-kucdVTE4PzuNVkV&amp;sai=AMfl-YSPGGkndCLloQwr4eub_kobZt4W2MVpUuVoTU42l-WzZ5BKx5oWy7oRpEYxjIgBwQR1_Rsl8FF0eEKtiQTKOVmj0vaxVjXNgf55SxkeDitPkTP-P5PZfilelaHSDdqusFE3&amp;sig=Cg0ArKJSzKGdzXRZOmOMEAE&amp;urlfix=1&amp;adurl=" data-google-av-itpl="7" data-google-av-rs="4" data-google-av-flags="[&quot;xz&quot;]"><!-- hotelDesktop HTML version 1.0 (geo broadening/common JS): site/velocity_redesign/static/dynamic_ads/hotelDestop.vm -->
+<a id="locationLink" href="https://adclick.g.doubleclick.net/pcs/click?xai=AKAOjsvV9oDS5p41DP2DEppOy_u-rR1p122FqWtq9n4Dx2M_GKhKrdRMukv77vbDsJxw-zIkYy5jobBEHDUI9xnKhB9SYAvEwor8eae8ryTL7Z4gMKXLLGA-fS0CuC5wCr_Drq2YWXBD-ff55tnMOhC98Hk_QSZtmEF28DleBBCdtGYo6Wrkm_8VPqpFrjQ8m6UBAZZ7oO0e7SOrzHyMMkoLgzqirKkhUWGHsXXL3xw5flkBlmsRsWqWwobV0CPupFrQHzH242xJ2IFXhOE0jiD95qULfQ&amp;sai=AMfl-YRCMxhlT_of3NCFPPomu5vbH9kkqh6muQacpXfcQgmXvfd05QewcJd55Wl8kwykiCfH9M8zkNAsYtE_NFaQCxWH5C2E9wZ401tMrWDMhTPya3tSAKudrxDmUlcFuOkNtNOw&amp;sig=Cg0ArKJSzGCE2Aco4bXwEAE&amp;urlfix=1&amp;adurl=https://ad.doubleclick.net/ddm/trackclk/N9515.125687TRIPADVISOR0/B8510606.224914091;dc_trk_aid=423055812;dc_trk_cid=103573063;dc_lat=;dc_rdid=;tag_for_child_directed_treatment=;tfua=?https://www.fourseasons.com/chicago/landing_3/?source=dis_cx_tripadvisor_acr_dynamicads-CFS&amp;dcm=1" target="_blank" class="" onclick="window.sendTATracking(&#39;click&#39;,null,false);">
+<div id="fluidContainer" class="container height600">
+<span class="adIcn dynamic" data-type="text" data-item="localized.ad">Ad</span>
+<div class="learnMore">
+<span class="dynamic" data-type="text" data-item="localized.learnMore">Learn More</span>
+<svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 32 32" class="externalIcon">
+          <path fill="#069" d="M25.344 25.313v-8h2.656v8.281c0 1.469-1.188 2.406-2.656 2.406h-18.688c-1.469 0-2.656-0.938-2.656-2.406v-18.656c0-1.469 1.188-2.938 2.656-2.938h8v2.656h-8v18.656h18.688zM16.938 17.219l-1.875-1.906 8.656-8.656h-3.719v-2.656h8v8h-2.656v-3.188z"></path>
+        </svg>
+</div>
+<div class="fluidGrid">
+<div class="logoAndName">
+<div class="logoWrap">
+<div class="logoInner">
+<img class="propLogo" id="logo" src="./fs_hotels_and_resorts_white_box_copy.png">
+</div>
+</div>
+<div class="propNameRatingWrap">
+<div class="propNameRating">
+<div class="propName dynamic" data-type="text" data-item="name">Four Seasons Hotel Chicago</div>
+<div class="reviewWrap">
+<div class="ratingWrap">
+<svg version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 21 21" height="16px" width="16px" transform="rotate(90)" class="bubble">
+<circle cx="11" cy="11" r="9" stroke="#00A680" stroke-width="2" fill="white"></circle>
+<circle cx="11" cy="11" r="5" fill="#00A680"></circle></svg>
+<svg version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 21 21" height="16px" width="16px" transform="rotate(90)" class="bubble">
+<circle cx="11" cy="11" r="9" stroke="#00A680" stroke-width="2" fill="white"></circle>
+<circle cx="11" cy="11" r="5" fill="#00A680"></circle></svg>
+<svg version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 21 21" height="16px" width="16px" transform="rotate(90)" class="bubble">
+<circle cx="11" cy="11" r="9" stroke="#00A680" stroke-width="2" fill="white"></circle>
+<circle cx="11" cy="11" r="5" fill="#00A680"></circle></svg>
+<svg version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 21 21" height="16px" width="16px" transform="rotate(90)" class="bubble">
+<circle cx="11" cy="11" r="9" stroke="#00A680" stroke-width="2" fill="white"></circle>
+<circle cx="11" cy="11" r="5" fill="#00A680"></circle></svg>
+<svg version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 21 21" height="16px" width="16px" transform="rotate(90)" class="bubble last">
+<circle cx="11" cy="11" r="9" stroke="#00A680" stroke-width="2" fill="white"></circle>
+<circle cx="11" cy="11" r="5" fill="#00A680"></circle></svg>
+</div>
+<span class="reviewCount">
+<span class="dynamic" data-type="text" data-item="localized.numReviews">3,864 reviews</span>
+</span>
+</div>
+</div>
+</div>
+<div class="distFrom">
+<svg version="1.1" class="pin" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 365 560" enable-background="new 0 0 365 560" xml:space="preserve" style="height:15px; width:8px">
+<g>
+<path fill="#00a680" d="M182.9,551.7c0,0.1,0.2,0.3,0.2,0.3S358.3,283,358.3,194.6c0-130.1-88.8-186.7-175.4-186.9
+                  C96.3,7.9,7.5,64.5,7.5,194.6c0,88.4,175.3,357.4,175.3,357.4S182.9,551.7,182.9,551.7z M122.2,187.2c0-33.6,27.2-60.8,60.8-60.8
+                  c33.6,0,60.8,27.2,60.8,60.8S216.5,248,182.9,248C149.4,248,122.2,220.8,122.2,187.2z"></path>
+</g>
+</svg>
+<span id="distanceFrom" class="dynamic" data-type="text" data-item="localized.distanceToGeo"><b>1.5 miles</b> from Chicago center</span>
+</div>
+</div>
+<div class="imgWrap">
+<img class="hero" src="./exterior.jpg">
+</div>
+</div>
+<div class="priceWrap">
+<span class="fauxCnr cnrLft"></span>
+<span class="fauxCnr cnrRgt"></span>
+<div class="distFrom">
+<svg version="1.1" class="pin" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 365 560" enable-background="new 0 0 365 560" xml:space="preserve" style="height:15px; width:8px">
+<g>
+<path fill="#00a680" d="M182.9,551.7c0,0.1,0.2,0.3,0.2,0.3S358.3,283,358.3,194.6c0-130.1-88.8-186.7-175.4-186.9
+                  C96.3,7.9,7.5,64.5,7.5,194.6c0,88.4,175.3,357.4,175.3,357.4S182.9,551.7,182.9,551.7z M122.2,187.2c0-33.6,27.2-60.8,60.8-60.8
+                  c33.6,0,60.8,27.2,60.8,60.8S216.5,248,182.9,248C149.4,248,122.2,220.8,122.2,187.2z"></path>
+</g>
+</svg>
+<span id="distanceFrom" class="dynamic" data-type="text" data-item="localized.distanceToGeo"><b>1.5 miles</b> from Chicago center</span>
+</div>
+<div class="inner">
+<span class="price">$266 <span>in Chicago</span><div class="disclaimer">avg nightly rate for 11/16 - 11/20</div></span>
+</div>
+</div>
+<div class="availableMessaging" style="display:none">
+<span id="priceNA" class="dynamic" data-type="text" data-item="localized.seeRatesInGeo">See rates in <span>Chicago</span></span>
+<span id="priceFound" class="dynamic" data-type="text" data-item="localized.priceInGeo">[PRICE] <span>in Chicago</span></span>
+<span id="priceDisclaimer" class="dynamic" data-type="text" data-item="localized.avgNightlyRateForDates">avg nightly rate for [DATES]</span>
+</div>
+</div>
+</a>
+<div id="clientHTML" style="display:none"><img onload="recordLatency();" src="./B8510606.224914091"></div>
+<div style="display:none"></div>
+<script type="text/javascript">
+(function() {
+var _templateName = 'singleHotel';
+try {
+var _geoId = parseInt('35805', 10);
+var _orderId =  parseInt('26408689801', 10);
+var _platform = 'desktop';
+if (typeof _geoId != 'number' || typeof _orderId != 'number') {
+_sendTracking('error', 'geoId and orderId are not numeric', true);
+return;
+}
+var _adHeight = parseInt('0', 10) || window.innerHeight;
+var _adWidth = parseInt('0', 10) || window.innerWidth;
+var _dfpClickUrl = 'https://adclick.g.doubleclick.net/pcs/click?xai=AKAOjsvV9oDS5p41DP2DEppOy_u-rR1p122FqWtq9n4Dx2M_GKhKrdRMukv77vbDsJxw-zIkYy5jobBEHDUI9xnKhB9SYAvEwor8eae8ryTL7Z4gMKXLLGA-fS0CuC5wCr_Drq2YWXBD-ff55tnMOhC98Hk_QSZtmEF28DleBBCdtGYo6Wrkm_8VPqpFrjQ8m6UBAZZ7oO0e7SOrzHyMMkoLgzqirKkhUWGHsXXL3xw5flkBlmsRsWqWwobV0CPupFrQHzH242xJ2IFXhOE0jiD95qULfQ&sai=AMfl-YRCMxhlT_of3NCFPPomu5vbH9kkqh6muQacpXfcQgmXvfd05QewcJd55Wl8kwykiCfH9M8zkNAsYtE_NFaQCxWH5C2E9wZ401tMrWDMhTPya3tSAKudrxDmUlcFuOkNtNOw&sig=Cg0ArKJSzGCE2Aco4bXwEAE&urlfix=1&adurl=';
+var _fluidType = 'rail';
+if (_platform != 'mobile' && document.body.classList && _fluidType) {
+document.body.classList.add(_fluidType);
+}
+var _perfSupport = window.performance && !!performance.mark;
+var _totalMeasure = "totalMeasure";
+var _adStart = 'adStart';
+var _pxlStart = 'pxlStart';
+if (_perfSupport) {
+performance.mark(_adStart);
+}
+var _messageDomain = 'https://' + document.referrer.match(/^(https:\/\/)([^/]+)/)[2];
+var _msgTimeStamp = new Date().getTime();
+var _iframeId;
+var _adSize = _platform === 'mobile' ? 'mobile' : _adWidth + 'x' + _adHeight;
+var _locationId;
+var _broadened = false;
+window.recordLatency = function() {
+if (_perfSupport) {
+var pxlLatency = 'pxlLatency';
+var pixelEnd = 'pxlEnd';
+performance.mark(pixelEnd);
+performance.measure(pxlLatency, _pxlStart, pixelEnd);
+performance.measure(totalLatency, _adStart, pixelEnd);
+var latency = performance.getEntriesByName(pxlLatency)[0].duration;
+var totalLatency = performance.getEntriesByName(totalLatency)[0].duration;
+_sendTracking("pxl_latency", Math.floor(latency) +'ms' + '|' + Math.floor(totalLatency) +'ms');
+}
+};
+function _sendTracking(action, context, noninteraction) {
+var contextVals = [_templateName, _orderId, _adSize];
+if(context) {
+contextVals.push(context);
+}
+if(_broadened) {
+contextVals.push('broadened');
+}
+var trackingRequest = {
+action: action,
+context: contextVals.join('|'),
+value: _locationId,
+iframeId: _iframeId,
+noninteraction: !!noninteraction
+};
+if ("error" === action) {
+trackingRequest.dynamicAdsError = true;
+trackingRequest.msgTimeStamp = _msgTimeStamp;
+} else {
+trackingRequest.dynamicAdsTrackingRequest = true;
+}
+top.postMessage(trackingRequest, _messageDomain);
+}
+function _queueForReady(fn) {
+if (document.readyState && document.readyState == 'loading') {
+document.addEventListener("DOMContentLoaded", fn);
+} else {
+fn();
+}
+}
+function _checkForBroadened(data) {
+var isBroad = _getNode('sponsorData.isBroadened', data);
+var container = document.getElementById('fluidContainer');
+if (container && isBroad) {
+_broadened = true;
+container.classList.add('broadened');
+}
+}
+function _enableMessaging() {
+window.addEventListener('message',function(event) {
+if (event.origin != _messageDomain) {
+return;
+}
+var isLoadProperty = event.data.location_id && (
+event.data.dynamicAdsAirlineRequest ||
+event.data.dynamicAdsLocationRequest ||
+event.data.dynamicAdsOtaRequest);
+if (event.data.msgTimeStamp === _msgTimeStamp) {
+if (isLoadProperty) {
+_queueForReady(function(){ _loadProperty(event.data); });
+} else if ((event.data.locationId || event.data.offerCount !== undefined) && (event.data.providerSet)) {
+_queueForReady(function(){ _displayPricing(event.data);});
+} else if (event.data.offerSet && event.data.providerSet) {
+_queueForReady(function(){ _displayMultiHotelPricingPricing(event.data);})
+} else if (event.data.dynamicAdsError && event.data.errorMsg) {
+_sendTracking('error', event.data.errorMsg, true);
+} else if (event.data.dynamicAdsIdentifyForCollapsing) {
+event.data.timeStampVerified = true;
+top.postMessage(event.data, _messageDomain);
+}
+}
+}, false);
+}
+function _trimString(str, len) {
+if(str.length <= len) {
+return str;
+} else {
+return str.substring(0,len).trim() + '&hellip;';
+}
+}
+function _setContentVals(data) {
+var targets = document.querySelectorAll('.container .dynamic');
+for(var i=0; i < targets.length; i++) {
+var target = targets[i];
+var key = target.getAttribute('data-item');
+var type = target.getAttribute('data-type');
+var val = _getNode(key, data);
+if(type && val) {
+if (type == 'image') {
+target.src = val;
+} else {
+// name trimming hack for leaderboards
+if (key === 'name' && document.body.offsetHeight < 100) {
+target.innerHTML = _trimString(val, 50);
+} else {
+// type == text
+target.innerHTML = val;
+}
+}
+}
+}
+}
+function _checkSize() {
+if (_platform === 'mobile') {
+return;
+}
+var container = document.getElementById('fluidContainer');
+if(window.innerWidth < 720 && container.classList) {
+if (window.innerHeight < 600) {
+container.classList.add('height250');
+container.classList.remove('height600');
+} else {
+container.classList.add('height600');
+container.classList.remove('height250');
+}
+}
+}
+function _getNode(namespace, data) {
+if(namespace) {
+var aKeys = namespace.split('.');
+var oItem = data;
+while ( oItem && aKeys.length > 0 ) {
+oItem = oItem[aKeys[0]];
+aKeys.shift();
+}
+return oItem;
+} else {
+return null;
+}
+}
+function _svgBubble(bubbleElem, isHalf) {
+if (isHalf) {
+var half = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+half.setAttribute("cx", 9);
+half.setAttribute("cy", 9);
+half.setAttribute("d", "M5.5,11 a1,1 0 0,0 11,0");
+half.setAttribute("fill", "#00A680");
+bubbleElem.appendChild(half);
+} else {
+var full = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+full.setAttribute("cx", 11);
+full.setAttribute("cy", 11);
+full.setAttribute("r", 5);
+full.setAttribute("fill", "#00A680");
+bubbleElem.appendChild(full);
+}
+}
+function _setRatingBase(data, dataPath, parentSelector, hideLows) {
+var rating = _getNode(dataPath, data);
+var bubbles = document.querySelectorAll(parentSelector +' svg');
+if (rating && bubbles) {
+if (hideLows && parseFloat(rating) < 3) {
+var parent = document.querySelector(parentSelector);
+if (parent) {
+parent.style.display = "none";
+}
+if (document.body.classList) {
+document.body.classList.add('noRating');
+}
+} else {
+var updateCount = Math.ceil(rating);
+for(var x = 0; x < updateCount; x++) {
+var bubble = bubbles[x];
+// test last bubble for .5
+if (x + 1 == updateCount && (rating + '').indexOf('.5') > -1) {
+_svgBubble(bubble, true);
+} else {
+_svgBubble(bubble);
+}
+}
+}
+}
+}
+function _setRating(data) {
+_setRatingBase(data, 'rating', '.reviewWrap', true);
+}
+function _injectScript(scriptSrc) {
+var trackingScript = document.createElement('script');
+trackingScript.src = scriptSrc;
+document.body.appendChild(trackingScript);
+}
+function _loadTrackingHTML(data) {
+try {
+var tracking = _getNode('sponsorData.trackingHTML', data);
+if (tracking && window.atob) {
+var html = atob(tracking).replace("[timestamp]", new Date().getTime());
+if (html) {
+if (performance && performance.mark) {
+html = html.replace(/<img /ig, "<img onload=\"recordLatency();\" ");
+performance.mark(_pxlStart);
+}
+var tgt = document.getElementById('clientHTML');
+tgt.innerHTML = html;
+}
+}
+} catch(e) {
+_sendTracking('error', 'client tracking error: ' + e, true);
+}
+}
+function _setLinkTargetBase(data, dataPath, elemSelector) {
+var link = document.getElementById(elemSelector);
+var clickUrl = _getNode(dataPath, data);
+if(clickUrl.trim) {
+clickUrl = clickUrl.trim();
+_dfpClickUrl = _dfpClickUrl.trim();
+}
+if(link && clickUrl && _dfpClickUrl) {
+var curDfpClickUrl = _dfpClickUrl.indexOf('%%CLICK_URL') === 0 ? '' : _dfpClickUrl;
+link.href = curDfpClickUrl + clickUrl;
+link.className = '';
+} else {
+_sendTracking('error', 'unable to set click url for location:', true);
+}
+}
+function _setLinkTarget(data) {
+_setLinkTargetBase(data,'sponsorData.clickUrl', 'locationLink');
+}
+function _setIframeId(data) {
+if (data.iframeId){
+_iframeId = data.iframeId;
+}
+}
+function _setLogoBase(data, dataPath, cdnPath, logoElemId, showWrap) {
+var logoPath = _getNode(dataPath, data);
+var cdn = _getNode(cdnPath, data);
+cdn = !!cdn ? cdn : '';
+var logoElem = document.getElementById(logoElemId ? logoElemId : 'logo');
+if(logoElem) {
+logoElem.src = cdn + logoPath;
+if(showWrap) {
+var logoWrap = logoElem.parentNode;
+logoWrap && logoWrap.classList.remove('hidden');
+}
+}
+}
+function _setLogo(data) {
+_setLogoBase(data, 'sponsorData.logoUrl', 'util.CDNHost');
+}
+function _setThumbnail(data, photoUrlPath, photoSelector, destCode, onSuccess, onFail) {
+var elem = document.querySelector(photoSelector);
+if (!elem) {
+_sendTracking('error', 'unable to set hero src', true);
+} else {
+var heroSrc = _getNode(photoUrlPath, data);
+var cdn = _getNode('util.CDNHost', data) || '';
+var destHero = cdn + '/img2/dynamic_flight_hero_medium/byCode/' + destCode.toUpperCase() + '.jpg';
+var img = new Image();
+img.onload = function(){onSuccess(elem, destHero)};
+img.onerror = function(){onFail(elem, heroSrc, cdn)};
+img.src = destHero;
+}
+}
+function _setHeroBase(data, photoUrlPath, photoIsStockPath, photoSelector){
+var elem = document.querySelector(photoSelector);
+if (!elem) {
+_sendTracking('error', 'unable to set hero src', true);
+} else {
+var heroSrc = _getNode(photoUrlPath, data);
+if (heroSrc) {
+elem.src = heroSrc;
+var isStockPhoto = _getNode(photoIsStockPath, data);
+if (isStockPhoto) {
+_sendTracking('default_hero', heroSrc);
+}
+}
+}
+}
+function _setHotelHero(data) {
+_setHeroBase(data, 'photoData.url', 'photoData.isStockPhoto', '.imgWrap .hero')
+}
+function _dataRequest(reqType) {
+var reqData = {
+msgTimeStamp: typeof _msgTimeStamp === "undefined" ? 0 : _msgTimeStamp,
+orderId: typeof _orderId === "undefined" ? 0 : _orderId,
+geoId: typeof _geoId === "undefined" ? 0 : _geoId
+};
+if (!(reqType && reqData.msgTimeStamp && reqData.orderId && reqData.geoId)) {
+_sendTracking('error', 'unable to send data request:' + JSON.stringify(reqData), true);
+return;
+}
+reqData[reqType] = true;
+if (reqType === 'dynamicAdsAirlineRequest') {
+reqData.origCode = typeof _origCode === "undefined" ? 0 : _origCode;
+reqData.destCode = typeof _destCode === "undefined" ? 0 : _destCode;
+if (!(reqData.origCode && reqData.destCode)) {
+_sendTracking('error', 'unable to send airline data request:' + JSON.stringify(reqData), true);
+return;
+}
+}
+top.postMessage(reqData, _messageDomain);
+}
+function _hotelPricingRequest(providers) {
+if (providers) {
+var priceRequest = {
+hotelPricingRequest: true,
+locationId: _locationId,
+msgTimeStamp: _msgTimeStamp,
+providerSet: providers.join('|')
+};
+top.postMessage(priceRequest, _messageDomain);
+} else {
+_sendTracking('error', 'no providers', true);
+}
+}
+function _otaPricingRequest(providers, hotelIds, isSinglePrice) {
+if (providers) {
+var priceRequest = {
+otaPricingRequest: true,
+isSinglePrice: isSinglePrice,
+hotelSet: hotelIds,
+msgTimeStamp: _msgTimeStamp,
+providerSet: providers.join('|')
+};
+top.postMessage(priceRequest, _messageDomain);
+} else {
+_sendTracking('error', 'no providers', true);
+}
+}
+function _displayPricing(pricingData) {
+try {
+var targets = document.querySelectorAll('.container .price');
+if (targets.length > 0) {
+if (pricingData.displayPrice) {
+var priceText = document.getElementById('priceFound').innerHTML;
+priceText = priceText.replace(/\[PRICE\]\s+/, '[PRICE]&thinsp;');
+priceText = priceText.replace(/\[PRICE\]/, pricingData.displayPrice);
+var discText = document.getElementById('priceDisclaimer').innerHTML;
+var dates = pricingData.checkIn + '&thinsp;-&thinsp;' + pricingData.checkOut;
+discText = discText.replace('[DATES]', dates);
+var disclaimer = document.createElement('div');
+disclaimer.className = 'disclaimer';
+disclaimer.innerHTML = discText;
+for ( var i = 0; i < targets.length; i++ ) {
+var target = targets[i];
+if (target.classList) {
+var priceLen = pricingData.displayPrice.length;
+if (priceLen > 8) {
+target.classList.add('long');
+} else if(priceLen > 6) {
+target.classList.add('medium');
+}
+}
+target.innerHTML = priceText;
+target.appendChild(disclaimer);
+}
+var viewLabel = pricingData.adInView ? 'inView' : 'notInView';
+_sendTracking('price_shown', pricingData.displayPrice + '|' + pricingData.pollingRequests + '|' + viewLabel);
+} else {
+for ( var i = 0; i < targets.length; i++ ) {
+target = targets[i];
+target.className = 'price fallback';
+target.innerHTML = document.getElementById('priceNA').innerHTML;
+}
+var priceHeader = document.querySelector('.priceHeader');
+priceHeader && priceHeader.classList.add('hidden');
+_sendTracking('price_not_shown');
+}
+}
+} catch(e) {
+_sendTracking('price_not_shown', 'error', true);
+_sendTracking('error', 'display pricing error: ' + e, true);
+}
+}
+window.addEventListener('resize', _checkSize);
+window.sendTATracking = _sendTracking;
+var loadEvent =  document.addEventListener ? 'DOMContentLoaded' : 'load';
+window.addEventListener(loadEvent, function() {
+_checkSize();
+});
+} catch(e) {
+_sendTracking('error', 'initialization error:' + e, true);
+return;
+}
+var _loadProperty = function(data) {
+try {
+_setIframeId(data);
+_locationId = _getNode('location_id', data);
+_checkForBroadened(data);
+_loadTrackingHTML(data);
+_setLinkTarget(data);
+_setLogo(data);
+_setRating(data);
+_setHotelHero(data);
+_sendTracking('impression');
+_setContentVals(data);
+var providers = _getNode('sponsorData.providers', data);
+_hotelPricingRequest(providers)
+} catch(e) {
+_sendTracking('error', 'load error: ' + e, true);
+}
+};
+_enableMessaging();
+_dataRequest('dynamicAdsLocationRequest');
+})();
+</script>
+<!-- END hotelDesktop HTML -->
+</div><script src="./osd_listener.js.download"></script><script type="text/javascript">osdlfm(-1,'','B3fw2VCmnX8iGNcGFyQOip6OwBgAAAAAQATgByAEJwAIC4AIA4AQBoAYfiAcB0ggECAAQAg','',595844503,true,'la\x3d0\x26xdi\x3d0\x26',3,'','https://pagead2.googlesyndication.com/pcs/activeview?xai\x3dAKAOjsunyb4OIN-HfRzZdeHhYIt4XDbd5DAY9pvOoWySDBEUE023Tyn6Ab0BfZhz0naKMHZl-ghxfT10i3vFw2JJTFiKm9sS7fHq73rKin5Um1o\x26sig\x3dCg0ArKJSzCUYGUkzZeiaEAE','');</script><div style="bottom:0;right:0;width:100px;height:100px;background:initial !important;position:absolute !important;max-width:100% !important;max-height:100% !important;pointer-events:none !important;image-rendering:pixelated !important;z-index:2147483647;background-image:url(&#39;data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACsAAAAWBAMAAACrl3iAAAAABlBMVEUAAAD+AciWmZzWAAAAAnRSTlMAApidrBQAAAB6SURBVBjTbZABCkAxCELdDbr/af+ybO6zBqNI7CHwrlWV3TUFt/uPXTOtVIBvYabctEofp9lT7urxhnn3bfmLRJWuFzekx/C7ZRQGG5SyUODGlJS0muKWZ/PAQSRvIOPmgX+CRh3wBBXKnaCHctRN3DTHW8hsh8RTxAeSnwXXHzS6WwAAAABJRU5ErkJggg==&#39;) !important;"></div><iframe src="javascript:false" style="width: 0px; height: 0px; border: 0px; display: none;" src="./saved_resource.html"></iframe><script id="ias-1780074680">
+    (function() {
+        var iasScriptUrl, hiddenFrame, hiddenDoc, where, domain;
+        iasScriptUrl = '//pixel.adsafeprotected.com/jload?anId=930842&campId=0x0&pubId=55425011&chanId=52255091&placementId=5500208076&pubCreative=138318606770&pubOrder=2640868980&custom=rail1,btf&cb=1780074680'; 
+        hiddenFrame = document.createElement('iframe');
+        (hiddenFrame.frameElement || hiddenFrame).style.cssText = "width: 0; height: 0; border: 0; display: none;";
+        hiddenFrame.src = 'javascript:false';
+        where = document.getElementById('ias-1780074680');
+        where.parentNode.insertBefore(hiddenFrame, where);
+        try {
+            hiddenDoc = hiddenFrame.contentWindow.document
+        } catch (e) {
+            domain = document.domain;
+            hiddenFrame.src = "javascript:var d=document.open();d.domain='" + domain + "';void(0);";
+            hiddenDoc = hiddenFrame.contentWindow.document
+        }
+        hiddenDoc.open().write('<body onload="' + 'window.__IntegralASUseFIF = true; ' + 'var js = document.createElement(\'script\');' + 'js.src = \'' + iasScriptUrl + '\';' + 'document.body.appendChild(js);">');
+        hiddenDoc.close()
+    })();
+</script>
+  
+  
+  
+
+<div style="position: absolute; width: 100%; opacity: 0; height: 100%; z-index: -999; top: 0px; left: 0px;"></div><iframe src="./saved_resource(1).html" style="width: 0px !important; height: 0px !important; border: 0px !important; position: absolute !important; top: -10000px !important; left: -10000px !important;"></iframe></body></html>

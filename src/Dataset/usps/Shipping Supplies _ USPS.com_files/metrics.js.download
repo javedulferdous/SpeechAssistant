@@ -1,0 +1,397 @@
+YOU_MAY_ALSO_LIKE_LIST_NAME = 'You Might Also Like';
+RECENTLY_VIEWED_LIST_NAME = 'Recently Viewed';
+INVALID_CHARS = /['"]/g;
+
+if(typeof USPS === 'undefined') {
+	USPS = {};
+}
+
+require(['dojo', 'dojo/ready'], function(dojo, ready) {
+	USPS.StoreMetric = {
+		// type:direct => post the 'data' attr to analytics system
+
+		clickInProgress:false,
+		addEvent:function(element, evnt, funct){
+			if(element) {
+				if (element.attachEvent)
+					return element.attachEvent('on'+evnt, funct);
+				else
+					return element.addEventListener(evnt, funct, false);
+			}
+		},
+		loadJsFile:function(filename, filetype) {
+			if (filetype=="js") {
+				var fileref=document.createElement('script');
+				fileref.setAttribute("type","text/javascript");
+				fileref.setAttribute("src", filename);
+			}
+			if (typeof fileref!="undefined")
+				document.getElementsByTagName("head")[0].appendChild(fileref)
+		},
+		setupCouponHook:function() {
+			dojo.query('#atg_store_applyCoupon').on('click', function(e) {
+				if(!USPS.StoreMetric.clickInProgress) {
+					USPS.StoreMetric.clickInProgress = true;
+
+					var couponValue = document.getElementById('atg_store_promotionCodeInput').value;
+					if(couponValue && couponValue.length > 0) {
+						var dataToSend = {"coupon" : couponValue, "ns_type":"hidden"};
+						USPS.StoreMetric.sendData(dataToSend);
+					}
+
+				}
+			});
+		},
+		setupDesktopIndexPageHook:function() {
+			var pageViewJSON = dataLayer[0];
+			
+			USPS.StoreMetric.setupBannerHook('div.premium-full-page-store-banner');
+			USPS.StoreMetric.setupQuickViewHooks(pageViewJSON);
+			var c = document.getElementById('horizontal-tabs-body').childNodes;
+		    for(i = 0; i < c.length; i++){
+		        oChild = c[i];
+		        if(oChild.nodeName == 'DIV' && oChild.id.startsWith('product-')){
+					USPS.StoreMetric.setupTabBannerHook('#' + oChild.id);
+		        }
+		    }
+
+			USPS.StoreMetric.setupProductHooks('.horizontal-record-spotlight-product');
+		},
+		setupBannerHook: function(containerClass) {
+			// Add promo banner click event.
+			dojo.query(containerClass + ' a').on('click', function(e) {
+				var imgNode = dojo.query(containerClass+' img')[0];
+				if(imgNode!=null)
+					{
+						var desc = dojo.attr(imgNode, 'src');
+						var name = dojo.attr(imgNode, 'alt');
+						USPS.StoreMetric.sendData({'event' : 'ecomPromoClick',
+							'ecommerce' : {
+								'promoClick' : {
+									'promotions' : [{
+										'position' : '1',
+										'name' : name,
+										'description' : desc
+									}]
+								}
+							}
+						});
+					}
+			});
+
+		},
+		setupTabBannerHook: function(containerClass) {
+			// Add promo banner click event.
+			dojo.query(containerClass + ' a').on('click', function(e) {
+				var imgNode = dojo.query(containerClass+' img')[0];
+				if(imgNode!=null)
+					{
+						var desc = dojo.attr(imgNode, 'src');
+						var name = dojo.attr(imgNode, 'alt');
+						USPS.StoreMetric.sendData({'event' : 'ecomPromoClick',
+							'ecommerce' : {
+								'promoClick' : {
+									'promotions' : [{
+										'position' : '1',
+										'name' : name,
+										'description' : desc
+									}]
+								}
+							}
+						});
+					}
+			});
+		},
+		setupProdDetailPageHook:function() {
+			var pageViewJSON = dataLayer[0];
+			
+			if (pageViewJSON) {													
+				// Add to cart click event.
+				dojo.query('a[id^="addToCartVisBtn"]').on('click', function(e) {
+					var count = 0;
+					var previousNode = e.currentTarget.previousSibling;
+					
+					while (previousNode) {
+						// Ignore text and comment nodes
+						if (previousNode.id) {
+							if (previousNode.id.indexOf('addToCartVisBtn') === 0) {
+								count++;
+							} else {
+								break;
+							}
+						}
+						previousNode = previousNode.previousSibling;
+					}
+					
+					USPS.StoreMetric.sendData({'event' : 'ecomAdd', 
+						'ecommerce' : {'add' : {'products' : [pageViewJSON.ecommerce.detail.products[count]]}}});
+				});
+			}
+			
+			USPS.StoreMetric.setupProductHooks('.related-product-holder');
+			USPS.StoreMetric.setupProductHooks('.recently-viewed-product-holder');
+			USPS.StoreMetric.setupSimpleClickHook('saveForLaterBtn', 'saveToFavorites');
+		},
+		setupShoppingCartPageHook:function() {
+			var pageViewJSON = dataLayer[0];
+			
+			if (pageViewJSON) {				
+				// Remove item from cart click event.
+				dojo.query('.atg_store_actionDelete').on('click', function(e) {
+					var pageViewJSON = dataLayer[0];
+					var position = e.currentTarget.name.substring(10); // Ignore 'remove_ci_' prefix to get 1 based position.
+					USPS.StoreMetric.sendData({'event' : 'ecomRemove', 
+							'ecommerce' : {'remove' : {'products' : [pageViewJSON.ecommerce.cart.products[position-1]]}}}); // 0 based.
+				});
+				
+				// Remove all items from cart click event.
+				USPS.StoreMetric.addEvent(document.getElementById('clearCart'), 'click', function() {
+					var pageViewJSON = dataLayer[0];
+					USPS.StoreMetric.sendData({'event' : 'ecomRemove', 
+							'ecommerce' : {'remove' : {'products' : pageViewJSON.ecommerce.cart.products}}});
+				});
+				
+				// Add to cart click event.
+				USPS.StoreMetric.setupMultipleAddToCartHooks();
+			}
+		},
+		setupProductHooks:function(cssClassName) {	
+			// Add product click event.
+			dojo.query(cssClassName).on('click', function(e) {
+				var recentlyViewedId1 = 'recentlyViewed-items';
+				var youMightAlsoLikeId1 = 'atg_store_recommendAddToCart';
+				var parentElementId = e.currentTarget.parentElement.parentElement.id;
+				
+				if (parentElementId === '') {
+					parentElementId = e.currentTarget.parentElement.parentElement.parentElement.id;
+				}
+				
+				var img = e.currentTarget.getElementsByTagName("IMG");
+				var imgAlt = img[0].alt.replace(INVALID_CHARS, '');
+				
+				if (img) {
+					var pageViewJSON = dataLayer[0];
+					
+					if (pageViewJSON.ecommerce.impressions) {
+						var impressions = pageViewJSON.ecommerce.impressions;
+						var clickedImpressions = new Array();
+						
+						// Determine the list that the product that was clicked belongs.
+						if (parentElementId === recentlyViewedId1 || e.currentTarget.className === 'recently-viewed-product-holder ') {
+							// Belongs in Recently Viewed list.
+							for (j = 0; j < impressions.length; j++) {
+								if (((impressions[j].product + ' image') === imgAlt || impressions[j].product === imgAlt)
+									&& impressions[j].list === RECENTLY_VIEWED_LIST_NAME) {
+									clickedImpressions.push(impressions[j]);
+								}
+							}
+						} else if (parentElementId === youMightAlsoLikeId1 || e.currentTarget.className === 'related-product-holder ') {
+							// Belongs in You Might Also Like list.
+							for (j = 0; j < impressions.length; j++) {
+								if (((impressions[j].product + ' image') === imgAlt || impressions[j].product === imgAlt)
+									&& impressions[j].list === YOU_MAY_ALSO_LIKE_LIST_NAME) {
+									clickedImpressions.push(impressions[j]);
+								}
+							}
+						} else {
+							// Belongs in some other list that is not You Might Also Like and not Recently Viewed lists.
+							for (j = 0; j < impressions.length; j++) {
+								if (impressions[j].product === imgAlt && impressions[j].list !== RECENTLY_VIEWED_LIST_NAME &&
+										impressions[j].list !== YOU_MAY_ALSO_LIKE_LIST_NAME) {
+									clickedImpressions.push(impressions[j]);
+								}
+							}
+						}
+						
+						if (clickedImpressions.length) {
+							USPS.StoreMetric.sendData({'event' : 'ecomListClick', 
+								'ecommerce' : {'click' : {'actionField' : {'list' : clickedImpressions[0].list}, 
+									'products' : clickedImpressions}}});
+						}
+					}			
+				}
+			});
+		},
+		setupCategorySearchHook:function() {
+			var pageViewJSON = dataLayer[0];
+			
+			if (pageViewJSON && pageViewJSON.event === 'ecomListImpression') {
+				USPS.StoreMetric.setupBannerHook('div.results-2-media-banner');
+				USPS.StoreMetric.setupProductHooks('.result-page-stamps-holder');
+				USPS.StoreMetric.setupProductHooks('.horizontal-record-spotlight-product');
+				USPS.StoreMetric.setupQuickViewHooks(pageViewJSON);
+			} else {
+				dojo.query('.no-product strong').forEach(function(e) {
+					// Search returned no results.
+					USPS.StoreMetric.sendData({'event' : 'noSearchResults', 
+						'searchTerm' : e.innerHTML});
+				});
+			}
+		},
+		setupQuickViewHooks:function(pageViewJSON) {
+			// Detect Quick View Add To Cart Action
+			dojo.query('div[class$="product-quickview"]').on('click', function(e) {
+				dojo.query('div.view-product.simplemodal-data').on('click', function(e) {
+					if (e.target.id && e.target.id.indexOf('m-addToCartVisBtn') === 0) {
+						dojo.query('div.format-btn.active span').forEach(function(e) {
+							for (var i=0; i<pageViewJSON.ecommerce.impressions.length; i++) {
+								if (pageViewJSON.ecommerce.impressions[i].dimension102 === e.innerHTML) {
+									USPS.StoreMetric.sendData({'event' : 'ecomAdd', 
+										'ecommerce' : {'add' : {'products' : [pageViewJSON.ecommerce.impressions[i]]}}});
+									break;
+								}
+							}
+						});
+					}
+				});
+			});
+		},
+		setupPSEConfigurePageHooks:function() {
+			// PSE button navigation.
+			dojo.query('div.next > img').on('click', function(e) {
+				var alt = e.currentTarget.alt;
+				
+				if (alt === 'Select a Stamp') {
+					USPS.StoreMetric.sendData({'event' : 'pseNextChooseStamp'});
+				} else if (alt === 'Enter your Return Address') {
+					USPS.StoreMetric.sendData({'event' : 'pseNextReturnAddress'});
+				} else if (alt === 'Review terms and conditions') {
+					USPS.StoreMetric.sendData({'event' : 'pseNextReviewTerms'});
+				}
+			});
+			
+			// PSE tab navigation.
+			dojo.query('li.detail-tab > span').on('click', function(e) {
+				var id = e.currentTarget.parentElement.id;
+				
+				if (id === 'envelope-options') {
+					USPS.StoreMetric.sendData({'event' : 'pseStartChooseEnvelope'});
+				} else if (id === 'stamp-options') {
+					USPS.StoreMetric.sendData({'event' : 'pseNextChooseStamp'});
+				} else if (id === 'address-options') {
+					USPS.StoreMetric.sendData({'event' : 'pseNextReturnAddress'});
+				} else if (id === 'review-options') {
+					USPS.StoreMetric.sendData({'event' : 'pseNextReviewTerms'});
+				}
+			});
+			
+			// PSE Terms and Agreement button.
+			USPS.StoreMetric.addEvent(document.getElementById('tc-agree'), 'click', function() {
+				var selectionBox = document.getElementById('env-summary-box-size');
+				var stamp = document.getElementById('sum-stamp').innerHTML;
+				var envelope = document.getElementById('sum-envelope').innerHTML;
+				var pseTotal = document.getElementById('sum-price').innerHTML;
+				var pseUpgrade = document.getElementById('sum-pse-font-upgrade-price').innerHTML;
+				
+				if (pseUpgrade) {
+					pseTotal = (parseFloat(pseTotal) + parseFloat(pseUpgrade)).toString();
+				}
+				USPS.StoreMetric.sendData({'event' : 'pseAgree'});
+				
+				USPS.StoreMetric.sendData({'event' : 'ecomAdd',
+						'ecommerce' : {
+							'add' : {
+								'products' : [{
+									'name' : stamp + ' Stamped ' + envelope,
+									'id' : envelope.indexOf('Envelope') !== -1 ? 'P_PSE' : 'P_PSC',
+									'category' : envelope.indexOf('Envelope') !== -1 ? 'PSE' : 'PSC',
+									'quantity' : parseInt(document.getElementById('product-quantity-summary').value),
+									'price' : pseTotal,
+									'variant' : document.getElementById('sum-closure').innerHTML,
+									'dimension101' : 'In Stock',
+									'dimension102' : selectionBox.options[selectionBox.selectedIndex].innerHTML
+								}]
+							}
+						}
+				});
+			});
+		},
+		initialize:function() {
+			var loc = window.location;
+			var pathName = loc.pathname.substring(loc.pathname.lastIndexOf('/') + 1);
+			
+			if (loc.pathname.indexOf('/store/home') === 0) {
+				USPS.StoreMetric.setupDesktopIndexPageHook();
+			} else if (pathName === 'cart.jsp') {
+				USPS.StoreMetric.setupShoppingCartPageHook();
+				USPS.StoreMetric.setupProductHooks('.productListItem');
+			} else if (loc.pathname.indexOf('/store/product') === 0) {
+				USPS.StoreMetric.setupProdDetailPageHook();
+			} else if (pathName === 'login.jsp') {
+				USPS.StoreMetric.setupSimpleClickHook('uspsCreateProfileDuringCheckoutBtn', 'createAccount');
+			} else if (loc.pathname.indexOf('/store/results') === 0) {				
+				USPS.StoreMetric.setupCategorySearchHook();
+			} else if (loc.pathname.indexOf('/pse/') !== -1) {
+				if (pathName === '' || pathName === 'index.jsp') {
+					USPS.StoreMetric.setupSimpleClickHook('btn-use-dflt', 'pseStartChooseEnvelope');
+				} else if (pathName === 'pse-configure.jsp') {
+					USPS.StoreMetric.setupPSEConfigurePageHooks();
+				}
+			} else {
+				var pageViewJSON = dataLayer[0];
+				
+				if (pageViewJSON) {					
+					if (pathName === 'orderDetail.jsp') {
+						USPS.StoreMetric.setupMultipleAddToCartHooks();
+					} else if (pathName === 'myWishList.jsp') {
+						USPS.StoreMetric.setupMultipleAddToCartHooks();
+						USPS.StoreMetric.setupProductHooks('.even');
+						USPS.StoreMetric.setupProductHooks('.odd');
+					} else {
+						USPS.StoreMetric.setupProductHooks('.product');
+					}
+				}
+			}
+			USPS.StoreMetric.setupSimpleClickHook('sign-up-link', 'createAccount');
+			USPS.StoreMetric.setupSimpleClickHook('reglink', 'createAccount');
+		},
+		sendData:function(metricsJSON) {
+			try {
+				var dataLayer = window.dataLayer = window.dataLayer || [];
+				dataLayer.push(metricsJSON);
+			} catch(err) {
+				console.log("Unable to send data: " + err);
+			}
+		},
+		setupSimpleClickHook:function(elementId, eventValue) {
+			// Add create account click event.
+			USPS.StoreMetric.addEvent(document.getElementById(elementId), 'click', function() {
+				USPS.StoreMetric.sendData({'event' : eventValue});
+			});
+		},
+		setupMultipleAddToCartHooks:function() {
+			// Add to cart click event.
+			dojo.query('.atg_behavior_addItemToCart').on('click', function(e) {
+				var skuId;
+				
+				if (e.currentTarget.form["/atg/store/order/purchase/CartFormHandler.items[0].catalogRefId"]) {
+					skuId = e.currentTarget.form["/atg/store/order/purchase/CartFormHandler.items[0].catalogRefId"].value;
+				} else if (e.currentTarget.form["/atg/store/order/purchase/CartFormHandler.catalogRefIds"]) {
+					skuId = e.currentTarget.form["/atg/store/order/purchase/CartFormHandler.catalogRefIds"].value;
+				} else {
+					return; // No SKU Id found, do nothing and return.
+				}
+				
+				for (i = 0; i < dataLayer.length; i++) {
+					if (dataLayer[i].event === 'ecomListImpression') {
+						var impressions = dataLayer[i].ecommerce.impressions;
+						
+						for (j = 0; j < impressions.length; j++) {
+							if (skuId.indexOf(impressions[j].id) !== -1) {
+								USPS.StoreMetric.sendData({'event' : 'ecomAdd',
+									'ecommerce' : {'add' : {'products' : [impressions[j]]}}});
+								break;
+							}
+						}
+						break;
+					}
+				}
+			});
+		}
+	};
+	
+	ready(function() {
+		USPS.StoreMetric.initialize();
+	});
+	
+});

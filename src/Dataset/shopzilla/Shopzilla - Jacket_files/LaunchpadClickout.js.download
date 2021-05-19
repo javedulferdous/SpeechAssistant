@@ -1,0 +1,37 @@
+function launchpadHigh() {
+    var iframes = document.getElementsByTagName("iframe");
+    var url;
+    for (var i = 0; i < iframes.length; i++) {
+        var iframe = iframes[i].src;
+        var index = iframe.indexOf("launchpad");
+        if (index != -1) {
+            url = iframe;
+        }
+    }
+
+    var pos = url.indexOf("IntentID");
+    if (pos != -1) {
+        var numPos = url.indexOf("0", pos);
+        if (numPos != -1) {
+            var substr1 = url.substr(0, numPos);
+            var substr2 = url.substr(numPos);
+            substr2 = substr2.replace("0", "1");
+            url = substr1 + substr2;
+        }
+    }
+
+    var newIframe = document.createElement('iframe');
+    newIframe.setAttribute('width', '1');
+    newIframe.setAttribute('height','1');
+    newIframe.setAttribute('id', "launchpad-high");
+    newIframe.setAttribute('style', 'visibility: hidden');
+    newIframe.setAttribute('src', url);
+    document.body.appendChild(newIframe);
+}
+function bindFunctionToButtons() {
+    var buttons = document.getElementsByClassName("button");
+    var i;
+    for (i = 0; i < buttons.length; i++) {
+        buttons[i].addEventListener("click", launchpadHigh);
+    }
+}

@@ -1,0 +1,526 @@
+var prodcat = prodcat || {};
+prodcat.ui = prodcat.ui || {};
+prodcat.data = prodcat.data || {};
+
+(function($) {
+/**
+ * Adds SKUs to cart.
+ */
+prodcat.ui.addToCart = function(args) {
+  var skuBaseId;
+  if (args.skuData && args.skuData.SKU_BASE_ID) {
+    skuBaseId = args.skuData.SKU_BASE_ID;
+  } else if (args.skuBaseId) {
+    skuBaseId = args.skuBaseId;
+  } else {
+    return null;
+  }
+
+  var quantity;
+  if (typeof args.quantity != "undefined") {
+    quantity = args.quantity;
+  } else {
+    quantity = 1;
+  }
+
+  var catBaseId = '';
+  if (args.skuData && args.skuData.PARENT_CAT_ID) {
+    var matchResult = args.skuData.PARENT_CAT_ID.match("[0-9]+");
+    if (matchResult) {
+      cat_base_id = matchResult[0];
+    }
+  }
+
+  args.skus = args.skus || [skuBaseId];
+  // replenishment
+  var replAmount = parseInt($('select.js-replenishment-select.spp-replenish').attr('data-replenishment'));
+  if (!!replAmount) {
+    args.replAmount = replAmount;
+  }
+
+  if (!!Drupal.settings.globals_variables.enable_auto_replenish_spp && args.replAmount && args.replAmount != 0) {
+    args.itemType = 'replenishment';
+    args.add_to_cart = 1;
+    args.action = 'add';
+    args.REPLENISHMENT_FREQ = args.replAmount;
+  }
+  args.itemType = args.itemType || 'cart';
+  args.CAT_BASE_ID = args.CAT_BASE_ID || catBaseId;
+  args.QTY = args.QTY || quantity;
+  args.INCREMENT = 1;
+
+  generic.checkout.cart.updateCart({
+    params: args,
+    onSuccess: function(r) {
+      var resultObj = r.getCartResults();
+      var resultData = r.getData();
+      // // Report product view based on either loctmpl attribute (if it exists) or last QV location.
+      // // Call with URL_CLICK 0 to unset location override. We only neeed it for for add to cart.
+      // // This seems kind of horrible to me.
+      // if ( typeof Analytics =='object' ){
+      //     var locType = $(thisButton).attr("loctmpl");
+      //     var params = {};
+      //     if (locType) {
+      //         location_params = locType.split(",");
+      //         params['TYPE_LOCATION'] = location_params[0];
+      //         params['PRODUCT_KEY'] = location_params[1];
+      //         params['URL_CLICK'] = 0;
+      //         Analytics.reportProductView(params);
+      //     }
+      // }
+      $(document).trigger("addToCart.success", [resultData]);
+
+      // trigger code to update the gnav with the new count
+      var bagCount = resultObj.getCount() || 0;
+      $(window).trigger('window:update_bag_count', [bagCount]);
+
+      //console.log(prodcat.ui.getCartMessage(resultObj, "added to cart."));
+      $siteBag = $('.js-site_bag_contents');
+      $siteBag.attr('aria-label', prodcat.ui.getCartMessage(resultObj, site.translations.product.added_to_bag));
+    },
+    onFailure: function(ss) {
+      var errorObjectsArray = ss.getMessages();
+        $(document).trigger("addToCart.failure", [errorObjectsArray]);
+        // // Escape any html in the alert box.
+        var prodAddedMsg = $('<div/>').html('<span data-test-id="max_error_message">' + errorObjectsArray[0].text + '</span>').html();
+        generic.overlay.launch({
+          content: prodAddedMsg,
+          includeBackground: true,
+          includeCloseLink: true,
+          initialHeight: 0,
+          height: 0,
+          width: '50%',
+          onComplete : function() {
+            $(this).colorbox.resize();
+          }
+        });
+      }
+  });
+};
+
+
+prodcat.ui.getCartMessage = function(cartResult, msg) {
+  var prod = cartResult.getItem().product;
+  var sku = prod.sku;
+  var returnMsg = sku.SKU_ID + " " + prod.PROD_RGN_NAME;
+  returnMsg += sku.SHADENAME ? " " + sku.SHADENAME : '';
+  returnMsg += " " + msg;
+  return returnMsg;
+};
+
+
+prodcat.ui.getHexValue = function(skuBaseId) {
+  var product = prodcat.data.getSku(skuBaseId);
+  return product ? product.HEX_VALUE_STRING : '';
+};
+
+/**
+ * Adds a SKU to the user's primary favorites list.
+ * @param {Object} args
+ * @param {Object} args.skuData a set of key-value pairs describing a SKU
+ * @param {String, Number} args.skuData.SKU_BASE_ID Base ID for a SKU (numerical only, i.e. no 'SKU' prefix)
+ * @param {String} args.skuData.PARENT_CAT_ID Category ID for the SKU
+ * @param {String, Number} args.skuBaseId Base ID for a SKU (numerical only, i.e. no 'SKU' prefix)
+ */
+prodcat.ui.addToFavorites = function(args) {
+
+  var params = {
+    "_SUBMIT": "alter_collection"
+  };
+
+    if ($.cookie('csrftoken')) {
+      params._TOKEN = $.cookie('csrftoken');
+    }
+
+  var action;
+  if (args.action) {
+    action = args.action;
+  } else {
+    action = 'add';
+  }
+  params.action = action;
+
+  var skuBaseId;
+  if (args.skuData && args.skuData.SKU_BASE_ID) {
+    skuBaseId = args.skuData.SKU_BASE_ID;
+  } else if (args.skuBaseId) {
+    skuBaseId = args.skuBaseId;
+  } else {
+    return null;
+  }
+  params.SKU_BASE_ID = skuBaseId;
+
+  var catBaseId = '';
+  if (args.skuData && args.skuData.PARENT_CAT_ID) {
+    var matchResult = args.skuData.PARENT_CAT_ID.match("[0-9]+");
+    if (matchResult) {
+      params.CAT_BASE_ID = matchResult[0];
+    }
+  }
+
+  var hexValue = prodcat.ui.getHexValue('SKU' + skuBaseId);
+
+  var id = generic.jsonrpc.fetch({
+    method : 'rpc.form',
+    params: [params],
+    onSuccess:function(jsonRpcResponse) {
+      var d = jsonRpcResponse.getData();
+      var r = d.ac_results[0].result;
+      var cr;
+      if (_.isEmpty(page_data.FAVORITE_PRODUCTS)) { page_data.FAVORITE_PRODUCTS = {}; }
+
+      if (params.action !== 'delete') {
+        if (r.KEY == 'SKU_ALREADY_IN_COLLECTION.ADD_SKU.COLLECTION.SAVE') {
+          cr = jsonRpcResponse.getCartResults();
+          $(document).trigger("addToWishlist.exists", [cr]);
+          //console.log(prodcat.ui.getCartMessage(cr, "already in Favourites."));
+        } else if (r.SUCCESS == 1 || r.KEY == 'SUCCESS.ADD_SKU.COLLECTION.SAVE') {
+          cr = jsonRpcResponse.getCartResults();
+          $(document).trigger("addToWishlist.success", [cr]);
+          //console.log(prodcat.ui.getCartMessage(cr, "added to Favourites."));
+          page_data.FAVORITE_PRODUCTS[skuBaseId] = 1;
+          $(window).trigger('favorite_action', [hexValue, 'add']);
+        }
+      } else {
+        //console.log(skuBaseId + " deleted from Favourites.");
+        delete page_data.FAVORITE_PRODUCTS[skuBaseId];
+        $(window).trigger('favorite_action', [hexValue, 'delete']);
+      }
+    },
+    onFailure: function(jsonRpcResponse) {
+      console.log("Failed to Add to Favourites.");
+      console.log(jsonRpcResponse.getError());
+    }
+  });
+};
+
+
+/**
+ * Base class for functional UI widgets that are bound to product data.
+ * The element passed as the parameter must include data-product-id and data-sku-id attributes.
+ * @param {jQuery} $ele - the element to be bound to product data
+ */
+prodcat.ui.widget = function($ele) {
+  var that={};
+  that.$ele = $ele;
+  that.productId = that.$ele.attr("data-product-id");
+
+  that.$ele.on('sku:select', function(e, skuBaseId) {
+    $(this).attr('data-sku-base-id', skuBaseId);
+    e.stopPropagation();
+  });
+  return that;
+};
+
+
+/**
+ * Attaches add-to-cart button functionality to an element. The element must include
+ * data-product-id and data-sku-id attributes. Optional attributes are data-qty.
+ * @param {jQuery} $ele - the button element
+ */
+prodcat.ui.addButton = function($ele) {
+
+  var that = prodcat.ui.widget($ele);
+
+  // click handler
+  that.$ele.on('click', function(e) {
+    e.preventDefault();
+    var skuBaseId = $(this).attr("data-sku-base-id");
+    if (!skuBaseId || skuBaseId.length<1) return null;
+    var args = {skuBaseId: skuBaseId}
+    var quantity = $(this).attr("data-qty");
+    if (!!quantity) {
+      args.quantity = quantity;
+    }
+    prodcat.ui.addToCart(args);
+  });
+
+  that.$ele.on('sku:select', function(e, skuBaseId) {
+    that.updateInvStatus();
+  });
+
+  // Inventory Status change handler
+  that.updateInvStatus = function() {
+    var skuBaseId = that.$ele.attr("data-sku-base-id");
+    var skuDataL2 = prodcat.data.getSku(skuBaseId);
+    if (skuDataL2 && !skuDataL2.isShoppable) {
+      that.$ele.hide();
+    } else {
+      that.$ele.show();
+    }
+  };
+
+  that.$ele.on("inv_status_data:updated", function(e, skuData) {
+    that.updateInvStatus();
+    e.stopPropagation();
+  });
+
+  return that;
+};
+
+/**
+ * Attaches add-to-favorites functionality to an element.
+ * @param {jQuery} $ele - the button element
+ */
+prodcat.ui.addFavoritesButton = function($ele) {
+
+  var that = prodcat.ui.widget($ele);
+
+  that.$ele.bind("click", function(clickEvt) {
+    clickEvt.preventDefault();
+    var skuBaseId = $(this).attr("data-sku-base-id");
+    prodcat.ui.addToFavorites({skuBaseId: skuBaseId});
+  });
+
+  return that;
+};
+
+/**
+ * Attaches sku selection functionality to a select menu.
+ * @param {jQuery} $ele - the select menu
+ */
+prodcat.ui.skuMenu = function($ele) {
+
+  var that = prodcat.ui.widget($ele);
+
+  that.$ele.on('change', function(e) {
+    var selectedSkuBaseId = $(this).val();
+    prodcat.ui.selectSku(that.productId, selectedSkuBaseId);
+  });
+
+  that.$ele.on('sku:select', function(e, skuBaseId) {
+    $(this).val(skuBaseId);
+  });
+
+  return that;
+};
+
+/**
+ * Attaches size display to SKU selection event. Displays PRODUCT_SIZE
+ * for selected sku into the $ele node.
+ * @param {jQuery} $ele - the node containing text display of PRODUCT_SIZE
+ */
+prodcat.ui.sizeDisplay = function($ele) {
+
+  var that = prodcat.ui.widget($ele);
+
+  that.$ele.on('sku:select', function(e, skuBaseId) {
+    var skuData = prodcat.data.getSku(skuBaseId);
+    var newSize = skuData.PRODUCT_SIZE;
+    $(this).html(newSize);
+  });
+
+  return that;
+};
+
+
+/**
+ * Attaches price display to SKU selection event. Displays formattedPrice
+ * for selected sku into the $ele node.
+ * @param {jQuery} $ele - the node containing text display of formattedPrice
+ */
+prodcat.ui.priceDisplay = function($ele) {
+
+  var that = prodcat.ui.widget($ele);
+
+  that.$ele.on('sku:select', function(e, skuBaseId) {
+    var skuData = prodcat.data.getSku(skuBaseId);
+    var newPrice = skuData.formattedPrice;
+    $(this).html(newPrice);
+  });
+
+  return that;
+};
+
+
+/**
+ * Attaches Inventory Status messaging to the SKU selection event. Status Messages
+ * must be listed in a UL as shown below. Note that the last digit in the js-inv-status
+ * class name corresponds to the INVENTORY_STATUS value of the SKU.
+ *   <ul class="js-inv-status-list" data-product-id="PROD7524" data-sku-base-id="50291">
+ *     <li class="js-inv-status-2" style="display:none">Temporarily Out of Stock</li>
+ *     <li class="js-inv-status-3" style="display:none">Coming Soon</li>
+ *     <li class="js-inv-status-5" style="display:none">Inactive</li>
+ *     <li class="js-inv-status-7" style="display:none">Sold Out</li>
+ *   </ul>
+ * @param {jQuery} $ele - the node containing status message LI's
+ */
+prodcat.ui.invStatusList = function($ele) {
+
+  var that = prodcat.ui.widget($ele);
+
+  that.$ele.on("inv_status_data:updated", function(e) {
+    // console.log("inv_status_data:updated");
+    // console.log(data);
+
+    var skuBaseId = that.$ele.attr("data-sku-base-id");
+    var skuData = prodcat.data.getSku(skuBaseId);
+    if (!!skuData) {
+      that.updateInvStatus(skuData);
+    }
+    e.stopPropagation();
+  });
+
+
+  that.updateInvStatus = function(skuData) {
+    var skuBaseId = that.$ele.attr("data-sku-base-id");
+    if (!skuData || !skuData.INVENTORY_STATUS) return null;
+    if (!skuData.SKU_ID == 'SKU' + skuBaseId) return null
+    $("li", that.$ele).hide();
+    var $statusToShow = $(".js-inv-status-" + skuData.INVENTORY_STATUS, that.$ele);
+    if ($statusToShow.length > 0) {
+      $statusToShow.show();
+      that.$ele.trigger("inv_status_display:updated");
+    }
+  };
+
+  that.$ele.on('sku:select', function(e, skuBaseId) {
+    that.$ele.attr("data-sku-base-id", skuBaseId);
+
+    var productData = prodcat.data.getProduct(that.productId);
+    var skuData = _.find(productData.skus, function(sku) {
+      return sku.SKU_ID == 'SKU' + skuBaseId;
+    });
+
+    that.updateInvStatus(skuData);
+    e.stopPropagation();
+  });
+
+  return that;
+};
+
+
+/**
+ * Takes a product ID & SKU Base ID as parameters. Fires a "sku:select" event on all
+ * elements whose data-product-id attribute has a value that matches the product ID.
+ * Passes the SKU Base ID as a memo to that event.
+ * @param {string} productId
+ * @param {string} skuBaseId
+ */
+prodcat.ui.selectSku = function(productId, skuBaseId) {
+  var prodSlctr = "[data-product-id='" + productId + "']";
+  $(prodSlctr).trigger('sku:select', skuBaseId);
+};
+
+
+/**
+ * Wires up events for a UL of SKUs. Markup should look like this:
+ *
+ * @param {jQuery} $ele - the UL element
+ */
+prodcat.ui.swatchList = function($ele) {
+
+  var that = prodcat.ui.widget($ele);
+
+  that.$links = $(".js-swatch-list-item-link", that.$ele);
+
+  that.$links.on('click', function(e) {
+    e.preventDefault();
+    var selectedSkuBaseId = $(this).attr("data-sku-base-id");
+    prodcat.ui.selectSku(that.productId, selectedSkuBaseId);
+  });
+
+  that.$ele.on('sku:select', function(e, skuBaseId) {
+    that.selectSku(skuBaseId);
+  });
+
+  that.selectSku = function(skuBaseId) {
+    $(".js-swatch-list-item" , that.$ele).removeClass("swatch-selected");
+    $(".js-swatch-list-item[data-sku-base-id='"+ skuBaseId +"']" , that.$ele).addClass("swatch-selected");
+  };
+
+  var firstSkuBaseId = that.$links.first().attr('data-sku-base-id');
+  that.selectSku(firstSkuBaseId);
+
+  return that;
+};
+
+prodcat.ui.quickshopLink = function($ele) {
+  var that = prodcat.ui.widget($ele);
+
+  that.$ele.on('click', function(e) {
+    e.preventDefault();
+    var qs = prodcat.ui.quickshop(that.productId)
+  });
+};
+
+
+prodcat.ui.quickshop = function(productId) {
+  var that = {};
+  var prodData = prodcat.data.getProduct(productId);
+  if (!!prodData) return null;
+  var template = $('script.inline-template[path="quickshop"]').html();
+  var html = Mustache.render(template, prodData);
+  // close all quickshops
+  $(".js-quickshop-container").html().hide();
+  // find, populate, and show the target container
+  that.$target = $(".js-quickshop-container[data-product-id=" + productId + "]");
+  that.$target.show();
+  that.$target.html(html);
+  // initialize UI for that quickshop only
+  prodcat.ui.init(that.$target);
+  $(".js-quickshop-close", that.$target).on('click', function(e){
+    e.preventDefault();
+    that.$target.html();
+    that.$target.hide();
+  });
+  return that;
+};
+
+/**
+ * Creates product data widgets by instantiating instances of
+ * prodcat UI classes and attaching them to HTML elements. To prevent
+ * redundant events, the method flags elements once they are bound.
+ */
+prodcat.ui.bind = function(selector, uiClass, context) {
+  var flaggedClassName = 'js-prodcat-ui-attached';
+
+  $(selector, context).not('.' + flaggedClassName).each( function() {
+    var $ele = $(this);
+    var ele = uiClass($ele);
+    $ele.addClass(flaggedClassName);
+  });
+
+};
+
+/**
+ * Attaches events to add-to-cart buttons, sku menus, inventory status lists.
+ * It is called on page load. If elements are added to DOM after page load,
+ * call prodcat.ui.init() to attach the events.
+ */
+prodcat.ui.init = function(context) {
+  prodcat.ui.bind('.js-add-to-cart', prodcat.ui.addButton, context);
+  prodcat.ui.bind('.js-add-to-favorites', prodcat.ui.addFavoritesButton, context);
+  prodcat.ui.bind('.js-sku-menu', prodcat.ui.skuMenu, context);
+  prodcat.ui.bind('.js-inv-status-list', prodcat.ui.invStatusList, context);
+  prodcat.ui.bind('.js-swatch-list', prodcat.ui.swatchList, context);
+  prodcat.ui.bind('.js-product-size', prodcat.ui.sizeDisplay, context);
+  prodcat.ui.bind('.js-product-price', prodcat.ui.priceDisplay, context);
+  prodcat.ui.bind('.js-quickshop-link', prodcat.ui.quickshopLink, context);
+};
+
+
+  /**
+   * This function can only fire once so that any .attachBehaviors() don't
+   * reload all of the above.
+   */
+  var initializeProdcatUiInit = _.once(function() {
+    var products = prodcat.data.collectProductIds();
+
+    // Use OO Products for *just* pids on page
+    $(window).trigger('prodcat:UiInitialized', [products]);
+
+  });
+
+  /**
+   * Wire up behavior on page-load according to js- classnames.
+   */
+  Drupal.behaviors.prodcatUiInit = {
+    attach: function(context, settings) {
+      // see _.once above
+      initializeProdcatUiInit();
+    }
+  };
+
+
+})(jQuery);

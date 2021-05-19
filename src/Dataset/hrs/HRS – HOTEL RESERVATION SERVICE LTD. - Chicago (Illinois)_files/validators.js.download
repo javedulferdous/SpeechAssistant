@@ -1,0 +1,8 @@
+var validators=(function(){var constants={NOT_EMPTY:"NOT_EMPTY",LETTERS_AND_HYPHENS:"LETTERS_AND_HYPHENS",EMAIL:"EMAIL"};
+return{validateNotEmpty:function(value){return{valid:!!value&&!!value.toString().length,error:constants.NOT_EMPTY}
+},validateValidCharacters:function(value){var regex=/[0-9^°„!¡"“§¶$¢%[&\]/|({)}=≠?¿<>,;.:_€@+*±#©®£¥«∑†Ω¨⁄ø∂ƒª∆•≤≥≈~√∫‡◊‹›˛÷™ı»‰Ø∏]/i;
+return{valid:!regex.test(value),error:constants.LETTERS_AND_HYPHENS}
+},validateEmail:function(value){var regexEmail=/^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
+return{valid:regexEmail.test(value),error:constants.EMAIL}
+},}
+})();

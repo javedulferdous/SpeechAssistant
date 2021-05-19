@@ -1,0 +1,71 @@
+_satellite.pushAsyncScript(function(event, target, $variables){
+  // Quick fix for shopping list page to redirect to ACS starts
+document.cookie = 'nsl=1; path=/; domain=.walgreens.com;';
+function cookieByName(cookiename) {
+	var cookiestring = RegExp('[; ]' + cookiename + '[^;]+').exec('; ' + document.cookie);
+	return unescape(!!cookiestring ? cookiestring.toString().replace(/^[^=]+./, '') : '');
+};
+
+
+// Quick fix for shopping list page to redirect to ACS ends
+
+// Point Simplification Switch Starts
+document.cookie = 'p_s=1; path=/; domain=.walgreens.com;';
+// Point Simplification Switch Ends
+
+/* Start Kenshoo Tag */
+!function (a, b, c, d, e, f, g) {
+    a.ktag || (e = function () { e.sendEvent ? e.sendEvent(arguments) : e.ktq.push(arguments) }, e.ktq = [], a.ktag = e, f = b.getElementsByTagName(d)[0], g = b.createElement(d), g.async = !0, g.src = c, f.parentNode.appendChild(g))
+}
+    (window, document, "//resources.xg4ken.com/js/v2/ktag.js?tid=KT-N2923-3EB", "script");
+ktag('setup', 'KT-N2923-3EB', '<USER_ID>');
+/* End Kenshoo Tag */
+/* BBX Hamburger menu fix */
+$('body').on('click', '.wag-submenu-cont:contains("Beauty")', function(){
+  setTimeout(function() {
+    $('a .wag-submenu-items:contains("Birchbox at Walgreens")').parent().attr('href','/store/c/birchbox-at-walgreens/ID=521991-tier2general');
+  }, 100);
+});
+
+/* Refresh token quick fix starts */
+function triggerJWTCall() {
+	setInterval(function() {
+		if (window.header && window.header.profileInfo && window.header.profileInfo.loggedIn === "true") {
+			if( document.cookie.match(/jwt=([^;]*)/) !== null ) {
+				if( document.cookie.match(/atgjwt=([^;]*)/) === null ) {
+					refreshJwtTokenKeepAlive();
+				} else if ( getTimeDiff(document.cookie.match(/atgjwt=([^;]*)/)[1]) ) {
+					refreshJwtTokenKeepAlive();
+				}
+			}
+		}
+	}, 5000);
+
+	function getTimeDiff(atgjwtExpireTimestamp) {	
+		var currentDateUTC = new Date();
+		var currentTimestamp = currentDateUTC.getTime();
+		if( Number(atgjwtExpireTimestamp) < Number(currentTimestamp) ) {
+			return true;
+		}
+		return false;
+	}
+	function setCookieWithExpire(cookieName, value) {
+			document.cookie = cookieName+'='+value + '; path=/; domain=.walgreens.com;';
+		}
+	function refreshJwtTokenKeepAlive() {
+		var currentDateUTC = new Date();
+		var expireTimestamp  = currentDateUTC.getTime() + ( 13 * 60 * 1000);
+		setCookieWithExpire('atgjwt', expireTimestamp );
+		$.ajax({
+			url: "/login/token/refresh",
+			type: "post",
+			dataType: 'json',
+			contentType: 'application/json; charset=utf-8',
+			success: function() {}
+		});		
+	}
+}
+triggerJWTCall();
+/* Refresh token quick fix ends */
+
+});

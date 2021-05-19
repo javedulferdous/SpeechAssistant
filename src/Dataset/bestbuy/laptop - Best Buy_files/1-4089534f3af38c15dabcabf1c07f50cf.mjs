@@ -1,0 +1,2 @@
+(window.gvpc_natural_language_platform_non_product_search=window.gvpc_natural_language_platform_non_product_search||[]).push([[1],{25:function(n){n.exports={fancyComponent:"fancyComponent"}},26:function(n,o,a){"use strict";a.r(o);var t=a(25);o.default={common:t}}}]);
+//# sourceMappingURL=1-4089534f3af38c15dabcabf1c07f50cf.mjs.map

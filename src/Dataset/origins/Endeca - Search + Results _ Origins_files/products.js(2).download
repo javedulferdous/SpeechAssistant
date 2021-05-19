@@ -1,0 +1,13 @@
+site.endeca.results.contentzone.products = jQuery.extend( true, {}, generic.endeca.results.contentzone.products, {
+    
+    displayResults: function ( args ) {
+        var args = args || {};
+        
+        // give the container template the data for the first product as well as any properties from Endeca.
+        jQuery.extend( this.resultData, args.resultData[0], this.resultData[0].Properties );
+        
+        this._super( args );
+        
+    }
+    
+});

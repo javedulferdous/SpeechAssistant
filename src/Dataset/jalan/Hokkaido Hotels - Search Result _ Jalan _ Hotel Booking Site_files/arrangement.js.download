@@ -1,0 +1,269 @@
+var prefectures = [
+	{
+		"group": "area",
+		"entities": [
+			{
+				"name": "Central Tokyo",
+				"key": ["Tokyo", "Central Tokyo"]
+			},
+			{
+				"name": "Central Osaka",
+				"key": ["Osaka", "Central Osaka"]
+			},
+			{
+				"name": "Central Kyoto",
+				"key": ["Kyoto", "Central Kyoto"]
+			},
+			{
+				"name": "Kobe, Arima, Akashi",
+				"key": ["Kobe, Arima, Akashi"]
+			},
+			{
+				"name": "Nagoya",
+				"key": ["Nagoya"]
+			},
+			{
+				"name": "Yokohama",
+				"key": ["Yokohama"]
+			},
+			{
+				"name": "Hakone",
+				"key": ["Hakone"]
+			},
+			{
+				"name": "Gotemba, Fuji",
+				"key": ["Gotemba, Fuji"]
+			},
+			{
+				"name": "Fukuoka",
+				"key": ["Fukuoka"]
+			},
+			{
+				"name": "Sapporo",
+				"key": ["Sapporo"]
+			},
+			{
+				"name": "Jozankei",
+				"key": ["Jozankei"]
+			},
+			{
+				"name": "Otaru, Kiroro, Shakotan",
+				"key": ["Otaru, Kiroro, Shakotan"]
+			},
+			{
+				"name": "Hiroshima, Miyajima",
+				"key": ["Hiroshima, Miyajima"]
+			}
+		]
+	},
+	{
+		"group": "prefectures",
+		"entities": [
+			{
+				"name": "Aichi",
+				"key": ["Aichi"]
+			},
+			{
+				"name": "Akita",
+				"key": ["Akita"]
+			},
+			{
+				"name": "Aomori",
+				"key": ["Aomori"]
+			},
+			{
+				"name": "Chiba",
+				"key": ["Chiba"]
+			},
+			{
+				"name": "Ehime",
+				"key": ["Ehime"]
+			},
+			{
+				"name": "Fukui",
+				"key": ["Fukui"]
+			},
+			{
+				"name": "Fukuoka",
+				"key": ["Fukuoka"]
+			},
+			{
+				"name": "Fukushima",
+				"key": ["Fukushima"]
+			},
+			{
+				"name": "Gifu",
+				"key": ["Gifu"]
+			},
+			{
+				"name": "Gunma",
+				"key": ["Gunma"]
+			},
+			{
+				"name": "Hiroshima",
+				"key": ["Hiroshima"]
+			},
+			{
+				"name": "Hokkaido",
+				"key": ["Hokkaido"]
+			},
+			{
+				"name": "Hyogo",
+				"key": ["Hyogo"]
+			},
+			{
+				"name": "Ibaraki",
+				"key": ["Ibaraki"]
+			},
+			{
+				"name": "Ishikawa",
+				"key": ["Ishikawa"]
+			},
+			{
+				"name": "Iwate",
+				"key": ["Iwate"]
+			},
+			{
+				"name": "Kagawa",
+				"key": ["Kagawa"]
+			},
+			{
+				"name": "Kagoshima",
+				"key": ["Kagoshima"]
+			},
+			{
+				"name": "Kanagawa",
+				"key": ["Kanagawa"]
+			},
+			{
+				"name": "Kochi",
+				"key": ["Kochi"]
+			},
+			{
+				"name": "Kumamoto",
+				"key": ["Kumamoto"]
+			},
+			{
+				"name": "Kyoto",
+				"key": ["Kyoto"]
+			},
+			{
+				"name": "Mie",
+				"key": ["Mie"]
+			},
+			{
+				"name": "Miyagi",
+				"key": ["Miyagi"]
+			},
+			{
+				"name": "Miyazaki",
+				"key": ["Miyazaki"]
+			},
+			{
+				"name": "Nagano",
+				"key": ["Nagano"]
+			},
+			{
+				"name": "Nagasaki",
+				"key": ["Nagasaki"]
+			},
+			{
+				"name": "Nara",
+				"key": ["Nara"]
+			},
+			{
+				"name": "Niigata",
+				"key": ["Niigata"]
+			},
+			{
+				"name": "Oita",
+				"key": ["Oita"]
+			},
+			{
+				"name": "Okayama",
+				"key": ["Okayama"]
+			},
+			{
+				"name": "Okinawa",
+				"key": ["Okinawa"]
+			},
+			{
+				"name": "Osaka",
+				"key": ["Osaka"]
+			},
+			{
+				"name": "Saga",
+				"key": ["Saga"]
+			},
+			{
+				"name": "Saitama",
+				"key": ["Saitama"]
+			},
+			{
+				"name": "Shiga",
+				"key": ["Shiga"]
+			},
+			{
+				"name": "Shimane",
+				"key": ["Shimane"]
+			},
+			{
+				"name": "Shizuoka",
+				"key": ["Shizuoka"]
+			},
+			{
+				"name": "Tochigi",
+				"key": ["Tochigi"]
+			},
+			{
+				"name": "Tokushima",
+				"key": ["Tokushima"]
+			},
+			{
+				"name": "Tokyo",
+				"key": ["Tokyo"]
+			},
+			{
+				"name": "Tottori",
+				"key": ["Tottori"]
+			},
+			{
+				"name": "Toyama",
+				"key": ["Toyama"]
+			},
+			{
+				"name": "Wakayama",
+				"key": ["Wakayama"]
+			},
+			{
+				"name": "Yamagata",
+				"key": ["Yamagata"]
+			},
+			{
+				"name": "Yamaguchi",
+				"key": ["Yamaguchi"]
+			},
+			{
+				"name": "Yamanashi",
+				"key": ["Yamanashi"]
+			}
+		]
+	},
+	{
+		"group": "hotel",
+		"entities": [
+			{
+				"name": "Prince Hotel",
+				"key": ["Prince Hotel"]
+			},
+			{
+				"name": "Plaza Hotel",
+				"key": ["Plaza Hotel"]
+			},
+			{
+				"name": "Nikko Hotel",
+				"key": ["Nikko Hotel"]
+			}
+		]
+	}
+]

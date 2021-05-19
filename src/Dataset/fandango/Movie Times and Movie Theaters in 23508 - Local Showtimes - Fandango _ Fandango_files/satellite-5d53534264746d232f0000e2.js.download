@@ -1,0 +1,33 @@
+_satellite.pushAsyncScript(function(event, target, $variables){
+  if(_satellite.getVar('Page Level 2') == 'movie times | by movie'){
+//set for Hustler 218764
+    if(_satellite.getVar('Movie ID') == '218764'){
+      //MSP
+//PXL-249
+ _satellite.loadScript('//insight.adsrvr.org/track/conv/?adv=qi7i8kp&ct=0:m53g2vj&fmt=4')
+  //PXL-250
+ !function(e,t,n,s,u,a){e.twq||(s=e.twq=function(){s.exe?s.exe.apply(s,arguments):s.queue.push(arguments);},s.version='1.1',s.queue=[],u=t.createElement,u.async=!0,u.src='//static.ads-twitter.com/uwt.js',a=t.getElementsByTagName[0],a.parentNode.insertBefore(u,a))}(window,document,'script');
+  twq('init','o27ia');twq('track','PageView');
+//PXL-251
+(function(e,t,n){if(e.snaptr)return;var a=e.snaptr=function(){a.handleRequest?a.handleRequest.apply(a,arguments):a.queue.push(arguments)};a.queue=[];var s='script';r=t.createElement(s);r.async=!0;r.src=n;var u=t.getElementsByTagName(s)[0];u.parentNode.insertBefore(r,u);})(window,document,'https://sc-static.net/scevent.min.js');
+snaptr('init', '287c5e8b-03c3-4e6c-b1b4-1839c6ff960c', {'user_email': '_INSERT_USER_EMAIL_'});
+snaptr('track', 'START_CHECKOUT');
+//PXL-252
+ _satellite.loadScript('https://www.googletagmanager.com/gtag/js?id=AW-734234765')
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'AW-734234765');
+  gtag('event', 'conversion', {'send_to': 'AW-734234765/ZmOBCJX-xaYBEI2Rjt4C'});
+//PXL-253
+ _satellite.loadScript('https://www.googletagmanager.com/gtag/js?id=AW-752365964')
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'AW-752365964');
+  gtag('event', 'conversion', {'send_to': 'AW-752365964/PyuECKzDzqYBEIzj4OYC'});
+
+   
+    }
+}
+});

@@ -1,0 +1,1699 @@
+(function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = _typeof;
+
+function _typeof3(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof3 = function _typeof3(obj) { return typeof obj; }; } else { _typeof3 = function _typeof3(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof3(obj); }
+
+function _typeof2(obj) {
+  if (typeof Symbol === "function" && _typeof3(Symbol.iterator) === "symbol") {
+    _typeof2 = function _typeof2(obj) {
+      return _typeof3(obj);
+    };
+  } else {
+    _typeof2 = function _typeof2(obj) {
+      return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : _typeof3(obj);
+    };
+  }
+
+  return _typeof2(obj);
+}
+
+function _typeof(obj) {
+  if (typeof Symbol === "function" && _typeof2(Symbol.iterator) === "symbol") {
+    exports.default = _typeof = function _typeof(obj) {
+      return _typeof2(obj);
+    };
+  } else {
+    exports.default = _typeof = function _typeof(obj) {
+      return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : _typeof2(obj);
+    };
+  }
+
+  return _typeof(obj);
+}
+
+},{}],2:[function(require,module,exports){
+"use strict";
+
+function _interopRequireDefault(obj) {
+  return obj && obj.__esModule ? obj : {
+    default: obj
+  };
+}
+
+module.exports = _interopRequireDefault;
+
+},{}],3:[function(require,module,exports){
+"use strict";
+
+var _interopRequireDefault = require("/tmp/workspace/pre-prod-release/node_modules/babel-preset-react-app/node_modules/@babel/runtime/helpers/interopRequireDefault");
+
+var _EmailAjax = _interopRequireDefault(require("./obj/EmailAjax"));
+
+var _VanillaBox = _interopRequireDefault(require("./obj/VanillaBox"));
+
+/** Header/Footer code
+ *
+ * DO NOT USE JQUERY IN THIS DOCUMENT!
+ *
+ */
+require('./vendor/live-chat');
+
+window.isMobile = function () {
+  return 'ontouchstart' in document.documentElement;
+}; // when an item is added to the cart, this should be updated. Also ran on every page load.
+
+
+function updateCartCount() {
+  var request = new XMLHttpRequest();
+  request.open('GET', '/def/header.cart.count.html', true);
+
+  request.onload = function () {
+    var cart = document.querySelector('.cart');
+    cart.querySelector('.cart__count').remove();
+    cart.insertAdjacentHTML('afterBegin', this.response);
+  };
+
+  request.onerror = function () {// error
+  };
+}
+
+function updateCartBox() {
+  var cartBox = document.querySelector('.cart-box');
+
+  if (cartBox.querySelector('.cart-box-inner') !== null) {
+    cartBox.querySelector('.cart-box-inner').parentNode.removeChild(cartBox.querySelector('.cart-box-inner'));
+  }
+
+  cartBox.insertAdjacentHTML('afterBegin', '<div class="cart-box-inner loader d-flex align-items-center justify-content-center"><svg xmlns="http://www.w3.org/2000/svg" width="75px" height="75px" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid" class="lds-rolling" style="background: none;"><circle cx="50" cy="50" fill="none" ng-attr-stroke="{{config.color}}" ng-attr-stroke-width="{{config.width}}" ng-attr-r="{{config.radius}}" ng-attr-stroke-dasharray="{{config.dasharray}}" stroke="#7fba00" stroke-width="10" r="35" stroke-dasharray="164.93361431346415 56.97787143782138" transform="rotate(326.982 50 50)"><animateTransform attributeName="transform" type="rotate" calcMode="linear" values="0 50 50;360 50 50" keyTimes="0;1" dur="1s" begin="0s" repeatCount="indefinite"/></circle></svg></div>');
+  var request = new XMLHttpRequest();
+  request.open('GET', '/cart.include.html', true);
+
+  request.onload = function () {
+    if (this.status >= 200 && this.status < 400) {
+      // Success!
+      cartBox.querySelector('.cart-box-inner').parentNode.removeChild(cartBox.querySelector('.cart-box-inner'));
+      cartBox.insertAdjacentHTML('afterBegin', this.response);
+      window.sr_updateMessages();
+    } else {// We reached our target server, but it returned an error
+    }
+  };
+
+  request.onerror = function () {// There was a connection error of some sort
+  };
+
+  request.send();
+} // locks body so it doesn't move and allows the menu to scroll.
+
+
+function toggleMenuLock() {
+  if (document.querySelector('.link-bar--active') === null && document.querySelector('.cart-box--active') === null) {
+    document.querySelector('.header-nav').classList.remove('header-nav--scrollable');
+    var vanilla = document.querySelector(".vanilla-box-active");
+
+    if (!vanilla) {
+      document.querySelector('body').classList.remove('no-scroll');
+    }
+  } else {
+    document.querySelector('.header-nav').classList.add('header-nav--scrollable');
+    document.querySelector('body').classList.add('no-scroll');
+  }
+}
+
+function closeMenu(navModel) {
+  navModel.menuOverlay.classList.remove('menu-overlay--active');
+  closeCartBox(navModel);
+  closeInnerNavBox();
+  closeNavBox(navModel);
+  toggleMenuLock();
+  closeAccountBox(navModel);
+  closeSupportBox(navModel);
+}
+
+function closeLinkBar(upperBar) {
+  if (document.querySelector('.link-bar--active') !== null && isMobile()) {
+    document.querySelector('.link-bar--active').classList.remove('link-bar--active');
+    document.querySelector('.upper-bar--active').classList.remove('upper-bar--active');
+    document.querySelector('.menu-btn-close').classList.remove('menu-btn-close--active');
+    document.querySelector('.menu-btn__svg').classList.remove('menu-btn--inactive');
+    document.querySelector('button.menu-btn').setAttribute('aria-expanded', 'false');
+  }
+}
+
+function closeCartBox(navModel) {
+  if (document.querySelector('.cart-box--active') !== null) {
+    navModel.cartBox.classList.remove('cart-box--active');
+    document.querySelector('.cart-menu').setAttribute('aria-expanded', 'false');
+  }
+}
+
+function openCartBox(navModel) {
+  navModel.menuOverlay.style.marginTop = '140px';
+  navModel.cartBox.classList.add('cart-box--active');
+  document.querySelector('.cart-menu').setAttribute('aria-expanded', 'true');
+  navModel.menuOverlay.classList.add('menu-overlay--active');
+}
+
+function closeAccountBox(navModel) {
+  if (document.querySelector('.account-box--active') !== null) {
+    navModel.accountBox.classList.remove('account-box--active');
+    navModel.accountBox.setAttribute('aria-expanded', 'false');
+  }
+}
+
+function closeSupportBox(navModel) {
+  if (document.querySelector('.support-box--active') !== null) {
+    navModel.supportBox.classList.remove('support-box--active');
+  }
+}
+
+function closeNavBox(navModel) {
+  if (document.querySelector('.link-bar__a--active') !== null) {
+    document.querySelector('.link-bar__a--active').classList.remove('link-bar__a--active');
+    navModel.navBox.classList.remove('nav-box--active');
+    navModel.navBox.classList.remove('nav-box--overflow');
+    document.querySelector('.link-bar__inner-container').childNodes[5].focus();
+  }
+}
+
+function ready(fn) {
+  if (document.attachEvent ? document.readyState === "complete" : document.readyState !== "loading") {
+    fn();
+  } else {
+    document.addEventListener('DOMContentLoaded', fn);
+  }
+}
+
+function openNavBox(navModel, that) {
+  var menuOverlay = document.querySelector('.menu-overlay');
+  menuOverlay.style.marginTop = '140px';
+  Array.prototype.filter.call(that.parentNode.children, function (child) {
+    return child !== that;
+  }).forEach(function (linkBar) {
+    if (!linkBar.classList.contains('nav-box')) {
+      linkBar.classList.add('link-bar__a--hide');
+    }
+  });
+  menuOverlay.classList.add('menu-overlay--active');
+  that.classList.add('link-bar__a--active');
+  navModel.navBox.classList.add('nav-box--active');
+  document.querySelector('.upper-bar').classList.add('upper-bar--active');
+  document.querySelector('.menu-breadcrumb').classList.remove('menu-breadcrumb--hide');
+}
+
+function closeInnerNavBox() {
+  if (document.querySelector('.nav-box__a--active') !== null) {
+    document.querySelector('.nav-box__a--active').setAttribute('aria-expanded', 'false');
+    document.querySelector('.nav-box__a--active').classList.remove('nav-box__a--active');
+    document.querySelector('.nav-box__inner-ul--active').classList.remove('nav-box__inner-ul--active');
+  }
+}
+
+ready(function () {
+  document.querySelector('.header-nav__search').addEventListener('submit', function submitSearch() {
+    this.setAttribute('action', 'https://' + window.location.hostname + '/q');
+    sessionStorage.setItem('search', true);
+    this.removeEventListener('submit', submitSearch);
+    this.submit();
+  }); //Start AutoComplete Dropdown
+
+  var selectedElementIndex;
+  var searchElement = document.querySelector('#search');
+  var termAmount = 0;
+  var count = 0;
+  var timerId; //variable to clear setTimeout interval
+
+  var overlay = document.getElementsByClassName("menu-overlay");
+  var overlayElement = overlay[0].classList;
+  var list = document.getElementsByClassName('header-nav');
+  /*---Close Drop Down Function----*/
+
+  function closeDropdown() {
+    var elementContainer = document.getElementById("search__autocomplete-container");
+    list[0].classList.remove("large-search"); //Removes large-search class after the dropdown closes
+
+    if (elementContainer) {
+      elementContainer.parentNode.removeChild(elementContainer);
+
+      if (overlayElement.length > 1) {
+        overlayElement.remove('active'); //Removes active class to remove overlay when dropdown closes
+      }
+    }
+  }
+  /*---Close Drop Down Function----*/
+  //STEP 1 Checks if the search term length is more than 3
+
+
+  searchElement.addEventListener("input", function () {
+    var search = this.value.trim();
+
+    if (search.length > 3) {
+      count++;
+
+      if (count < 2) {
+        makeAjaxCall();
+      } else {
+        //Have to finalize time delay
+        debounceFunction(makeAjaxCall, 600); //Function to debounce the makeAjaxCall function
+      }
+    } else {
+      closeDropdown();
+    }
+  });
+  /*---End of Step 1--*/
+  //STEP 2 Function to make AJAX call and populate the outer dropdown box Search Term section
+
+  function makeAjaxCall() {
+    var searchTerm = searchElement.value;
+    var that = searchElement;
+    var request = new XMLHttpRequest();
+    var containerElement, keywordContainer, keywordElement, closeContainer;
+
+    try {
+      request.abort();
+    } catch (e) {}
+
+    request.open('GET', '/sayt?query=' + searchTerm);
+
+    request.onreadystatechange = function () {
+      if (this.readyState === 4 && this.status === 200) {
+        var data = JSON.parse(this.responseText);
+
+        if (!searchTerm) {
+          return false;
+        }
+
+        selectedElementIndex = -1;
+        closeDropdown();
+        containerElement = document.createElement("div");
+        containerElement.setAttribute("id", that.id + "__autocomplete-container");
+        containerElement.setAttribute("class", "autocomplete-container");
+        that.parentNode.appendChild(containerElement);
+        closeContainer = document.createElement("span");
+        closeContainer.setAttribute("id", "close");
+        closeContainer.innerHTML = "&#x000D7;";
+        containerElement.appendChild(closeContainer);
+        keywordContainer = document.createElement('div');
+        keywordContainer.setAttribute('class', 'autocomplete-keywords');
+        containerElement.appendChild(keywordContainer);
+        /*---Adds active class to add Menu overlay---*/
+
+        if (containerElement && overlayElement.length < 2) {
+          overlayElement.add('active');
+        }
+        /*---END Adds active class to add Menu overlay---*/
+
+
+        list[0].classList.add('large-search'); //Adds "large-search" class to the header to make the search box bigger in mobile
+
+        if (data.result.stats.searchCount < 5) {
+          //Adds two-item class to container Element to display two products if the searchTerms are 4 or less
+          containerElement.classList.add("two-items");
+        }
+        /*----Search term population---- */
+
+
+        if (data.result.searchTerms) {
+          for (var index = 0; index < data.result.searchTerms.length; index++) {
+            var keyword = data.result.searchTerms[index].value;
+            keywordElement = document.createElement("div");
+            keywordElement.setAttribute('data-val', keyword);
+            keywordElement.setAttribute('class', 'autocomplete-suggestion');
+            keywordElement.innerHTML = keyword.replace(searchTerm, '<b>' + searchTerm + '</b>').replace(/ /g, '&nbsp;');
+            keywordElement.addEventListener("click", function () {
+              searchElement.value = this.innerText.replace(/\u00a0/g, " "); //replace &nbsp; with space to keep url clean
+
+              sessionStorage.setItem('sayt', true);
+              document.querySelector('.header-nav__search').setAttribute('action', 'https://' + window.location.hostname + '/q');
+              document.querySelector('.header-nav__search').submit();
+              closeDropdown();
+            });
+            keywordContainer.appendChild(keywordElement);
+            termAmount++;
+          }
+        } else {
+          keywordElement = document.createElement("div");
+          keywordElement.setAttribute('class', 'no-suggestion');
+          keywordElement.innerHTML = "No terms match your search";
+          keywordContainer.appendChild(keywordElement);
+        }
+        /*----END Search term population---- */
+
+
+        autocompletePopulation(searchTerm, data); //Function to populate the product details
+      }
+      /*---Change in the products when hovered over Search Term ---*/
+
+
+      var searchContainer = document.querySelector(".autocomplete-keywords");
+
+      if (searchContainer) {
+        searchContainer.addEventListener("mouseover", function (e) {
+          var searchSuggestion = e.target.dataset.val;
+
+          if (searchSuggestion !== undefined) {
+            hoverOver(searchSuggestion);
+          }
+        });
+      }
+    };
+
+    request.send();
+    /*---END Change in the products when hovered over Search Term ---*/
+  }
+  /*---End of Step-2---*/
+
+  /*---STEP-3 Function to populate the products and its details--*/
+
+
+  function autocompletePopulation(searchTerm, data) {
+    var containerElement = document.getElementById('search__autocomplete-container');
+    var productContainer = document.createElement('div');
+    productContainer.setAttribute('class', 'autocomplete-product-container');
+    containerElement.appendChild(productContainer);
+
+    if (data.result.itemRecords && data.result.products.length !== 0) {
+      var imgPath = 'https://media.swansonvitamins.com/images/items/150/';
+      var productHtml = '';
+      var productElement = document.createElement("div");
+      productElement.setAttribute('class', 'autocomplete-product');
+      productElement.innerHTML = '<div class="autocomplete-search-for"><p class="suggestion">Search for&nbsp;<a class="autocomplete-search-for__anchor" href="/q?kw=' + searchTerm + '">&dblac;' + searchTerm + '&dblac;</a> ?' + '</p><h3 class="prod-suggestion">Product Suggestions</h3><div class="visually-hidden" aria-live="assertive" aria-atomic="true" >Showing search items for ' + searchTerm + '</div></div>';
+
+      for (var i = 0; i < data.result.itemRecords.length; i++) {
+        var thisItem = data.result.itemRecords[i]; //  var addToOrderUrl = 'cart.add.do?submit=addToOrder&adobeRecordId=' + thisItem.productPartNumber + '&quantity=1&maxQuantity=99999';
+
+        if (thisItem && !thisItem.statusUnavailable) {
+          //item is available
+          // Set product img src,
+          var productSrc;
+
+          if (thisItem.productPartNumber === 'DELIVERYINS') {
+            productSrc = imgPath + thisItem.productPartNumber + '01';
+          } else {
+            productSrc = imgPath + thisItem.productPartNumber;
+          }
+
+          productHtml += '<div class="item text-center carousel-product-contain" data-item="' + thisItem.productPartNumber + '" data-index="' + i + '">';
+          productHtml += '<a href="' + thisItem.longURL + '" title="' + thisItem.productName + ' - ' + thisItem.productPartNumber + '" class="product-link-idp">';
+          productHtml += '<img src="' + productSrc + '.jpg" alt="' + thisItem.productName + '" />';
+          productHtml += '</a>'; // end product img
+          //Product Details
+
+          productHtml += '<div class="product-details">'; // Product desc
+
+          productHtml += '<a href="' + thisItem.longURL + '" title="' + thisItem.productName + ' - ' + thisItem.productPartNumber + '" class="product-link-idp">';
+          productHtml += '<p class="carousel-product-vendor">' + thisItem.productVendor + '</p>';
+          productHtml += '<p class="carousel-product-desc">' + thisItem.productName + '</p>';
+          productHtml += '</a>'; // end product desc
+          // Product details
+
+          productHtml += '<p class="carousel-product-serving">' + thisItem.productDetails + '</p>'; // end product details
+
+          productHtml += '</div>';
+          productHtml += '</div>'; // end
+        }
+      }
+
+      productElement.innerHTML += productHtml;
+      productContainer.appendChild(productElement);
+
+      if (!productHtml) {
+        var prodSuggestion = document.getElementsByClassName('prod-suggestion');
+        prodSuggestion[0].innerHTML = 'No Product Suggestions';
+      } //Close Dropdown when clicked on close
+
+
+      var closeDD = document.getElementById("close");
+      closeDD.addEventListener("click", function () {
+        searchElement.value = " ";
+        closeDropdown();
+      });
+    } else {
+      closeDropdown();
+    }
+
+    if (window.innerWidth > 768) {
+      document.addEventListener('scroll', function () {
+        if (containerElement) {
+          searchElement.value = " ";
+          closeDropdown();
+        }
+      });
+    }
+
+    document.addEventListener('keyup', function (e) {
+      if (e.keyCode === 27) {
+        searchElement.value = " ";
+        closeDropdown();
+      }
+    });
+    document.addEventListener('click', function (e) {
+      searchElement.value = " ";
+      closeDropdown();
+    });
+    var searchForm = document.querySelector("form.header-nav__search");
+    searchForm.addEventListener('click', function (e) {
+      e.stopPropagation();
+    });
+  }
+  /*----End of Step-3----*/
+
+  /*-----Limits the call of makeAjaxCall function and waits for the user to pause till the delay time to call the function-----*/
+
+
+  var debounceFunction = function debounceFunction(func, delay) {
+    clearTimeout(timerId);
+    timerId = setTimeout(func, delay);
+  };
+
+  function hoverOver(searchSuggestion) {
+    var searchContainer = document.querySelector(".autocomplete-keywords");
+    var searchChild = searchContainer.children;
+
+    for (var i = 0; i < searchChild.length; i++) {
+      searchChild[i].classList.remove("autocomplete-selected");
+    }
+
+    navOver(searchSuggestion);
+  }
+
+  function navOver(searchSuggestion) {
+    clearTimeout(timerId);
+    timerId = setTimeout(function () {
+      var searchRequest = new XMLHttpRequest();
+      searchRequest.open('GET', '/sayt?query=' + searchSuggestion);
+
+      searchRequest.onreadystatechange = function () {
+        if (this.readyState === 4 && this.status === 200) {
+          var data = JSON.parse(this.responseText);
+          var containerAutocom = document.querySelector(".autocomplete-product-container");
+
+          if (containerAutocom) {
+            containerAutocom.parentNode.removeChild(containerAutocom);
+            searchElement.value = searchSuggestion;
+            autocompletePopulation(searchSuggestion, data);
+          }
+        }
+      };
+
+      searchRequest.send();
+    }, 600);
+  }
+  /*--END Debounce Function---*/
+
+  /*---Navigation through Up and Down Arrow --*/
+
+
+  searchElement.addEventListener("keydown", function (e) {
+    var selectedKeyword = document.querySelector(".autocomplete-keywords");
+
+    if (selectedKeyword) {
+      selectedKeyword = selectedKeyword.getElementsByTagName("div");
+    }
+
+    if (e.keyCode === 40 && selectedElementIndex < termAmount) {
+      //Down Arrow Pressed
+      selectedElementIndex++;
+      addSelected(selectedKeyword);
+    } else if (e.keyCode === 38 && selectedElementIndex > 0) {
+      //Up Arrow Pressed
+      selectedElementIndex--;
+      addSelected(selectedKeyword);
+    } else if (e.keyCode === 13) {
+      //Enter Pressed
+      if (selectedElementIndex > -1 && selectedKeyword) {
+        searchElement.value = selectedKeyword[selectedElementIndex].innerText.replace(/\u00a0/g, " ");
+        selectedKeyword[selectedElementIndex].click();
+      }
+    }
+  });
+
+  function addSelected(element) {
+    if (!element) {
+      return false;
+    }
+
+    for (var i = 0; i < element.length; i++) {
+      element[i].classList.remove("autocomplete-selected");
+    }
+
+    if (selectedElementIndex >= element.length) {
+      selectedElementIndex = 0;
+    }
+
+    if (selectedElementIndex < 0) {
+      selectedElementIndex = element.length - 1;
+    }
+
+    element[selectedElementIndex].classList.add("autocomplete-selected");
+    var selectedValue = element[selectedElementIndex].textContent;
+    navOver(selectedValue);
+  }
+  /*---End of Navigation through Up and Down Arrow --*/
+  //End AutoComplete Dropdown
+
+
+  if (utag_data.channel === 'shp|search' || utag_data.channel === 'shp|browse') {
+    var selector = document.querySelector('#gbDYM');
+
+    if (selector !== null) {
+      selector.addEventListener('click', function () {
+        sessionStorage.setItem('dym', true);
+      });
+    }
+  }
+
+  if (dataLayer.channel === 'shp|search' || dataLayer.channel === 'shp|browse') {
+    var _selector = document.querySelector('#gbDYM');
+
+    if (_selector !== null) {
+      _selector.addEventListener('click', function () {
+        sessionStorage.setItem('dym', true);
+      });
+    }
+  }
+
+  var navModel = {
+    navBox: document.querySelector('.nav-box'),
+    cartBox: document.querySelector('.cart-box'),
+    cartSVG: document.querySelector('.cart__svg'),
+    linkBar: document.querySelector('.link-bar'),
+    signInBar: document.querySelector('.upper-bar__green-bg'),
+    accountBox: document.querySelector('.account-box'),
+    supportBox: document.querySelector('.support-box'),
+    menuOverlay: document.querySelector('.menu-overlay')
+  };
+
+  function menuTrigger(e) {
+    e.preventDefault();
+    this.querySelector('.plus-icon').classList.toggle('active');
+    var menuSelector = this.getAttribute('data-menu');
+    document.querySelector(menuSelector).classList.toggle('active');
+  }
+
+  var eventTypes = ['mouseenter', 'click', 'focusin', 'focusout', 'keyup'];
+
+  function mobileStart() {
+    closeMenu(navModel);
+    document.querySelectorAll('.menu-trigger').forEach(function (trigger) {
+      trigger.addEventListener('click', menuTrigger);
+    });
+    window.addEventListener('resize', function desktopBegin() {
+      if (window.innerWidth >= 768) {
+        window.removeEventListener('resize', desktopBegin);
+        desktopStart();
+      }
+    });
+  }
+
+  function desktopStart() {
+    var triggers = document.querySelectorAll('.menu-trigger');
+    Array.prototype.forEach.call(triggers, function (trigger) {
+      trigger.removeEventListener('click', menuTrigger);
+    });
+    closeMenu(navModel);
+    window.addEventListener('resize', function mobileBegin() {
+      if (window.innerWidth < 768) {
+        window.removeEventListener('resize', mobileBegin);
+        mobileStart();
+      }
+    });
+  }
+
+  window.addEventListener('scroll', function () {
+    if (!isMobile()) {
+      closeMenu(navModel);
+    }
+  });
+
+  if (window.innerWidth < 768) {
+    mobileStart();
+  } else {
+    desktopStart();
+  }
+
+  var footerEmailSignUp = document.getElementById('footerEmailForm'); // email signup footer.
+
+  if (footerEmailSignUp) {
+    footerEmailSignUp.addEventListener('submit', function (e) {
+      e.preventDefault();
+      var emailFooterSignup = new _EmailAjax.default({
+        emailId: '#footerEmailAddress',
+        emailConfirmId: '#footerEmailAddressConfirm',
+        formId: '#footerEmailForm'
+      });
+      emailFooterSignup.sendEmail(function (data) {
+        // document.getElementById('email-signup-form').setAttribute('data-location', 'Chronic Footer Signup')
+        if (data.signup === 'success') {
+          footerEmailSignUp.classList.add('first-signup');
+          document.getElementById('emailConfirmSuccessFooter').classList.remove('d-none');
+          document.getElementById('emailConfirmSuccessFooter').classList.add('d-block');
+          footerEmailSignUp.classList.add('d-none');
+          footerEmailSignUp.classList.remove('d-flex');
+        } else {
+          footerEmailSignUp.classList.add('return-signup');
+          document.getElementById('emailAlreadyFooter').classList.remove('d-none');
+          document.getElementById('emailAlreadyFooter').classList.add('d-block');
+          footerEmailSignUp.classList.add('d-none');
+          footerEmailSignUp.classList.remove('d-flex');
+        }
+
+        if (navigator.userAgent.indexOf('MSIE') !== -1 || navigator.appVersion.indexOf('Trident/') <= -1) {
+          window.__attentive.trigger(null, null, document.querySelector(emailFooterSignup.emailId).value);
+        }
+      }, function () {
+        footerEmailSignUp.classList.add('real-error');
+        document.querySelector('.hide-me-on-signup').hide();
+      });
+    });
+  }
+
+  document.querySelector('.cart-menu').addEventListener('focusout', function () {
+    if (!isMobile()) {
+      closeMenu(navModel);
+    }
+  }); // event handler for opening the cart for both mobile and desktop.
+
+  eventTypes.forEach(function (evt) {
+    document.querySelector('.cart-menu').addEventListener(evt, function (e) {
+      e.preventDefault();
+
+      if (e.type === 'click' || e.type === 'mouseenter' && !isMobile() || e.type === 'focusin' && !isMobile()) {
+        if (document.querySelector('.cart-box--active') === null) {
+          updateCartBox();
+          closeMenu(navModel);
+          openCartBox(navModel);
+          navModel.signInBar.classList.add('upper-bar--active');
+          document.querySelector('.menu-btn-close').classList.remove('menu-btn-close--active');
+          document.querySelector('.menu-btn__svg').classList.remove('menu-btn--inactive');
+          document.querySelector('button.menu-btn').setAttribute('aria-expanded', 'false');
+
+          if (window.innerWidth >= 768 && e.type === 'click') {
+            window.location = '/ShoppingBag';
+          }
+        } else {
+          closeMenu(navModel);
+        }
+
+        document.querySelector('.upper-bar__green-bg').classList.remove('upper-bar--active');
+      }
+
+      if (isMobile()) {
+        closeLinkBar(navModel);
+        toggleMenuLock();
+      }
+    });
+  }); // event handler for opening the cart for both mobile and desktop.
+
+  if (document.querySelector('.account-menu-logged') !== null) {
+    eventTypes.forEach(function (evt) {
+      document.querySelector('.account-menu-logged a').addEventListener(evt, function (e) {
+        if (e.type !== 'click') {
+          e.preventDefault();
+
+          if (e.type === 'mouseenter' && !isMobile()) {
+            if (document.querySelector('.account-box--active') === null) {
+              closeMenu(navModel);
+              navModel.accountBox.classList.add('account-box--active');
+              navModel.accountBox.setAttribute('aria-expanded', 'true');
+              navModel.menuOverlay.classList.add('menu-overlay--active');
+            } else {
+              closeMenu(navModel);
+            }
+
+            if (isMobile()) {
+              closeLinkBar(navModel);
+              toggleMenuLock();
+            }
+          }
+        }
+      });
+    });
+  } //closes the support menu when the keyboard focus is out
+
+
+  document.querySelector('.support-menu').addEventListener('focusout', function () {
+    closeMenu(navModel);
+  });
+  eventTypes.forEach(function (evt) {
+    document.querySelector('.support-menu').addEventListener(evt, function (e) {
+      e.preventDefault();
+
+      if (e.type === 'click' || e.type === 'mouseenter' && !isMobile() || e.type === 'focusin') {
+        if (document.querySelector('.support-box--active') === null) {
+          closeMenu(navModel);
+          navModel.supportBox.classList.add('support-box--active');
+          navModel.menuOverlay.classList.add('menu-overlay--active');
+        } else {
+          closeMenu(navModel);
+        }
+
+        if (isMobile()) {
+          closeLinkBar(navModel.signInBar);
+          toggleMenuLock();
+        }
+      }
+    });
+  }); // Event handler for mobile menu hamburger button
+
+  document.querySelector('.menu-btn').addEventListener('click', function () {
+    if (document.querySelector('.menu-btn-close--active')) {
+      document.querySelector('.menu-btn-close').classList.remove('menu-btn-close--active');
+      navModel.linkBar.classList.remove('link-bar--active');
+      document.querySelector('.menu-btn__svg').classList.remove('menu-btn--inactive');
+      document.querySelector('.menu-btn').setAttribute('aria-expanded', 'false');
+      navModel.supportBox.classList.remove('support-box--active');
+      navModel.signInBar.classList.remove('upper-bar--active');
+    } else {
+      document.querySelector('.menu-btn-close').classList.add('menu-btn-close--active');
+      navModel.linkBar.classList.add('link-bar--active');
+      document.querySelector('.menu-btn__svg').classList.add('menu-btn--inactive');
+      navModel.supportBox.classList.add('support-box--active');
+      navModel.signInBar.classList.add('upper-bar--active');
+      document.querySelector('button.menu-btn').setAttribute('aria-expanded', 'true');
+    }
+
+    if (isMobile()) {
+      navModel.cartBox.classList.remove('cart-box--active');
+      document.querySelector('.cart-menu').setAttribute('aria-expanded', 'false');
+    }
+
+    toggleMenuLock();
+  }); // event handler to close menus on overlay click.
+
+  eventTypes.forEach(function (evt) {
+    document.querySelector('.menu-overlay').addEventListener(evt, function (e) {
+      e.preventDefault();
+
+      if (e.type === 'mouseenter' && !isMobile() || e.type === 'click' && isMobile()) {
+        closeMenu(navModel);
+      }
+    });
+  });
+  document.querySelector('.menu-breadcrumb').addEventListener('click', function () {
+    document.querySelectorAll('.link-bar__a--hide').forEach(function (hidden) {
+      hidden.classList.remove('link-bar__a--hide');
+    });
+    navModel.navBox.classList.remove('nav-box--active');
+    navModel.navBox.classList.remove('nav-box--overflow');
+    document.querySelector('.link-bar__a--active').classList.remove('link-bar__a--active');
+    document.querySelector('.menu-breadcrumb').classList.add('menu-breadcrumb--hide');
+    document.querySelector('.category-breadcrumb').classList.add('category-breadcrumb--hide');
+  });
+  document.querySelector('.category-breadcrumb').addEventListener('click', function () {
+    document.querySelector('.nav-box__a--active').setAttribute('aria-expanded', 'false');
+    document.querySelector('.nav-box__a--active').classList.remove('nav-box__a--active');
+    document.querySelector('.nav-box__li').classList.remove('nav-box__li--hide');
+    document.querySelector('.nav-box__inner-ul--active').classList.remove('nav-box__inner-ul--active');
+    document.querySelectorAll('.link-bar__category-menu').forEach(function (hidden) {
+      hidden.classList.remove('link-bar__a--hide');
+    });
+    document.querySelector('.category-breadcrumb').classList.add('category-breadcrumb--hide');
+  }); // event handler for category dropdown
+
+  eventTypes.forEach(function (evt) {
+    document.querySelector('.link-bar__category-menu').addEventListener(evt, function (e) {
+      e.preventDefault();
+
+      if (e.type === 'focusin') {
+        closeCartBox(navModel);
+      }
+
+      if (e.type === 'mouseenter' && !isMobile() || e.type === 'click' || e.keyCode === 13) {
+        if (this.classList.contains('link-bar__a--active')) {
+          if (isMobile()) {
+            closeNavBox(navModel);
+            closeInnerNavBox(navModel);
+            document.querySelectorAll('.link-bar__a').forEach(function (linkBarLink) {
+              linkBarLink.classList.remove('link-bar__a--hide');
+            });
+            document.querySelector('.menu-breadcrumb').classList.add('menu-breadcrumb--hide');
+          } else {
+            closeMenu(navModel);
+          }
+        } else {
+          openNavBox(navModel, this);
+        } // inner event handler to disable events and close menu.
+
+
+        navModel.menuOverlay.addEventListener('click.menu', function overlayCloseMenu(e) {
+          e.preventDefault();
+
+          if (e.keyCode === 27 || e.type === 'click') {
+            if (isMobile()) {
+              closeNavBox(navModel);
+            } else {
+              closeMenu(navModel);
+            }
+
+            document.querySelector('.link-bar__category-menu').removeEventListener('click.menu', overlayCloseMenu);
+          }
+        }); // end inner event
+      }
+    });
+  });
+  document.querySelector('.nav-box__li:last-child').addEventListener('focusout', function () {
+    closeMenu(navModel);
+  });
+  var menus = document.querySelectorAll('.nav-box__a--menu');
+  Array.prototype.forEach.call(menus, function (navLink) {
+    eventTypes.forEach(function (evt) {
+      navLink.addEventListener(evt, function (e) {
+        e.preventDefault();
+
+        if (e.type === 'click' || e.keyCode === 13 && !isMobile()) {
+          if (isMobile()) {
+            if (document.querySelector('.nav-box__li--hide') === null) {
+              var that = this;
+              Array.prototype.filter.call(this.parentNode.parentNode.children, function (child) {
+                return child !== that.parentNode;
+              }).forEach(function (sibling) {
+                sibling.classList.add('nav-box__li--hide');
+              });
+              document.querySelector('.link-bar__category-menu').classList.add('link-bar__a--hide');
+              document.querySelector('.category-breadcrumb').classList.remove('category-breadcrumb--hide');
+            } else {
+              document.querySelectorAll('.nav-box__li--hide').forEach(function (hidden) {
+                hidden.classList.remove('nav-box__li--hide');
+              });
+              document.querySelector('.link-bar__category-menu').classList.remove('link-bar__a--hide');
+              document.querySelector('.category-breadcrumb').classList.add('category-breadcrumb--hide');
+            }
+          }
+
+          if (e.type === 'focusin') {
+            document.querySelector('.nav-box').lastElementChild.lastElementChild.lastElementChild.addEventListener('focusout', function () {
+              closeMenu(navModel);
+            });
+          }
+
+          var sameMenuClick = false; // did you click on a nav-box that was already open?
+
+          if (this.classList.contains('nav-box__a--active')) {
+            sameMenuClick = true;
+          } // stops the script from closing and reopening the menu right away.
+
+
+          if (!sameMenuClick) {
+            // if another inner nav is open, close it
+            if (document.querySelector('.nav-box__inner-ul--active') !== null) {
+              closeInnerNavBox();
+            }
+
+            navModel.navBox.classList.add('nav-box--overflow');
+            this.classList.add('nav-box__a--active');
+            this.setAttribute('aria-expanded', 'true');
+            this.nextElementSibling.classList.add('nav-box__inner-ul--active');
+          }
+        }
+      });
+    });
+  });
+  document.addEventListener('keyup', function (e) {
+    if (e.keyCode === 27 || e.type === 'scroll') {
+      closeMenu(navModel);
+    }
+  });
+});
+var emailPopup2019 = new _VanillaBox.default(null, function () {
+  if (navigator.userAgent.indexOf('MSIE') !== -1 || navigator.appVersion.indexOf('Trident/') <= -1) {
+    window.__attentive.trigger(null, null, null);
+  }
+});
+emailPopup2019.build('<div class="email-signup-popup-2019">' + '<form id="emailSignupForm">' + '<div class="text-center text-green title-xl font-weight-bold pt-2">20% OFF</div>' + '<div class="text-center title-md title-line-through"><span class="bg-white px-3">PLUS</span></div>' + '<div class="text-center text-green title-lg font-weight-bold">FREE SHIPPING</div>' + '<div class="text-center title-md mb-1">ON TODAY\'S ORDER</div>' + '<div class="title-sm text-center pb-1">Get Our Best Deals &amp; News Sent Straight to Your Inbox!</div>' + '    <div class="d-none">\n' + '       <input type="hidden" name="offer" type="checkbox" value="9" checked="checked"/>' + '       <input type="hidden" name="_offer" value="on"/>' + '       <input type="hidden" name="recipe" type="checkbox" value="y" checked="checked"/>' + '       <input type="hidden" name="_recipe" value="on"/>' + '       <input type="hidden" name="eNewsletter" type="checkbox" value="y" checked="checked"/>' + '       <input type="hidden" name="_eNewsletter" value="on"/>' + '       <input type="hidden" name="updates" type="checkbox" value="y" checked="checked"/>' + '       <input type="hidden" name="_updates" value="on"/>' + '     </div>' + '     <div id="signupInput" class="d-flex flex-wrap justify-content-center">' + '        <input class="col-11 mb-2 mb-md-0 col-md-7 txtbox-tall" tabindex="0" type="text" name="email" id="emailField" title="Enter your email address"' + '             placeholder="Enter your email address" size="30" />' + '        <input type="hidden" name="emailConfirm" id="emailConfirmField"' + '            title="Retype your email address" value="Retype your email address" size="30"' + '        />' + '       <input type="hidden" name="submit" value="subscribe"/>' + '       <input name="submit-btn" type="submit" tabindex="0" value="Sign Me Up for Savings!"' + '            id="popup-button" class="button-orange col-11 col-md-4 btn-tall"/>' + '       <a class="col-12 text-right mt-1 mr-md-5 mr-4 mb-2 pop-up-close underline" href="#" tabindex="0">No Thanks</a>' + '       <div class="transparent-white-footer d-flex flex-wrap"><div class="col-12 text-center text-gray">Offer good for first-time registrants only.</div>' + '       <div class="col-12 text-center text-gray pb-2">Free standard shipping applies to orders $50+.' + '    </div></div>' + '</form>', function () {
+  var popups = document.querySelectorAll('.pop-up-close');
+  Array.prototype.forEach.call(popups, function (close) {
+    close.addEventListener('click', function (e) {
+      e.preventDefault();
+      emailPopup2019.hide();
+    });
+  });
+  document.getElementById('emailSignupForm').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var popupSignUp = new _EmailAjax.default({
+      emailId: '#emailField',
+      emailConfirmId: '#emailConfirmField',
+      formId: '#emailSignupForm'
+    });
+    var popupForm = document.querySelector('#emailSignupForm');
+    popupSignUp.sendEmail(function (data) {
+      if (navigator.userAgent.indexOf('MSIE') !== -1 || navigator.appVersion.indexOf('Trident/') <= -1) {
+        window.__attentive.trigger(null, null, document.querySelector(popupSignUp.emailId).value);
+      }
+
+      if (data.signup === 'success') {
+        window._satellite.setVar('emailSuccess', 'New');
+      } else if (data.signup === 'error') {
+        window._satellite.setVar('emailSuccess', 'Existing');
+      }
+
+      window._satellite.track('EmailPopupSubmit');
+
+      emailPopup2019.hide(false);
+    }, function () {
+      popupForm.classList.add('real-error');
+      document.querySelector('.hide-me-on-signup').hide();
+    });
+  });
+});
+document.querySelector('.email-signup').addEventListener('click', function (e) {
+  e.preventDefault();
+  emailPopup2019.show();
+});
+
+function setCookieDate() {
+  var now = new Date();
+  now.setDate(now.getDate() + 30);
+  return now.toUTCString();
+} // IE support for startsWith()
+
+
+if (!String.prototype.startsWith) {
+  Object.defineProperty(String.prototype, 'startsWith', {
+    value: function value(search, pos) {
+      pos = !pos || pos < 0 ? 0 : +pos;
+      return this.substring(pos, pos + search.length) === search;
+    }
+  });
+}
+
+if (!document.cookie.split(';').filter(function (item) {
+  return item.trim().startsWith('Signup_Shown=');
+}).length && window.location.href.indexOf('showPopup=') === -1) {
+  document.cookie = "Signup_Shown=true; expires=" + setCookieDate() + "; path=/";
+  emailPopup2019.show();
+} //New My Account Phone Edit Popup
+
+
+var phoneNumberPopup = new _VanillaBox.default();
+
+window.phoneNumberEdit = function (phoneNumber, optInStatus) {
+  var regexedPhone = phoneNumber.replace(/[^A-Z0-9]+/ig, "");
+  var phoneEditHTML = '<div id="removePhoneHTML">';
+  phoneEditHTML += '<div class="my-account-popup__sub-num mb-2">your subscribed mobile number:</div>';
+  phoneEditHTML += '<div id="phone-edit-error" class="d-none mb-2"></div>';
+  phoneEditHTML += '<div class="d-flex flex-wrap align-content-center mb-4">';
+  phoneEditHTML += '<div class="col-6 col-md-4 d-flex align-content-center py-2"><input class="d-flex col-12" type="tel" id="phoneEdit" name="phoneEdit" value="' + regexedPhone + '"></div>';
+
+  if (phoneNumber) {
+    phoneEditHTML += '<button class="col-md-4 col-6 button-green" onclick="removePhoneConfirm()">remove phone number</button>';
+  }
+
+  phoneEditHTML += '</div>';
+  phoneEditHTML += '<div class="mb-3">';
+
+  if (!optInStatus) {
+    phoneEditHTML += 'Not c';
+  } else {
+    phoneEditHTML += 'C';
+  }
+
+  phoneEditHTML += 'urrently receiving text messages.</div>';
+  phoneEditHTML += '<div class="mb-3">When updating your phone number, any preferences you saved with the previous phone number will automatically apply to the new number, and the old number will be opted out completely.</div>';
+  phoneEditHTML += '<div class="mb-3"><input class="ml-2" type="checkbox" id="textOptIn" name="textOptIn"';
+
+  if (optInStatus) {
+    phoneEditHTML += 'checked';
+  }
+
+  phoneEditHTML += '><label class="ml-2" role="checkbox">Opt-in to mobile text messaging</div>';
+  phoneEditHTML += '<div class="d-flex flex-wrap"><button class="account-flex30 button-orange" onclick="phoneNumberEditSubmit()">update</button></div>';
+  phoneEditHTML += '</div>';
+  phoneNumberPopup.build(phoneEditHTML);
+  phoneNumberPopup.show();
+};
+
+window.removePhoneConfirm = function () {
+  var phonePopup = document.getElementById('removePhoneHTML');
+  var oldHTML = phonePopup.innerHTML;
+  var newHTML = '<div>';
+  newHTML += '<div class="my-account-popup__sub-num mb-5">your subscribed mobile number:</div>';
+  newHTML += '<div class="d-flex justify-content-center my-account-popup__sub-num mb-4">Delete this phone number?</div>';
+  newHTML += '<div class="d-flex flex-wrap justify-content-center">';
+  newHTML += '<button class="account-flex30 mr-4 button-orange" onclick="phoneNumberEditSubmit(true)">yes</button>';
+  newHTML += '<button class="account-flex30 button-green" onclick="phoneReplaceHTML()">no</button>';
+  newHTML += '</div>';
+  newHTML += '</div>';
+  phonePopup.innerHTML = newHTML;
+
+  window.phoneReplaceHTML = function () {
+    phonePopup.innerHTML = oldHTML;
+  };
+};
+
+window.phoneNumberEditSubmit = function (phoneRemove) {
+  var phoneNum = phoneRemove ? '' : document.querySelector('#phoneEdit').value.replace(/[^A-Z0-9]+/ig, "");
+  var errorElement = document.querySelector('#phone-edit-error');
+
+  if (phoneNum.match(/^\(?([0-9]{3})\)?[-. ]?([0-9]{3})[-. ]?([0-9]{4})$/) || phoneRemove) {
+    //phone number validation since endpoint doesn't
+    var xhr = new XMLHttpRequest();
+    var url = "/ajax/user/update/phone/";
+    var optInStatusUpdate = phoneRemove ? false : document.querySelector('#textOptIn').checked;
+    xhr.open("POST", url, true);
+    xhr.setRequestHeader("Content-Type", "application/json");
+    xhr.setRequestHeader("Accept", "application/json");
+    xhr.setRequestHeader(document.querySelector("meta[name='_csrf_header']").getAttribute('content'), document.querySelector("meta[name='_csrf']").getAttribute('content'));
+
+    xhr.onreadystatechange = function () {
+      if (xhr.readyState === 4 && xhr.status === 200) {
+        var json = JSON.parse(xhr.responseText);
+
+        if (json.success) {
+          phoneNumberPopup.hide();
+          var thankYouPhonePopup = new _VanillaBox.default('my-account__phone-ty-popup');
+          var phoneThankYouHTML = '';
+
+          if (phoneRemove) {
+            thankYouPhonePopup = new _VanillaBox.default('my-account__phone-remove-popup');
+
+            document.querySelector('.editPhoneBtn').onclick = function () {
+              phoneNumberEdit('', false);
+            };
+
+            document.querySelector('.account__phone-num').classList.add('d-none');
+            document.querySelector('.my-account_mobile-phone-msg').innerHTML += '&nbsp;<svg class="tooltipSVG" onclick="window.phoneRemoveMobileTooltip()" version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 250 250">' + '<title>Phone numbers are required for shipments outside the United States.</title>' + '<path class="tooltip-st0" d="M130.5,32c-52.4,0-94.8,42.5-94.8,94.8c0,52.4,42.5,94.9,94.8,94.9s94.8-42.5,94.8-94.9' + '    C225.3,74.5,182.8,32,130.5,32z M134.1,187.4h-20.2v-20.9h20.2V187.4z M162.6,111.3c0,16.8-10.2,27-30.5,30.5l-1.5,12.1h-12.2' + '    l-3-24.5l0.8-0.8c18.5-0.6,27.8-6.2,27.8-16.8v-0.3c0-4.3-1.5-7.8-4.6-10.4c-3.1-2.6-7.3-3.9-12.6-3.9c-9,0-17.2,4-24.6,11.9' + '    L90.6,97.1c9.9-11.2,22-16.8,36.4-16.8c10.7,0,19.3,2.8,25.8,8.3c6.5,5.5,9.7,13,9.7,22.4V111.3z"/>' + '</svg>' + '<div class="d-none my-account__phone-tooltip my-account__tooltip-box my-3 p-3">Phone numbers are required for shipments outside the United States.</div>';
+            phoneThankYouHTML = '<div class="d-flex flex-wrap p-1 accountTrckPhone" data-group="phoneRemoved">';
+            phoneThankYouHTML += '<div class="account-flex100 my-account__phone-ty mb-5">phone number removal</div>';
+            phoneThankYouHTML += '<div class="account-flex100 mb-4 my-account__text17">Your mobile phone number has been successfully removed from your account</div>';
+            phoneThankYouHTML += '<div class="account-flex100"><button class="button-orange my-account__btn account-flex30" onclick="document.querySelector(\'.vanilla-box-active .close-x\').click()">close</button></div>';
+            phoneThankYouHTML += '</div>';
+
+            window.phoneRemoveMobileTooltip = function () {
+              var phoneEle = document.querySelector('.my-account__phone-tooltip');
+
+              if (phoneEle.classList) {
+                if (phoneEle.className.indexOf('d-none') > -1) {
+                  phoneEle.classList.remove('d-none');
+                } else {
+                  phoneEle.classList.add('d-none');
+                }
+              }
+            };
+          } else {
+            var optInStatus = optInStatusUpdate ? 'OptIn' : 'OptOut';
+            var newPhone = json.phonenumber;
+            var accountPhoneEle = document.querySelector('.account__phone-num');
+            accountPhoneEle.innerHTML = newPhone;
+
+            if (accountPhoneEle.className.indexOf('d-none')) {
+              accountPhoneEle.classList.remove('d-none');
+            }
+
+            document.querySelector('.editPhoneBtn').onclick = function () {
+              phoneNumberEdit(newPhone, optInStatusUpdate);
+            };
+
+            document.querySelector('.my-account_mobile-phone-msg').innerHTML = 'Your mobile opt in Number:';
+            phoneThankYouHTML = '<div class="d-flex flex-wrap p-1 accountTrckPhone" data-group="' + optInStatus + '">';
+            phoneThankYouHTML += '<div class="account-flex100 my-account__phone-ty my-account__phone-ty-mb">thank&nbsp;you</div>';
+            phoneThankYouHTML += '<div class="account-flex100 mb-3 my-account__text17">Your&nbsp;new&nbsp;subscribed&nbsp;mobile&nbsp;number&nbsp;is:</div>';
+            phoneThankYouHTML += '<div class="account-flex100 my-account__text17 my-account__phone-ty-mb">' + newPhone + '</div>';
+            phoneThankYouHTML += '<div class="account-flex100"><button class="button-orange my-account__btn account-flex30" onclick="document.querySelector(\'.vanilla-box-active .close-x\').click()">close</button></div>';
+            phoneThankYouHTML += '</div>';
+
+            if (document.querySelector('.my-account_mobile-phone-msg').className.indexOf('d-none') > -1) {
+              document.querySelector('.my-account_mobile-phone-msg').classList.add('d-none');
+            }
+          }
+
+          thankYouPhonePopup.build(phoneThankYouHTML);
+          thankYouPhonePopup.show();
+        } else {
+          if (errorElement.className.indexOf('d-none') > -1) {
+            errorElement.classList.remove('d-none');
+          }
+
+          errorElement.innerHTML = 'Whoops!&nbsp;The&nbsp;number&nbsp;you&nbsp;entered&nbsp;isn&#x27;t&nbsp;a&nbsp;recognizable&nbsp;mobile&nbsp;number.&nbsp;Please&nbsp;try&nbsp;again.';
+        }
+      } else {
+        if (errorElement.className.indexOf('d-none') > -1) {
+          errorElement.classList.remove('d-none');
+        }
+
+        errorElement.innerHTML = 'Whoops!&nbsp;The&nbsp;number&nbsp;you&nbsp;entered&nbsp;isn&#x27;t&nbsp;a&nbsp;recognizable&nbsp;mobile&nbsp;number.&nbsp;Please&nbsp;try&nbsp;again.';
+      }
+    };
+
+    var data = JSON.stringify({
+      optin: optInStatusUpdate,
+      phonenumber: phoneNum
+    });
+    xhr.send(data);
+  } else {
+    if (errorElement.className.indexOf('d-none') > -1) {
+      errorElement.classList.remove('d-none');
+    }
+
+    errorElement.classList.add('mb-3', 'text-dark-red');
+    errorElement.innerHTML = 'Whoops!&nbsp;The&nbsp;number&nbsp;you&nbsp;entered&nbsp;isn&#x27;t&nbsp;a&nbsp;recognizable&nbsp;mobile&nbsp;number.&nbsp;Please&nbsp;try&nbsp;again.';
+  }
+};
+
+var makePrimary = new _VanillaBox.default('default-modal make-primary-box');
+
+window.accountMakePrimary = function (data) {
+  var ccData = '';
+  var makePrimaryHTML = '<div>';
+  makePrimaryHTML += '<div class="d-flex flex-wrap mb-4">';
+  makePrimaryHTML += '<div class="account__flex10 my-account__svg"><svg class="my-account__svg align-self-center" version="1.1" id="credit_x5F_card" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 250 180" style="enable-background:new 0 0 250 180;" xml:space="preserve">\n' + '    <title>Credit Card Icon</title>' + '    <g>' + '        <rect x="44.4" y="84.4" class="creditcardst0" width="79.7" height="10.6"/>' + '        <path class="creditcardst0" d="M215,10.5H33.4c-12.7,0-23,10.4-23,23v11.7v24.9V146c0,12.7,10.4,23,23,23H215c12.7,0,23-10.4,23-23V70.1V45.3\n' + '            V33.5C238,20.8,227.6,10.5,215,10.5z M228.8,143c0,8.9-7.3,16.1-16.1,16.1H36.6c-8.9,0-16.1-7.3-16.1-16.1V70.1h208.3V143z\n' + '             M20.5,45.3v-8.8c0-8.9,7.3-16.1,16.1-16.1h176.1c8.9,0,16.1,7.3,16.1,16.1v8.8H20.5z"/>' + '    </g>' + '</svg></div>' + '<div class="align-self-center ml-3">select&nbsp;primary&nbsp;credit&nbsp;card</div>';
+  makePrimaryHTML += '</div>';
+
+  for (var l = 0; l < data.length; l++) {
+    ccData = data[l].split(',');
+    makePrimaryHTML += '<div class="row mb-3">';
+    makePrimaryHTML += '<input type="radio" class="my-account_primary-radio" id="' + ccData[0] + '" name="ccSelect" ';
+
+    if (l === 0) {
+      makePrimaryHTML += 'checked ';
+    }
+
+    makePrimaryHTML += '>';
+    makePrimaryHTML += '<img alt="' + ccData[1] + ' Card" class="my-account__payment-img account-flex10 align-self-center" src="https://media.swansonvitamins.com/images/common/site/accepted-payment-types/' + ccData[1] + '.png"/>';
+    makePrimaryHTML += '<div class="row col-6 col-lg-4 ml-1">';
+    makePrimaryHTML += '<div class="col-12">' + ccData[2] + '</div>';
+    makePrimaryHTML += '<div class="col-12">' + ccData[3] + '</div>';
+    makePrimaryHTML += '</div>';
+    makePrimaryHTML += '<div class="col-3 align-self-center">Exp.&nbsp;';
+
+    if (ccData[4].length !== 2) {
+      makePrimaryHTML += '0' + ccData[4];
+    } else {
+      makePrimaryHTML += ccData[4];
+    }
+
+    makePrimaryHTML += '&sol;' + ccData[5] + '</div>';
+    makePrimaryHTML += '</div>';
+  }
+
+  makePrimaryHTML += '<div class="d-flex flex-wrap mt-4"><button id="make-primary-select" class="my-account__btn button-orange col-4">make&nbsp;primary</button></div>';
+  makePrimaryHTML += '</div>';
+  makePrimary.build(makePrimaryHTML);
+  makePrimary.show();
+  document.querySelector('#make-primary-select').addEventListener('click', function () {
+    window.location = '/myaccount/payment.make.default.html?id=' + document.querySelector('.vanilla-box-active input[name=ccSelect]:checked').id;
+  });
+};
+
+var deleteConfirm = new _VanillaBox.default('default-modal delete-confirm');
+
+window.accountConfirmDelete = function (type, typeID) {
+  var svg = '';
+  var pageSpecific = '';
+  var redirect = '';
+
+  if (type === 'credit card') {
+    svg = '<svg version="1.1" id="credit_x5F_card" class="my-account__svg" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 250 180" style="enable-background:new 0 0 250 180;" xml:space="preserve">' + '<title>Credit Card Icon</title>' + '<g>' + '<rect x="44.4" y="84.4" class="creditcardst0" width="79.7" height="10.6"/>' + '<path class="creditcardst0" d="M215,10.5H33.4c-12.7,0-23,10.4-23,23v11.7v24.9V146c0,12.7,10.4,23,23,23H215c12.7,0,23-10.4,23-23V70.1V45.3' + 'V33.5C238,20.8,227.6,10.5,215,10.5z M228.8,143c0,8.9-7.3,16.1-16.1,16.1H36.6c-8.9,0-16.1-7.3-16.1-16.1V70.1h208.3V143z' + 'M20.5,45.3v-8.8c0-8.9,7.3-16.1,16.1-16.1h176.1c8.9,0,16.1,7.3,16.1,16.1v8.8H20.5z"/>' + '</g>' + '</svg>';
+    pageSpecific = 'payment methods';
+    redirect = 'payment.delete.html?id=' + typeID;
+  } else if (type === 'address') {
+    svg = '<svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"' + 'x="0px" y="0px" viewBox="0 0 250 250" style="enable-background:new 0 0 250 250;" xml:space="preserve">' + '<g>' + '<path class="house-st0" d="M23.9,112.1v109.6h199.7V112.1L124,37.6L23.9,112.1z M212.1,210.5H147l-1.2-67.7l-44.5,0.3v67.3l-65.7,0.2' + 'v-92.6L124,52.3l88.1,65.6V210.5z"/>' + '<polygon class="house-st0" points="124,8.7 8,94.5 18.9,101.8 123.7,24.4 228.9,101.8 239.5,94.5 	"/>' + '</g>' + '</svg>';
+    pageSpecific = 'saved addresses';
+    redirect = '/checkout/address.delete?addressId=' + typeID;
+  }
+
+  var deleteConfirmHTML = '<div class="row my-account__text17">';
+  deleteConfirmHTML += '<div class="row col-12 mb-4 d-flex align-items-center">';
+  deleteConfirmHTML += '<div class="my-account__svg d-flex align-items-center">' + svg + '</div>';
+  deleteConfirmHTML += '<div class="col-10">delete ' + type + '</div>';
+  deleteConfirmHTML += '</div>';
+  deleteConfirmHTML += '<div class="col-12 mb-5">Are you sure you want to delete this ' + type + ' from your ' + pageSpecific + '?</div>';
+  deleteConfirmHTML += '<div class="col-12 row">';
+  deleteConfirmHTML += '<div class="col-12 col-lg-3"><a class="col-7 col-lg-12 my-account__btn button-orange" href="' + redirect + '" onclick="">confirm</a></div>';
+  deleteConfirmHTML += '<div class="col-12 col-lg-3"><button class="col-7 col-lg-12 my-account__btn my-account__btn-cancel" onclick="document.querySelector(\'.vanilla-box-active .close-x\').click()">cancel</button></div>';
+  deleteConfirmHTML += '</div>';
+  deleteConfirmHTML += '</div>';
+  deleteConfirm.build(deleteConfirmHTML);
+  deleteConfirm.show();
+};
+
+if (document.querySelectorAll('.showPassword')) {
+  var showPasswordElems = document.querySelectorAll('.showPassword');
+
+  for (var i = 0; i < showPasswordElems.length; i++) {
+    showPasswordElems[i].addEventListener('click', function (e) {
+      e.preventDefault();
+      var passwordId = this.getAttribute('data-id');
+      var x = document.getElementById(passwordId);
+      var y = document.getElementById('eye-' + passwordId);
+      var z = document.getElementById('showPasswordMessage-' + passwordId);
+
+      if (x.type === 'password') {
+        x.type = 'text';
+        y.classList.remove('crossed');
+        z.innerHTML = 'Hide Password';
+      } else {
+        x.type = 'password';
+        y.classList.add('crossed');
+        z.innerHTML = 'Show Password';
+      }
+    });
+  }
+}
+
+function showPassWordOnClick(passwordId) {
+  var x = document.getElementById(passwordId);
+  var y = document.getElementById('eye-' + passwordId);
+  var z = document.getElementById('showPasswordMessage-' + passwordId);
+
+  if (x.type === 'password') {
+    x.type = 'text';
+    y.classList.remove('crossed');
+    z.innerHTML = 'Hide Password';
+  } else {
+    x.type = 'password';
+    y.classList.add('crossed');
+    z.innerHTML = 'Show Password';
+  }
+}
+
+function xhrAJAXpost(url, postString, callback) {
+  var xhr = new XMLHttpRequest();
+  xhr.open("POST", url, true);
+  xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+
+  xhr.onreadystatechange = function () {
+    if (this.readyState === 4 && this.status === 200) {
+      callback(JSON.parse(xhr.responseText));
+    }
+  };
+
+  xhr.send(postString);
+  return xhr;
+}
+
+window.xhrAJAXget = function (url, callback) {
+  var xhr = window.XMLHttpRequest ? new XMLHttpRequest() : new ActiveXObject('Microsoft.XMLHTTP');
+  xhr.open('GET', url);
+
+  xhr.onreadystatechange = function () {
+    if (xhr.readyState > 3 && xhr.status == 200) callback(xhr.responseText);
+  };
+
+  xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+  xhr.send();
+  return xhr;
+};
+
+window.xhrAJAXgetJSON = function (url, callback) {
+  var xhr = new XMLHttpRequest();
+
+  xhr.onload = function () {
+    if (xhr.readyState === 4 && xhr.status === 200) {
+      try {
+        var data = JSON.parse(xhr.responseText);
+      } catch (err) {
+        console.log(err.message + " in " + xhr.responseText);
+        return;
+      }
+
+      callback(data);
+    }
+  };
+
+  xhr.open("GET", url, true);
+  xhr.send();
+};
+
+function vanillaSetCookie(name, value, days) {
+  var d = new Date();
+  d.setTime(d.getTime() + 24 * 60 * 60 * 1000 * days);
+  document.cookie = name + "=" + value + ";path=/;expires=" + d.toGMTString();
+}
+
+function vanillaGetCookie(name) {
+  var value = "; " + document.cookie;
+  var parts = value.split("; " + name + "=");
+
+  if (parts.length == 2) {
+    return parts.pop().split(";").shift();
+  }
+}
+
+},{"./obj/EmailAjax":4,"./obj/VanillaBox":5,"./vendor/live-chat":7,"/tmp/workspace/pre-prod-release/node_modules/babel-preset-react-app/node_modules/@babel/runtime/helpers/interopRequireDefault":2}],4:[function(require,module,exports){
+"use strict";
+
+var _interopRequireDefault = require("/tmp/workspace/pre-prod-release/node_modules/babel-preset-react-app/node_modules/@babel/runtime/helpers/interopRequireDefault");
+
+var _typeof2 = _interopRequireDefault(require("/tmp/workspace/pre-prod-release/node_modules/babel-preset-react-app/node_modules/@babel/runtime/helpers/esm/typeof"));
+
+/**
+ * Created by taylor.houston on 3/9/18.
+ */
+
+/**
+ * DO NOT USE JQUERY IN THIS DOCUMENT!
+ * EmailAjaxSupport combines the elements to validate and send with ajax emails for subscription.
+ * @constructor Sets up an object that will validate and submit emails.
+ * Questions? Contact Taylor.
+ *
+ * For paramObject
+ * @var emailId, takes a string selector of the email.
+ * @var emailConfirmId, takes a string of the email confirm field.
+ * @var formId, takes a string of the form selector which is used for submit purposes.
+ *
+ * @function sendEmail(), takes two parameters which are function calls. First one is what happens after success, second failure.
+ *
+ *  exampleObject.sendMail(function(){
+ *     // success code
+ *  }, function(){
+ *     // error code
+ *  })
+ *
+ *  var exampleObject = new EmailAjax({
+ *  emailId: '#yourIdOrClass',
+ *  emailConfirmId: '#yourIdOrClassConfirm',
+ *  formId: '#yourFormIdOrClass'
+ *	});
+ *
+ */
+var validate = require('./../validate.js');
+
+var EmailAjax = function EmailAjax(paramObj) {
+  this.emailId = paramObj.emailId;
+  this.emailConfirmId = paramObj.emailConfirmId;
+  this.formId = paramObj.formId;
+};
+
+EmailAjax.prototype.sendEmail = function (resultFunction, errorFunction) {
+  // set error styles
+  function errorCol(field) {
+    var fieldSelector = document.querySelector(field);
+    fieldSelector.style.backgroundColor = '#ecadad';
+    fieldSelector.style.border = '1px solid #d78282';
+  } // reset default styles
+
+
+  function defaultCol(field) {
+    var fieldSelector = document.querySelector(field);
+    fieldSelector.style.backgroundColor = '#ffffff';
+    fieldSelector.style.border = '1px solid #cfcfcf';
+  }
+
+  function serializeArray(form) {
+    var field;
+    var l;
+    var s = [];
+
+    if ((0, _typeof2.default)(form) === 'object' && form.nodeName === 'FORM') {
+      var len = form.elements.length;
+
+      for (var i = 0; i < len; i++) {
+        field = form.elements[i];
+
+        if (field.name && !field.disabled && field.type !== 'file' && field.type !== 'reset' && field.type !== 'submit' && field.type !== 'button') {
+          if (field.type === 'select-multiple') {
+            l = form.elements[i].options.length;
+
+            for (var j = 0; j < l; j++) {
+              if (field.options[j].selected) {
+                s[s.length] = {
+                  name: field.name,
+                  value: field.options[j].value
+                };
+              }
+            }
+          } else if (field.type !== 'checkbox' && field.type !== 'radio' || field.checked) {
+            s[s.length] = {
+              name: field.name,
+              value: field.value
+            };
+          }
+        }
+      }
+    }
+
+    return s;
+  } // copy contents into confirm field so only one field needs to be shown
+
+
+  document.querySelector(this.emailConfirmId).value = document.querySelector(this.emailId).value;
+  var emField = document.querySelector(this.emailId).value.trim(),
+      conEmField = document.querySelector(this.emailConfirmId).value.trim(),
+      flag = 0; // visual feedback on validation
+
+  if (emField === '' || emField === null || emField === 'Enter your email address') {
+    errorCol(this.emailId);
+  } else {
+    defaultCol(this.emailId);
+
+    if (validate.email(emField)) {
+      if (emField === conEmField) {
+        defaultCol(this.emailId);
+        defaultCol(this.emailConfirmId);
+        flag = 1;
+      } else {
+        errorCol(this.emailId);
+      }
+    } else {
+      errorCol(this.emailId);
+    }
+  } // send data & respond
+
+
+  if (flag === 1) {
+    var postData = serializeArray(document.querySelector(this.formId));
+    var queryString = '';
+
+    for (var i = 0; i < postData.length; i++) {
+      queryString += postData[i].name + '=' + postData[i].value; // Append an & except after the last element
+
+      if (i < postData.length - 1) {
+        queryString += '&';
+      }
+    }
+
+    var request = new XMLHttpRequest();
+    request.open('POST', '/emailsignup.json');
+    request.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded'); // request.setRequestHeader('Accept', 'application/json')
+    // request.setRequestHeader('Content-Type', 'application/json')
+
+    request.setRequestHeader(document.querySelector("meta[name='_csrf_header']").getAttribute('content'), document.querySelector("meta[name='_csrf']").getAttribute('content'));
+
+    request.onload = function () {
+      if (this.status >= 200 && this.status < 400) {
+        resultFunction(JSON.parse(this.response));
+      }
+    };
+
+    request.onerror = function () {
+      errorFunction();
+    };
+
+    request.send(queryString);
+    return false;
+  } else if (flag === 0) {
+    return false;
+  }
+};
+
+module.exports = EmailAjax;
+
+},{"./../validate.js":6,"/tmp/workspace/pre-prod-release/node_modules/babel-preset-react-app/node_modules/@babel/runtime/helpers/esm/typeof":1,"/tmp/workspace/pre-prod-release/node_modules/babel-preset-react-app/node_modules/@babel/runtime/helpers/interopRequireDefault":2}],5:[function(require,module,exports){
+"use strict";
+
+/**
+ * DO NOT USE JQUERY IN THIS DOCUMENT!
+ * VanillaBox, a modal that can be summoned with new VanillaBox(); To pass in content, use the build(content) method with the content as the parameter.
+ * @constructor creates div inside of a div and places it hidden inside the body.
+ * Questions? Contact Taylor.
+ *
+ * For paramObject
+ * @var className, takes a string the width of the vanilla-box you want, can be in any format that CSS accepts. Defaults to default-modal class.
+ * @var closable, accepts a boolean. If the popup can be closed through traditional means (click on the x or the background) then this value should be true (default)
+ *
+ * @function show() no parameters, simply shows the light box.
+ * @function build() takes 1 parameter, a string which is the html of the content to show inside the vanilla-box. Must call show() to make it visible.
+ * @function hide() takes no parameters, will hide the vanilla-box based and based on preferences, clear the content.
+ *
+ * @attribute isBuilt returns true or false whether the built() method has been run.
+ *
+ * Create a vanilla-box
+ * var vanillaBox = new VanillaBox({
+ *    className:"shopping-bag-vanilla-box",
+ *    closeable: true
+ * });
+ *
+ * Show vanilla-box
+ * vanillaBox.show(content);
+ *
+ * Hide vanilla-box
+ * vanillaBox.hide();
+ */
+var VanillaBox = function VanillaBox(paramObj, callback) {
+  // constructor function
+  VanillaBox.instances++; // static
+
+  var className, closeable;
+
+  if (paramObj) {
+    className = paramObj.className || 'default-modal';
+
+    if (typeof paramObj.closeable === 'undefined' || paramObj.closeable) {
+      closeable = true;
+    } else {
+      closeable = false;
+    }
+  } else {
+    className = 'default-modal';
+    closeable = true;
+  }
+
+  if (callback) {
+    this.funcCallback = callback;
+  }
+
+  this.instance = VanillaBox.instances;
+  var template = '<div id="vanillaBox' + VanillaBox.instances + '" class="modal-background">' + '<div class="vanilla-box ' + className + '">';
+
+  if (closeable) {
+    template += '<button tabindex="0" class="remove-this"><div class="close-x">';
+
+    if (className.indexOf('homepage-atc-popup') < 0) {
+      template += '&times;';
+    }
+
+    template += '</div></button>';
+    template += '<div class="vanilla-box-content clearfix"></div></div></div>';
+  }
+
+  document.body.insertAdjacentHTML('afterbegin', template);
+  this.vanillaBox = document.querySelector('#vanillaBox' + this.instance + ' .vanilla-box');
+  this.vanillaBoxBg = document.querySelector('#vanillaBox' + this.instance);
+
+  if (closeable) {
+    var that = this;
+    this.vanillaBoxBg.addEventListener('click', function (e) {
+      if (e.target === this) {
+        that.hide();
+      }
+    });
+    document.querySelector('#vanillaBox' + this.instance + ' .remove-this, #vanillaBox' + this.instance + ' .vanilla-box-close-btn').addEventListener('click', function (e) {
+      that.hide();
+    });
+  }
+};
+
+VanillaBox.instances = 0;
+
+VanillaBox.prototype.build = function (content, functionCall) {
+  var vanillaBoxContent = this.vanillaBox.querySelector('.vanilla-box-content');
+
+  if (vanillaBoxContent.firstChild) {
+    vanillaBoxContent.removeChild(vanillaBoxContent.firstChild);
+  }
+
+  vanillaBoxContent.insertAdjacentHTML('afterbegin', content);
+
+  if (typeof functionCall !== 'undefined') {
+    functionCall();
+  }
+};
+
+VanillaBox.prototype.show = function () {
+  document.body.classList.add('no-scroll');
+  document.body.style.removeProperty('overflow'); // document.getElementById('site-container').classList.add('blur')
+
+  this.vanillaBoxBg.classList.add('vanilla-box-active');
+
+  if (this.closeable) {
+    document.addEventListener('keyup.vanillaBox', function hideBox(e) {
+      if (e.keyCode === 27) {
+        this.hide();
+        document.removeEventListener('keyup.vanillaBox', hideBox);
+      }
+    }.bind(this));
+  }
+
+  window.setTimeout(function () {
+    var vanillaBox = document.getElementsByClassName("vanilla-box-active");
+    var close = vanillaBox[0].getElementsByClassName('remove-this');
+    close[0].focus();
+  }, 100);
+};
+
+VanillaBox.prototype.hide = function (doFunction) {
+  var doFuncDefault = doFunction === undefined || doFunction === null ? true : doFunction;
+
+  if (this.funcCallback && doFuncDefault) {
+    this.funcCallback();
+  } // document.getElementById('site-container').classList.remove('blur')
+
+
+  this.vanillaBoxBg.classList.remove('vanilla-box-active');
+  document.body.classList.remove('no-scroll');
+};
+
+module.exports = VanillaBox; // E N D    V A N I L L A   B O X
+
+},{}],6:[function(require,module,exports){
+"use strict";
+
+/**
+ * Created by taylor.houston on 3/15/18.
+ */
+// Methods for validating common patterns
+var validate = {
+  email: function email(_email) {
+    var pattern = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/igm;
+    return pattern.test(_email);
+  }
+};
+module.exports = validate;
+
+},{}],7:[function(require,module,exports){
+"use strict";
+
+function startLiveChat() {
+  (function (d, s) {
+    var newjs,
+        lhnjs = d.getElementsByTagName(s)[0];
+    newjs = d.createElement(s);
+    newjs.src = 'https://developer.livehelpnow.net/js/sdk/lhn-jssdk-current.min.js';
+    lhnjs.parentNode.insertBefore(newjs, lhnjs);
+  })(document, 'script');
+
+  setTimeout(function () {
+    document.querySelector('#lhnBTN').classList.remove('hidden');
+  }, 1100);
+}
+
+window.lhnJsSdkInit = function () {
+  window.lhnJsSdk.setup = {
+    application_id: '83aafa6d-a1e3-41c3-bb08-4c6736f2a4fb',
+    application_secret: 'i7rd2i08sqaev5ot5dzwsllrr7nr8pa88ggbl1rrua0xr6y7bp'
+  };
+  window.lhnJsSdk.controls = [{
+    type: 'hoc',
+    id: 'd951b160-2755-410e-a487-89054d10c504'
+  }];
+};
+
+window.lhnStatusUpdate = function () {
+  var action = '';
+
+  if (window.lhnJsSdk.isOnline) {
+    action = "display: block !important";
+  } else {
+    action = "display: none !important";
+  }
+
+  document.querySelectorAll(".lhnBTN").forEach(function (button) {
+    button.setAttribute("style", action);
+  });
+}; // Give LiveHelpNow script time to load before displaying button
+
+
+if (document.attachEvent ? document.readyState === 'complete' : document.readyState !== 'loading') {
+  startLiveChat();
+} else {
+  document.addEventListener('DOMContentLoaded', startLiveChat);
+}
+
+},{}]},{},[3])
+
+//# sourceMappingURL=maps/header.footer.js.map

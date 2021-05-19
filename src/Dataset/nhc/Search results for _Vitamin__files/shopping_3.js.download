@@ -1,0 +1,1842 @@
+var extensions = {};
+
+extensions['AwaLabs.AddToCartAvailability.1.0.0'] = function(){
+
+function getExtensionAssetsPath(asset){
+return 'extensions/AwaLabs/AddToCartAvailability/1.0.0/' + asset;
+};
+
+define('AddToCartAvailability.Home.View', [
+    'Home.View',
+    'underscore',
+    'Item.Model',
+    'Item.Collection',
+    'SC.Configuration'
+], function AddToCartAvailabilityHomeView(
+    HomeView,
+    _,
+    ItemModel,
+    ItemCollection,
+    Configuration
+) {
+    'use strict';
+    
+    _.extend(HomeView.prototype, {
+        getSliderItemsIdsFromConfig: function getSliderItemsIdsFromConfig() {
+            var itemsConfigurations = _.map(Configuration.layout.ProductSlider, function (item) {
+                return item.iternalid;
+            });
+            return itemsConfigurations.join(',');
+        },
+        renderSlider: function renderSlider() {
+            this.$('.bxslider').bxSlider({
+                slideWidth: 199,
+                minSlides: 4,
+                maxSlides: 4,
+                moveSlides: 4,
+                slideMargin: 0,
+                mode: 'horizontal',
+                infiniteLoop: false,
+                responsive: true,
+                pager: false,
+                controls: true,
+                nextText: '<a class="home-gallery-next-icon fix-n"></a>',
+                prevText: '<a class="home-gallery-prev-icon fix-p"></a>',
+                forceStart: true
+            });
+        },
+        initialize: _.wrap(HomeView.prototype.initialize, function (fn) {
+            var ids;
+            var self = this;
+            fn.apply(this, _.toArray(arguments).slice(1));
+            ids = this.getSliderItemsIdsFromConfig();
+            this.itemSliderCollection = new ItemCollection();
+            this.itemSliderCollection.fetch({data:{ id: ids, fieldset: 'search' }}).done(function () {
+                self.on('afterViewRender', function () {
+                    _.defer(self.renderSlider());
+                });
+                self.render();
+            });
+        }),
+        
+        getContext: _.wrap(HomeView.prototype.getContext, function (fn) {
+            var ret = fn.apply(this, _.toArray(arguments).slice(1));
+            var self = this;
+            var parentid;
+            _.each(this.itemSliderCollection.models, function (ItemModel) {
+                if (ItemModel.get('itemimages_detail') &&
+                    ItemModel.get('itemimages_detail').main &&
+                    ItemModel.get('itemimages_detail').main.urls && ItemModel.get('itemimages_detail').main.urls.length > 0) {
+                    ItemModel.set('storedisplayimage', ItemModel.get('itemimages_detail').main.urls[0].url);
+                }
+                if (!ItemModel.get('urlcomponent')) {
+                    parentid = ItemModel.get('itemoptions_detail').parentid;
+                    self.product.get('item').fetch({ data: { id: parentid }, async: false }).then();
+                    ItemModel.set('urlcomponent', self.product.get('item').get('urlcomponent'));
+                }
+                ItemModel.set('dataAddToCart', ItemModel.getAddToCartInformation());
+            });
+            ret.json = this.itemSliderCollection;
+            return ret;
+        })
+    });
+    
+    
+});
+
+
+define('AddToCartAvailability.Item.Model', [
+    'Item.Model',
+    'underscore',
+    'Profile.Model'
+], function AddToCartAvailabilityItemModel(
+    ItemModel,
+    _,
+    ProfileModel
+) {
+    'use strict';
+    
+    _.extend(ItemModel.prototype, {
+        getBrands: function getBrands() {
+            var res = {
+                brandSelected: null,
+                brandItem: null,
+                brandFlag: null
+            };
+            var x;
+            var brandName = this.get('custitem_nhc_avail_group');
+            // IF brand is empty, we don't perform any logic and the item is going to be displayed.
+            if (!brandName) {
+                return res;
+            }
+            try {
+                var profile = ProfileModel.getInstance();
+                var customFields = profile.get('customfields');
+                // Get Consultations brands from Customer record
+                var customerbrand = profile.get('brand').customerBrands;
+                // Get list of Brands custom record
+                var brand = SC.ENVIRONMENT.published.brands;
+            
+                var sameBrand = _.filter(brand, function fnFilter(item) { return item.name.toUpperCase() === brandName.toUpperCase(); });
+                var itembrand = sameBrand && sameBrand[0];
+                var brnadfilter = [];
+                res.hidePrice = itembrand.hidePrice;
+                res.hideBrand = itembrand.hideBrand;
+                res.hideProduct = itembrand.hideProduct;
+                res.brandItem = itembrand;
+                if (itembrand) {
+                    if (customerbrand && customerbrand.length > 0) {
+                        if (customFields && customFields.length) {
+                            brnadfilter = _.filter(customerbrand, function fnFilter(q) {
+                                return q === itembrand.id;
+                            });
+                            for (x = 0; x < customFields.length; x++) {
+                                var pos = customFields[x];
+                                if (pos.name === 'custentity_avail_group') {
+                                    // brandselected = brnadfilter
+                                    res.sameAvailabilty = brnadfilter.length > 0 || null;
+                                }
+                            }
+                        }
+                    }
+                    if (brnadfilter && brnadfilter.length > 0) {
+                        var lineOnBrands = _.filter(brand, function (q) {
+                            return q.id === brnadfilter[0].id;
+                        });
+                        if (lineOnBrands.length > 0) {
+                            res.brandSelected = lineOnBrands[0];
+                        }
+                    }
+                }
+                return res;
+            } catch (e) {
+                return null;
+            }
+        },
+        
+        requireLogin: function requireLogin(availability) {
+            // kto-bar-case-by-designs-for-health
+            return availability &&
+                availability.brandItem &&
+                availability.brandItem.assignment === '1' &&
+                !this.isLoggedIn();
+        },
+        
+        isLoggedIn: function isLoggedIn() {
+            var profile = ProfileModel.getInstance();
+            return profile.get('isLoggedIn') === 'T';
+        },
+        
+        getConsultation: function getConsultation(availability) {
+            // pro-en-zyme-by-nutri-west
+            var assignment = availability && availability.brandItem && availability.brandItem.assignment === '2';
+            var sameAvailability = availability ? availability.sameAvailabilty : false;
+            return assignment && !sameAvailability;
+        },
+        
+        getOutOfStockInfo: function getOutOfStockInfo() {
+            // swedish-bitters-by-flora
+            var isBackOrderable = this.get('isbackorderable');
+            var isInStock = this.get('_isInStock');
+            var itemDiscontinue = this.get('custitem_nhc_item_status') && this.get('custitem_nhc_item_status') === 'DISCONTINUED';
+            var prodStock = (!isInStock && !isBackOrderable) || !isInStock && itemDiscontinue;
+            return {
+                inStock: isInStock,
+                ItemDiscontinued: itemDiscontinue,
+                prodStock: !prodStock
+            };
+        },
+        
+        generateOtherValues: function generateOtherValues(data) {
+            if (!data.cartDisabled) {
+                data.disabledBtn = false;
+                data.textBtn = _('Add to Cart').translate();
+                return data;
+            }
+            if (data.bannerConsultation) {
+                data.disabledBtn = true;
+                data.textBtn = _('Consultation Required').translate();
+                return data;
+            } else if (data.bannerLogin) {
+                data.disabledBtn = true;
+                data.textBtn = _('Log In Required').translate();
+                return data;
+            } else if (!data.prodStock &&
+                data.itemDiscontinue &&
+                !data.isInStock
+            ) {
+                data.disabledBtn = true;
+                data.textBtn = _('Unavailable').translate();
+                return data;
+            } else if (!data.prodStock &&
+                !data.itemDiscontinue) {
+                data.disabledBtn = true;
+                data.textBtn = _('Out of stock').translate();
+                return data;
+            }
+            data.disabledBtn = false;
+            data.textBtn = _('Add to Cart').translate();
+            return data;
+        },
+    
+        getCartDisabled: function getCartDisabled(consultation, isLoginRequired, outOfStockInfo) {
+            var isManufacturerBackorderStatus = this.get('custitem_nhc_item_status') === 'Manufacturer Backorder';
+            var isActiveStatus = this.get('custitem_nhc_item_status') === 'ACTIVE';
+            var isLoyaltyPoints = this.get('internalid') === 405;
+            var qtyAvailable = this.get('quantityavailable');
+            var outofstockbehavior = this.get('outofstockbehavior');
+            return (consultation || isLoginRequired || !outOfStockInfo.prodStock || isLoyaltyPoints) ||
+                (isManufacturerBackorderStatus && qtyAvailable === 0) ||
+                (isActiveStatus && qtyAvailable === 0 && outofstockbehavior === "Disallow back orders but display out-of-stock message");
+        },
+        
+        getAddToCartInformation: function getAddToCartInformation() {
+            var availability = this.getBrands();
+            var isLoginRequired = this.requireLogin(availability);
+            var consultation = this.getConsultation(availability);
+            var outOfStockInfo = this.getOutOfStockInfo();
+            var cartDisabled = this.getCartDisabled(consultation, isLoginRequired, outOfStockInfo);
+            var hidePrice = availability && availability.hidePrice && availability.hidePrice === 'T';
+                hidePrice = hidePrice && !(availability && availability.sameAvailabilty);
+            var data = {
+                itemName: this.get('_name') || this.Name,
+                bannerLogin: isLoginRequired,
+                bannerConsultation: consultation,
+                cartDisabled: cartDisabled,
+                showPrice: !hidePrice
+            };
+            _.extend(data, outOfStockInfo);
+            _.extend(data, this.generateOtherValues(data));
+            return data;
+        }
+    });
+    
+    
+    
+    
+});
+
+
+define('AddToCartAvailability.ItemRelations.RelatedItem.View', [
+    'ItemRelations.RelatedItem.View',
+    'underscore'
+], function AddToCartAvailabilityItemRelationsRelatedItemView(
+    ItemRelationsRelatedItemView,
+    _
+) {
+    'use strict';
+    
+    _.extend(ItemRelationsRelatedItemView.prototype, {
+        getContext: _.wrap(ItemRelationsRelatedItemView.prototype.getContext, function (fn) {
+            var ret = fn.apply(this, _.toArray(arguments).slice(1));
+            var addToCartInfo = this.model.getAddToCartInformation();
+            return _.extend(ret, addToCartInfo);
+        })
+    });
+    
+    
+    
+});
+
+
+define('AddToCartAvailability.ProductListControlItem.View', [
+    'ProductList.ControlItem.View',
+    'underscore'
+], function AddToCartAvailabilityProductListControlItemView(
+    ProductListControlItemView,
+    _
+) {
+    'use strict';
+    
+    _.extend(ProductListControlItemView.prototype, {
+        setDefaultShipOption: function setDefaultShipOption() {
+            var defaultOptionAutoShip;
+            var optionAutoShip = _.first(_.filter(this.line.get("options").models, function (option) {
+                return option.get('cartOptionId') === 'custcol_nhc_auto_ship_freq';
+            }));
+            if (optionAutoShip && !optionAutoShip.get('value')) {
+                defaultOptionAutoShip = _.filter(optionAutoShip.get('values'), function (value) {
+                    return value.internalid === '7';
+                });
+                if (defaultOptionAutoShip && defaultOptionAutoShip.length) {
+                   optionAutoShip.set('value', _.first(defaultOptionAutoShip));
+                }
+            }
+        },
+        pListItemHandler: _.wrap(ProductListControlItemView.prototype.pListItemHandler, function (fn) {
+            this.setDefaultShipOption();
+            fn.apply(this, _.toArray(arguments).slice(1));
+        })
+    });
+});
+
+
+define('AwaLabs.AddToCartAvailability', [
+    'AddToCartAvailability.Item.Model',
+    'AddToCartAvailability.ItemRelations.RelatedItem.View',
+    'AddToCartAvailability.Home.View',
+    'AddToCartAvailability.ProductListControlItem.View'
+], function FacetsExtension() {
+    'use strict';
+    
+});
+
+
+};
+
+extensions['AwaLabs.Comm100.1.1.1'] = function(){
+
+function getExtensionAssetsPath(asset){
+return 'extensions/AwaLabs/Comm100/1.1.1/' + asset;
+};
+
+define('Comm100.View', [
+    'SC.Configuration',
+    'Backbone',
+    'comm100.tpl'
+], function Comm100View(
+    Configuration,
+    Backbone,
+    comm100Tpl
+) {
+    'use strict';
+
+    return Backbone.View.extend({
+        template: comm100Tpl,
+        getContext: function getContext() {
+            return {
+                codePlan: Configuration.get('comm100.codePlan')
+            };
+        }
+    });
+});
+
+
+define('AwaLabs.Comm100', [
+    'Backbone',
+    'Comm100.View',
+    'SC.Configuration',
+    'jQuery',
+    'underscore'
+], function (
+    Backbone,
+    Comm100View,
+    Configuration,
+    jQuery,
+    _
+) {
+    'use strict';
+
+    return {
+        urlRoot: 'https://chatserver.comm100.com/livechat.ashx?siteId=',
+        userEventPromise: jQuery.Deferred(),
+        afterAppendViewPromise: jQuery.Deferred(),
+
+        mountToApp: function mountToApp(application) {
+            var self = this;
+            var layout = application.getComponent('Layout');
+            if (!Configuration.get('comm100.codePlan') || !Configuration.get('comm100.siteId')) {
+                return;
+            }
+            if (layout) {
+                layout.addChildViews(
+                    'Footer.View', {
+                        'Comm100': {
+                            'Comm100': {
+                                childViewIndex: 1,
+                                childViewConstructor: function Comm100ViewFn() {
+                                    return new Comm100View({});
+                                }
+                            }
+                        }
+                    });
+            }
+            if (SC.ENVIRONMENT.jsEnvironment !== 'browser') {
+                return;
+            }
+
+            window.Comm100API = window.Comm100API || {};
+            window.Comm100API.chat_buttons = window.Comm100API.chat_buttons || [];
+            window.Comm100API.chat_buttons.push({
+                code_plan: parseInt(Configuration.get('comm100.codePlan'),10),
+                div_id: 'comm100-button-' + Configuration.get('comm100.codePlan')
+            });
+            window.Comm100API.site_id = parseInt(Configuration.get('comm100.siteId'), 10);
+            window.Comm100API.main_code_plan = parseInt(Configuration.get('comm100.codePlan'), 10);
+
+            jQuery('body').one('mousemove keydown mousedown touchstart', function() {
+                _.defer(function() {
+                    self.userEventPromise.resolve();
+                }, 2000);
+            });
+
+            application.getLayout().once('afterAppendView', function() {
+                self.afterAppendViewPromise.resolve();
+            });
+
+            jQuery.when(this.userEventPromise, this.afterAppendViewPromise).then(function() {
+                self.start();
+            });
+        },
+        loadComm100: function loadComm100(e) {
+            var a = document.createElement('script');
+            var c = document.getElementsByTagName('script')[0];
+            a.type = 'text/javascript';
+            a.async = !0;
+            a.src = e;
+            c.parentNode.insertBefore(a, c);
+        },
+        start: function start() {
+            var self = this;
+            this.loadComm100('https://entchatserver.comm100.com/livechat.ashx?siteId=' + window.Comm100API.site_id);
+            setTimeout(function timeOut() {
+                /* eslint-disable */
+                window.Comm100API.loaded || self.loadComm100('https://appmax1.comm100.com/chatserver/livechat.ashx?siteId=' + window.Comm100API.site_id)
+                /* eslint-enable */
+            }, 5000);
+        }
+    };
+});
+
+
+};
+
+extensions['AwaLabs.GoogleTagManager.1.0.3'] = function(){
+
+function getExtensionAssetsPath(asset){
+return 'extensions/AwaLabs/GoogleTagManager/1.0.3/' + asset;
+};
+
+define('AwaLabs.GoogleTagManager',
+    [
+        'GoogleTagManager',
+        'GoogleTagManager.NavigationHelper.Plugins.Standard',
+        'Cart.Detailed.View',
+        'SC.Configuration',
+        'Tracker',
+        'jQuery',
+        'Backbone',
+        'underscore'
+    ],
+    function AwaLabsGoogleTagManager(
+        GoogleTagManager,
+        GoogleTagManagerNavigationHelper,
+        CartDetailedView,
+        Configuration,
+        Tracker,
+        jQuery,
+        Backbone,
+        _
+    ) {
+
+        var win = window;
+
+        // Extend default GTM module to extend default methods or add new
+        _.extend(GoogleTagManager, {
+            pushData: function pushData(data) {
+                var self = this;
+                window[this.configuration.dataLayerName].push({
+                    'event': undefined, 'data': undefined, 'eventCallback': undefined
+                });
+
+                // Always push user information if available
+                window[self.configuration.dataLayerName].push(_.extend(data, {
+                    user: {
+                        userId: self.userModel.get('internalid'),
+                        isLoggedIn: self.userModel.get('isLoggedIn'),
+                        isGuest: self.userModel.get('isGuest'),
+                        firstName: self.userModel.get('firstname'),
+                        lastName: self.userModel.get('lastname'),
+                        email: self.userModel.get('email')
+                    }
+                }));
+            },
+            trackAddToCart: function trackAddToCart(line) {
+                var item = line.get('item');
+                var selected_options = line.get('options').filter(function (option) {
+                    return option.get('value') && option.get('value').label;
+                });
+                var eventName = 'addToCart',
+                    eventData = {
+                        'event': eventName,
+                        data: {
+                            currency: (SC.ENVIRONMENT.currentCurrency && SC.ENVIRONMENT.currentCurrency.code) || 'USD',
+                            id: item.get('itemid'),
+                            internalid: item.get('internalid'),
+                            name: item.get('_name'),
+                            price: item.get('_priceDetails').onlinecustomerprice,
+                            variant: _.map(selected_options, function (option) {
+                                return option.get('value').label;
+                            }).join(', '),
+                            category: GoogleTagManager.getCategory(),
+                            quantity: line.get('quantity'),
+                        },
+                        ecommerce: {
+                            currencyCode: (SC.ENVIRONMENT.currentCurrency && SC.ENVIRONMENT.currentCurrency.code) || 'USD',
+                            add: {
+                                products: [{
+                                    id: item.get('itemid'),
+                                    internalid: item.get('internalid'),
+                                    name: item.get('_name'),
+                                    price: item.get('_priceDetails').onlinecustomerprice,
+                                    variant: _.map(selected_options, function (option) {
+                                        return option.get('value').label;
+                                    }).join(', '),
+                                    category: GoogleTagManager.getCategory(),
+                                    quantity: line.get('quantity'),
+                                }]
+                            }
+                        }
+
+                    };
+
+                //Triggers a Backbone.Event so others can subscribe to this event and add/replace data before is send it to Google Tag Manager
+                Tracker.trigger(eventName, eventData, line);
+                this.pushData(eventData);
+
+                return this;
+            },
+            trackRemoveFromCart: function trackRemoveFromCart(line, cart) {
+                var item = line.get('item');
+                var selected_options = line.get('options').filter(function (option) {
+                    return option.get('value') && option.get('value').label;
+                });
+                var eventName = 'removeFromCart',
+                    eventData = {
+                        'event': eventName,
+                        ecommerce: {
+                            currencyCode: (SC.ENVIRONMENT.currentCurrency && SC.ENVIRONMENT.currentCurrency.code) || 'USD',
+                            remove: {
+                                products: [{
+                                    id: item.get('itemid'),
+                                    internalid: item.get('internalid'),
+                                    name: item.get('_name'),
+                                    price: item.get('_priceDetails').onlinecustomerprice,
+                                    variant: _.map(selected_options, function (option) {
+                                        return option.get('value').label;
+                                    }).join(', '),
+                                    category: GoogleTagManager.getCategory(),
+                                    quantity: line.get('quantity'),
+                                }]
+                            }
+                        }
+
+                    };
+
+                //Triggers a Backbone.Event so others can subscribe to this event and add/replace data before is send it to Google Tag Manager
+                Tracker.trigger(eventName, eventData, line);
+                this.pushData(eventData);
+
+                return this;
+            },
+            trackProductClick: function (item) {
+                var eventName = 'productClick',
+                    eventData = {
+                        'event': eventName,
+                        'data': {
+                            'category': item.get('category'),
+                            'position': item.get('position'),
+                            'list': item.get('list'),
+                            'sku': item.get('sku', true),
+                            'name': item.get('name'),
+                            'price': item.get('price'),
+                            'page': this.getCategory(),
+                            'label': item.get('name')
+                        },
+                        ecommerce: {
+                            click: {
+                                actionField: {list: item.get('list')},
+                                products: [{
+                                    name: item.get('name'),
+                                    price: item.get('price'),
+                                    id: item.get('sku', true),
+                                    category: item.get('category'),
+                                    position: item.get('position')
+                                }]
+                            }
+                        }
+                    };
+
+                //We set this item in this Tracker to later be read it by the trackProductView event
+                this.item = item;
+                //Triggers a Backbone.Event so others can subscribe to this event and add/replace data before is send it to Google Tag Manager
+                Tracker.trigger(eventName, eventData, item);
+                this.pushData(eventData);
+
+                return this;
+            },
+            trackProductView: function trackProductView(product) {
+                var item = product.getItem();
+                var eventName = 'productView';
+                var eventData = {};
+                var selected_options = product.get('options').filter(function (option) {
+                    return option.get('value') && option.get('value').label;
+                });
+                var price = product.getPrice();
+
+                if (this.item && this.item.get('itemId') === item.get('_id')) {
+                    item.set('category', this.item.get('category'), {silent: true});
+                    item.set('list', this.item.get('list'), {silent: true});
+                }
+                eventData = {
+                    'event': eventName,
+                    'data': {
+                        'sku': product.getSku(),
+                        'internalid': item.get('internalid'),
+                        'name': item.get('_name'),
+                        'variant': _.map(selected_options, function (option) {
+                            return option.get('value').label;
+                        }).join(', '),
+                        'price': ((price.price) ? price.price : 0).toFixed(2),
+                        'category': item.get('category') || '', // as we do not support categories this is just the url,
+                        'list': item.get('list') || '',
+                        'page': this.getCategory()
+                    },
+                    ecommerce: {
+                        detail: {
+                            actionField: {
+                                list: item.get('list') || ''
+                            },
+                            products: [{
+                                name: item.get('_name'),
+                                sku: product.getSku(),
+                                category: item.get('category') || '',
+                                variant: _.map(selected_options, function (option) {
+                                    return option.get('value').label;
+                                }).join(', '),
+                                price: (price.price ? price.price : 0).toFixed(2)
+                            }]
+                        }
+                    },
+                    page: this.getCategory()
+                };
+
+                this.item = null;
+
+                //Triggers a Backbone.Event so others can subscribe to this event and add/replace data before is send it to Google Tag Manager
+                Tracker.trigger(eventName, eventData, item);
+                this.pushData(eventData);
+
+                return this;
+            },
+            trackProductList: function trackProductList(items, listName) {
+                var self = this;
+                var _item;
+                var eventName = 'productList';
+                var eventData = {
+                    'event': eventName,
+                    'data': {
+                        'currencyCode': SC.ENVIRONMENT.currentCurrency && SC.ENVIRONMENT.currentCurrency.code || 'USD',
+                        'items': [],
+                        'page': this.getCategory(),
+                        'list': listName
+                    },
+                    ecommerce: {
+                        currencyCode: SC.ENVIRONMENT.currencyCodeSpecifiedOnUrl,
+                        impressions: [],
+                    },
+                    page: this.getCategory(),
+                    list: listName,
+                    label: listName
+                };
+
+                _.each(items.models, function (item, index) {
+                    //We set this properties in the item so we can print them on the html, to later be read them by the trackProductClick event
+                    item.set('track_productlist_position', index + 1);
+                    item.set('track_productlist_category', self.getCategory());
+                    item.set('track_productlist_list', listName);
+
+                    _item = {
+                        'name': item.get('_name'),
+                        'sku': item.get('_sku', true),
+                        'price': (item.get('_price') && item.get('_price').toFixed(2)) || 0.00,
+                        'list': item.get('track_productlist_list'),
+                        'position': item.get('track_productlist_position'),
+                        'category': item.get('track_productlist_category')
+                    };
+
+                    eventData.ecommerce.impressions.push(_item);
+                    eventData.data.items.push(_item);
+                });
+
+                //Triggers a Backbone.Event so others can subscribe to this event and add/replace data before is send it to Google Tag Manager
+                Tracker.trigger(eventName, eventData, items);
+                this.pushData(eventData);
+
+                return this;
+            },
+            getPaymentOption: function getPaymentOption(view) {
+                try {
+                    var paymentmethods = view.wizard.model.get('paymentmethods');
+                    return (paymentmethods &&
+                        paymentmethods.models &&
+                        paymentmethods.models[0] &&
+                        paymentmethods.models[0].get('creditcard') &&
+                        paymentmethods.models[0].get('creditcard').paymentmethod &&
+                        paymentmethods.models[0].get('creditcard').paymentmethod.name) || '';
+                } catch (e) {
+                    return '';
+                }
+            },
+            trackViewCart: function trackViewCart(cart) {
+                var eventName = 'viewCart';
+                var products = [];
+                var eventData = {
+                    event: eventName,
+                    data: {
+                        currency: SC.ENVIRONMENT.currentCurrency && SC.ENVIRONMENT.currentCurrency.code || 'USD',
+                        products: []
+                    },
+                    ecommerce: {
+                        checkout: {
+                            actionField: {'step': 1},
+                            products: []
+                        }
+                    }
+                };
+
+                _.each(cart.get('lines').models, function eachLine(model) {
+                    var item = model.get('item');
+                    var productData = {
+                        'id': item.get('_sku'),
+                        'internalid': item.get('internalid'),
+                        'name': item.get('_name'),
+                        'price': item.get('_price'),
+                        'quantity': model.get('quantity')
+                    };
+                    products.push(productData);
+                });
+
+                eventData.ecommerce.checkout.products = products;
+                eventData.data.products = products;
+
+                Tracker.trigger(eventName, eventData);
+                this.pushData(eventData);
+
+                return this;
+            },
+            trackCheckoutStep: function trackCheckoutStep(view) {
+                var currentStep = view.wizard && view.wizard.currentStep;
+                var stepNumbers = ['shipping/address', 'billing', 'review'];
+                var stepNumber;
+                var self = this;
+                var products = [];
+                var eventName = 'checkout';
+                var eventData = {
+                    event: eventName,
+                    data: {},
+                    ecommerce: {
+                        checkout: {
+                            actionField: {},
+                            products: []
+                        }
+                    }
+                };
+
+                if (currentStep) {
+                    _.each(this.fullOrder.get('lines').models, function eachLines(line) {
+                        var product = line.get('item');
+                        var productData = {
+                            'id': product.get('_sku'),
+                            'name': product.get('_name'),
+                            'price': line.get('rate'),
+                            'quantity': line.get('quantity')
+                        };
+                        products.push(productData);
+                    });
+
+                    stepNumber = stepNumbers.indexOf(currentStep) + 2;
+                    eventData.ecommerce.checkout.products = products;
+                    eventData.ecommerce.checkout.actionField = {
+                        'step': stepNumber,
+                        'option': self.getPaymentOption(view)
+                    };
+
+                    Tracker.trigger(eventName, eventData, view);
+                    this.pushData(eventData);
+                }
+                return this;
+            },
+            trackTransaction: function (transaction) {
+                var eventName = 'transaction';
+                var products = [];
+                var orderConfirmation = GoogleTagManager.fullOrder.get('confirmation');
+                var eventData = {
+                    'event': eventName,
+                    'data': {
+                        'transactionId': transaction.get('confirmationNumber'),
+                        'transactionAffiliation': Configuration.get('siteSettings.displayname'),
+                        'transactionSubTotal': transaction.get('subTotal'),
+                        'transactionTotal': transaction.get('total'),
+                        'transactionTax': transaction.get('taxTotal'),
+                        'transactionShipping': transaction.get('shippingCost') + transaction.get('handlingCost'),
+                        'transactionProducts': [],
+                        'transactionCurrency': SC.ENVIRONMENT.currentCurrency && SC.ENVIRONMENT.currentCurrency.code || 'USD',
+                        'transactionEmail': GoogleTagManager.userModel.get('email'),
+                        'transactionDiscount': orderConfirmation.get('summary').discounttotal || 0,
+                        'transactionPromoCode': _.map(orderConfirmation.get('promocodes'), function eachPromo(promoCode) {
+                            return (promoCode && promoCode.code) || false;
+                        }).join(',')
+                    },
+                    'ecommerce': {
+                        'purchase': {
+                            'actionField': {
+                                'id': transaction.get('confirmationNumber'),
+                                'affiliation': Configuration.get('siteSettings.displayname'),
+                                'revenue': transaction.get('total'),
+                                'tax': transaction.get('taxTotal'),
+                                'shipping': transaction.get('shippingCost') + transaction.get('handlingCost'),
+                                'coupon': _.map(orderConfirmation.get('promocodes'), function (promoCode) {
+                                    return promoCode && promoCode.code || false;
+                                }).join(',')
+                            },
+                            'products': []
+                        }
+                    }
+                };
+
+                _.each(orderConfirmation.get('lines').models, function eachLines(line) {
+                    var product = line.get('item');
+                    products.push({
+                        'id': product.get('_sku'),
+                        'internalid': product.get('internalid'),
+                        'sku': product.get('_sku'),
+                        'name': product.get('_name'),
+                        'brand': product.get('custitem_nhc_brand'),
+                        'category': product.get('category') || '',
+                        'price': line.get('rate'),
+                        'quantity': line.get('quantity')
+                    });
+                });
+
+                eventData.data.transactionProducts = products;
+                eventData.ecommerce.purchase.products = products;
+
+                //Triggers a Backbone.Event so others can subscribe to this event and add/replace data before is send it to Google Tag Manager
+                Tracker.trigger(eventName, eventData, transaction);
+                this.pushData(eventData);
+
+                return this;
+            },
+            resetTracker: function resetTracker() {
+                if (win.google_tag_manager) {
+                    win.google_tag_manager[this.configuration.id].dataLayer.reset();
+                } else {
+                    win[this.configuration.dataLayerName].push({
+                        'event': 'dataLayerReset',
+                        'data': undefined,
+                        'eventCallback': undefined
+                    });
+                }
+            },
+        });
+
+        _.extend(GoogleTagManagerNavigationHelper, {
+            mouseDownNavigation: function (layout, e) {
+                var $item = jQuery(e.currentTarget).closest('[itemprop="itemListElement"]');
+
+                if ($item.length) {
+                    var category = $item.data('track-productlist-category');
+
+                    if (category) {
+                        var item = {
+                            category: category,
+                            position: $item.data('track-productlist-position'),
+                            list: $item.data('track-productlist-list'),
+                            sku: $item.data('sku'),
+                            itemId: $item.data('item-id'),
+                            name: $item.find('[itemprop="name"]').text(),
+                            price: $item.find('[itemprop="price"]').data('rate')
+                        };
+
+                        Tracker.getInstance().trackProductClick(new Backbone.Model(item));
+                    }
+                }
+
+                return e;
+            }
+        });
+
+        _.extend(CartDetailedView.prototype, {
+            removeItem: _.wrap(CartDetailedView.prototype.removeItem, function onWrapRemoveItem(fn) {
+                var e;
+                var product;
+                var self = this;
+                var removePromise = fn.apply(this, _.toArray(arguments).slice(1));
+                try {
+                    e = _.toArray(arguments).slice(1)[0];
+                    product = this.model.get('lines').get(this.$(e.target).data('internalid'));
+                    GoogleTagManager.trackRemoveFromCart(product, this.model);
+                } catch (err) {
+                    return err;
+                }
+
+                removePromise.always(function alwaysRemove(){
+                    GoogleTagManager.trackViewCart(self.model);
+                });
+
+                return removePromise;
+            })
+        });
+
+        return {
+            mountToApp: function mountToApp(application) {
+                var Layout = application.getLayout();
+
+                window.dataLayer = window.dataLayer || [];
+
+                application.getUser().done(function getUser(user) {
+                    GoogleTagManager.userModel = user;
+                });
+
+                Layout.on('afterAppendView', function afterAppendView(view) {
+                    if (view.model && application.name === 'Checkout') {
+                        GoogleTagManager.fullOrder = _.extend(view.model);
+                    }
+                    if (application.name === 'Checkout') {
+                        GoogleTagManager.trackCheckoutStep(view);
+                    }
+                    switch (view.template && view.template.Name) {
+                        case 'cart_detailed':
+                            GoogleTagManager.trackViewCart(view.model);
+                            break;
+                        default:
+                            break;
+                    }
+                });
+
+
+                application.getLayout().once('afterAppendView', function afterAppendView() {
+                    // Support for GTM click event on SCA
+                    jQuery(document).on('click', function onClick(e) {
+                        var data = {
+                            'event': 'gtm.click',
+                            'gtm.element': e.target,
+                            'gtm.elementId': e.target.id,
+                            'gtm.elementTarget': '',
+                            'gtm.elementUrl': jQuery(e.target).attr('href') || '',
+                            'gtm.elementClasses': e.target.className
+                        };
+
+                        //window.dataLayer.push(data);
+                    });
+                });
+            }
+        };
+    });
+
+
+};
+
+extensions['AwaLabs.FacetsExtension.1.0.0'] = function(){
+
+function getExtensionAssetsPath(asset){
+return 'extensions/AwaLabs/FacetsExtension/1.0.0/' + asset;
+};
+
+define('Facets.Browse.View.Extension', [
+    'Facets.Browse.View',
+    'SC.Configuration',
+    'Facets.FacetedNavigationItemCategory.View',
+    'Facets.FacetedNavigation.View',
+    'Facets.FacetsDisplay.View',
+    'Facets.CategoryCell.View',
+    'Backbone',
+    'Backbone.CollectionView',
+    'underscore',
+    'jQuery',
+    'Utils',
+    'Profile.Model'
+], function fnFacetsBrowseViewExtension(
+    FacetsBrowseViewExtension,
+    Configuration,
+    FacetsFacetedNavigationItemCategoryView,
+    FacetsFacetedNavigationView,
+    FacetsFacetsDisplayView,
+    FacetsCategoryCellView,
+    Backbone,
+    BackboneCollectionView,
+    _
+) {
+    'use strict';
+
+   _.extend(FacetsBrowseViewExtension.prototype, {
+    
+       initialize: _.wrap(FacetsBrowseViewExtension.prototype.initialize, function fnInitialize(fn) {
+           var self = this;
+           var category;
+           fn.apply(this, _.toArray(arguments).slice(1));
+           category = self.model.get('category');
+           this.subCategories = (category && category.get('categories')) || [];
+       }),
+    
+    
+       childViews: _.extend(FacetsBrowseViewExtension.prototype.childViews || {}, {
+           'Facets.FacetedNavigation': function FacetsFacetedNavigation(options) {
+               var exclude = _.map((options.excludeFacets || '').split(','), function fnExcludeFacets(facetIdToExclude) {
+                   return jQuery.trim(facetIdToExclude);
+               });
+               var customExcludeConfig = Configuration.get('customExclude', '');
+               var customExclude = _.map((customExcludeConfig).split(','), function fnCustomExcludeConfig(facetIdToExclude) {
+                   return jQuery.trim(facetIdToExclude);
+               });
+               var hasCategories = !!(this.category && this.category.categories);
+               var hasItems = this.model.get('items').length;
+               var hasFacets = hasItems && this.model.get('facets') && this.model.get('facets').length;
+               var appliedFacets = this.translator.cloneWithoutFacetId('category').facets;
+               var hasAppliedFacets = appliedFacets.length;
+               var isCategory = !!this.model.get('category');
+            
+               return new FacetsFacetedNavigationView({
+                   categoryItemId: this.category && this.category.itemid,
+                
+                   clearAllFacetsLink: this.translator.cloneWithoutFacets().getUrl(),
+                
+                   hasCategories: hasCategories,
+                
+                   hasItems: hasItems,
+                
+                   hasFacets: hasFacets,
+                
+                   hasCategoriesAndFacets: hasCategories && hasFacets,
+                
+                   appliedFacets: appliedFacets,
+                
+                   hasFacetsOrAppliedFacets: hasFacets || hasAppliedFacets,
+                
+                   translator: this.translator,
+                
+                   facets: _.filter(this.model.get('facets'), function fnFacets(facet) {
+                       return !_.contains(exclude, facet.id) && !_.contains(customExclude, facet.id);
+                   }),
+                
+                   totalProducts: this.model.get('total'),
+                
+                   keywords: this.translator.getOptionValue('keywords'),
+                
+                   allFacets: this.model.get('facets'),
+                
+                   isCategory: isCategory,
+                
+                   category: this.model.get('category')
+               });
+           },
+           'Facets.CategorySidebar': function () {
+               return new FacetsFacetedNavigationItemCategoryView({
+                   model: this.model.get('category'),
+                   categoryUrl: this.translator.getCategoryUrl()
+               });
+           }
+       })
+    });
+});
+
+
+define('Facets.FacetedNavigation.View.Extension', [
+    'Facets.FacetedNavigation.View',
+    'Facets.FacetedNavigationItemCategory.View',
+    'SC.Configuration',
+    'Backbone',
+    'underscore',
+    'jQuery',
+    'Facets.MainCategory.Collection'
+], function FacetsFacetedNavigationViewExtension(
+    FacetsFacetedNavigationView,
+    FacetsFacetedNavigationItemCategoryView,
+    Configuration,
+    Backbone,
+    _,
+    jQuery,
+    FacetsMainCategoryCollection
+) {
+    'use strict';
+    var Utils = {
+        
+        getCategoryParentId: function getCategoryParentId() {
+            return Configuration.get('parentCategory');
+        },
+        setFullUrl: function setFullurl(categories) {
+            var fullUrl;
+            var cat;
+            var categoriesFixed;
+            if (!categories) {
+                return [];
+            }
+            this.categories = categories;
+            categoriesFixed = [];
+            for (var i = 0; i < this.categories.length; i++) {
+                cat = this.categories.models[i];
+                fullUrl = this.getFullUrl(cat);
+                if (!cat.get('ignoreByNoValidParent')) {
+                    cat.set('fullurl', fullUrl);
+                    categoriesFixed.push(cat);
+                }
+            }
+            return categoriesFixed;
+        },
+        getFullUrl: function getFullUrl(category) {
+            var parent;
+            if (parseInt(category.get('parent'), 10) === this.getCategoryParentId()) {
+                return 'category' + category.get('href');
+            } else {
+                parent = this.getById(category.get('parent'));
+                if (!parent) {
+                    category.set('ignoreByNoValidParent', true);
+                    return '';
+                }
+                return this.getFullUrl(parent) + category.get('href');
+            }
+        },
+        getById: function (id) {
+            for (var j = 0; j < this.categories.length; j++) {
+               if  (parseInt(this.categories.models[j].get('id'), 10) === parseInt(id, 10)) {
+                   return this.categories.models[j];
+               }
+            }
+            return null;
+        }
+    };
+
+    _.extend(FacetsFacetedNavigationView.prototype, {
+        initialize: _.wrap(FacetsFacetedNavigationView.prototype.initialize, function fnInitialize(fn, options) {
+            var self = this;
+            fn.apply(this, _.toArray(arguments).slice(1));
+            this.appliedFacets = options.appliedFacets;
+            this.isCategory = options.isCategory;
+            this.category = options.category;
+            this.translator = options.translator;
+            this.allFacets = options.allFacets;
+            this.categoriesFromMainCats = new FacetsMainCategoryCollection();
+            this.categoriesFromMainCats.fetch().done(function doneFn() {
+                self.render();
+            });
+            this.categoriesFromMainCats.fetch();
+        }),
+
+        childViews: _.extend(FacetsFacetedNavigationView.prototype.childViews || {}, {
+
+            'Facets.CategorySidebarCat': function fnCategorySidebar() {
+                var self = this;
+                var category = this.category || {};
+                var categoryFacets = _.find(self.allFacets, { id: 'commercecategoryname' });
+                var categoriesUnderCategories = this.categoriesFromMainCats ;//SC.CONFIGURATION.navigationData[0].categories;
+                var categoriesUnderBrands = JSON.parse(sessionStorage.getItem('list') || '[]');
+                var categoriesCat;
+                var categoriesBra;
+                var categories;
+                var tempNameFacet;
+
+                if (!this.category && categoryFacets && categoriesUnderCategories.length > 0) {
+                    // for categories under categories
+                    categoriesCat = Utils.setFullUrl(categoriesUnderCategories);
+                    categories = _.filter(categoriesCat, function fnCategories(cat) {
+                        return _.some(categoryFacets.values, function fnValues(facet) {
+                            tempNameFacet = facet.url + '*';
+                            return facet.url === cat.get('word') || tempNameFacet === cat.get('word');
+                        });
+                    });
+                    categoriesCat = _.map(categories, function (cat) {
+                        return {
+                            fullurl: '/' + cat.get('fullurl'),
+                            name: cat.get('word')
+                        };
+                    });
+                    
+                    categories = _.filter(categoriesUnderBrands.brands, function fnCategories(cat) {
+                        return _.some(categoryFacets.values, function fnValues(facet) {
+                            tempNameFacet = facet.url + '*';
+                            return facet.url === cat.word || tempNameFacet === cat.word;
+                        });
+                    });
+                    categoriesBra = _.map(categories, function (cat) {
+                        return {
+                            fullurl: cat.href,
+                            name: cat.word
+                        };
+                    });
+                    var all = categoriesCat.concat(categoriesBra);
+                    
+                    category = new Backbone.Model({
+                        categories: all,
+                        name: 'All'
+                    });
+                    return new FacetsFacetedNavigationItemCategoryView({
+                        model: category,
+                        categoryUrl: this.translator.getCategoryUrl(),
+                        translator: this.translator
+                    });
+                }
+                return null;
+            }
+        }),
+
+        getContext: _.wrap(FacetsFacetedNavigationView.prototype.getContext, function getContext(fn) {
+            var returnVariable = fn.apply(this, _.toArray(arguments).slice(1));
+
+            _.extend(returnVariable, {
+                isCategory: !this.isCategory
+            });
+
+            return returnVariable;
+        })
+    });
+});
+
+
+define('Facets.FacetedNavigationItem.View.Extension', [
+    'Facets.FacetedNavigationItem.View',
+    'SC.Configuration',
+    'Backbone',
+    'underscore'
+], function FacetsFacetedNavigationViewExtension(
+    FacetsFacetedNavigationItemView,
+    Configuration,
+    Backbone,
+    _
+) {
+    'use strict';
+
+    _.extend(FacetsFacetedNavigationItemView.prototype, {
+        
+        getLink: function getLink(minValue, maxValue, facetId) {
+            var translator = this.options.translator;
+            return translator.cloneForFacetId(facetId, {
+                from: minValue,
+                to: maxValue
+            }).getUrl();
+        },
+        
+        generateOriginalValues: function(model) {
+            var originalValues = [];
+            var i;
+            _.each(model.get('values'), function(value){
+                i = Math.round(value.url);
+                originalValues.push({
+                    url: (parseFloat(i) - 0.50).toString() + 'to' + (parseFloat(i) + 0.49).toString(),
+                    label: Math.round(i).toString(),
+                    fromRange: parseFloat(i) - 0.50,
+                    fromRangeValue: Math.round(parseFloat(i)),
+                    toRange: parseFloat(i) + 0.49
+                });
+            });
+            return _.uniq(originalValues, 'url');
+        },
+    
+        getContext: _.wrap(FacetsFacetedNavigationItemView.prototype.getContext, function getContext(fn) {
+            if (this.facet_config.id === 'rating' && this.facet_config.template === 'facets_faceted_navigation_item_custom_rating.tpl') {
+                var facetId = this.facetId;
+                var translator = this.options.translator;
+                var facetConfig = this.facet_config;
+                var originalValues = this.generateOriginalValues(this.model);
+                var selectedValues = translator.getFacetValue(facetId) || [];
+                var values = [];
+                var self = this;
+    
+                _.each(originalValues, function(value) {
+                    if (value.url !== '') {
+                        value.isActive = _.contains(selectedValues, value.url);
+                        value.displayName = value.label || decodeURIComponent(value.url) || _('(none)').translate();
+                        value.link = self.getLink(value.fromRange, value.toRange, facetId);
+                        value.color = '';
+                        value.isColorTile = false;
+                        value.image = {};
+                        value.isImageTile = false;
+            
+                        if (facetConfig) {
+                            value.color = facetConfig.colors[value.label] || facetConfig.colors.defaultColor;
+                            if (_.isObject(value.color)) {
+                                value.image = value.color;
+                                value.color = '';
+                                value.isImageTile = true;
+                            } else {
+                                value.isColorTile = true;
+                            }
+                        }
+                        values.push(value);
+                    }
+                });
+    
+                _(values).each(function(value) {
+                    value.isLightColor = _.contains(Configuration.get('layout.lightColors', []), value.label);
+                });
+               
+                var showFacet = !!values.length;
+    
+                var context = {
+                    htmlId: _.uniqueId('facetList_'),
+                    	facetId: facetId,
+                    	showFacet: showFacet,
+                    	showHeading: _.isBoolean(facetConfig.showHeading) ? facetConfig.showHeading : true,
+                    	isUncollapsible: !!facetConfig.uncollapsible,
+                    	isCollapsed: !facetConfig.uncollapsible && facetConfig.collapsed,
+                    	removeLink: translator.cloneWithoutFacetId(facetId).getUrl(),
+                    	facetDisplayName: facetConfig.name || facetId,
+                    	showExtraValues: true,
+                        displayValues: values,
+                };
+                return context;
+            
+            } else {
+                return fn.apply(this, _.toArray(arguments).slice(1));
+            }
+        })
+    });
+});
+
+
+define('Facets.FacetedNavigationItemCategory.View.Extension', [
+    'Facets.FacetedNavigationItemCategory.View',
+    'SC.Configuration',
+    'Backbone',
+    'Backbone.CompositeView',
+    'underscore'
+], function FacetsFacetedNavigationItemCategoryViewExtension(
+    FacetsFacetedNavigationItemCategoryView,
+    Configuration,
+    Backbone,
+    BackboneCompositeView,
+    _
+) {
+    'use strict';
+
+    _.extend(FacetsFacetedNavigationItemCategoryView.prototype, {
+        initialize: _.wrap(FacetsFacetedNavigationItemCategoryView.prototype.initialize, function fnInitialize(fn) {
+            fn.apply(this, _.toArray(arguments).slice(1));
+            this.categories = (this.model && this.model.get('siblings')) || [];
+            if (this.options.translator) {
+                this.categories = (this.model && this.model.get('categories')) || [];
+            }
+        }),
+        
+    
+        getContext: _.wrap(FacetsFacetedNavigationItemCategoryView.prototype.getContext, function getContext(fn) {
+            var returnVariable = fn.apply(this, _.toArray(arguments).slice(1));
+            var translator;
+            var keywords;
+            var values;
+            var breadcrumb;
+            var parentName;
+            translator = this.options.translator;
+            if (!translator) {
+                return returnVariable;
+            }
+            keywords = translator.getOptionValue('keywords');
+            values = _.sortBy(returnVariable.values, function fnValues(category) {
+                  return category.displayName;
+              });
+            breadcrumb = (this.model && this.model.get('breadcrumb')) || [];
+            parentName = '';
+            values = _.map(returnVariable.values, function fnValues(category) {
+                if (keywords && keywords.length > 0) {
+                    category.link += '?keywords=' + keywords;
+                }
+                return category;
+            });
+            if (breadcrumb && breadcrumb.length) {
+                parentName = '';
+                 _.each(breadcrumb, function fnBreadcrumb(crumb, ind) {
+                    parentName += crumb.name + (ind < breadcrumb.length - 1 ? ': ' : ' ');
+                 });
+              }
+  
+            _.extend(returnVariable, {
+                values: values,
+                parentName: parentName,
+                showParentName: parentName.length > 0,
+                showQuantifier: breadcrumb.length < 2
+            });
+            return returnVariable;
+          })
+      });
+});
+
+
+define('Facets.FacetsDisplay.View.Extension', [
+    'Facets.FacetsDisplay.View',
+    'underscore',
+    'Utils'
+], function FacetsFacetsDisplayViewExtension(
+    FacetsFacetsDisplayView,
+    _,
+    Utils
+) {
+    'use strict';
+    
+    _.extend(FacetsFacetsDisplayView.prototype, {
+        
+        getContext: function () {
+            var facets = this.options.facets;
+            var translator = this.options.translator;
+    
+            _.each(facets, function(facet) {
+                facet.value = _.isArray(facet.value) ? facet.value : [facet.value];
+            });
+    
+            var facetValues = [];
+    
+            _.each(facets, function(facet) {
+                _.each(facet.value, function(value) {
+                    var valueData = {
+                        facetValueIsObject: _.isObject(value),
+                        from: _.isObject(value) ? value.from : '',
+                        fromValue: _.isObject(value) ? Math.round(value.from) : '',
+                        to: _.isObject(value) ? value.to : '',
+                        valueLabel: translator.getLabelForValue(facet.id, value),
+                        facetValueUrl: translator.cloneForFacetId(facet.id, value).getUrl(),
+                        facetValue: facet.value,
+                        isRating: facet.id === 'rating'
+                    };
+                    facetValues.push(valueData);
+                });
+            });
+            return {
+                hasFacets: facets.length > 0,
+                clearAllFacetsLink: translator.cloneWithoutFacets().getUrl(),
+                values: facetValues,
+                isResponsive: Utils.isPhoneDevice(),
+                isDesktop: Utils.isDesktopDevice()
+            };
+        }
+    });
+});
+
+
+define('Facets.MainCategory.Collection', [
+    'Backbone',
+    'Utils',
+    'underscore',
+    'SC.Configuration',
+    'Categories.Model'
+], function FacetsMainCategoryCollection(
+    Backbone,
+    Utils,
+    _,
+    Configuration,
+    CategoryModel
+) {
+    'use strict';
+
+    return Backbone.Collection.extend({
+         url: _.getAbsoluteUrl('services/jsonMainCats.js'),
+         model: CategoryModel,
+        parse: function (response) {
+            // delete parent and special offer category
+            return _.filter(response, function (cat) {
+                return parseInt(cat.id, 10) !== Configuration.get('parentCategory') &&
+                    parseInt(cat.id, 10) !== Configuration.get('parentBrand') &&
+                    cat.parent !== '';
+            });
+        }
+    });
+});
+
+
+define('Facets.Router.Extension', [
+    'Facets.Router',
+    'Facets.Browse.View',
+    'Facets.Helper',
+    'Facets.Model',
+    'Categories',
+    'Categories.Model',
+    'AjaxRequestsKiller',
+    'Profile.Model',
+    'underscore',
+    'Backbone',
+    'jQuery',
+    'SC.Configuration'
+], function FacetsRouterExtension(
+    Router,
+    BrowseView,
+    Helper,
+    Model,
+    Categories,
+    CategoriesModel,
+    AjaxRequestsKiller,
+    ProfileModel,
+    _,
+    Backbone,
+    jQuery
+) {
+    'use strict';
+
+    _.extend(Router.prototype, {
+
+        showPage: function showPage(isCategoryPage) {
+            var self = this;
+            var facetModel = new Model();
+            var fullurl = Backbone.history.fragment;
+            var models = [facetModel];
+            var translator = Helper.parseUrl(fullurl, this.translatorConfig, isCategoryPage);
+            var categoryModel = null;
+
+            facetModel.options = {
+                data: translator.getApiParams(),
+                killerId: AjaxRequestsKiller.getKillerId(),
+                pageGeneratorPreload: true
+            };
+
+            if (ProfileModel.getInstance().hidePrices()) {
+                translator = translator.cloneWithoutFacetId('onlinecustomerprice');
+                Backbone.history.navigate(translator.getUrl());
+            }
+
+            if (isCategoryPage) {
+                categoryModel = new CategoriesModel();
+
+                categoryModel.options = {
+                    data: { 'fullurl': translator.getCategoryUrl() },
+                    killerId: AjaxRequestsKiller.getKillerId()
+                };
+
+                facetModel.set('category', categoryModel);
+                models.push(categoryModel);
+            }
+
+
+            jQuery.when.apply(null, _.invoke(models, 'fetch', {}))
+                .then(function fetch(facetResponse) {
+                    var newFullUrl = null;
+                    var onlyFacets = null;
+                    var unaliasedUrl = null;
+                    var needsSeparator = null;
+                    var slashNeeded = null;
+                    var view = null;
+                    var facetResponseParams = facetResponse;
+                    facetResponseParams = isCategoryPage ? facetResponse[0] : facetResponse;
+
+                    if (facetResponseParams.corrections && facetResponseParams.corrections.length > 0) {
+                        /*
+                        URL Corrections reference bug: it doesn't take categories into account.
+                        We are stripping away category, using unaliasURL, and then appending it again.
+                        With due care for '/'
+                         */
+                        newFullUrl = fullurl;
+                        if (newFullUrl[0] !== '/') {
+                            newFullUrl = '/' + newFullUrl;
+                        }
+                        onlyFacets = isCategoryPage ? newFullUrl.replace(categoryModel.get('fullurl'), '') : newFullUrl;
+                        unaliasedUrl = self.unaliasUrl(onlyFacets, facetResponseParams.corrections);
+
+                        if (isCategoryPage) {
+                            needsSeparator = categoryModel.get('fullurl')[categoryModel.get('fullurl').length - 1] !== '/' && unaliasedUrl[0] !== '/';
+                            unaliasedUrl = categoryModel.get('fullurl') + (needsSeparator ? '/' : '') + unaliasedUrl;
+                        }
+
+                        if (SC.ENVIRONMENT.jsEnvironment === 'server') {
+                            slashNeeded = window.location.origin[window.location.origin.length - 1] !== '/' && (unaliasedUrl + '')[0] !== '/';
+                            nsglobal.statusCode = 301;
+                            nsglobal.location = window.location.origin + (slashNeeded ? '/' : '') + unaliasedUrl;
+                        } else {
+                            Backbone.history.navigate('#' + unaliasedUrl, { trigger: true });
+                        }
+                    } else {
+                        view = new BrowseView({
+                            translator: translator,
+                            translatorConfig: self.translatorConfig,
+                            application: self.application,
+                            model: facetModel
+                        });
+
+                        translator.setLabelsFromFacets(facetModel.get('facets') || []);
+                        view.showContent();
+                    }
+                });
+        }
+    });
+});
+
+
+define('Facets.Translator.Extension', [
+    'Facets.Translator',
+    'underscore'
+], function FacetsTranslatorExtension(
+    FacetsTranslator,
+    _
+) {
+    'use strict';
+
+   _.extend(FacetsTranslator.prototype, {
+    
+       getApiParams: function getApiParams () {
+           var params = {};
+        
+           _.each(this.facets, function (facet) {
+               switch (facet.config.behavior) {
+                   case 'range':
+                       var value = (typeof facet.value === 'object') ? facet.value : {from: 0, to: facet.value};
+                       if(facet.id === 'rating'){
+                           params['custitem_ns_pr_rating.from'] = value.from;
+                           params['custitem_ns_pr_rating.to'] = value.to;
+                       }
+                       params[facet.id + '.from'] = value.from;
+                       params[facet.id + '.to'] = value.to;
+                       break;
+                   case 'multi':
+                       params[facet.id] = facet.value.sort().join(',') ; // this coma is part of the api call so it should not be removed
+                       break;
+                   default:
+                       params[facet.id] =  facet.value;
+               }
+           });
+        
+           params.sort = this.options.order;
+           params.limit = this.options.show;
+           params.offset = (this.options.show * this.options.page) - this.options.show;
+        
+           params.q = this.options.keywords;
+        
+           if (this.isCategoryPage)
+           {
+               params.commercecategoryurl = this.categoryUrl;
+               params.sort = params.sort.replace('relevance', 'commercecategory');
+           }
+           return params;
+       }
+    });
+});
+
+
+define('Facets.Extension', [
+    'Facets.Browse.View.Extension',
+    'Facets.FacetedNavigation.View.Extension',
+    'Facets.FacetedNavigationItemCategory.View.Extension',
+    'Facets.Router.Extension',
+    'Facets.FacetedNavigationItem.View.Extension',
+    'Facets.FacetsDisplay.View.Extension',
+    'Facets.Translator.Extension'
+], function FacetsExtension() {
+    'use strict';
+    
+});
+
+
+};
+
+extensions['AwaLabs.FavoriteLink.1.0.0'] = function(){
+
+function getExtensionAssetsPath(asset){
+return 'extensions/AwaLabs/FavoriteLink/1.0.0/' + asset;
+};
+
+define('FavoriteLink.Header.Profile.View', [
+	'underscore',
+	'Header.Profile.View',
+	'ProductList.Utils'
+], function FavoriteLink(
+	_,
+	HeaderProfileView,
+	ProductListUtils
+) {
+    'use strict';
+    
+    _.extend(HeaderProfileView.prototype, {
+	    initialize: _.wrap(HeaderProfileView.prototype.initialize, function get(fn) {
+		    fn.apply(this, _.toArray(arguments).slice(1));
+		
+		    this.productListModule = ProductListUtils(this.options.application);
+		
+		    this.isProductListEnabled = this.productListModule.isProductListEnabled();
+		    if (this.isProductListEnabled) {
+			    this.productListsPromise = this.productListModule.getProductListsPromise();
+			
+			    this.product_list_collection = this.productListModule.getProductLists();
+			
+			    this.debounced_render = _.debounce(_.bind(this.render, this), 250);
+						
+			    this.product_list_collection.on('add remove change:name', this.debounced_render);
+		    }
+		    else {
+			    this.productListsPromise = jQuery.Deferred();
+		    }
+	    }),
+	    getContext: _.wrap(HeaderProfileView.prototype.getContext, function get(fn) {
+	    	var context = fn.apply(this, _.toArray(arguments).slice(1));
+		    var fModel = this.product_list_collection && this.product_list_collection.models && _.first(this.product_list_collection.models);
+		    context.idFavoriteLink = (fModel && fModel.id) || 'tmpl_1';
+	    	return context;
+	    })
+    });
+});
+
+
+define('AwaLabs.FavoriteLink', [
+	'FavoriteLink.Header.Profile.View'
+], function FavoriteLink() {
+    'use strict';
+});
+
+
+};
+
+extensions['AwaLabs.ItemCustomizations.1.0.1'] = function(){
+
+function getExtensionAssetsPath(asset){
+return 'extensions/AwaLabs/ItemCustomizations/1.0.1/' + asset;
+};
+
+define('ItemCustomizations.ProductPage.Context', [
+    
+], function ItemCustomizations() {
+    'use strict';
+    
+    return {
+        mountToApp: function(application) {
+            var layout = application.getComponent('Layout');
+            var pdp = application.getComponent('PDP');
+
+            layout.addToViewContextDefinition('ProductDetails.Full.View', 'unitsSize', 'string', function (context) {
+                var selectedItem = pdp.getSelectedMatrixChilds();
+                var sizeOption = '';
+                if(selectedItem.length > 0) {
+                    sizeOption = selectedItem[0].custitem_nhc_servings + ' ' + selectedItem[0].custitem_nhc_serving_units
+                } else {
+                    sizeOption = context.model.custitem_nhc_servings + ' ' + context.model.custitem_nhc_serving_units
+                }
+
+                return sizeOption;
+            });
+
+            pdp.on('afterOptionSelection', function() {
+                var selectedItem = pdp.getSelectedMatrixChilds();
+                var servingOption = selectedItem[0].custitem_nhc_servings + ' ' + selectedItem[0].custitem_nhc_serving_units;
+                var itemId = selectedItem[0].itemid;
+                var description = selectedItem[0].custitem_nhc_detailed_description;
+                var ingredients = selectedItem[0].custitem_nhc_ingredients_html;
+
+                jQuery('.nhc-units-container').html('<p>' + servingOption + '</p>');
+                jQuery('#upccode').html('<strong>Product Code: </strong>' + itemId);
+                jQuery('#qtypercont').html('<strong>Quantity per Container: </strong>' + servingOption);
+                jQuery('.nhc-product-description').html(description);
+                jQuery('.nhc-nutrition-facts-box').html(ingredients);
+            });
+        }
+    }
+});
+
+
+};
+
+extensions['AwaLabs.SlidersOptions.1.0.0'] = function(){
+
+function getExtensionAssetsPath(asset){
+return 'extensions/AwaLabs/SlidersOptions/1.0.0/' + asset;
+};
+
+define('AwaLabs.SlidersOptions', [
+    'SC.Configuration',
+    'underscore'
+], function AwaLabsSlidersOptions(
+    Configuration,
+    _
+) {
+    'use strict';
+
+    _.extend(Configuration.get('bxSliderDefaults'), Configuration.get('slidersOptions'));
+});
+
+
+};
+
+try{
+	extensions['AwaLabs.AddToCartAvailability.1.0.0']();
+	SC.addExtensionModule('AwaLabs.AddToCartAvailability');
+}
+catch(error)
+{
+	console.error(error)
+}
+
+try{
+	extensions['AwaLabs.Comm100.1.1.1']();
+	SC.addExtensionModule('AwaLabs.Comm100');
+}
+catch(error)
+{
+	console.error(error)
+}
+
+try{
+	extensions['AwaLabs.GoogleTagManager.1.0.3']();
+	SC.addExtensionModule('AwaLabs.GoogleTagManager');
+}
+catch(error)
+{
+	console.error(error)
+}
+
+try{
+	extensions['AwaLabs.FacetsExtension.1.0.0']();
+	SC.addExtensionModule('Facets.Extension');
+}
+catch(error)
+{
+	console.error(error)
+}
+
+try{
+	extensions['AwaLabs.FavoriteLink.1.0.0']();
+	SC.addExtensionModule('AwaLabs.FavoriteLink');
+}
+catch(error)
+{
+	console.error(error)
+}
+
+try{
+	extensions['AwaLabs.ItemCustomizations.1.0.1']();
+	SC.addExtensionModule('ItemCustomizations.ProductPage.Context');
+}
+catch(error)
+{
+	console.error(error)
+}
+
+try{
+	extensions['AwaLabs.SlidersOptions.1.0.0']();
+	SC.addExtensionModule('AwaLabs.SlidersOptions');
+}
+catch(error)
+{
+	console.error(error)
+}
+

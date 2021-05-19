@@ -1,0 +1,399 @@
+// JavaScript Document
+// HTML5 FlashTalking Ad
+// FCB - Chicago
+
+"use strict";
+
+// keep these as vars since we need to access globally
+var fCtaMouseover = false;
+var fReplayMouseover = false;
+
+var container, replayBtn, bannerButton, tlMain, tlBg ;
+var footerHeight = 40;
+var bannerwidth = 160;
+var bannerheight = 600;
+
+//specific variables
+var textTransTime = 1.3;
+
+
+
+
+function loadScript(url, callback) {
+    // Adding the script tag to the head as suggested before
+    var head = document.getElementsByTagName("head")[0];
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src = url;
+
+    // Then bind the event to the callback function.
+    // There are several events for cross browser compatibility.
+    script.onreadystatechange = callback;
+    script.onload = callback;
+
+    // Fire the loading
+    head.appendChild(script);
+}
+
+// Function to run with any animations starting on load, or bringing in images etc
+function startAnim() {
+	
+	retinaImages("#step1, #background, #logo, #imageImg1, #step4, #imageImg3, #imageImg4, #step5, #step6, #logo2");
+
+	// Containers
+	container = document.getElementById("container");
+	bannerButton = document.getElementById("exitBtn");
+
+	// add event listeners
+	bannerButton.addEventListener('mouseover', over);
+	bannerButton.addEventListener('click', click);
+
+    //parse font color
+    var dynColor = myFT.instantAds.dynColor1;
+    if (dynColor && dynColor != "") {
+        var contentCopys = document.querySelectorAll("#content");
+        for (var i = 0; i < contentCopys.length; i++) {
+            contentCopys[i].style.color = dynColor;
+        }
+    }
+	
+	//set bgColor from Manifest
+    var bgColor = myFT.instantAds.dynColor2;
+    document.getElementById("content").style.backgroundColor = bgColor;
+
+    //set priceLockupColor from Manifest for Price Lockup
+    var priceLockupColor = myFT.instantAds.dynColor3;
+	
+    document.getElementById("pricepointWrapper").style.color = priceLockupColor;
+	// //hide all empty content on instantads variables
+	// for (var obj in myFT.instantAds){
+	// 	if(myFT.instantAds[obj] == "" || myFT.instantAds[obj] =="blank.png"){
+	// 		var domid = document.getElementById(obj);
+	// 		var innerFtElem = document.querySelectorAll("ft-dynamic[name='"+obj+"']");
+	// 		if(innerFtElem && innerFtElem[0]){
+	// 			innerFtElem[0].style.display = "none";
+	// 		}
+	// 		if(domid){
+	// 			domid.style.display = "none";
+	// 		}
+	// 	}
+	// }
+
+
+	// document.getElementById("replaySvg").setAttribute("fill", myFT.instantAds.dynColor1);
+	// document.getElementById("ctaSheenMaskImage").setAttribute("xlink:href", myFT.instantAds.ctaButtonImg);
+
+	populatePricepoint();
+
+	//small timeout to be sure we have all pre rendered
+	setTimeout(function(){
+		//hide preload
+		TweenMax.set("#loading", {autoAlpha:0});
+		TweenMax.set(container,{alpha:1, display:"block"});
+
+		// Main timeline
+		tlMain = new TimelineMax()
+			.call(init)
+
+			.add(step1(), 0)
+			.add(step2(), "+=1.5")
+			.add(step3(), "+=1.5")
+			.add(step4(), "+=1.5")
+			.add(step5(), "+=1.5")
+			.addPause(15)
+
+		tlBg = new TimelineMax()
+			
+			
+			
+			
+	}, 100)
+
+
+	function init() {
+
+		//ABSTRACT POSITION CONTAINERS
+		// var replaySvg = document.getElementById("replaySvg");
+		
+		//INITIAL POSITIONING
+		var _tl = new TimelineLite()
+			 .set('#imageImg2', {
+                left: -120,
+            })
+
+
+			//footer
+			.set('#footerBgImg', 		{left:0,   top:bannerheight-footerHeight, height:footerHeight, backgroundColor:"#fff"})
+			.set('.sheen', 				{alpha:.5})
+			.set(container, 			{alpha:1, display:"block"})
+	}
+
+	function step1() {
+		var tl = new TimelineLite()
+			//transition
+			.to("#imageImg2", 1, {x: -bannerwidth*3}, 1)
+			.fromTo("#copyTxt1", 0.5, {x: -bannerwidth},{x: 0}, 1.5)
+			.fromTo("#imageImg3", 0.5, {x: -bannerwidth},{x: 0}, 1.5)
+			.fromTo("#logo", 0.5, {autoAlpha: 0},{autoAlpha: 1}, 1.5)
+			.fromTo("#legalTxt1", 0.5, {autoAlpha: 0},{autoAlpha: 1}, 1.5)
+
+
+		return tl;
+	}
+
+	function step2() {
+		var tl = new TimelineLite()
+			//transition
+			.to("#copyTxt1", 0.5, {x: bannerwidth}, 0)
+			.to("#imageImg3", 0.5, {x: bannerwidth}, 0)
+			.to("#legalTxt1", 0.5, {autoAlpha:0}, 0)
+			.fromTo("#copyTxt2", 0.5, {x: -bannerwidth},{x: 0}, 0.5)
+			.fromTo("#imageImg4", 0.5, {x: -bannerwidth},{x: 0}, 0.5)
+			.fromTo("#legalTxt2", 0.5, {autoAlpha: 0},{autoAlpha: 1}, 0.5)
+		return tl;
+	}
+
+	function step3() {
+		var tl = new TimelineLite()
+			//transition
+			
+			.to("#copyTxt2", 0.5, {x: bannerwidth}, 0)
+			.to("#imageImg4", 0.5, {x: bannerwidth}, 0)
+			.to("#legalTxt2", 0.5, {autoAlpha:0}, 0)
+			.fromTo("#copyTxt3", 0.5, {x: -bannerwidth},{x: 0}, 0.5)
+			.fromTo("#imageImg5", 0.5, {x: -bannerwidth},{x: 0}, 0.5)
+			.fromTo("#legalTxt3", 0.5, {autoAlpha: 0},{autoAlpha: 1}, 0.5)
+
+			
+		return tl;
+	}
+
+	function step4() {
+		var tl = new TimelineLite()
+			//transition
+			
+			.to("#copyTxt3", 0.5, {x: bannerwidth}, 0)
+			.to("#imageImg5", 0.5, {x: bannerwidth}, 0)
+			.to("#legalTxt3", 0.5, {autoAlpha:0}, 0)
+			.fromTo("#copyTxt4", 0.5, {x: -bannerwidth},{x: 0}, 0.5)
+			.fromTo("#imageImg6", 0.5, {x: -bannerwidth},{x: 0}, 0.5)
+			.fromTo("#legalTxt4", 0.5, {autoAlpha: 0},{autoAlpha: 1}, 0.5)
+
+			
+		return tl;
+	}
+
+	function step5() {
+			var tl = new TimelineLite()
+			.to("#copyTxt4", 0.5, {x: bannerwidth}, 0)
+			.to("#imageImg6", 0.5, {x: bannerwidth}, 0)
+			.to("#legalTxt4", 0.5, {autoAlpha:0}, 0)
+			.fromTo("#logo2", 0.5, {autoAlpha: 0},{autoAlpha: 1}, 1.5)			
+			.fromTo("#productNameWrapper", 0.6, {y:-bannerheight}, {y:0, ease:Power1.easeOut}, 0)
+			.fromTo("#pricepointWrapper", 0.6, {x:-bannerwidth}, {x:0, ease:Power1.easeOut}, 0.4)
+			.fromTo("#imageImg1", 0.6, {y:bannerheight}, {y:0, ease:Power1.easeOut}, 0.4)
+			.fromTo(".wrapperBrand", 0.6, {autoAlpha: 0}, {autoAlpha: 1}, 0.4)
+			.fromTo(".wrapperButton", 0.6, {autoAlpha: 0}, {autoAlpha: 1}, 0.4)
+
+		return tl;
+	}
+}
+
+function shwWebbug(frame, tlref){
+	//webbug transition setup
+	var tt = 0.2;
+	// no content for this webbug
+	if(!myFT.instantAds["webBugTxt"+frame]) return;
+	// do nothing if its the same as displayed
+	var prevDisplayCopy = 0;
+	for (var j = 0; j < frame; j++) {
+		var val = myFT.instantAds["webBugTxt"+j];
+		if(val != "") prevDisplayCopy = val;
+	}
+	if(prevDisplayCopy == myFT.instantAds["webBugTxt"+frame]) return;
+	//hide all other webbugs
+	var prev = [];
+	for (var i = 0; i < 8; i++) {
+		if(document.getElementById("webBugTxt"+i) && i != frame) prev.push("#webBugTxt"+i);
+	}
+	//show time is 0 on the first frame
+	if(frame == 1) tt = 0.0001;
+	if(document.getElementById("webBugTxt"+frame)){
+		if(prev.length) tlref.to(prev, tt, {autoAlpha:0}, 0);
+		tlref.fromTo("#webBugTxt"+frame, tt, {autoAlpha:0}, {autoAlpha:1}, tt/2)
+	}
+}
+
+
+function click(e) {
+    if (e.currentTarget == exitBtn) {
+        // init clickAction
+        myFT.clickTag(1, myFT.instantAds.clickTagTxt);
+        // end clickAction
+    }
+    if (e.currentTarget == replayBtn) {
+        tlMain.restart();
+        tlBg.restart();
+    }
+}
+
+function ctaSheen() {
+    if (!TweenMax.isTweening('#ctaSheen')) TweenMax.fromTo('#ctaSheen', .5, {
+        attr: {
+            x: -96
+        }
+    }, {
+        attr: {
+            x: 160
+        },
+        ease: Linear.easeInOut
+    });
+}
+
+function over(e) {
+    if (e.currentTarget == exitBtn) ctaSheen();
+    if (e.currentTarget == replayBtn) {
+        if (!TweenMax.isTweening(replayBtn)) TweenMax.fromTo(replayBtn, .7, {
+            rotation: 0
+        }, {
+            rotation: 360
+        });
+    }
+}
+
+function populatePricepoint(){
+    var dataPrice = myFT.instantAds.priceTxt;
+
+    //evaluate alternate ending
+    var pricepointAlign = document.getElementById("pricepointAlign");
+    var priceQualifier = document.getElementById("priceQualifierTitle");
+    var productNameTxt2 = document.getElementById("productNameTxt2");
+    var startingAt = document.getElementById("priceQualifierTxt");
+    var pricepointWrapper = document.getElementById("pricepointWrapper");
+    var footerWrapper = document.getElementById("footerWrapper");
+    if(dataPrice == "" || !dataPrice || parseInt(dataPrice) == 0){
+        price.style.display = "none";
+        startingAt.style.display = "none";
+        pricepointWrapper.style.top = "23px";
+        footerWrapper.style.top = "193px";
+        
+        return;
+    }
+
+    //sign position
+    var indexDollarSign = dataPrice.indexOf("$");
+    if(indexDollarSign != -1){
+        dataPrice = dataPrice.substring(indexDollarSign+1)
+    }
+    //
+    var priceComponents = dataPrice.split(".");
+    var usd = priceComponents[0];
+    var cents = null;
+    if(priceComponents.length > 1){
+        cents = priceComponents[1];
+    }
+    if(cents == "00") cents = null;
+
+    var textPriceDollars = document.getElementById("textPriceDollars");
+    var textPriceCents = document.getElementById("textPriceCents");
+    var textPriceMos = document.getElementById("mos");
+    textPriceDollars.innerHTML = usd;
+    if(cents){ 
+        textPriceCents.innerHTML = cents;
+    }else{
+        textPriceCents.style.display = "none";
+        textPriceMos.style.marginTop = "0px";
+    }
+}
+
+var imagesToPreload = [];
+function getImageFromMemory(src){
+	for (var i = 0; i < imagesToPreload.length; i++) {
+		if(imagesToPreload[i].src.indexOf(src) != -1) return imagesToPreload[i];
+	}
+}
+
+function retinaImages(selector){
+	//aca va el codigo
+	var nodeList = document.querySelectorAll(selector);
+	for (var i = 0; i < nodeList.length; i++) {
+  		var item = nodeList[i];
+  		var imgs = item.getElementsByTagName("img");
+  		for (var j = 0; j < imgs.length; j++) {
+  			var image = imgs[j];
+  			var preloadedImg = getPreloadedImageBySource(imgs[j].src);
+  			image.width = preloadedImg.width/2
+  			image.height = preloadedImg.height/2
+  		}
+	}
+
+}
+
+
+function getPreloadedImageBySource(src){
+	for (var i = imagesToPreload.length - 1; i >= 0; i--) {
+		if(imagesToPreload[i].src == src){
+			return imagesToPreload[i];
+		}
+	}
+	return null;
+}
+
+function preloadImagesFromManifest(){
+	//all images to preload
+	var pathsToPreload = [];
+	var imagesLoaded = 0;
+	var timeout = null;
+	function addImage(imgPath){
+		//check if already listed
+		for (var i = 0; i < pathsToPreload.length; i++) {
+			if(pathsToPreload[i] == imgPath) return;
+		}
+		//otherwise push
+		pathsToPreload.push(imgPath);
+	}
+
+	//get all images
+	for (var obj in myFT.instantAds){
+		if((/.*\.(gif|jpg|jpeg|tiff|png)$/g).test(myFT.instantAds[obj])) addImage(myFT.instantAds[obj]);
+	}
+
+	function preloadCompleted(){
+		document.getElementById("container").style.opacity=1;
+		document.getElementById("loadingImage").style.opacity=0;
+		clearTimeout(timeout);
+		setTimeout(startAnim, 200);
+	}
+
+	//preloadImages
+	for (var i = 0; i < pathsToPreload.length; i++) {
+		imagesToPreload[i] = new Image();
+		imagesToPreload[i].onload = function(){
+			imagesLoaded++;
+			if(imagesLoaded == pathsToPreload.length){
+				//load finished
+				preloadCompleted();
+			}
+		}
+		imagesToPreload[i].onerror = function(){
+			imagesLoaded++;
+			if(imagesLoaded == pathsToPreload.length){
+				//load finished
+				preloadCompleted();
+			}
+		}
+		imagesToPreload[i].src = pathsToPreload[i];
+	}
+	timeout = setTimeout(preloadCompleted, 4000);
+}
+
+myFT.on('instantads', function(){
+    //if fonts api aviliable be sure we have it loaded
+	if(document.fonts){
+		document.fonts.ready.then(function () {
+			loadScript("https://cdnjs.cloudflare.com/ajax/libs/gsap/latest/TweenMax.min.js", preloadImagesFromManifest);
+		});
+	}else{
+		loadScript("https://cdnjs.cloudflare.com/ajax/libs/gsap/latest/TweenMax.min.js", preloadImagesFromManifest);
+	}
+});

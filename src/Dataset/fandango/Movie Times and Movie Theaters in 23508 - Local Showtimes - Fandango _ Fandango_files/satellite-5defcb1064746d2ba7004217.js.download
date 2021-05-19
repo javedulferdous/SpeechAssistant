@@ -1,0 +1,50 @@
+_satellite.pushAsyncScript(function(event, target, $variables){
+  //Desktop MOP Template
+//Underwater 219905
+if(_satellite.getVar('Movie ID') == '219905'){
+  if(_satellite.getVar('Page Level 2') == 'movie | overview'){
+    
+    //pxl-398 underwater MOP
+  _satellite.addImage('https://d.agkn.com/iframe/7043/?che=%n&uid=[third_party_user_id]&type=14143000&ouid='+_satellite.getVisitorId().getMarketingCloudVisitorID());
+
+    
+//pxl-398
+_satellite.loadScript('https://www.googletagmanager.com/gtag/js?id=DC-3944448')
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'DC-3944448');
+  gtag('config', 'AW-1003221998');
+  gtag('config', 'AW-722383006');
+  gtag('event', 'conversion', { 'send_to': 'AW-1003221998/oZ6LCI7nurYBEO7nr94D', 'transaction_id': '' });
+  gtag('event', 'conversion', {'send_to': 'AW-722383006/vsj4CIqoorYBEJ7hutgC'});
+
+
+
+}
+}
+//Desktop MSP Template
+
+//Underwater 219905
+if(_satellite.getVar('Movie ID') == '219905'){
+  if(_satellite.getVar('Page Level 2') == 'movie times | by movie'){
+    
+    //pxl-398 underwater MSP
+ _satellite.addImage('https://d.agkn.com/iframe/7043/?che=%n&uid=[third_party_user_id]&type=14143001&ouid='+_satellite.getVisitorId().getMarketingCloudVisitorID());
+ 
+    //pxl-398
+_satellite.loadScript('https://www.googletagmanager.com/gtag/js?id=DC-3944448')
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'DC-3944448');
+  gtag('config', 'AW-1003221998');
+  gtag('config', 'AW-722383006');
+  gtag('event', 'conversion', { 'send_to': 'AW-1003221998/oZ6LCI7nurYBEO7nr94D', 'transaction_id': '' });
+  gtag('event', 'conversion', {'send_to': 'AW-722383006/b81JCNvJrbYBEJ7hutgC'});
+
+}
+}
+});

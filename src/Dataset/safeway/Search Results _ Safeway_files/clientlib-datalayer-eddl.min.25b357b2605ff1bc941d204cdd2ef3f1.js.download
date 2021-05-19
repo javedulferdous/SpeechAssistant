@@ -1,0 +1,2811 @@
+AB.DATALAYER = {};
+"use strict";
+
+(function () {
+
+    /**
+     checks if current page is the home page
+     */
+    this.isHomePage = function () {
+        if (window.digitalData) {
+            return window.digitalData.page.pageInfo.channel == "loyalty"
+                && window.digitalData.page.pageInfo.subSection1 == "home"
+                && window.digitalData.page.pageInfo.subSection2 == ""
+                && window.digitalData.page.pageInfo.subSection3 == ""
+                && window.digitalData.page.pageInfo.subSection4 == "";
+        }
+    }
+
+    this.setModalLinkCookie = function (value) {
+        SWY.CONFIGSERVICE.setDomainCookie(this.Cookie.MODAL_LINK, value, SWY.CONFIGSERVICE.resolvedBanner + '.com', 0 );
+    }
+
+    this.setForgotPasswordCookie = function () {
+        SWY.CONFIGSERVICE.setDomainCookie(this.Cookie.PASSWORD_RESET, "forgotpassword", SWY.CONFIGSERVICE.resolvedBanner + '.com', 0 );
+    }
+
+    this.setCreateAccountClicked = function () {
+        localStorage.setItem("create_account_clicked", true);
+    }
+
+    /**
+     * checks if user is authorized to add/remove products to/from cart
+     */
+    this.isUserAuthorized = function () {
+        var isErumStore = false;
+        if (AB.userInfo.hasOwnProperty('isErumStore')) {
+            isErumStore = AB.userInfo.isErumStore;
+        }
+
+        var isRegistered = AB.COMMON.sessionNotExpired() && AB.COMMON.authorize();
+
+        if (!isRegistered && ((isErumStore && AB.userInfo.erumsGuestEnabled == false) || !isErumStore)) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * checks if the current page url contains "lp"
+     */
+    this.isLpPage = function () {
+        if (window.digitalData) {
+            return window.digitalData.page.pageInfo.pageUrl
+                && (window.digitalData.page.pageInfo.pageUrl.split("/").map(function (x) {
+                    return x.toLowerCase();
+                }).indexOf("lp")) !== -1;
+        }
+    }
+
+    /**
+     * checks if the current page is the shop home page
+     */
+    this.isShopHomePage = function () {
+        if (window.digitalData) {
+            // channel is "delivery for erums banners"
+            return (window.digitalData.page.pageInfo.channel == "homegrocerydelivery" || window.digitalData.page.pageInfo.channel == "delivery")
+                && window.digitalData.page.pageInfo.subSection1 == "home"
+                && window.digitalData.page.pageInfo.subSection2 == ""
+                && window.digitalData.page.pageInfo.subSection3 == ""
+                && window.digitalData.page.pageInfo.subSection4 == "";
+        }
+    };
+
+    /**
+     * checks if the current page is a L4 aisle page (e.g. https://www-qa2.vons.com/shop/aisles/beverages/coffee/coffee-ground.2053.html?sort=&page=1)
+     */
+    this.isAislesL4Page = function () {
+        if (window.digitalData) {
+            return window.digitalData.page.pageInfo.subSection1 == "aisles"
+                && window.digitalData.page.pageInfo.subSection2
+                && window.digitalData.page.pageInfo.subSection3
+                && window.digitalData.page.pageInfo.subSection4;
+        }
+    };
+
+    /**
+     * checks if the current page is a L3 aisle page (e.g. https://shop-qa2.tomthumb.com/aisles/beverages/energy-drinks-shots.2053.html?page=1&sort=salesRank)
+     */
+    this.isAislesL3Page = function () {
+        if (window.digitalData) {
+            return window.digitalData.page.pageInfo.subSection1 == "aisles"
+                && window.digitalData.page.pageInfo.subSection2
+                && window.digitalData.page.pageInfo.subSection3
+                && !window.digitalData.page.pageInfo.subSection4;
+        }
+    };
+
+    /**
+     * checks if the current page is a L2 aisle page (e.g. https://shop-qa2.tomthumb.com/aisles/beverages.2574.html)
+     */
+    this.isAislesL2Page = function () {
+        if (window.digitalData) {
+            return window.digitalData.page.pageInfo.subSection1 == "aisles"
+                && window.digitalData.page.pageInfo.subSection2
+                && !window.digitalData.page.pageInfo.subSection3
+                && !window.digitalData.page.pageInfo.subSection4;
+        }
+    };
+
+    this.isJ4UPage = function () {
+        if (window.digitalData) {
+            return window.digitalData.page.pageInfo.subSection1 == "justforu" &&
+                window.digitalData.page.pageInfo.subSection2 &&
+                !window.digitalData.page.pageInfo.subSection3 &&
+                !window.digitalData.page.pageInfo.subSection4;
+        }
+    }
+
+    /**
+     * checks if the Elevaate tag is hosted on this page
+     */
+    this.isElevaateTagHosted = function () {
+        return Boolean(window.elevaateScript);
+    };
+
+    /**
+     * checks if the current page is a re sign in page
+     */
+    this.isReSignInPage = function () {
+        if (window.digitalData) {
+            return (window.digitalData.page.pageInfo.subSection1 == "account" && window.digitalData.page.pageInfo.subSection2 == "re-sign-in")
+                || (window.digitalData.page.pageInfo.subSection1 == "welcome" && window.digitalData.page.pageInfo.subSection2 == "re-sign-in")
+        }
+    }
+
+    this.isSearchResultsPage = function () {
+        if (window.digitalData) {
+            return window.digitalData.page.pageInfo.subSection1 == "search-results" ? true : false;
+        }
+    }
+
+    this.isPdp = function () {
+        if (window.digitalData) {
+            return window.digitalData.page.pageInfo.subSection1 == "product-details" ? true : false;
+        }
+    }
+
+    this.analyticsCouponUpdate = function (coupon) {
+        window['AB']['DATALAYER'].clipCoupon(coupon);
+    }
+
+    /**
+     * sets modal click events
+     */
+    this.setModalClickEvents = function (modalClicked) {
+        if (window.digitalData) {
+            window.digitalData.modal.modalAction = modalClicked;
+            AB.DATALAYER.pushEvent(
+                this.EVENTS.MODAL_CLICK, {
+                modal: {
+                    modalAction: modalClicked
+                }
+            }
+            );
+        }
+    }
+
+    /**
+     * sets modal view events
+     */
+    this.setModalViewEvents = function (modalViewed) {
+        if (window.digitalData) {
+            window.digitalData.modal.modalAction = modalViewed;
+            AB.DATALAYER.pushEvent(
+                this.EVENTS.MODAL_VIEW, {
+                modal: {
+                    modalAction: modalViewed
+                }
+            }
+            );
+        }
+    }
+
+    /**
+     * Method setting pageFilter.topNav for SBC items link.
+     *
+     * @param element - DOM element of the image
+     */
+    this.setSBCLinkClickEvents = function(element) {
+        const aisleName = element ? element.dataset['aisleName'] : '';
+        const aislesPreviousPage = 'aisles-' + aisleName;
+        localStorage.setItem("aislesPreviousPage", aislesPreviousPage);
+    }
+
+    /**
+     * sets all link click events
+     */
+    this.setLinkClickEvents = function (linkClicked) {
+        if (window.digitalData) {
+            window.digitalData.link.linkName = linkClicked;
+            AB.DATALAYER.pushEvent(
+                this.EVENTS.LINK_CLICK, {
+                link: {
+                    linkName: linkClicked
+                }
+            }
+            );
+        }
+    }
+
+    /**
+     * sets modal message event
+     */
+    this.setUserMessageEvents = function (userMessage) {
+        if (window.digitalData) {
+            window.digitalData.modal.modalMessage = userMessage;
+            AB.DATALAYER.pushEvent(
+                this.EVENTS.MODAL_MESSAGE, {
+                modal: {
+                    modalMessage: userMessage
+                }
+            }
+            );
+        }
+    }
+
+    // Updates datalayer when location tracking is enabled
+    this.geoEnabled = function () {
+        if (window.digitalData) {
+            if (window.digitalData.user) {
+                window.digitalData.user.locationTracking = "enabled";
+            }
+        }
+    }
+
+    // Updates datalayer when location tracking is disabled or throws errors
+    this.geoBlocked = function () {
+        if (window.digitalData) {
+            if (window.digitalData.user) {
+                window.digitalData.user.locationTracking = "blocked";
+            }
+        }
+    }
+
+}).call(AB.DATALAYER);
+
+"use strict";
+
+(function () {
+
+     // var MISSING_ID = "ID not found";
+
+    this.handleEvents = function() {
+        this.handleFulfillmentPreferences();
+        this.initModalClickEvents();
+        this.initForgotPasswordReset();
+        this.initModalEvents();
+    };
+
+    this.handleAccountEvents = function () {
+        this.handleRegistration();
+        this.handleSignIn();
+        this.handleSignOut();
+        localStorage.setItem("previousPageStatus", AB.COMMON.authorize());
+        localStorage.setItem("pageNameTrackForLogout", digitalData.pageDetails.pageName);
+    }
+
+    this.handleRegistration = function () {
+        if (localStorage.getItem("create-account-success")) {
+            this.isRegistrationSuccess = true;
+            this.pushEvent(
+                this.EVENTS.CREATEACC, {}
+            );
+        }
+        localStorage.removeItem("create-account-success");
+
+        if (this.isRegistrationSuccess) {
+            this.setJourneyStatus(this.JourneyStatusCode.NO_ACTION);
+        }
+    };
+
+    this.handleFulfillmentPreferences = function () {
+        if (localStorage.getItem("edit_delivery_address")) {
+            localStorage.removeItem("edit_delivery_address");
+            this.pushEvent({name: "edit_delivery_address"});
+        }
+
+        if (localStorage.getItem("edit_dug_store")) {
+            localStorage.removeItem("edit_dug_store");
+            this.pushEvent({name: "edit_dug_store"});
+        }
+    };
+
+    this.handleSignIn = function () {
+        // the subscription status is only set on sign in
+        if (!this.isRegistrationSuccess && AB.COMMON.authorize() && localStorage.getItem("previousPageStatus") == "false") {
+            
+            // to be uncommented for uuid implementation and the sign in code moved at the end of the getUUID function
+            //     var accessToken = AB && AB.userInfo && AB.userInfo.SWY_SHOP_TOKEN;
+            //     var getUUID = function () {
+            //         accessToken = AB && AB.userInfo && AB.userInfo.SWY_SHOP_TOKEN;
+            //         var decodeJwt = function (token) {
+            //             var base64Url = token.split('.')[1];
+            //             var base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+            //             return JSON.parse(window.atob(base64));
+            //         }
+            //         var decodedToken = decodeJwt(accessToken);
+            //         if (decodedToken) {
+            //             digitalData.user.UUID = decodedToken.uuid;
+            //             localStorage.setItem('dlUUID', decodedToken.uuid);
+            //         }
+            //     }
+            // if (accessToken) {
+            //     getUUID();
+            // } else {
+            //     $('body').on('onGetUserInfoLoad', function () {
+            //         getUUID();
+            //     });
+            // }
+            AB.DATALAYER.pushEventSignIn();
+            // trigger event so that Target code won't have to call the subscription API again
+            $(window).trigger("dataLayerDeliverySubscriptionInfoLoaded");
+        }
+    };
+
+    // sets the sign-in event name, the journey status
+    this.pushEventSignIn = function () {
+        this.setJourneyStatus(this.JourneyStatusCode.NO_ACTION);
+        AB.DATALAYER.pushEvent(
+            this.EVENTS.SIGNIN, {
+                user: digitalData.user
+            }
+        );        
+    };
+
+    this.handleSignOut = function () {
+        signOutDetails = {
+            pageName: localStorage.getItem('pageNameTrackForLogout'),
+            channel: digitalData.page.pageInfo.channel,
+            banner: digitalData.page.pageInfo.banner,
+            subSection1: digitalData.page.pageInfo.subSection1,
+            subSection2: digitalData.page.pageInfo.subSection2,
+            subSection3: digitalData.page.pageInfo.subSection3,
+            subSection4: digitalData.page.pageInfo.subSection4,
+            pageUrl: digitalData.page.pageInfo.pageUrl,
+            platform: digitalData.page.pageInfo.platform,
+            referringURL: this.getReferringUrl(),
+            thirdParty: this.getThirdParty()
+        }
+        if (localStorage.getItem('pageNameTrackForLogout') === null) {
+            signOutDetails.pageName = digitalData.pageDetails.pageName
+        }
+        if (!this.isRegistrationSuccess && !AB.COMMON.authorize() && localStorage.getItem("previousPageStatus") == "true") {
+            if (localStorage.getItem("analyticsLogoutFlag") == undefined) {
+                AB.DATALAYER.pushEvent(
+                    this.EVENTS.SIGN_OUT, {
+                        user: digitalData.user,
+                        page: signOutDetails
+                    }
+                );
+                // if (localStorage.getItem('dlUUID')) {
+                //     localStorage.removeItem('dlUUID');
+                // }
+            }
+        }
+        if (localStorage.getItem("analyticsLogoutFlag")) {
+            if (localStorage.getItem("analyticsLogoutFlag") == 'false') {
+                AB.DATALAYER.pushEvent(
+                    this.EVENTS.SIGN_OUT, {
+                        user: digitalData.user,
+                        page: signOutDetails
+                    }
+                );
+            } else {
+                AB.DATALAYER.pushEvent(
+                    this.EVENTS.SIGN_OUT_USER, {
+                        user: digitalData.user,
+                        page: signOutDetails
+                    }
+                );
+            }
+            localStorage.removeItem("analyticsLogoutFlag");
+            // if (localStorage.getItem('dlUUID')) {
+            //     localStorage.removeItem('dlUUID');
+            // }
+        }
+    };
+
+    /**
+     * updates the delivery subscription user information - currently not in use, used to be called after sign in
+     * (digitalData.user)
+     */
+    this.callUserSubscriptionAPI = function () {
+        var apiUrl ='';
+        var settings = {};
+
+        if(SWY.CONFIGSERVICE.DSConfig.dsJavaEnabledFlag){
+            apiUrl = SWY.CONFIGSERVICE.DSConfig.dsJavaBasePath + SWY.CONFIGSERVICE.DSConfig.dsJavaUserApiEndpoint.replace('{gid}', digitalData.user.customerId);
+            settings = {
+                            'async': true,
+                            'crossDomain': true,
+                            'url': apiUrl,
+                            'method': 'GET',
+                            'headers': AB.deliverySubJavaHttpOptions
+             };
+        } else {
+            var authToken = AB && AB.userInfo && AB.userInfo.SWY_SHOP_TOKEN;
+            apiUrl = SWY.CONFIGSERVICE.DSConfig.dsUserApiEndpoint.replace('{gid}', digitalData.user.customerId);
+            settings = {
+                            'async': true,
+                            'crossDomain': true,
+                            'url': apiUrl,
+                            'method': 'GET',
+                            'headers': {
+                                'banner': digitalData.pageDetails.banner,
+                                'Content-Type': 'application/json',
+                                'Cache-Control': 'no-cache',
+                                'Authorization': 'Bearer ' + authToken,
+                                'x-ibm-client-id': SWY.CONFIGSERVICE.getDatapowerConfig().clientId,
+                                'x-ibm-client-secret': SWY.CONFIGSERVICE.getDatapowerConfig().clientSecret
+                            }
+             };
+        }
+        return $.ajax(settings);
+    };
+
+    /**
+     * checks the modal link URL parameter (ml) and the modal link cookie(SAFEWAY_MODAL_LINK)
+     * (digitalData.event.push)
+     */
+    this.initModalEvents = function () {
+        // multiaddress delivery unavailable modal
+        $('#address-not-deliverable-modal').on('shown.bs.modal', function() {
+            AB.DATALAYER.setModalViewEvents('multiaddress-deliveryunavailable|view');
+        });
+
+        //check if sign in modal is displayed
+        $('#signInModal').on('shown.bs.modal', function() {
+            AB.DATALAYER.setModalViewEvents('signIn Modal|view');
+        });
+
+        // create account modal
+        $('#unifiedRegistrationModal').on('shown.bs.modal', function () {
+            AB.DATALAYER.setModalViewEvents('createAccount Modal|view');
+        });
+
+        // on-boarding widget
+        const urlStateParameter = AB.COMMON.getURLParameterByName('state');
+        if ($('on-boarding-widget').length  > 0) {
+            if (urlStateParameter === 'results' || urlStateParameter === 'pre-results' || urlStateParameter === 'locator') {
+                AB.DATALAYER.setModalViewEvents('fulfillment-landing|view');
+            } else if (urlStateParameter === 'signin') {
+                AB.DATALAYER.setModalViewEvents('signIn Modal|view');
+            } else if (urlStateParameter === 'signup') {
+                AB.DATALAYER.setModalViewEvents('createAccount Modal|view');
+            }
+        }
+    };
+
+    /**
+     * sets modal click event from 'SAFEWAY_MODAL_LINK' cookie or url parameter 'ml'
+     */
+    this.initModalClickEvents = function () {
+        var modalLinkParameter = AB.COMMON.getURLParameterByName('ml');
+        if (modalLinkParameter) {
+            this.setModalClickEvents(modalLinkParameter);
+        } else {
+            var modalLinkCookie = unescape(AB.COMMON.getCookie(this.Cookie.MODAL_LINK));
+            if (modalLinkCookie) {
+                this.setModalClickEvents(modalLinkCookie);
+            }
+        }
+        SWY.CONFIGSERVICE.setDomainCookie(this.Cookie.MODAL_LINK, "", SWY.CONFIGSERVICE.resolvedBanner + '.com', 0 );
+    }
+  
+    /**
+     * sets fulfillment modal view event
+     */
+    this.setFulfillmentModalView = function () {
+        if ( localStorage.getItem('analyticsTwoTabsModal') == 'true' ) {
+            AB.DATALAYER.pushEvent(
+                this.EVENTS.MODAL_VIEW,
+                {
+                    modal: {
+                        modalAction: 'fulfillment-shop|view'
+                    }
+                }
+            );
+            localStorage.removeItem("analyticsTwoTabsModal");
+        } else {
+            AB.DATALAYER.pushEvent(
+                this.EVENTS.MODAL_VIEW,
+                {
+                    modal: {
+                        modalAction: 'fulfillment-global|view'
+                    }
+                }
+            );
+        }
+    }
+
+    // sets store conflict modal view
+    this.setStoreConflictModalView = function () {
+        this.setModalViewEvents('storeConflict|view');
+    }
+
+    this.initForgotPasswordReset = function () {
+        //forgot password on sign-in page clicked
+        var passResetCookie = AB.COMMON.getCookie(this.Cookie.PASSWORD_RESET);
+        if(passResetCookie){
+            this.setLinkClickEvents( "passwordReset");
+            SWY.CONFIGSERVICE.setDomainCookie(this.Cookie.PASSWORD_RESET, "", SWY.CONFIGSERVICE.resolvedBanner + '.com', 0 );
+        }
+        //create account on forgot password page
+        if (localStorage.getItem("create_account_clicked") == "true") {
+            this.setLinkClickEvents( "createAccount");
+            localStorage.removeItem("create_account_clicked");
+        }
+        //forgot password email sent event
+        if (localStorage.getItem("analyticsPwdEmail") == "true") {
+            this.setLinkClickEvents("passwordEmailSent");
+            localStorage.removeItem("analyticsPwdEmail");
+        }
+        //reset password success event
+        if (localStorage.getItem("analyticsPwdResetSuccess") == "true") {
+            this.setLinkClickEvents("passwordResetSuccess");
+            localStorage.removeItem("analyticsPwdResetSuccess");
+        }      
+    }
+
+    this.clipReward = function (reward) {
+        if (digitalData) {
+            digitalData.rewards = {
+                rewardsID: reward.groceryRewardId + '|' + reward.title,
+                rewardsRedeemed: reward.rewardsRequired.toString()
+            }
+            this.pushEvent(
+                this.EVENTS.REWARDS, {
+                rewards: digitalData.rewards
+            }
+            );
+        }
+    }
+}).call(AB.DATALAYER);
+
+"use strict";
+
+(function () {
+
+    /**
+     * initializes all the analytics handlers for the Elevaate featured products carousel, if it's rendered
+     * (only on shop home page)
+     */
+    this.initElevaateHandlers = function () {
+
+        if (!this.isElevaateTagHosted()) {
+            return;
+        }
+
+        // check if we are on the home or aisles page and if the elevaate tag is being hosted
+        if (typeof digitalData.page != 'undefined' && (this.isShopHomePage() || this.isHomePage() || this.isAislesL2Page() || this.isLpPage())) {
+            // check if the elevaate request has already been made and window.digitalData.elevaate.elevaateRecsReady has been set to true
+            // meaning that the featured products were found and injected in the page
+            if (digitalData.elevaate) {
+                if (digitalData.elevaate.elevaateRecsReady) {
+                    this.setElevaateHandlers();
+                    this.createElevaateMutationObserver();
+                }
+            } else {
+                // otherwise for the "elevaateRecsReady" event to be triggered
+                $(window).one("elevaateRecsReady", function() {
+                    if (window.digitalData.elevaate && window.digitalData.elevaate.elevaateRecsReady) {
+                        AB.DATALAYER.setElevaateHandlers();
+                        AB.DATALAYER.createElevaateMutationObserver();
+                    }
+                });
+            }
+        }
+
+        if (typeof digitalData.page != 'undefined' && this.isAislesL3Page()) {
+            // check if the elevaate request has already been made and window.digitalData.elevaate.elevaateRecsReady has been set to true
+            // meaning that the featured products were found and injected in the page
+            if (digitalData.elevaate) {
+                if (digitalData.elevaate.elevaateRecsReady) {
+                    this.setElevaateProductGridHandlers();
+                    this.createGridElevaateMutationObserver();
+                }
+            } else {
+                // otherwise for the "elevaateRecsReady" event to be triggered
+                $(window).one("elevaateRecsReady", function() {
+                    if (window.digitalData.elevaate && window.digitalData.elevaate.elevaateRecsReady) {
+                        AB.DATALAYER.setElevaateProductGridHandlers();
+                        AB.DATALAYER.createGridElevaateMutationObserver();
+                    }
+                });
+            }
+        }
+
+        //sets info for sponsored products carousel on www home page
+        if (typeof digitalData.page != 'undefined' && this.isHomePage()) {
+            if (digitalData.elevaate) {
+                if (digitalData.elevaate.elevaateRecsReady) {
+                 this.setCarouselHandlers();
+                }
+            } else {
+                $(window).one("elevaateRecsReady", function() {
+                    if (window.digitalData.elevaate && window.digitalData.elevaate.elevaateRecsReady) {
+                        AB.DATALAYER.setCarouselHandlers();
+                     }
+                }); 
+            }
+        }
+
+        if (typeof digitalData.page != 'undefined' && this.isHomePage() || this.isJ4UPage() || this.isLpPage() || this.isAislesL2Page() || this.isAislesL3Page() || this.isAislesL4Page () || this.isSearchResultsPage()) {
+            // check if the elevaate request has already been made and the window.digitalData.elevaate.elevaateBannersReady has been set to true - if sponsored banner has been created
+            if (digitalData.elevaate) {
+                if (digitalData.elevaate.elevaateBannersReady) {
+                    this.setElevaateBannerHandlers();
+                    this.createBannerElevaateMutationObserver();
+                }
+            } else {
+                // otherwise for the "elevaateRecsReady" event to be triggered
+                $(window).one("elevaateBannersReady", function () {
+                    if (window.digitalData.elevaate && window.digitalData.elevaate.elevaateBannersReady) {
+                        AB.DATALAYER.setElevaateBannerHandlers();
+                        AB.DATALAYER.createBannerElevaateMutationObserver();
+                    }
+                });
+            }
+        }
+    }
+
+    /**
+     * sets the elevaate product grid analytics handlers for add, remove etc. actions
+     */
+    this.setElevaateProductGridHandlers = function() {
+        $("product-item.elevaate-product, product-item-v2.elevaate-product").each(function () {
+
+            var elevaatePosition = $(this).attr("data-elevaate-sno");
+            if (elevaatePosition === undefined) {
+                return;
+            }
+
+            let productInfoObj = {
+                id: $(this).attr("data-elevaate-sku"),
+                aisleId: $(this).attr("data-elevaate-aisle-id"),
+                name: $(this).attr("data-elevaate-title").trim(),
+                units: $(this).attr("data-elevaate-qty-cache"),
+                listPrice: $(this).attr("data-elevaate-ppr"),
+                basePrice: $(this).find(".product-strike-base-price").clone()    //clone the element
+                                    .children() //select all the children
+                                    .remove()   //remove all the children
+                                    .end()  //again go back to selected element
+                                    .text(),
+                couponFlag: "0",
+                couponClipped: "0",
+                couponID: "",
+                upc: $(this).attr("data-elevaate-upc")
+            };
+
+            let recommendationInfoObj = {
+                isSponsored: true
+            }
+
+            // cross-sell products
+            var isCrossSell = $(this).attr("data-elevaate-driven");
+            if (isCrossSell == "cross-sell") {
+                var crossSellTitle = $(this).parent().siblings().find('#elevaate-cross-sell-title').text().trim();
+                var crossSellSponsored = $(this).has('.elevaate-sponsored').length;
+                if(!crossSellSponsored) {
+                    recommendationInfoObj.isSponsored = false;
+                }
+                productInfoObj.crossSellTitle = crossSellTitle;
+                recommendationInfoObj.isCrossSell = true;
+            }
+
+            var coupons = [];
+            if (localStorage.abCoupons) {
+                var abCoupons = { offers: {}, offersByUpc: {} };
+                try {
+                    abCoupons = JSON.parse(localStorage.abCoupons);
+                } catch(e) {
+                    console.error("DATA Layer: Unable to parse the local storage coupons");
+                }
+
+                var couponIds = abCoupons.offersByUpc[productInfoObj.upc];
+                if (couponIds) {
+                    coupons = couponIds.map(function(x) { return abCoupons.offers[x]; });
+                    coupons.forEach(function(x) {
+                        x.status = x.deleted ? 'U' : x.status;
+                    });
+                }
+            }
+
+            if (coupons.length > 0) {
+                var couponsClipped = coupons.filter(function(x) { return x.status == 'C';}).length;
+                var couponsCount = coupons.length;
+                var couponIds = coupons.filter(function(x) {
+                                 return x.status == 'C';
+                                })
+                                .map(function(x) {
+                                    return x.offerId;
+                                })
+                                .toString();
+                productInfoObj.couponFlag = couponsCount.toString();
+                productInfoObj.couponClipped = couponsClipped.toString();
+                productInfoObj.couponID = couponIds;
+            }
+
+            let searchTerm = window['AB']['COMMON'].getURLParameterByName('q') || "";
+
+            $(this).find("a:not(.analytics-enabled)").each(function() {
+                    $(this).addClass("analytics-enabled");
+                $(this).click(function () {
+                    let placement = AB.DATALAYER.setProductGridPosition(productInfoObj.id, productInfoObj.upc);
+                        if (searchTerm) {
+                            // cross-sell items
+                            if (isCrossSell == "cross-sell") {
+                                // sponsored cross-sell items
+                                if (crossSellSponsored) {
+                                    localStorage.setItem("pfmDetailElevaate", "search-results#" + crossSellTitle + "#" + searchTerm + "#cross-sell:sponsored#" + placement);
+                                } else {
+                                    localStorage.setItem("pfmDetailElevaate", "search-results#" + crossSellTitle + "#" + searchTerm + "#cross-sell#" + placement);
+                                }
+                                localStorage.setItem("analyticsMediaType", "product-carousel");
+                            } else {
+                                localStorage.setItem("pfmDetailElevaate", "search-results#product-grid#" + searchTerm + "#sponsored#" + placement);
+                                localStorage.setItem("analyticsMediaType", "product-grid");
+                            }
+                        } else {
+                            localStorage.setItem("pfmDetailElevaate", AB.DATALAYER.pfmFromCurrentPage + "#product-grid#non-search#sponsored#" + placement);
+                            localStorage.setItem("analyticsMediaType", "product-grid");
+                        }
+                        localStorage.setItem("analyticsProductPlacement", placement);
+                        return true;
+                    });
+                });
+
+            // ADD buttons
+
+            $(this).find(".elevaate-btn-atb-add:not(.analytics-enabled)").each(function() {
+                    $(this).addClass("analytics-enabled");
+                    $(this).click(function() {
+                        if (!window['AB']['DATALAYER'].isUserAuthorized()) {
+                            return;
+                        }
+                        window['AB']['DATALAYER'].recommendationInfo(recommendationInfoObj);
+                        productInfoObj.units++;
+                        window['AB']['DATALAYER'].addItemToCart(productInfoObj, true, elevaatePosition, searchTerm);
+                    });
+                });
+
+            // - buttons
+
+            $(this).find(".elevaate-btn-atb-minus:not(.analytics-enabled)").each(function() {
+                    $(this).addClass("analytics-enabled");
+                    $(this).click(function() {
+                        if (!window['AB']['DATALAYER'].isUserAuthorized()) {
+                            return;
+                        }
+                        window['AB']['DATALAYER'].recommendationInfo(recommendationInfoObj);
+                        productInfoObj.units--;
+                        if (productInfoObj.units == 0) {
+                            window['AB']['DATALAYER'].removeItemFromCart(productInfoObj, true, elevaatePosition, searchTerm);
+                        } else {
+                            window['AB']['DATALAYER'].decreaseItemQuantity(productInfoObj, true, elevaatePosition, searchTerm);
+                        }
+                    });
+                });
+
+            // + buttons
+
+            $(this)
+                .find(".elevaate-btn-atb-plus:not(.analytics-enabled)")
+                .each(function() {
+                    $(this).addClass("analytics-enabled");
+                    $(this).click(function() {
+                        if (!window['AB']['DATALAYER'].isUserAuthorized()) {
+                            return;
+                        }
+                        window['AB']['DATALAYER'].recommendationInfo(recommendationInfoObj);
+                        productInfoObj.units++;
+                        window['AB']['DATALAYER'].increaseItemQuantity(productInfoObj, true, elevaatePosition, searchTerm);
+                    });
+                });
+
+            // UPDATE buttons
+
+            $(this).find(".elevaate-btn-qty-manual-submit:not(.analytics-enabled)").each(function() {
+                    $(this).addClass("analytics-enabled");
+                    $(this).click(function() {
+                        if (!window['AB']['DATALAYER'].isUserAuthorized()) {
+                            return;
+                        }
+                        window['AB']['DATALAYER'].recommendationInfo(recommendationInfoObj);
+                        let newQuantity = $(this).siblings(".elevaate-btn-qty-manual-input").val();
+                        let oldQuantity = productInfoObj.units;
+                        productInfoObj.units = newQuantity;
+                        if (newQuantity > oldQuantity) {
+                            window['AB']['DATALAYER'].increaseItemQuantity(productInfoObj, true, elevaatePosition, searchTerm);
+                        } else if (newQuantity < oldQuantity) {
+                            if (newQuantity == 0) {
+                                window['AB']['DATALAYER'].removeItemFromCart(productInfoObj, true, elevaatePosition, searchTerm);
+                            } else {
+                                window['AB']['DATALAYER'].decreaseItemQuantity(productInfoObj, true, elevaatePosition, searchTerm);
+                            }
+                        }
+                    });
+                });
+
+            // manual inputs enter key press
+
+            $(this).find(".elevaate-btn-qty-manual-input:not(.analytics-enabled)").each(function() {
+                    $(this).addClass("analytics-enabled");
+                    $(this).keypress(function(event) {
+                        if (!window['AB']['DATALAYER'].isUserAuthorized()) {
+                            return;
+                        }
+                        if (event.which == 13) {
+                            window['AB']['DATALAYER'].recommendationInfo(recommendationInfoObj);
+                            let newQuantity = $(this).val();
+                            let oldQuantity = productInfoObj.units;
+                            productInfoObj.units = newQuantity;
+                            if (newQuantity > oldQuantity) {
+                                window['AB']['DATALAYER'].increaseItemQuantity(productInfoObj, true, elevaatePosition);
+                            } else if (newQuantity < oldQuantity) {
+                                if (newQuantity == 0) {
+                                    window['AB']['DATALAYER'].removeItemFromCart(productInfoObj, true, elevaatePosition);
+                                } else {
+                                    window['AB']['DATALAYER'].decreaseItemQuantity(productInfoObj, true, elevaatePosition);
+                                }
+                            }
+                        }
+                    });
+                });
+
+            $(this).find(".single-coupon-product-wrapper:not(.analytics-enabled)").each(function() {
+                    $(this).addClass("analytics-enabled");
+                    $(this).click(function() {
+                        if (!(window['AB']['COMMON'].sessionNotExpired() && window['AB']['COMMON'].authorize())) {
+                            return;
+                        }
+                        // there should be only one coupon
+                        let coupon = AB.COUPON.getCouponByUpc(productInfoObj.upc)[0];
+                        let couponInfo = {
+                            brand: coupon.brand,
+                            offerType: coupon.offerPgm,
+                            offerId: coupon.offerId,
+                            offerPrice: coupon.offerPrice,
+                            carouselSection: ""
+                        };
+
+                        window['AB']['DATALAYER'].productInfo(productInfoObj);
+                        window['AB']['DATALAYER'].clipCoupon(couponInfo, true, elevaatePosition);
+                    });
+                });
+        });
+        this.setCrossSellNumber();
+    };
+
+    /**
+     * sets the elevaate carousel analytics handlers for add, remove etc. actions
+     */
+    this.setElevaateHandlers = function() {
+
+        $("div[data-elevaate-dss-id]").each(function () {
+            var carouselTitle = "";
+            carouselTitle = $(this).find("h2.carousel-header-text").text().trim();
+
+            $(this).find("product-carousel-item.elevaate-product, product-carousel-item-v2.elevaate-product").each(function () {
+                var productInfoObj = {
+                    id: $(this).attr("data-elevaate-sku"),
+                    name: $(this).attr("data-elevaate-title").trim(),
+                    units: $(this).attr("data-elevaate-qty-cache"),
+                    listPrice: $(this).attr("data-elevaate-ppr"),
+                    basePrice: $(this).find(".polaris-product-baseprice").clone()    //clone the element
+                                      .children() //select all the children
+                                      .remove()   //remove all the children
+                                      .end()  //again go back to selected element
+                                      .text(),
+                    couponFlag: "0",
+                    couponClipped: "0",
+                    couponID: "",
+                    upc: $(this).attr("data-elevaate-upc"),
+                    carouselSection: carouselTitle
+                };
+
+                var coupons = [];
+                if (localStorage.abCoupons) {
+                    var abCoupons = { offers: {}, offersByUpc: {} };
+                    try {
+                        abCoupons = JSON.parse(localStorage.abCoupons);
+                    } catch(e) {
+                        console.error("DATA Layer: Unable to parse the local storage coupons");
+                    }
+
+                    var couponIds = abCoupons.offersByUpc[productInfoObj.upc];
+                    if (couponIds) {
+                        coupons = couponIds.map(function(x) { return abCoupons.offers[x]; });
+                        coupons.forEach(function(x) {
+                            x.status = x.deleted ? 'U' : x.status;
+                        });
+                    }
+                }
+
+                if (coupons.length > 0) {
+                    var couponsClipped = coupons.filter(function(x) { return x.status == 'C';}).length;
+                    var couponsCount = coupons.length;
+                    var couponIds = coupons.filter(function(x) {
+                                     return x.status == 'C';
+                                    })
+                                    .map(function(x) {
+                                        return x.offerId;
+                                    })
+                                    .toString();
+                    productInfoObj.couponFlag = couponsCount.toString();
+                    productInfoObj.couponClipped = couponsClipped.toString();
+                    productInfoObj.couponID = couponIds;
+                }
+
+                // product links
+                $(this).find("a:not(.analytics-enabled)").each(function() {
+                    $(this).addClass("analytics-enabled");
+                    $(this).click(function () {
+                      let placement = AB.DATALAYER.setCarouselPosition(productInfoObj.id, productInfoObj.carouselSection);
+                        localStorage.setItem("pfmDetailElevaate", AB.DATALAYER.pfmFromCurrentPage + "#" + carouselTitle + "#non-search#sponsored#" + placement);
+                        localStorage.setItem("analyticsProductPlacement", placement);
+                        localStorage.setItem("analyticsMediaType", "product-carousel");
+                      return true;
+                    });
+                  });
+
+                // ADD buttons
+                $(this).find(".elevaate-btn-atb-add:not(.analytics-enabled)").each(function() {
+                        $(this).addClass("analytics-enabled");
+                        $(this).click(function() {
+                            if (AB.DATALAYER.isUserAuthorized()) {
+                                window['AB']['DATALAYER'].setRecommendationType('sponsored');
+                                productInfoObj.units++;
+                                AB.DATALAYER.addItemToCart(productInfoObj, true);
+                            }
+                        });
+                    });
+
+                // - buttons
+
+                $(this).find(".elevaate-btn-atb-minus:not(.analytics-enabled)").each(function() {
+                        $(this).addClass("analytics-enabled");
+                        $(this).click(function() {
+                            if (AB.DATALAYER.isUserAuthorized()) {
+                                window['AB']['DATALAYER'].setRecommendationType('sponsored');
+                                productInfoObj.units--;
+                                if (productInfoObj.units == 0) {
+                                    window['AB']['DATALAYER'].removeItemFromCart(productInfoObj, true);
+                                } else {
+                                     window['AB']['DATALAYER'].decreaseItemQuantity(productInfoObj, true);
+                                }
+                            }
+                        });
+                    });
+
+                // + buttons
+
+                $(this).find(".elevaate-btn-atb-plus:not(.analytics-enabled)").each(function() {
+                        $(this).addClass("analytics-enabled");
+                        $(this).click(function() {
+                            window['AB']['DATALAYER'].setRecommendationType('sponsored');
+                            if (AB.DATALAYER.isUserAuthorized()) {
+                                productInfoObj.units++;
+                                window['AB']['DATALAYER'].increaseItemQuantity(productInfoObj, true);
+                            }
+                        });
+                    });
+
+                // UPDATE buttons
+
+                $(this).find(".elevaate-btn-qty-manual-submit:not(.analytics-enabled)").each(function() {
+                        $(this).addClass("analytics-enabled");
+                        $(this).click(function() {
+                            if (AB.DATALAYER.isUserAuthorized()) {
+                                window['AB']['DATALAYER'].setRecommendationType('sponsored');
+                                var newQuantity = $(this).siblings(".elevaate-btn-qty-manual-input").val();
+                                var oldQuantity = productInfoObj.units;
+                                productInfoObj.units = newQuantity;
+                                if (newQuantity > oldQuantity) {
+                                    AB.DATALAYER.increaseItemQuantity(productInfoObj, true);
+                                } else if (newQuantity < oldQuantity) {
+                                    if (newQuantity == 0) {
+                                        AB.DATALAYER.removeItemFromCart(productInfoObj, true);
+                                    } else {
+                                        AB.DATALAYER.decreaseItemQuantity(productInfoObj, true);
+                                    }
+                                }
+                            }
+                        });
+                    });
+
+                // manual inputs enter key press
+
+                $(this).find(".elevaate-btn-qty-manual-input:not(.analytics-enabled)").each(function() {
+                        $(this).addClass("analytics-enabled");
+                        $(this).keypress( function(event) {
+                            if (AB.DATALAYER.isUserAuthorized()) {
+                                if (event.which == 13) {
+                                    window['AB']['DATALAYER'].setRecommendationType('sponsored');
+                                    var newQuantity = $(this).val();
+                                    var oldQuantity = productInfoObj.units;
+                                    productInfoObj.units = newQuantity;
+                                    if (newQuantity > oldQuantity) {
+                                        AB.DATALAYER.increaseItemQuantity(productInfoObj, true);
+                                    } else if (newQuantity < oldQuantity) {
+                                        if (newQuantity == 0) {
+                                            AB.DATALAYER.removeItemFromCart(productInfoObj, true);
+                                        } else {
+                                            AB.DATALAYER.decreaseItemQuantity(productInfoObj, true);
+                                        }
+                                    }
+                                }
+                            }
+                        });
+                    });
+
+                // single coupon
+
+                $(this).find(".single-coupon-product-wrapper:not(.analytics-enabled)").each(function() {
+                        $(this).addClass("analytics-enabled");
+                        $(this).click(function() {
+                            if (AB.COMMON.sessionNotExpired() && AB.COMMON.authorize()) {
+                                // there should be only one coupon
+                                var coupon = coupons[0];
+                                var couponInfo = {
+                                    brand: coupon.brand,
+                                    offerType: coupon.offerPgm,
+                                    offerId: coupon.offerId,
+                                    offerPrice: coupon.offerPrice,
+                                    carouselSection: carouselTitle
+                                };
+
+                                AB.DATALAYER.productInfo(productInfoObj);
+                                AB.DATALAYER.clipCoupon(couponInfo, true);
+                            }
+                        });
+                    });
+            });
+        });
+    };
+
+    this.setCarouselHandlers  = function () {
+        $("div[data-elevaate-dss-id]").each(function() {
+            var carousel_index = $('product-carousel,coupon-carousel,div[data-elevaate-dss-id]').filter(':visible').index(this);
+            var carousel_title = $(this).find("h2.carousel-header-text").text();
+            var carousel_info = carousel_index + 1 + '|' + carousel_title;
+            //the carousel info will be set on the next page from local storage
+            $(this).find('.polaris-product-image-container,.product-title-name,.polaris-btn-pdp-link').on('click',function() { 
+                localStorage.setItem("carouselInfo", carousel_info);
+            });
+            //the carousel info will be set on the current page
+            $(this).find('.polaris-btn-add-product-in-card,.product-coupon-wrapper').on('click', function() {
+                AB.DATALAYER.setHomePageCarouselInfo(carousel_info);
+            });
+        });
+    }
+
+    this.setElevaateBannerHandlers = function () {
+        var modUnitUnifiedProxyElevaate = $('.elevaate-banner-carousel-container .mod-unit-unified-proxy');
+        if (typeof modUnitUnifiedProxyElevaate != 'undefined' && modUnitUnifiedProxyElevaate.length > 0) {
+            modUnitUnifiedProxyElevaate.each(function () {
+                // Setting local storage item for analytics tracking on next page
+                $(this).find('a:not(".banner-link-analytics-enabled")').on('click', function () {
+                    var bannerPlacement = "";
+                    var currentBanner = $(this).closest('.mod-unit-unified-proxy');
+                    var currentBannerTitle = 'bannerClicked|' + currentBanner.find('.mod-unit__headline').text().trim().replace(/\s/g, "");
+                    var elevaateBannerContainer = $('.elevaate-banner-carousel-container');
+                    var totalBannerSlots = $('.mod-unit-unified-proxy:visible').not('.elevaate-banner-carousel-container .mod-unit-unified-proxy').add('.elevaate-banner-carousel-container');
+                    if (currentBanner.is('.elevaate-banner-carousel-container .mod-unit-unified-proxy')) {
+                        // Placement for Elevaate banners
+                        var currentElevaateContainer = currentBanner.closest('.elevaate-banner-carousel-container');
+                        var currentContainerBanners = currentElevaateContainer.find('[id][data-slick-index] .mod-unit-unified-proxy');
+                        var bannerRow = totalBannerSlots.index(elevaateBannerContainer) + 1;
+                        var bannerSlot = currentContainerBanners.index(currentBanner) + 1;
+                        var displayableBannerRow = bannerRow < 10 ? 'R0' + bannerRow : 'R' + bannerRow;
+                        var displayableBannerSlot = bannerSlot < 10 ? 'S0' + bannerSlot : 'S' + bannerSlot;
+                        if (bannerSlot > 0) {
+                            bannerPlacement = displayableBannerRow + '#' + displayableBannerSlot;
+                        } else {
+                            bannerPlacement = displayableBannerRow;
+                        }
+                        if (currentBanner.has('.elevaate-banner')) {
+                            digitalData.pageFilter.recommendationType = "sponsored";
+                        } else {
+                            digitalData.pageFilter.recommendationType = "notRecommended";
+                        }
+                    }
+                    digitalData.pageFilter.placement = bannerPlacement;
+                    digitalData.pageFilter.mediaType = "banner";
+                    digitalData.link = {
+                        linkName: currentBannerTitle
+                    }
+                    var passedDatalayerObject = {
+                        event: "linkClick",
+                        link: digitalData.link,
+                        page: digitalData.pageDetails,
+                        pageFilter: digitalData.pageFilter
+                    }
+                    var passedDatalayerString = JSON.stringify(passedDatalayerObject);
+                    localStorage.setItem('bannerClickedDatalayer', passedDatalayerString);
+                }).addClass('banner-link-analytics-enabled');
+            });
+        }
+    }
+
+    // cross-sell impressions on search-results page
+    this.setCrossSellNumber = function () {
+        if (digitalData && digitalData.pageFilter && AB.DATALAYER.isSearchResultsPage()) {
+            const crossSellCount = $('product-item.elevaate-product[data-elevaate-driven=cross-sell], product-item-v2.elevaate-product[data-elevaate-driven=cross-sell]').length;
+            if (crossSellCount > 0 && !$('div.elevaate-cross-sell-container').hasClass('cross-sell-analytics')) {
+                digitalData.pageFilter.impressions = 'cross-sell#' + crossSellCount;
+                AB.DATALAYER.pushEvent(
+                    'cross-sell', {
+                        pageFilter: digitalData.pageFilter
+                    }
+                );
+                $('div.elevaate-cross-sell-container').addClass('cross-sell-analytics');
+            }
+        }
+    };
+
+    
+    this.createElevaateMutationObserver = function () {
+        // Select the nodes that will be observed for mutations
+        var targetNodes = document.querySelectorAll("elevaate-product-carousel")
+
+        // Options for the observer (which mutations to observe)
+        var config = { childList: true, subtree: true };
+
+        // Create an observer instance linked to the callback function
+        var elevaateProductsObserver = new MutationObserver(function() {
+            AB.DATALAYER.setElevaateHandlers();
+        });
+
+        // Start observing the target nodes for configured mutations
+        targetNodes.forEach(function(x) { elevaateProductsObserver.observe(x, config); });
+    };
+
+    this.createGridElevaateMutationObserver = function () {
+        // Select the nodes that will be observed for mutations
+        var targetNodes = document.querySelectorAll("div.hybrid-product-grid, div.dynamic-product-grid");
+
+        // Options for the observer (which mutations to observe)
+        var config = { childList: true, subtree: true };
+
+        // Create an observer instance linked to the callback function
+        var elevaateProductsObserver = new MutationObserver(function() {
+            AB.DATALAYER.setElevaateProductGridHandlers();
+        });
+
+        // Start observing the target nodes for configured mutations
+        targetNodes.forEach(function(x) { elevaateProductsObserver.observe(x, config); });
+    }
+    this.createBannerElevaateMutationObserver = function () {
+        // Select the nodes that will be observed for mutations
+        var targetNodes = document.querySelectorAll(".column-control");
+        // Options for the observer (which mutations to observe)
+        var config = {
+            childList: true,
+            subtree: true
+        };
+        var elevaateBannerObserver = new MutationObserver(function () {
+            AB.DATALAYER.setElevaateBannerHandlers();
+        });
+        // Start observing the target nodes for configured mutations
+        targetNodes.forEach(function (x) {
+            elevaateBannerObserver.observe(x, config);
+            if (document.querySelectorAll(".banner-link-analytics-enabled").length > 0) {
+                elevaateBannerObserver.disconnect();
+            }
+        });
+    }
+}).call(AB.DATALAYER);
+
+"use strict";
+
+(function () {
+
+    // in order to have backwards compatibility, need to keep all the methods that are called from outside (AB.DATALAYER.doSomething())
+
+    window.appEventData = window.appEventData || [];
+
+    var arrThirParty = ['instacart'];
+    var DEFAULT_DELIVERY_BANNER = "same banner delivery";
+    var DEFAULT_SUBSCRIPTION_STATUS = "not subscribed";
+    var SUBSCRIPTION_API_ERROR = "API error";
+
+    this.Cookie = {
+        MODAL_LINK : "SAFEWAY_MODAL_LINK",
+        PASSWORD_RESET : "PasswordReset",
+        KMSI : "SAFEWAY_KMSI",
+        RE_SIGN_IN : "SAFEWAY_RE_SIGN_IN"
+    };
+
+    var LoginStatus = {
+        GUEST : "guest",
+        REGISTERED : "registered"
+    };
+
+    var Flag = {
+        SIGN_IN : 1,                // 00000001
+        COUPON_CLIPPED : 2,         // 00000010
+        PRODUCT_ADDED : 4           // 00000100
+    };
+
+    var KmsiStatus = {
+        "true": "kmsi",
+        "false": "nonkmsi",
+        "logout": "nonkmsi",
+        "error": "errorkmsi"
+    };
+
+    var KmsiStatusReSignIn = {
+        "true": "kmsi-reSignIn",
+        "false": "nonkmsi-reSignIn",
+    };
+
+    this.JourneyStatusCode = {
+        EMPTY : 0,                                                                                  // 00000000
+        NO_ACTION : Flag.SIGN_IN,                                                                   // 00000001
+        COUPON_CLIPPED : Flag.SIGN_IN | Flag.COUPON_CLIPPED,                                        // 00000011
+        PRODUCT_ADDED : Flag.SIGN_IN | Flag.PRODUCT_ADDED,                                          // 00000101
+        COUPONS_CLIPPED_PRODUCTS_ADDED : Flag.SIGN_IN | Flag.COUPON_CLIPPED | Flag.PRODUCT_ADDED    // 00000111
+    };
+
+    var JOURNEY_STATUSES = [];
+    JOURNEY_STATUSES[this.JourneyStatusCode.EMPTY] = "";
+    JOURNEY_STATUSES[this.JourneyStatusCode.NO_ACTION] = "no_action";
+    JOURNEY_STATUSES[this.JourneyStatusCode.COUPON_CLIPPED] = "clipped_coupon";
+    JOURNEY_STATUSES[this.JourneyStatusCode.PRODUCT_ADDED] = "add_products";
+    JOURNEY_STATUSES[this.JourneyStatusCode.COUPONS_CLIPPED_PRODUCTS_ADDED] = "coupon_products_added";
+
+    this.EVENTS = {
+        ERROR: "error",
+        PAGE_LOADED: "pageLoaded",
+        ACTION_LINK: "actionLink",
+        MODAL_VIEW: "modalView",
+        ACCORDION_CLICKED: "accordion_header_clicked",
+        REGISTRATION: "registration",
+        SEARCH: "search_results_page",
+        UNCLIP: "remove_coupon",
+        REWARDS: "reward_redeemed",
+        PRODUCT_LOADED: "pdp_page",
+        MINICART: "mini_cart",
+        MODAL_CLICK: "modalClick",
+        MODAL_VIEW: "modalView",
+        MODAL_MESSAGE: "userMessage",
+        LINK_CLICK: "linkClick",
+        COUPONNR: "num_coupons",
+        COUPONCLIPPED: "coupon_clipped",
+        SIGNIN: "sign-in",
+        CREATEACC: "create-account-success",
+        SIGN_OUT: "ecom_logout",
+        SIGN_OUT_USER: "ecom_logout_user"
+    }
+
+    /**
+     * initializes the data layer
+     * (called by AB.COMMON.commonPreInit())
+     */
+    this.init = function () {
+        console.debug("initializing Event Driven Data Layer");
+        if (window.digitalData && SWY.CONFIGSERVICE.isCookieEnabled()) {
+
+            // add link and modal objects to digitalData
+            digitalData.link = {
+                linkName: ""
+            }
+            digitalData.modal = {
+                modalAction: "",
+                modalMessage: ""
+            }
+
+            this.selectedSearchFacets = [];
+            this.swappedProducts = [];
+            this.isInitialized = true;
+
+            var pageInfo = digitalData.page && digitalData.page.pageInfo || null;
+            this.pfmFromCurrentPage = pageInfo ? [pageInfo.subSection1, pageInfo.subSection2, pageInfo.subSection3, pageInfo.subSection4].filter(function(x) {
+                return x!= "";
+            }).join(":") : "";
+
+            this.initPrebookAEM();
+            this.initRequestRefund();
+            this.initOrderReschedule();
+            this.initBannerPosition();
+            this.initPage();
+            this.initPageFilter();
+            this.initUser();
+            this.initPfmDetail();
+            this.initPDPPlacementMediaType();
+            this.initOrderCount();
+            if (!this.isSearchResultsPage() && !this.isPdp() && !this.isAislesL2Page() && !this.isAislesL3Page() && !this.isAislesL4Page()) {
+                this.pushEvent(
+                    this.EVENTS.PAGE_LOADED, {
+                        page: digitalData.pageDetails,
+                        pageFilter: digitalData.pageFilter,
+                        user: digitalData.user
+                    }
+                );
+                this.handleAccountEvents();
+            } else if (this.isAislesL2Page() || this.isAislesL3Page() || this.isAislesL4Page()) {
+                this.initAislesPage();
+            } else if (this.isPdp()) {
+                if (localStorage.getItem('productInfoAnalyticsPDP')) {
+                    const productInfoPDP = JSON.parse(localStorage.getItem('productInfoAnalyticsPDP'));
+                    this.productInfo(productInfoPDP);
+                    this.setPDPevent();
+                    localStorage.removeItem('productInfoAnalyticsPDP');
+                }
+            }
+            this.handleEvents();
+            this.initElevaateHandlers();
+        } else {
+            console.error("data layer is undefined or cookies are not enabled");
+        }
+    };
+
+    // Initializes the data layer pageDetails object information from window.digitalData.page.pageInfo
+    this.initPage = function () {
+        digitalData.pageDetails = {
+            pageName: digitalData.page.pageInfo.pageName,
+            channel: digitalData.page.pageInfo.channel,
+            banner: digitalData.page.pageInfo.banner,
+            subSection1: digitalData.page.pageInfo.subSection1,
+            subSection2: digitalData.page.pageInfo.subSection2,
+            subSection3: digitalData.page.pageInfo.subSection3,
+            subSection4: digitalData.page.pageInfo.subSection4,
+            siteTypePath: digitalData.page.pageInfo.siteTypePath,
+            pageUrl: digitalData.page.pageInfo.pageUrl,
+            platform: digitalData.page.pageInfo.platform,
+            referringURL: this.getReferringUrl(),
+            deliveryBanner: this.deliveryBanner,
+            thirdParty: this.getThirdParty()
+        };
+    };
+
+    // Initializes the data layer page filter object information from window.digitalData.page.pageInfo
+    this.initPageFilter = function () {
+        digitalData.page.pageInfo.carousel = this.initHomePageCarousels();
+        digitalData.page.pageInfo.topNav = this.initTopNav();
+        digitalData.pageFilter = digitalData.pageFilter || {};
+        digitalData.pageFilter.filterType = digitalData.page.pageInfo.filterType;
+        digitalData.pageFilter.filterSelection = digitalData.page.pageInfo.filterSelection;
+        digitalData.pageFilter.sortSelection = digitalData.page.pageInfo.sortSelection;
+        digitalData.pageFilter.carousel = digitalData.page.pageInfo.carousel;
+        digitalData.pageFilter.topNav = digitalData.page.pageInfo.topNav;
+        digitalData.pageFilter.adaFlag = "no";
+        
+        if (digitalData.pageFilter.adaFlag === "no") {
+            $(window).on('keydown.adaFlag', function (event) {
+                if ( event.which === 9 || event.shiftKey && event.which == 9) {
+                    digitalData.pageFilter.adaFlag = "yes";
+                        AB.DATALAYER.pushEvent(
+                            'ada_user_input', {
+                            pageFilter: digitalData.pageFilter,
+                        }
+                    );
+                    $(window).off('keydown.adaFlag');
+                }
+            });
+        }
+    };
+
+    // Initializes the data layer user object information
+    this.initUser = function () {
+        this.initJourneyStatus();
+        digitalData.user.journeyStatus = this.getJourneyStatus();
+        digitalData.user.addressType = this.initAddressType();
+
+        this.initUserDataFromCookies();
+        // if (localStorage.getItem('dlUUID')) {
+        //     digitalData.user.UUID = localStorage.getItem('dlUUID');
+        // }
+        // trigger event so that Target code won't have to poll for AB.userInfo or other user related data
+        $(window).trigger("dataLayerUserInfoLoaded");
+    };
+
+    this.setAccordionHeaderEvent = function (linkText) {
+        // TODO
+    }
+
+    this.initAislesPage = function () {
+        var productInfo = {
+            aisleId: digitalData.productInfo? digitalData.productInfo.aisleId : '',
+            upc: digitalData.productInfo? digitalData.productInfo.upc : ''
+        };
+        this.pushEvent(
+            this.EVENTS.PAGE_LOADED, {
+                page: digitalData.pageDetails,
+                pageFilter: digitalData.pageFilter,
+                user: digitalData.user,
+                productInfo: productInfo
+            }
+        );
+        this.handleAccountEvents();        
+    }
+
+    this.initTopNav = function () {
+        var topNav = "";
+        if (localStorage.getItem("topNavPreviousPage")) {
+            var topNavPreviousPage = localStorage.getItem("topNavPreviousPage");
+            var pageInfo = digitalData.page.pageInfo;
+            var subSections = [pageInfo.subSection1, pageInfo.subSection2, pageInfo.subSection3, pageInfo.subSection4].filter(function(x) {
+                return x != "";
+            });
+            var topNavCurrentPage = subSections.join(":") + " (L" + subSections.length + ")";
+            topNav = topNavPreviousPage + " > " + topNavCurrentPage;
+            localStorage.removeItem("topNavPreviousPage");
+        } else if (localStorage.getItem("aislesPreviousPage")) {
+            topNav = localStorage.getItem("aislesPreviousPage");
+            localStorage.removeItem("aislesPreviousPage");
+        }
+        return topNav;
+    };
+
+     /**
+      * returns the home page carousels info
+      */
+    this.initHomePageCarousels = function () {
+        // returns  the carousel info from the local storage
+        var carouselInfo = localStorage.getItem("carouselInfo") || "";
+        localStorage.removeItem("carouselInfo");
+        return carouselInfo;
+    }
+
+    this.setHomePageCarouselInfo = function (value) {
+        if (digitalData) {
+            digitalData.pageFilter.carousel = value;
+        }
+    }
+
+    /**
+     * sets the user journey status and the status code
+     * (window.digitalData.user.journeyStatus)
+     * @param code
+     */
+    this.setJourneyStatus = function (code) {
+        this.journeyStatusCode = code;
+        digitalData.user.journeyStatus = JOURNEY_STATUSES[this.journeyStatusCode];
+        localStorage.setItem('journeyStatusCode', this.journeyStatusCode);
+    };
+
+    /**
+     * initializes the user journey status and status code, using the status code from local storage
+     * (window.digitalData.user.journeyStatus)
+     */
+    this.getJourneyStatus = function () {
+        return JOURNEY_STATUSES[this.journeyStatusCode];
+    };
+
+    /**
+     * initializes the user journey status code, using the status code from local storage
+     * (window.digitalData.user.journeyStatus)
+     */
+    this.initJourneyStatus = function () {
+        this.journeyStatusCode = localStorage.getItem('journeyStatusCode') || this.JourneyStatusCode.EMPTY;
+    };
+
+    /**
+     * updates the user journey status and the status code
+     * (window.digitalData.user.journeyStatus)
+     * @param flag
+     */
+    this.updateJourneyStatus = function (flag) {
+        this.journeyStatusCode |= flag;
+        digitalData.user.journeyStatus = JOURNEY_STATUSES[this.journeyStatusCode];
+        localStorage.setItem('journeyStatusCode', this.journeyStatusCode);
+    };
+
+    /**
+     * initializes the user type (address type: residential or business) field
+     * (window.digitalData.user.userType)
+     */
+    this.initAddressType = function () {
+        var addressType = "";
+        if (localStorage.getItem("addressType")) {
+            addressType = localStorage.getItem('addressType');
+            localStorage.removeItem('addressType');
+        }
+        return addressType;
+    }
+
+    /**
+      * init pfmDetail and recommendationType field on product-details page and set value inside localStorage for pfmDetail for all the other pages
+      * pfmDetail = [PAGE SUBSECTIONS]#[CAROUSEL NAME]#[RECOMMENDATION]#[ROW]#[SLOT]
+    */
+    this.initPfmDetail = function () {
+        if (digitalData) {
+            // for product-details page use the previous value from ls
+            if (this.isPdp()) {      
+                // elevaate products to pdp
+                if (localStorage.getItem('pfmDetailElevaate')) {
+                    const lsPfmDetail = localStorage.getItem('pfmDetailElevaate');
+                    digitalData.page.pageInfo.pfmDetail = lsPfmDetail;
+                    const recommendationType = this.getRecommendationType(lsPfmDetail);
+                    this.setRecommendationType(recommendationType);
+                    localStorage.removeItem('pfmDetailElevaate');
+                    localStorage.setItem('pfmDetail', digitalData.page.pageInfo.pfmDetail);
+                } else {
+                    const lsPfmDetail = localStorage.getItem('pfmDetail');
+                    if (lsPfmDetail != null) {
+                        if (localStorage.getItem('pfmDetailCarouselPDP')) {
+                            // carousel item to pdp
+                            digitalData.page.pageInfo.pfmDetail = localStorage.getItem('pfmDetailCarouselPDP');
+                            localStorage.removeItem('pfmDetailCarouselPDP');
+                        } else if (localStorage.getItem ('pfmDetailProductPDP')) {
+                            const pfmDetailProduct = localStorage.getItem ('pfmDetailProductPDP');
+                            // product grid item to pdp
+                            if (localStorage.getItem ('pfmDetailSearch')) {
+                                // search results to PDP
+                                if (pfmDetailProduct.indexOf('sponsored') != -1 || pfmDetailProduct.indexOf('past-purchase') != -1 ) {
+                                    digitalData.page.pageInfo.pfmDetail = lsPfmDetail + '#product-grid#' + localStorage.getItem ('pfmDetailSearch') + '#' + pfmDetailProduct;
+                                } else {
+                                    digitalData.page.pageInfo.pfmDetail = lsPfmDetail + '#product-grid#' + localStorage.getItem ('pfmDetailSearch') + '#' + pfmDetailProduct;
+                                }
+                                // save value so it can be used for add on pdp
+                                localStorage.setItem('pfmDetail', lsPfmDetail + '#product-grid#' + localStorage.getItem ('pfmDetailSearch'));
+                                localStorage.removeItem('pfmDetailSearch');
+                            } else {
+                                // other pages to PDP
+                                if (pfmDetailProduct.indexOf('sponsored') != -1 || pfmDetailProduct.indexOf('past-purchase') != -1 ) {
+                                    digitalData.page.pageInfo.pfmDetail = lsPfmDetail + '#product-grid#non-search#' + pfmDetailProduct;
+                                } else {
+                                    digitalData.page.pageInfo.pfmDetail = lsPfmDetail + '#product-grid#non-search#' + pfmDetailProduct;
+                                }
+                            }
+                            localStorage.removeItem('pfmDetailProductPDP');
+                        } else {
+                            // directly landing on pdp
+                            digitalData.page.pageInfo.pfmDetail = 'product-details#PDP-landing#non-search#not-recommended#R01#S01';
+                            localStorage.setItem('pfmDetail', digitalData.page.pageInfo.pfmDetail);
+                        }
+                        localStorage.setItem('pfmDetail', digitalData.page.pageInfo.pfmDetail);
+                    } else {
+                        // directly landing on pdp
+                        digitalData.page.pageInfo.pfmDetail = 'product-details#PDP-landing#non-search#not-recommended#R01#S01';
+                        localStorage.setItem('pfmDetail', digitalData.page.pageInfo.pfmDetail);
+                    }
+                    // set recommendation type
+                    const recommendationType = this.getRecommendationType(digitalData.page.pageInfo.pfmDetail);
+                    this.setRecommendationType(recommendationType);
+                }
+            
+            } else {
+                // for all the other pages save the pfmDetail value in ls to be used for the pdp
+                if (this.isSearchResultsPage()) {
+                    localStorage.setItem('pfmDetail', 'search-results');
+                    const urlParams = AB.COMMON.getURLParameterByName('q');
+                    if (urlParams != null) {
+                        localStorage.setItem('pfmDetailSearch', urlParams);
+                    }
+                } else {
+                    localStorage.setItem('pfmDetail', digitalData.page.pageInfo.pfmDetail);
+                    localStorage.removeItem('pfmDetailSearch');
+                }
+            }
+        }
+    };
+
+    this.initPDPPlacementMediaType = function () {
+        if (this.isPdp()) {
+            digitalData.pageFilter.placement = localStorage.getItem('analyticsProductPlacement');
+            digitalData.pageFilter.mediaType = localStorage.getItem("analyticsMediaType");
+            localStorage.removeItem('analyticsProductPlacement');
+            localStorage.removeItem("analyticsMediaType");
+        }
+    }
+
+    /**
+     * returns the referring URL with the current URL "r" parameter, if found
+     * the default value is document.referrer
+     * (page.referringURL)
+     */
+    this.getReferringUrl = function () {
+        return AB.COMMON.getURLParameterByName('r') || document.referrer;
+    };
+
+    /**
+     * initializes the data layer user information with data that can be retrieved from cookies
+     * (window.digitalData.user)
+     */
+    this.initUserDataFromCookies = function () {
+        this.initSharedSessionInfo();
+        this.initSharedPiiSessionInfo();
+        this.initKmsi();
+    };
+
+    this.initSharedSessionInfo = function () {
+        var sharedInfoCookie = AB.COMMON.getCookie("SWY_SHARED_SESSION_INFO");
+        if (sharedInfoCookie != "") {
+            var sharedSessionInfo = {'info': ''};
+            try {
+                sharedSessionInfo = JSON.parse(unescape(sharedInfoCookie));
+            } catch (e) {
+                console.error("DATA Layer: Unable to parse the SWY_SHARED_SESSION_INFO cookie!");
+            }
+
+            try {
+                var user = digitalData.user;
+                var userCookieData = sharedSessionInfo.info.SHOP;
+
+                userCookieData.userType = userCookieData.userType || sharedSessionInfo.info.COMMON.userType;
+                
+                user.userType = userCookieData.userType || "";
+                user.type = userCookieData.userType || "";
+                switch (userCookieData.userType) {
+                    case "A":
+                    case "G":
+                        user.loginStatus = LoginStatus.GUEST;
+                        break;
+                    case "R":
+                    case "C":
+                    case "D":
+                    case "M":
+                        user.loginStatus = LoginStatus.REGISTERED;
+                        break;
+                    default:
+                        break;
+                }
+
+                user.shopStoreId = sharedSessionInfo.info.SHOP.storeId;
+                user.shopZipCode = sharedSessionInfo.info.SHOP.zipcode;
+
+                if (sharedSessionInfo.info.SHOP.userData && sharedSessionInfo.info.SHOP.userData.deliveryBanner && digitalData.pageDetails.banner) {
+                    var banner = digitalData.page.pageInfo.banner.toLowerCase().trim();
+                    var deliveryBanner = sharedSessionInfo.info.SHOP.userData.deliveryBanner.toLowerCase().trim();
+                    if (banner !== deliveryBanner) {
+                        user.deliveryPreference.deliveryBanner = banner + "|" + deliveryBanner;
+                    } else {
+                        user.deliveryPreference.deliveryBanner = DEFAULT_DELIVERY_BANNER;
+                    }
+                }
+                
+                user.houseHoldId = sharedSessionInfo.info.COMMON.houseId || "ID not found";
+                user.clubCardNumber = sharedSessionInfo.info.COMMON.clubCard || "ID not found";
+
+                if (sharedSessionInfo.info.COMMON.preference) {
+                    switch (sharedSessionInfo.info.COMMON.preference.toLowerCase()) {
+                        case "dug":
+                            user.deliveryPreference = 'dug';
+                            break;
+                        case "delivery":
+                            user.deliveryPreference = 'delivery';
+                            break;
+                        case "j4u":
+                            user.deliveryPreference = 'inStore';
+                            break;
+                    }
+                }
+            } catch (e) {
+                console.error("DATA Layer: Missing fields from SWY_SHARED_SESSION_INFO cookie! (SHOP, J4U, COMMON)");
+            }
+        }
+    };
+
+    this.initSharedPiiSessionInfo = function () {
+        var sharedPiiInfoCookie = AB.COMMON.getCookie("SWY_SHARED_PII_SESSION_INFO");
+        if (sharedPiiInfoCookie) {
+            var sharedPiiInfo = null;
+            try {
+                sharedPiiInfo = JSON.parse(unescape(sharedPiiInfoCookie));
+            } catch (e) {
+                console.error("DATA Layer: Unable to parse the SWY_SHARED_PII_SESSION_INFO cookie!");
+            }
+
+            if (sharedPiiInfo) {
+                var user = digitalData.user;
+                user.customerId = sharedPiiInfo.gid || "ID not found"; 
+            }
+        }
+    };
+
+    this.initKmsi = function () {
+        var kmsiCookie = AB.COMMON.getCookie("SAFEWAY_KMSI").toLowerCase();
+        var user = digitalData.user;
+        if (kmsiCookie && user.type) {
+            // after re-sign-in, the kmsi status has special values
+            var reSignInCookie = AB.COMMON.getCookie(this.Cookie.RE_SIGN_IN);
+            if (reSignInCookie == "true") {
+                SWY.CONFIGSERVICE.setDomainCookie(this.Cookie.RE_SIGN_IN, false, SWY.CONFIGSERVICE.resolvedBanner + '.com', 0 );
+                if (KmsiStatusReSignIn[kmsiCookie]) {
+                    user.loginStatus += "|" + KmsiStatusReSignIn[kmsiCookie];
+                }
+            } else {
+                if (KmsiStatus[kmsiCookie]) {
+                    user.loginStatus += "|" + KmsiStatus[kmsiCookie];
+                }
+            }
+        }
+    };
+
+    this.initOrderCount = function () {
+        if (digitalData.user.userType != "R" && digitalData.user.userType != "C") {
+            return;
+        }
+
+        // try to get the order count from the local storage, otherwise from the shared info cookie
+        if (AB.isLSEnabled) {
+            if (localStorage.getItem("abOrderCount") != null) {
+                this.updateOrderCount(localStorage.getItem("abOrderCount"));
+            }
+        } else {
+            var sharedInfoCookie = AB.COMMON.getCookie("SWY_SHARED_SESSION_INFO");
+            if (sharedInfoCookie != "") {
+                var sharedSessionInfo = {'info': ''};
+                try {
+                    sharedSessionInfo = JSON.parse(unescape(sharedInfoCookie));
+                } catch (e) {
+                    console.error("DATA Layer: Unable to parse the cookie");
+                }
+
+                if (sharedSessionInfo.info && sharedSessionInfo.info.SHOP && sharedSessionInfo.info.SHOP.userData) {
+                    this.updateOrderCount(sharedSessionInfo.info.SHOP.userData.orderCount);
+                }
+            }
+        }
+        
+    };
+
+    /**
+     * sets the SAFEWAY_RE_SIGN_IN cookie, used when setting the kmsi flag
+     */
+    this.handleReSignIn = function () {
+        SWY.CONFIGSERVICE.setDomainCookie(this.Cookie.RE_SIGN_IN, AB.DATALAYER.isReSignInPage(), SWY.CONFIGSERVICE.resolvedBanner + '.com', 0 );
+    }
+
+    this.setUserSubscriptionStatus = function (data) {
+        if (data) {
+            digitalData.user.subscriptionStatus = data.status + ":" + data.subscriptionType;
+            var renewalDate = new Date(data.renewalDate);
+            if (!isNaN(renewalDate)) {
+                digitalData.user.subscriptionDate = renewalDate.toLocaleDateString("en-US", { month:"2-digit", day:"2-digit", year:"numeric" });
+            }
+        }
+    }
+
+    this.clearUserSubscriptionStatus = function () {
+        digitalData.user.subscriptionStatus = DEFAULT_SUBSCRIPTION_STATUS;
+        digitalData.user.subscriptionDate = "";
+    }
+
+    this.setUserSubscriptionError = function () {
+        digitalData.user.subscriptionStatus = SUBSCRIPTION_API_ERROR;
+        digitalData.user.subscriptionDate = "";
+    };
+
+
+    this.searchClickThrough = function () {
+        if (!this.isAislesL2Page() && !this.isAislesL3Page() && !this.isAislesL4Page()) {
+            if (digitalData && digitalData.search) {
+                var searchData = digitalData.search;
+                digitalData.productInfo.pfmDetail = digitalData.pageDetails.subSection1 + ' : ' + digitalData.search.internalSearchTerm;
+            }
+        }
+    };
+
+    /**
+     * sets the cart savings (total number of coupons, total number of clipped coupons)
+     * (window.digitalData.cart.savings)
+     * @param total
+     * @param clipped
+     */
+    this.updateCartSavings = function (total, clipped) {
+        if (digitalData && digitalData.cart) {
+            digitalData.cart.savings = {
+                totalCoupons: total,
+                couponsClipped: clipped
+            };
+        }
+    };
+
+    /**
+     * sets the cart id
+     * (window.digitalData.cart.cartInfo.cartId)
+     * @param id
+     */
+    this.updateCartId = function (id) {
+        if (digitalData && digitalData.cart && digitalData.cart.cartInfo) {
+            var computedStateCart = digitalData.cart;
+            computedStateCart.cartInfo.cartId = id;
+        }
+    };
+
+    /**
+     * sets the cart type
+     * (window.digitalData.cart.cartInfo.cartType)
+     * @param type
+     */
+    this.updateCartType = function (type) {
+        if (digitalData && digitalData.cart && digitalData.cart.cartInfo) {
+            var computedStateCart = digitalData.cart;
+            computedStateCart.cartInfo.cartType = type;
+        }
+    };
+
+    /**
+     * sets cart isMFC
+     * (window.digitalData.cart.cartInfo.isMFC)
+     * @param isMFC
+     */
+    this.updateCartIsMFC = function (isMFC) {
+        if (digitalData && digitalData.cart && digitalData.cart.cartInfo) {
+            var computedStateCart = digitalData.cart;
+            computedStateCart.cartInfo.isMFC = isMFC;
+        }
+    }
+
+    /**
+     * sets cart mfcUnavailableCount
+     * (window.digitalData.cart.cartInfo.mfcUnavailableCount)
+     * @param mfcUnavailableCount
+     */
+    this.updateCartMFCUnavailableCount = function (mfcUnavailableCount) {
+        if (digitalData && digitalData.cart && digitalData.cart.cartInfo) {
+            var computedStateCart = digitalData.cart;
+            computedStateCart.cartInfo.mfcUnavailableCount = mfcUnavailableCount;
+        }
+    }
+
+    this.updateCart = function (allItems, newItem) {
+        if (digitalData && digitalData.cart) {
+            var computedStateCart = digitalData.cart;
+            if (allItems) {
+                computedStateCart.item = allItems.map(function (x) {
+                    var availability = '';
+                    if (x.isAvailable) {
+                        availability = 'available';
+                    } else if (!x.isAvailable) {
+                        availability = 'not-available';
+                    } else {
+                        availability = 'unknown';
+                    }
+                    return {
+                        productID: x.id,
+                        productName: x.name,
+                        units: (x.quantity != undefined) ? x.quantity.toString() : '',
+                        listPrice: (x.price != undefined) ? x.price.toString() : '',
+                        totalPrice: (x.quantity != undefined && x.price != undefined) ? (x.quantity * x.price).toString() : '',
+                        inventory: availability
+                    };
+                });
+                
+                let subTotal = 0;
+                computedStateCart.item.forEach(function(item) {
+                    subTotal += Number(item.totalPrice);
+                });
+                if (computedStateCart.transaction) {
+                    computedStateCart.transaction.subTotal = subTotal;
+                }
+            }
+        }
+
+        if (digitalData && digitalData.productInfo && newItem) {
+            digitalData.productInfo.productName = newItem.name;
+            digitalData.productInfo.listPrice = newItem.price.toString();
+        }
+    };
+
+    this.updateMiniCartEvent = function () {
+        if (digitalData) {
+            this.pushEvent(
+                this.EVENTS.MINICART,
+                {
+                    cart: digitalData.cart
+                }
+            );
+        }
+    }
+
+    this.removeFromCart = function (removedItem) {
+        if (digitalData && digitalData.cart && removedItem) {
+            digitalData.cart.item = digitalData.cart.item.filter(function (x) {
+                return x.productName != removedItem.name;
+            });
+            let subTotal = 0;
+            digitalData.cart.item.forEach(function(item) {
+                subTotal += Number(item.totalPrice);
+            });
+            if( digitalData.cart.transaction) {
+                digitalData.cart.transaction.subTotal = subTotal;
+            }
+        }
+    };
+
+    /**
+     * handles add to cart event
+     * sets event name, calls satellite track, sets pfmDetail, elevaate flag and position
+     * @param product
+     * @param elevaateFlag
+     * @param elevaatePosition
+     * @param searchTerm
+     */
+    this.addItemToCart = function (product, elevaateFlag, elevaatePosition, searchTerm) {
+        this.handleItemEvent('cart_add', product, elevaateFlag, elevaatePosition, searchTerm);
+        this.updateJourneyStatus(Flag.PRODUCT_ADDED);
+    };
+
+    /**
+     * handles remove from cart event
+     * sets event name, calls satellite track, sets pfmDetail, elevaate flag and position
+     * @param product
+     * @param elevaateFlag
+     * @param elevaatePosition
+     * @param searchTerm
+     */
+    this.removeItemFromCart = function (product, elevaateFlag, elevaatePosition, searchTerm) {
+        this.handleItemEvent('remove_cart', product, elevaateFlag, elevaatePosition, searchTerm);
+    };
+
+    /**
+     * handles increased cart quantity event
+     * sets event name, calls satellite track, sets pfmDetail, elevaate flag and position
+     * @param product
+     * @param elevaateFlag
+     * @param elevaatePosition
+     * @param searchTerm
+     */
+    this.increaseItemQuantity = function (product, elevaateFlag, elevaatePosition, searchTerm) {
+        this.handleItemEvent('add_quantity', product, elevaateFlag, elevaatePosition, searchTerm);
+    };
+
+    /**
+     * handles decreased cart quantity event
+     * sets event name, calls satellite track, sets pfmDetail, elevaate flag and position
+     * @param product
+     * @param elevaateFlag
+     * @param elevaatePosition
+     * @param searchTerm
+     */
+    this.decreaseItemQuantity = function (product, elevaateFlag, elevaatePosition, searchTerm) {
+        this.handleItemEvent('remove_quantity', product, elevaateFlag, elevaatePosition, searchTerm);
+    };
+
+    /**
+     * handles cart item events (add, remove, increase or decrease quantity)
+     * sets event name, calls satellite track, sets pfmDetail, elevaate flag and position
+     * @param eventName
+     * @param product
+     * @param elevaateFlag
+     * @param elevaatePosition
+     * @param searchTerm
+     */
+    this.handleItemEvent = function (eventName, product, elevaateFlag, elevaatePosition, searchTerm) {
+        if (digitalData) {
+            if (product) {
+                this.productInfo(product);
+            }
+
+            this.setElevaateFlag(elevaateFlag !== undefined ? elevaateFlag : false);
+            this.setElevaatePosition(elevaatePosition !== undefined ? elevaatePosition : '');
+            digitalData.pageFilter.placement = '';
+
+            // for elevaate products that have an associated grid position, set custom pfmdetail
+            if (elevaatePosition && searchTerm) {
+                this.setProductGridPosition();
+                if (digitalData.productInfo.crossSellTitle) {
+                    // sponsored cross-sell
+                    if (digitalData.pageFilter.recommendationType === 'cross-sell:sponsored') {
+                        this.setPfmDetail(digitalData.pageDetails.subSection1 + '#' + digitalData.productInfo.crossSellTitle + '#' + searchTerm + '#cross-sell:sponsored#' + digitalData.pageFilter.placement);
+                    } else {
+                        this.setPfmDetail(digitalData.pageDetails.subSection1 + '#' + digitalData.productInfo.crossSellTitle + '#'+ searchTerm + '#cross-sell#' + digitalData.pageFilter.placement);
+                    }
+                } else {
+                    this.setPfmDetail(digitalData.pageDetails.subSection1 + '#product-grid#' + searchTerm + '#sponsored#' + digitalData.pageFilter.placement);
+                }
+            } else if (digitalData.productInfo.carouselSection) {
+                this.setCarouselPosition();
+                this.setPfmDetail(this.pfmFromCurrentPage + '#' + digitalData.productInfo.carouselSection);
+                if (digitalData.pageFilter.recommendationType === 'recommended') {
+                    digitalData.productInfo.pfmDetail = digitalData.productInfo.pfmDetail + '#non-search#recs#' + digitalData.pageFilter.placement;
+                } else if (digitalData.pageFilter.recommendationType === 'sponsored') {
+                    digitalData.productInfo.pfmDetail = digitalData.productInfo.pfmDetail + '#non-search#sponsored#' + digitalData.pageFilter.placement;
+                } else {
+                    digitalData.productInfo.pfmDetail = digitalData.productInfo.pfmDetail + '#non-search#not-recommended#' + digitalData.pageFilter.placement;
+                }
+            } else {
+                this.setProductGridPosition();
+                if (this.isPdp()) {
+                    const lsPfmDetail = localStorage.getItem("pfmDetail");
+                    if (lsPfmDetail != null && !lsPfmDetail.startsWith('product-details')) {
+                        this.setPfmDetail(lsPfmDetail);
+                    } else {
+                        const pfmDetail = 'product-details#PDP-landing#non-search#not-recommended#R01#S01';
+                        this.setPfmDetail(pfmDetail);
+                    }
+                } else if (this.isSearchResultsPage() && localStorage.getItem('pfmDetailSearch')) {
+                    this.setPfmDetail(this.pfmFromCurrentPage + '#product-grid#' + localStorage.getItem('pfmDetailSearch'));
+                    if (digitalData.pageFilter.recommendationType === 'sponsored') { 
+                        digitalData.productInfo.pfmDetail = digitalData.productInfo.pfmDetail + '#sponsored#' + digitalData.pageFilter.placement;
+                    } else if (digitalData.pageFilter.recommendationType === 'pastPurchased') {
+                        digitalData.productInfo.pfmDetail = digitalData.productInfo.pfmDetail + '#past-purchase#' + digitalData.pageFilter.placement;
+                    } else {
+                        digitalData.productInfo.pfmDetail = digitalData.productInfo.pfmDetail + '#not-recommended#' + digitalData.pageFilter.placement;
+                    }
+                } else {
+                    this.setPfmDetail(this.pfmFromCurrentPage + '#product-grid#');
+                    if (digitalData.productInfo.crossSellTitle) {
+                        // sponsored cross-sell
+                        if (digitalData.pageFilter.recommendationType === 'cross-sell:sponsored') {
+                            digitalData.productInfo.pfmDetail = digitalData.productInfo.pfmDetail + 'non-search#cross-sell:sponsored#' + digitalData.pageFilter.placement;
+                        } else {
+                            digitalData.productInfo.pfmDetail = digitalData.productInfo.pfmDetail + 'non-search#cross-sell#' + digitalData.pageFilter.placement;
+                        }
+                    } else {
+                        if (digitalData.pageFilter.recommendationType === 'sponsored') {
+                            digitalData.productInfo.pfmDetail = digitalData.productInfo.pfmDetail + 'non-search#sponsored#' + digitalData.pageFilter.placement;
+                        } else if (digitalData.pageFilter.recommendationType === 'pastPurchased') {
+                            digitalData.productInfo.pfmDetail = digitalData.productInfo.pfmDetail + 'non-search#past-purchase#' + digitalData.pageFilter.placement;
+                        } else {
+                            digitalData.productInfo.pfmDetail = digitalData.productInfo.pfmDetail + 'non-search#not-recommended#' + digitalData.pageFilter.placement;
+                        }
+                    }
+                }
+            }
+
+            this.pushEvent(
+                eventName, {
+                productInfo: digitalData.productInfo,
+                pageFilter: digitalData.pageFilter,
+                cart: digitalData.cart
+            }
+            );
+        }
+    };
+
+    /**
+     * sets the search information
+     * (window.digitalData.search)
+     * @param searchInfo
+     */
+    this.setSearch = function (searchInfo) {
+        if (!this.isAislesL2Page() && !this.isAislesL3Page() && !this.isAislesL4Page()) {
+            if (digitalData) {
+                digitalData.search = {
+                    searchType: searchInfo.searchType,
+                    typedSearchTerm: searchInfo.typedSearchTerm || 'not available',
+                    autoSearchFlag: searchInfo.autoSearchFlag,
+                    typedSearchCount: searchInfo.typedSearchCount || 'not available',
+                    internalSearchTerm: searchInfo.internalSearchTerm,
+                    searchResults: searchInfo.searchResults
+                };
+                if (searchInfo.pastPurchased > 0) {
+                    this.setImpressions('pastPurchased#' + searchInfo.pastPurchased);
+                }
+                this.pushEvent(
+                    this.EVENTS.SEARCH, {
+                    search: digitalData.search,
+                    page: digitalData.pageDetails,
+                    pageFilter: digitalData.pageFilter,
+                    user: digitalData.user
+                });
+                this.handleAccountEvents();
+            }
+        }
+    };
+
+    // set pageFilter.impressions
+    this.setImpressions = function (impressions) {
+        if (digitalData && digitalData.pageFilter) {
+            digitalData.pageFilter.impressions = impressions;
+        }
+    };
+
+    /**
+     * updates the search information; still used ???
+     * (window.digitalData.search)
+     * @param searchInfo
+     */
+    this.updateSearch = function (searchTerm, numOfResults) {
+        if (!this.isAislesL2Page() && !this.isAislesL3Page() && !this.isAislesL4Page()) {
+            if (digitalData && digitalData.search) {
+                var searchData = digitalData.search;
+                searchData.internalSearchTerm = searchTerm;
+                if (numOfResults === 0) {
+                    searchData.searchResults = "zero";
+                } else {
+                    searchData.searchResults = numOfResults.toString();
+                }
+                this.pushEvent(
+                    this.EVENTS.SEARCH, {
+                    search: searchData
+                }
+                );
+            }
+        }
+    };
+
+    /**
+     * pushes a new event in the data layer
+     * @param name must be a non blank string
+     * @param data associated with the event
+     */
+    this.pushEvent = function(event, data) {
+        if (typeof event === "string" || event instanceof String) {
+            data = (typeof data === "object" && data) || {};
+
+            appEventData.push(
+                $.extend(
+                    { event: event }, 
+                    data
+                )
+            );
+        } else {
+            // event is an object, not a string
+            // this is required in order to maintain backwards compatibility, should be removed after full migration
+            appEventData.push({
+                event: event.name,
+                eventData: {
+                    modalLink: event.modalLink,
+                    message: event.message
+                }
+            });
+        }
+    }
+
+    /**
+     * returns the third party info
+     * (window.digitalData.page.pageInfo.thirdParty)
+     */
+    this.getThirdParty = function () {
+        var reportThirdParty = "";
+        arrThirParty.forEach(function(x) {
+            if ($('.' + x).length > 0) {
+                reportThirdParty = x;
+            }
+        });
+        return reportThirdParty;
+    };
+
+    /**
+     * sets the product information
+     * (window.digitalData.productInfo)
+     * @param infoObj
+     */
+    this.productInfo = function (infoObj) {
+        if (digitalData) {
+            digitalData.productInfo = {
+                productID: infoObj.id,
+                productName: infoObj.name,
+                units: infoObj.units,
+                listPrice: infoObj.listPrice,
+                carouselSection: infoObj.carouselSection,
+                basePrice: infoObj.basePrice,
+                pricingType: infoObj.pricingType || 'not available',
+                couponFlag: infoObj.couponFlag || 'not available',
+                couponClipped: infoObj.couponClipped || 'not available',
+                couponID: infoObj.couponID || 'not available',
+                aisleId: infoObj.aisleId,
+                upc: infoObj.upc,
+                pfmDetail: digitalData.page.pageInfo.pfmDetail,
+                crossSellTitle: infoObj.crossSellTitle
+            };
+        }
+    };
+
+    this.setPDPevent = function () {
+        if (digitalData && digitalData.pageDetails) {
+            const productInfo = digitalData.productInfo;
+            productInfo.pfmDetail = digitalData.page.pageInfo.pfmDetail;
+            this.pushEvent(
+                this.EVENTS.PRODUCT_LOADED,
+                {
+                    page: digitalData.pageDetails,
+                    pageFilter: digitalData.pageFilter,
+                    user: digitalData.user,
+                    productInfo: productInfo
+                }
+            );
+            this.handleAccountEvents();
+        }
+    };
+
+    this.unClipCoupon = function (coupon) {
+        if (digitalData) {
+            digitalData.coupon = {
+                couponName: coupon.brand,
+                couponType: coupon.offerType,
+                couponId: coupon.offerId,
+                couponSavings: coupon.offerPrice,
+                carouselSection: coupon.carouselSection
+            };
+
+            this.pushEvent(
+                this.EVENTS.UNCLIP, {
+                coupon: digitalData.coupon
+            }
+            );
+        }
+    };
+
+    this.clipCoupon = function (coupon, elevaateFlag, elevaatePosition) {
+        if (digitalData) {
+            coupon = {
+                couponName: coupon.brand,
+                couponType: coupon.offerType,
+                couponId: coupon.offerId,
+                couponclipmethod: "singleclip", // "barcodescan" and "stackandsave" not available on web
+                numberofcouponsclipped: "1", // no multi-clip available on web
+                couponSavings: coupon.offerPrice,
+                productSKU: (typeof (digitalData.productInfo) === 'object') ? digitalData.productInfo.productID : "",
+                carouselSection: coupon.carouselSection
+            };
+
+            this.updateJourneyStatus(Flag.COUPON_CLIPPED);
+
+            // this.setElevaateFlag(elevaateFlag !== undefined ? elevaateFlag : false);
+            // this.setElevaatePosition(elevaatePosition !== undefined ? elevaatePosition : "");
+
+            var currentProduct = digitalData.productInfo;
+            if (typeof (currentProduct) === 'object') {
+                currentProduct.couponID = currentProduct.couponID || "";
+
+                if (currentProduct.couponID == "") {
+                    currentProduct.couponID = coupon.offerId;
+                    currentProduct.couponClipped = (parseInt(currentProduct.couponClipped) + 1).toString();
+                } else {
+                    var couponIds = currentProduct.couponID.split(",");
+                    if (couponIds.indexOf(coupon.offerId) == -1) {
+                        couponIds.push(coupon.offerId);
+                        currentProduct.couponID = couponIds.toString();
+                        currentProduct.couponClipped = (parseInt(currentProduct.couponClipped) + 1).toString();
+                    }
+                }
+                if (currentProduct.carouselSection) {
+                    this.setCarouselPosition(currentProduct.productID, currentProduct.carouselSection);
+                } else {
+                    this.setProductGridPosition(currentProduct.productID, currentProduct.upc);
+                }
+            }
+            this.setCouponPlacement(coupon.couponId);
+            this.pushEvent(
+                this.EVENTS.COUPONCLIPPED,
+                {
+                    coupon: coupon,
+                    pageFilter: digitalData.pageFilter,
+                    productInfo: currentProduct,
+                    elevaate: digitalData.elevaate,
+                }
+            );
+
+            // trigger event for Target code
+            $(window).trigger("dataLayerCouponClipped");
+        }
+    };
+
+    /**
+     * sets the total number of available coupons and the coupon source
+     * (window.digitalData.coupon.numberofcoupons, window.digitalData.coupon.couponSource)
+     * @param nr
+     * @param source
+     */
+    this.setCouponsDetails = function (nr, source) {
+        if (digitalData) {
+            digitalData.coupon = {
+                numberofcoupons: nr,
+                couponSource: source
+            };
+
+            this.pushEvent(
+                this.EVENTS.COUPONNR, {
+                coupon: digitalData.coupon
+            }
+            );
+        }
+    };
+
+    this.sortBy = function (sort) {
+        if (digitalData) {
+            digitalData.pageFilter.sortSelection = sort;
+            this.pushEvent(
+                "page_sort", {}
+            );
+        }
+    };
+
+    this.setFilterType = function (type) {
+        if (digitalData) {
+            if (!localStorage.getItem('dontsetfilter')) {
+                digitalData.pageFilter.filterType = type;
+                this.pushEvent(
+                    "page_filter", {}
+                );
+            }
+            localStorage.removeItem('dontsetfilter');
+        }
+    };
+
+    this.setFilterSelection = function (selection) {
+        if (digitalData) {
+            if (!localStorage.getItem('dontsetfilter')) {
+                digitalData.pageFilter.filterSelection = selection;
+                this.pushEvent(
+                    "page_filter", {}
+                );
+            }
+            localStorage.removeItem('dontsetfilter');
+        }
+    };
+
+    this.setFiltersSelectionsFromUrl = function () {
+        if (digitalData) {
+            if (digitalData.pageFilter.filterSelection == "") {
+                var categories = AB.COMMON.getURLParameterByName("category", false)
+                    ? AB.COMMON.getURLParameterByName("category", false).split(",").map(function (x) {
+                        return "category:" + decodeURIComponent(x);
+                    }).join("|")
+                    : "";
+                var events = AB.COMMON.getURLParameterByName("event", false)
+                    ? AB.COMMON.getURLParameterByName("event", false).split(",").map(function (x) {
+                        return "event:" + decodeURIComponent(x);
+                    }).join("|")
+                    : "";
+                var offerTypes = AB.COMMON.getURLParameterByName("offerPgm", false)
+                    ? AB.COMMON.getURLParameterByName("offerPgm", false).split(",").map(function (x) {
+                        return "offerPgm:" + decodeURIComponent(x);
+                    }).join("|")
+                    : "";
+
+                var filters = [];
+                if (categories) {
+                    filters.push(categories);
+                }
+                if (events) {
+                    filters.push(events);
+                }
+                if (offerTypes) {
+                    filters.push(offerTypes);
+                }
+
+                digitalData.pageFilter.filterSelection = filters.join("|");
+            }
+        }
+    };
+
+    this.setBoxtopAuthState = function (state) {
+        if (digitalData) {
+            digitalData.boxtop.authState = state;
+        }
+    };
+
+    this.setBoxtopActionName = function (action) {
+        if (digitalData) {
+            digitalData.boxtop.actionName = action;
+        }
+    };
+
+    this.updatePfmDetail = function (filter) {
+       if (digitalData && digitalData.productInfo) {
+        digitalData.productInfo.pfmDetail = localStorage.getItem("pfmDetail") + ":" + filter;
+       }
+    };
+
+    this.updateOrderCount = function (orderCount) {
+        if (digitalData) {
+            var user = digitalData.user;
+            user.orderStatus = orderCount.toString();
+            if (user.orderStatus === "0") {
+                user.customerStatus = "first";
+            } else if (user.orderStatus > 0) {
+                user.customerStatus = "returning";
+            }
+            if (digitalData.user) {
+                digitalData.user.orderStatus = digitalData.user.orderStatus;
+                digitalData.user.customerStatus = digitalData.user.customerStatus;
+            }
+            
+        }
+    };
+
+    /**
+     * sets the error information (id, feature, message)
+     * (window.digitalData.error)
+     * @param id
+     * @param feature
+     * @param message
+     */
+    this.setError = function (id, feature, message) {
+        if (digitalData) {
+            this.pushEvent(
+                this.EVENTS.ERROR,
+                {
+                    error: {
+                        errorID: id,
+                        errorFeature: feature,
+                        errorMessage: message
+                    }
+                }
+            );
+        }
+    };
+
+    /**
+     * sets the elevaate position
+     * (the grid position for the sponsored products injected by elevaate)
+     * (window.digitalData.elevaate.position)
+     * @param position
+     */
+    this.setElevaatePosition = function (position) {
+        if (digitalData) {
+            digitalData.elevaate = digitalData.elevaate || {};
+            digitalData.elevaate.position = position.toString();
+        }
+    };
+
+    /**
+     * sets the elevaate flag
+     * (flag indicating whether the current interaction is with an elevaate sponsored product)
+     * (window.digitalData.elevaate.elevaateRecsReady)
+     * @param flag
+     */
+    this.setElevaateFlag = function (flag) {
+        if (digitalData) {
+            digitalData.elevaate = digitalData.elevaate || {};
+            digitalData.elevaate.elevaateRecsReady = flag.toString();
+        }
+    };
+
+    /**
+     * sets the pfm detail
+     * (product finding method)
+     * the templates for pfmDetail are:
+     * subSection1:subSection2:subSection3:subSection4
+     * subSection1:subSection2:subSection3:subSection4:carouselSection
+     * subSection1:search-term
+     * subSection1:search-term:filterSelection
+     * (window.digitalData.page.pageInfo.pfmDetail)
+     * @param pfmDetail
+     */
+    this.setPfmDetail = function (pfmDetail) {
+        if (digitalData && digitalData.productInfo) {
+            digitalData.productInfo.pfmDetail = pfmDetail;
+        }
+    };
+
+    /*
+     * adds the filter type (search facet) to the selected filter types list, if not already added
+     * @param filterType
+     */
+    this.addFilterType = function (filterType) {
+        if (digitalData && digitalData.pageFilter) {
+            if (this.selectedSearchFacets.indexOf(filterType) == -1) {
+                this.selectedSearchFacets.push(filterType);
+                digitalData.pageFilter.filterType = this.selectedSearchFacets.join(",");
+            }
+        }
+    };
+
+    /**
+     * removes the filter type (search facet) from the selected filter types list
+     * @param filterType
+     */
+    this.removeFilterType = function (filterType) {
+        if (digitalData && digitalData.pageFilter) {
+            this.selectedSearchFacets = this.selectedSearchFacets.filter(function(x) {return x != filterType});
+            digitalData.pageFilter.filterType = this.selectedSearchFacets.join(",");
+        }
+    };
+
+    // Set localStorage item to track navigation using the top nav links
+    this.setTopNavPreviousPage = function (link, dontSetFilter) {
+        if (digitalData) {
+            if (dontSetFilter) {
+                localStorage.setItem('dontsetfilter', true);
+            }
+            if (link && link.hostname !== window.location.hostname) {
+                return;
+            }
+            var pageInfo = digitalData.pageDetails;
+            var subSections = [pageInfo.subSection1, pageInfo.subSection2, pageInfo.subSection3, pageInfo.subSection4].filter(function(x) {
+                return x != "";
+            });
+            var topNavPreviousPage = subSections.join(":") + " (L" + subSections.length + ")";
+            localStorage.setItem("topNavPreviousPage", topNavPreviousPage);
+        }
+    };
+
+    // Send the prebook information & event sent from the eRums prebook page
+    this.initPrebookAEM = function () {
+        var lsPrebookDl = localStorage.getItem('pageload_hit_buffer');
+        if (lsPrebookDl) {
+            var parsedPrebookDl = JSON.parse(lsPrebookDl);
+            this.pushEvent(
+                parsedPrebookDl.event, parsedPrebookDl
+            );
+            localStorage.removeItem('pageload_hit_buffer');
+        }
+    }
+
+    // Set product placement in grid and cross-sell placement
+    this.setProductGridPosition = function (productId, productUpc) {
+        if (digitalData) {
+            var placement = "";
+            if (!$('#miniCart').is(':visible')) {
+                var productPosition = "";
+                var currentProductUpc = productUpc ? productUpc : digitalData.productInfo.upc;
+                var currentProductId = productId ? productId : digitalData.productInfo.productID;
+                var currentProduct = $('product-item, product-item-v2').not('[data-elevaate-driven]').find('.product-item-' + currentProductId).closest('product-item, product-item-v2');
+                var currentProductCrossSell = $('[data-elevaate-driven][data-elevaate-upc=' + currentProductUpc + ']');
+                if (currentProductCrossSell.attr('data-elevaate-upc') == currentProductUpc && currentProductCrossSell.attr('data-elevaate-driven') == "cross-sell") {
+                    // Placement for cross-sell products
+                    if (digitalData.pageFilter) {
+                        digitalData.pageFilter.mediaType = "product-carousel";
+                    }
+                    var crossSellContainers = $('.elevaate-cross-sell-container');
+                    var crossSellProducts = $('[data-elevaate-driven]');
+                    var currentCrossSellContainer = currentProductCrossSell.closest('.elevaate-cross-sell-container');
+                    productPosition = crossSellProducts.index(currentProductCrossSell) + 1;
+                    var crossSellPosition = crossSellContainers.index(currentCrossSellContainer) + 1;
+                    var displayableCRPosition = crossSellPosition < 10 ? '0' + crossSellPosition : crossSellPosition;
+                    var displayableSPosition = productPosition < 10 ? '0' + productPosition : productPosition;
+                    placement = 'R' + displayableCRPosition + '#S' + displayableSPosition;
+                } else if (currentProduct) {
+                    // Placement for grid products
+                    if (digitalData.pageFilter) {
+                        digitalData.pageFilter.mediaType = "product-grid";
+                    }
+                    var gridProducts = $('product-item, product-item-v2').not('[data-elevaate-driven]');
+                    productPosition = gridProducts.index(currentProduct) + 1;
+                    var productRow = 0;
+                    if ($('product-item-v2').length > 0) {
+                        productRow = productPosition < 4 ? 1 : Math.ceil(productPosition / 4);
+                        if (window.innerWidth < 1200 && window.innerWidth > 991) {
+                            productRow = productPosition < 3 ? 1 : Math.ceil(productPosition / 3);
+                        } else if (window.innerWidth < 992 && window.innerWidth > 767) {
+                            productRow = productRow;
+                        } else if (window.innerWidth < 768) {
+                            productRow = productPosition < 2 ? 1 : Math.ceil(productPosition / 2);
+                        }
+                    } else {
+                        productRow = productPosition < 3 ? 1 : Math.ceil(productPosition / 3);
+                        if (window.innerWidth < 768 && window.innerWidth > 575) {
+                            productRow = productPosition < 2 ? 1 : Math.ceil(productPosition / 2);
+                        } else if (window.innerWidth < 576) {
+                            productRow = productPosition;
+                        }
+                    }
+                    var displayableSPosition = productPosition < 10 ? '0' + productPosition : productPosition;
+                    var displayablePGPosition = productRow < 10 ? '0' + productRow : productRow;
+                    placement = 'R' + displayablePGPosition + '#S' + displayableSPosition;
+                
+                }
+                if (digitalData.pageFilter) {
+                    digitalData.pageFilter.placement = placement;
+                }
+            }
+            return placement;
+        }
+    }
+
+    // Set product placement in carousel and carousel position in page
+    this.setCarouselPosition = function (productId, carouselSection) {
+        if (digitalData) {
+            var placement = "";
+            var currentCarouselSection = carouselSection ? carouselSection : digitalData.productInfo.carouselSection;
+                var currentProductId = productId ? productId : digitalData.productInfo.productID;
+                var currentCarouselParent = $('.slick-product-carousel:visible').has($('h2:contains("' + currentCarouselSection + '")'));
+                var carouselsAvailable = $('.slick-product-carousel:visible');
+                var currentProduct = currentCarouselParent.find('[data-bpn=' + currentProductId + ']').closest('product-carousel-item, product-carousel-item-v2');
+                var carouselPosition = carouselsAvailable.index(currentCarouselParent) + 1;
+                var displayableCRPosition = carouselPosition < 10 ? '0' + carouselPosition : carouselPosition;
+                var productsInCarousel = currentCarouselParent.find('product-carousel-item, product-carousel-item-v2');
+                var productPositionCarousel = productsInCarousel.index(currentProduct) + 1;
+                var displayableSPosition = productPositionCarousel < 10 ? '0' + productPositionCarousel : productPositionCarousel;
+                placement = 'R' + displayableCRPosition + '#S' + displayableSPosition;
+                if (digitalData.pageFilter) {
+                    digitalData.pageFilter.placement = placement;
+                    digitalData.pageFilter.mediaType = "product-carousel";
+                }
+                return placement;
+        }
+    }
+
+    // Set coupon placement & media-type for coupon carousel and coupon grid
+    this.setCouponPlacement = function (couponID) {
+        if (digitalData) {
+            var placement = "";
+            var couponId = couponID;
+            var currentCarouselCoupon = $('#coupon-title-' + couponId).closest('coupon-carousel-item');
+            var currentGridCoupon = $('#coupon-title-' + couponId).closest('coupon-item');
+            if (currentCarouselCoupon.length > 0) {
+                // Placement for coupon in carousel
+                var currentCouponCarousel = currentCarouselCoupon.closest('coupon-carousel');
+                var couponCarousels = $('coupon-carousel');
+                var currentCCPosition = couponCarousels.index(currentCouponCarousel) + 1;
+                var displayableCRPosition = currentCCPosition < 10 ? '0' + currentCCPosition : currentCCPosition;
+                var carouselCoupons = currentCouponCarousel.find('coupon-carousel-item');
+                var currentCouponPosition = carouselCoupons.index(currentCarouselCoupon) + 1;
+                var displayableSPosition = currentCouponPosition < 10 ? '0' + currentCouponPosition : currentCouponPosition;
+                placement = 'R' + displayableCRPosition + '#S' + displayableSPosition;
+                if (digitalData.pageFilter) {
+                    digitalData.pageFilter.placement = placement;
+                    digitalData.pageFilter.mediaType = "coupon-carousel";
+                    digitalData.pageFilter.recommendationType = "notRecommended";
+                }
+            } else if (currentGridCoupon.length > 0) {
+                // Placement for coupon in grid
+                var couponGrid = $('coupon-grid');
+                var gridCoupons = couponGrid.find('coupon-item');
+                var couponPosition = gridCoupons.index(currentGridCoupon) + 1;
+                var couponRow = couponPosition < 3 ? 1 : Math.ceil(couponPosition / 3);
+                if (window.innerWidth < 992 && window.innerWidth > 767) {
+                    couponRow = couponPosition < 2 ? 1 : Math.ceil(couponPosition / 2);
+                } else if (window.innerWidth < 768) {
+                    couponRow = couponPosition;
+                }
+                var displayableSPosition = couponPosition < 10 ? '0' + couponPosition : couponPosition;
+                var displayablePGPosition = couponRow < 10 ? '0' + couponRow : couponRow;
+                placement = 'R' + displayablePGPosition + '#S' + displayableSPosition;
+                if (digitalData.pageFilter) {
+                    digitalData.pageFilter.placement = placement;
+                    digitalData.pageFilter.mediaType = "coupon-grid";
+                    digitalData.pageFilter.recommendationType = "notRecommended";
+                }
+            }
+            
+        }
+    }
+
+    // Initialize banner placement from previous page
+    this.initBannerPosition = function () {
+        var lsBannerClicked = localStorage.getItem('bannerClickedDatalayer');
+        if (lsBannerClicked) {
+            var parsedBannerDl = JSON.parse(lsBannerClicked);
+            digitalData.pageFilter = parsedBannerDl.pageFilter;
+            this.pushEvent(
+                parsedBannerDl.event, parsedBannerDl
+            );
+            localStorage.removeItem('bannerClickedDatalayer');
+        }
+    }
+
+    // set pageFilter.recommendationType
+    this.setRecommendationType = function (recommendationType) {
+        if (digitalData && digitalData.pageFilter) {
+            digitalData.pageFilter.recommendationType = recommendationType;
+        }
+    };
+
+    // get the recommendation type for products based on the value from local storage for pdp
+    this.getRecommendationType = function (recommendation) {
+        let recommendationType = '';
+        if (recommendation.indexOf('cross-sell') != -1) {
+            recommendationType = 'cross-sell';
+            if (recommendation.indexOf('sponsored') != -1) {
+                recommendationType += ':sponsored';
+            }
+        } else if (recommendation.indexOf ('sponsored') != -1) {
+            recommendationType = 'sponsored';
+        } else if (recommendation.indexOf ('recs') != -1) {
+            recommendationType = 'recommended';
+        } else if (recommendation.indexOf('past-purchase') != -1) {
+            recommendationType = 'pastPurchased';
+        } else {
+            recommendationType = 'notRecommended';
+        }
+        return recommendationType;
+    }
+
+    // set pageFilter.recommendationType for product actions
+    this.recommendationInfo = function (recommendationObj) {
+        if (digitalData && digitalData.pageFilter) {
+            let recommendationType = '';
+            if (recommendationObj.isCrossSell == true) {
+                recommendationType = 'cross-sell';
+                if (recommendationObj.isSponsored == true) {
+                    recommendationType += ':sponsored';
+                }
+            } else if (recommendationObj.isSponsored == true) {
+                recommendationType = 'sponsored';
+            } else if (recommendationObj.isPastPurchased == true) {
+                recommendationType = 'pastPurchased';
+            } else if (recommendationObj.isRecommended == true) {
+                recommendationType = 'recommended';
+            } else {
+                recommendationType = 'notRecommended';
+            }
+            digitalData.pageFilter.recommendationType = recommendationType;
+        }
+    }
+
+    // set info from refunds page
+    this.initRequestRefund = function () {
+        const lsRefund = localStorage.getItem('refundContinueDatalayer');
+        if (lsRefund) {
+            const refundValue = JSON.parse(lsRefund);
+            this.pushEvent(
+                refundValue.event, refundValue
+            );
+            localStorage.removeItem('refundContinueDatalayer');
+        }
+    }
+
+    // set info from Order Reschedule page
+    this.initOrderReschedule = function () {
+        const lsOrderReschedule = localStorage.getItem('rescheduleOrderDatalayer');
+        if (lsOrderReschedule) {
+            const orderRescheduleValue = JSON.parse(lsOrderReschedule);
+            this.pushEvent(
+                orderRescheduleValue.event, orderRescheduleValue
+            );
+            localStorage.removeItem('rescheduleOrderDatalayer');
+        }
+    }
+
+}).call(AB.DATALAYER);
+
+"use strict";
+
+(function () {
+
+   // TODO add recipes related code
+
+   this.initPageSubsections = function () {
+      // if (window.location.pathname.indexOf('/detail') > 0) {
+      //    var mealsDetailPageSubsection2 = document.getElementById('recipeCategoryBreadCrumb').innerHTML
+      //    this.dl.page.pageInfo.subSection2 = mealsDetailPageSubsection2;
+      // }
+   }
+
+   /**
+    * initializes the pfmDetail field
+    * (digitalData.page.pageInfo.pfmDetail)
+    */
+  // this.initPfmDetail = function () {
+      // if (window.location.pathname.indexOf('/detail') > 0) {
+      //    var mealsDetailPageSubsection2 = document.getElementById('recipeCategoryBreadCrumb').innerHTML
+      //    this.dl.page.pageInfo.subSection2 = mealsDetailPageSubsection2;
+      // }
+      // this.buildPfmDetail();
+   // }
+
+   this.loginAnalytics = function (event) {
+      // AB.DATALAYER.pushEvent({ name: event });
+   };
+
+   /**
+    * handles cart item events (add, remove, increase or decrease quantity)
+    * sets event name, calls satellite track
+    * @param eventName
+    * @param product
+    */
+
+   this.activeCuisines = function (filter, facet) {
+      // if (this.dl && this.dl.page && this.dl.page.pageInfo) {
+      //    this.dl.page.pageInfo.filterSelection = facet ? facet + ' : ' + filter : '';
+      //    this.dl.page.pageInfo.filterType = this.dl.page.pageInfo.subSection3;
+      // }
+   }
+
+   this.mealssearchdata = function (searchword, searchresultscount) {
+
+      // if (this.dl && this.dl.search && window.location.pathname.indexOf('/search-results') > 0) {
+      //    var mealssearchcount = searchresultscount ? searchresultscount.toString() : "0";
+
+      //    this.dl.search = {
+      //       searchType: "internalsearch:standard",
+      //       typedSearchTerm: "",
+      //       autoSearchFlag: false,
+      //       typedSearchCount: "",
+      //       internalSearchTerm: searchword ? searchword : "",
+      //       searchResults: mealssearchcount
+      //    };
+
+      //    this.pushEvent({
+      //       name: "search_results_page"
+      //    });
+
+      //    this.updateSatelliteTrack("search_results");
+      // }
+   }
+
+   this.updatePfmDetail = function (filter) {
+      // if (this.dl && this.dl.page && this.dl.page.pageInfo) {
+      //    var sections = this.dl.page.pageInfo.pfmDetail.split(":");
+      //    sections[1] = filter;
+      //    this.dl.page.pageInfo.pfmDetail = sections.join(":");
+      // }
+   };
+
+   /**
+    * triggers the "swap_modal_open" direct call
+    */
+   this.openSwapProductsModal = function () {
+      // this.updateSatelliteTrack("swap_modal_open");
+   };
+
+   /**
+    * sets the product info, triggers the "swapmodal_select" direct call
+    */
+   this.swapProduct = function (product) {
+      // this.productInfo(product);
+      // this.updateSatelliteTrack("swapmodal_select");
+      // if (this.swappedProducts.findIndex(function (x) { return x.id == product.id }) == -1) {
+      //    this.swappedProducts.push(product);
+      // }
+   };
+
+   this.isSwapped = function (product) {
+      // return this.swappedProducts.some(function (x) { return x.id == product.id });
+   }
+
+}).call(AB.DATALAYER);
+

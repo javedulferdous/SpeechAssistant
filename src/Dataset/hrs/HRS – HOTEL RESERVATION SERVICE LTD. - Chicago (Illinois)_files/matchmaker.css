@@ -1,0 +1,44 @@
+.Matchmaker{position:absolute;min-width:264px;max-width:462px;padding-top:8px;padding-bottom:4px;background:#fff;box-shadow:0 2px 2px 0 rgba(0,0,0,0.25);border:1px solid #d1dfdf;box-sizing:border-box;z-index:100}
+.Matchmaker--hidden{display:none}
+.Matchmaker__search-input--invalid{border:1px solid #cc092f;background-color:#ffe0e0}
+.Matchmaker__location-input{text-indent:28px}
+.Matchmaker__search-icon{content:'';margin-left:11px;background-image:url('../../../images/puw/matchmaker/Hotel.svg');width:13px;height:13px;position:relative;top:-26px;display:block;opacity:.5}
+.Matchmaker__suggestions{font-family:Arial,Verdana,Helvetica,sans-serif;font-size:13px;line-height:18px;color:#333}
+.Matchmaker__suggestion-list-caption{position:relative;font-weight:700;margin-top:4px;margin-left:12px;padding-bottom:8px;padding-left:20px;color:#2f518b}
+.Matchmaker__suggestion-list-caption span{font-size:15px!important;vertical-align:middle}
+.Matchmaker__suggestion-list-caption::before{content:'';display:inline-block;width:13px;height:13px;margin-right:8px;margin-left:-21px;vertical-align:middle;background-repeat:no-repeat}
+.Matchmaker__search-icon--LOC,.Matchmaker__suggestion-list-caption--FPOI::before,.Matchmaker__suggestion-list-caption--LOC::before{background-image:url('../../../images/puw/matchmaker/City.svg')}
+.Matchmaker__search-icon--hotel,.Matchmaker__suggestion-list-caption--hotel::before{background-image:url('../../../images/puw/matchmaker/Hotel.svg')}
+.Matchmaker__search-icon--POI,.Matchmaker__suggestion-list-caption--POI::before{background-image:url('../../../images/puw/matchmaker/POI.svg')}
+.Matchmaker__suggestion-list-caption--ADDR{display:flex}
+.Matchmaker__search-icon--ADDRESS,.Matchmaker__suggestion-list-caption--ADDR::before{background-image:url('../../../images/puw/matchmaker/POI.svg')}
+.Matchmaker__suggestion-list-caption--ADDR::after{display:block;content:'';margin-left:5px;background:url('../../../images/puw/matchmaker/powered_by_google.png') no-repeat;min-width:150px}
+.Matchmaker__search-icon--MoT,.Matchmaker__suggestion-list-caption--MoT::before{background-image:url('../../../images/puw/matchmaker/MeansOfTransport.svg')}
+.Matchmaker__suggestion-list{margin-bottom:8px}
+.Matchmaker__suggestion-item{font-size:10px;padding-left:33px;padding-right:12px;cursor:pointer;color:#151515}
+.Matchmaker__suggestion-item em{font-size:13px;color:#333}
+.Matchmaker__suggestion-item:hover,.Matchmaker__suggestion-item--active{background:#f7f7f7;color:#003}
+.Matchmaker__suggestion--empty{margin:4px 8px 8px 12px;font-size:10px}
+.Matchmaker__suggestion--empty *{vertical-align:middle}
+.Matchmaker__suggestion--empty::before{content:'';display:inline-block;width:13px;height:13px;margin-right:8px;background-repeat:no-repeat;background-image:url('../../../images/puw/matchmaker/WarningIcon.svg');vertical-align:middle}
+.Matchmaker__search-term{font-weight:700;font-size:13px}
+.hotellist ~ .Matchmaker{min-width:246px}
+.hotellist ~ .Matchmaker .Matchmaker__suggestion-item em{font-size:13px!important}
+.hotellist ~ .Matchmaker .Matchmaker__search-term{font-size:13px!important}
+.hotellist .Matchmaker__search-icon{top:-38px}
+#myhrs ~ .Matchmaker .Matchmaker__suggestion-item em{font-size:13px!important}
+#myhrs ~ .Matchmaker .Matchmaker__search-term{font-size:13px!important}
+#myhrs .Matchmaker__search-icon{top:-31px}
+.Matchmaker--flat{padding:0}
+.Matchmaker--flat .Matchmaker__suggestion--empty{margin:12px 8px 12px 12px}
+.Matchmaker--flat .Matchmaker__suggestion-list{margin-bottom:0}
+.Matchmaker__suggestion-list--powered-by-google{margin-bottom:20px!important}
+.Matchmaker__suggestion-list--powered-by-google::after{display:block;background:url(../../../images/puw/matchmaker/powered_by_google.png) no-repeat;background-position:center;background-size:contain;content:'';min-width:100px;height:20px;position:absolute;bottom:0;right:5px}
+.Matchmaker--flat .Matchmaker__suggestion-item{padding-top:7px;padding-bottom:7px}
+.Matchmaker--flat .Matchmaker__suggestion-item em{font-weight:bold}
+.Matchmaker--flat .Matchmaker__suggestion-item::before{content:'';display:inline-block;width:13px;height:13px;margin-right:8px;margin-left:-21px;vertical-align:middle;background-repeat:no-repeat}
+.Matchmaker--flat .Matchmaker__suggestion-item--FPOI::before,.Matchmaker--flat .Matchmaker__suggestion-item--LOC::before,.Matchmaker--flat .Matchmaker__suggestion-item--REG::before,.Matchmaker--flat .Matchmaker__suggestion-item--DIST::before{background-image:url('../../../images/puw/matchmaker/City.svg')}
+.Matchmaker--flat .Matchmaker__suggestion-item--hotel::before{background-image:url('../../../images/puw/matchmaker/Hotel.svg')}
+.Matchmaker--flat .Matchmaker__suggestion-item--POI::before{background-image:url('../../../images/puw/matchmaker/POI.svg')}
+.Matchmaker--flat .Matchmaker__suggestion-item--ADDR::before{background-image:url('../../../images/puw/matchmaker/POI.svg')}
+.Matchmaker--flat .Matchmaker__suggestion-item--MoT::before{background-image:url('../../../images/puw/matchmaker/MeansOfTransport.svg')}

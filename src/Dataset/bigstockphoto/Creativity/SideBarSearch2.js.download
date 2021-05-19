@@ -1,0 +1,182 @@
+
+//
+// Option: Exclude
+//
+bigstockSearch.change("exclude", function(e, type, value){
+	// do not update input we are typing in or the cursor will move.
+	if($('#a_exclude').val() !== value) {
+		$('#a_exclude').val(value);
+	}
+});
+
+$("html").on("change keyup","#a_exclude", _.debounce(function() {
+	bigstockSearch.set({ exclude: $(this).val(), start:0 });
+},1000));
+
+
+
+//
+// Option: Category
+//
+bigstockSearch.change("category", function(e, type, value){
+	$("#a_category").val(value);
+});
+
+$("html").on("change","#a_category", function() {
+	var value = $('#a_category').val();
+	if (value === "All") {
+		value = null;
+	}
+	bigstockSearch.set({ category: value, start:0 });
+});
+
+//
+// Option: Release
+//
+bigstockSearch.change("release", function(e, type, value){
+	$("#a_release").val(value);
+});
+
+$("html").on("change","#a_release", function() {
+	bigstockSearch.set({ release: $('#a_release').val(), start:0 });
+});
+
+
+var bigstockSearchCheckboxView = function(param, selector, toggleOn, toggleOff) {
+	bigstockSearch.change(param, function(e, type, value){
+
+		if(value == toggleOn) {
+			$(selector).prop('checked',"checked")
+		} else {
+			$(selector).prop('checked',false)
+		}
+	});
+
+	$("html").on("click",selector, function() {
+		var tmp = { start:0  };
+		if($(this).prop('checked')) {
+			tmp[param] = toggleOn
+			//bigstockSearch.set(param, toggleOn);
+		} else {
+			tmp[param] = toggleOff || ""
+			//bigstockSearch.set(param, toggleOff || "");
+		}
+		bigstockSearch.set(tmp);
+	});
+}
+
+
+//
+// Option: Photos
+//
+bigstockSearchCheckboxView("photos", "#a_photos", "y");
+//
+// Option: Illustrations
+//
+bigstockSearchCheckboxView("illustrations", "#a_illustrations", "y");
+//
+// Option: Vectors
+//
+bigstockSearchCheckboxView("vectors", "#a_vectors", "y");
+//
+// Option: Resell
+//
+bigstockSearchCheckboxView("resell", "#a_resell", 1);
+//
+// Option: el_license_only
+//
+bigstockSearchCheckboxView("el_license_only", "#a_el_license_only", 1);
+//
+// Option: safesearch
+//
+bigstockSearchCheckboxView("safesearch", "#a_safesearch", "y", "n");
+//
+// Option: hd
+//
+bigstockSearchCheckboxView("hd", "#hd_resolution_only", "y");
+
+
+
+var bigstockSearchRadioView = function(param, selector, toggleOn) {
+	bigstockSearch.change(param, function(e, type, value){
+		if (value == toggleOn) {
+			$(selector).prop("checked", true)
+		} else {
+			$(selector).prop("checked", false)
+		}
+	});
+
+	$("html").on("change", selector, function() {
+		var tmp = {
+			start:0
+		};
+		if ($(this).prop("checked")) {
+			tmp[param] = $(this).val()
+		} else {
+			tmp[param] = ""
+		}
+		bigstockSearch.set(tmp);
+	});
+}
+
+//
+// Option: Orientation
+//
+bigstockSearch.change("orientation", function(e, type, value){
+	$('#sidebar_advsearch_solr .horizonal, #sidebar_advsearch_solr .vertical').removeClass('selected');
+
+	if(value == "h") {
+		$('#sidebar_advsearch_solr .horizonal').addClass('selected');
+		$('#a_orientation').val('h');
+	} else if(value == "v") {
+		$('#sidebar_advsearch_solr .vertical').addClass('selected');
+		$('#a_orientation').val('v');
+	} else {
+		$('#a_orientation').val('');
+	}
+});
+
+$("html").on("click",'#sidebar_advsearch_solr .horizonal, #sidebar_advsearch_solr .vertical',function(){
+	var orientation = bigstockSearch.get("orientation");
+	var selected = ($(this).hasClass("horizonal")) ? 'h' : 'v';
+	var tmp = { start:0  }
+
+	if($(this).hasClass("selected")) {
+		$('#a_orientation').val('');
+		//bigstockSearch.set("orientation", '');
+		tmp["orientation"] = '';
+	} else {
+		$('#a_orientation').val(selected);
+		//bigstockSearch.set("orientation", selected);
+		tmp["orientation"] = selected;
+	} 
+
+	bigstockSearch.set(tmp);
+});
+
+
+
+//
+// Option: Type
+//
+bigstockSearch.change("type", function(e, type, value){
+
+	//$(document).trigger("draw_search_tabs", { type: value })
+
+});
+$("html").on("click",".search_types .search_type a", function(e){
+	e.preventDefault();
+	bigstockSearch.set({ start: 0, type: $(this).parents(".search_type").data("type") })
+	bigstockSearch.go();
+})
+
+//
+// pagination click track
+//
+$("html").on("click",".search_pagination a", function(){
+		bsp.track("event", {
+			category: "pagination",
+			action: $(this).data("location"),
+			label: $(this).attr("rel")
+		});
+});

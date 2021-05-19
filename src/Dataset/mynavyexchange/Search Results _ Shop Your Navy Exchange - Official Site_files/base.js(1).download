@@ -1,0 +1,122 @@
+	/*
+   * Function required when an input is not valid and the border should be red
+   * colored
+   */
+    function addInputError(selector) {
+      jQuery(document).ready(function() {
+        $(selector).addClass("error");
+      });
+    }
+    
+    /**************************************************************
+	 * Start of function for pinterest url and media***************
+	 *************************************************************/
+	function createPinterestLink(urlProduct,imageUrl,productDescription){
+		var tempUrl = 'http://pinterest.com/pin/create/button/?'+encodeURI("url="+urlProduct+"&media="+imageUrl+"&maskuse=off&wid=1119&size=1121,1254&fit=crop&qlt=70,0&description="+productDescription);
+		//alert(tempUrl);
+		popup(tempUrl, 'pinterest', 655, 300, true);
+	}
+	/**************************************************************
+	 * End of function for pinterest url and media***************
+	 *************************************************************/
+	
+	
+	/**************************************************************
+	 * Start of function to create facebook iframe ****************
+	 *************************************************************/
+	function createFacebookLink(urlProduct,colorCode){
+		if(urlProduct == ''){
+			urlProduct = "www.navyexchange.com";
+		}
+		var tempUrl = '<iframe src="//www.facebook.com/plugins/like.php?api_key=240710779389081&amp;href=http://'+urlProduct+'?colorCode='+ encodeURI(colorCode) +'&amp;send=false&amp;layout=box_count&locale=en_US&amp;node_type=link&amp;sdk=joey&amp;width=450&amp;show_faces=false&amp;action=like&amp;colorscheme=light&amp;font=arial&amp;height=90" scrolling="no" frameborder="0" style="border:none; overflow:hidden; width:50px; height:90px;" allowTransparency="true"></iframe>';
+		//console.log(tempUrl);
+		$('#facebookIframe').html(tempUrl);
+	}
+	
+
+	/**************************************************************
+	 * Start of functions used to display a pop up 
+	 ***************************************************************/
+
+	/**
+	* a javascript collection object of all of the window popup options
+	*/
+	function popupOptions(){
+	this.height = screen.availHeight / 2;
+	this.width = screen.availWidth / 2;
+	this.top = 0;
+	this.left = 0;
+	this.toolbar = false;
+	this.location = false;
+	this.directories = false;
+	this.status = false;
+	this.menubar = false;
+	this.scrollbars = false;
+	this.resizable = false;
+	this.dependent = false;
+	this.build = _buildOptions;
+	}
+	/**
+	* a private javascript method for popupOptions which is used
+	* to build a popup option string
+	*/
+	function _buildOptions(){
+	var sTemp = "";
+	sTemp += "height=" + this.height + ",";
+	sTemp += "width=" + this.width + ",";
+	sTemp += "top=" + this.top + ",";
+	sTemp += "left=" + this.left + ",";
+	sTemp += "scrollbars=" + ((this.scrollbars) ? "yes" : "no") + ",";
+	sTemp += "toolbar=" + ((this.toolbar) ? "yes" : "no") + ",";
+	sTemp += "location=" + ((this.location) ? "yes" : "no") + ",";
+	sTemp += "directories=" + ((this.directories) ? "yes" : "no") + ",";
+	sTemp += "status=" + ((this.status) ? "yes" : "no") + ",";
+	sTemp += "menubar=" + ((this.menubar) ? "yes" : "no") + ",";
+	sTemp += "resizable=" + ((this.resizable) ? "yes" : "no") + ",";
+	sTemp += "dependent=" + ((this.dependent) ? "yes" : "no");
+	return(sTemp);
+	}
+	/**
+	* creates a popup window
+	*
+	* @param string window url
+	* @param string window name
+	* @param string [optional] window width
+	* @param string [optional] window height
+	* @param boolean [optional] whether window is scrollable or not
+	* @param boolean [optional] whether window has a toolbar or not
+	* @param boolean [optional] whether window is resizable or not
+	*/
+	function popup(winlink, winname){
+	var winwidth = (arguments.length >= 3) ? arguments[2] : screen.availWidth / 2;
+	var winheight = (arguments.length >= 4) ? arguments[3] : screen.availHeight / 2;
+	var winscroll = (arguments.length >= 5) ? ((arguments[4] == '1') ? true : false) : false;
+	var wintoolbar = (arguments.length >= 6) ? ((arguments[5] == '1') ? true : false) : false;
+	var winresize = (arguments.length >= 7) ? ((arguments[6] == '1') ? true : false) : true;
+	var winmenubar = (arguments.length >= 8) ? ((arguments[7] == '1') ? true : false) : false;
+	var oOption = new popupOptions();
+	oOption.width = winwidth;
+	oOption.height = winheight;
+	oOption.scrollbars = winscroll;
+	oOption.toolbar = wintoolbar;
+	oOption.resizable = winresize;
+	oOption.menubar = winmenubar;
+	// these values are hard coded
+	oOption.top = ((screen.availHeight / 2) - (winheight / 2));
+	oOption.left = ((screen.availWidth / 2) - (winwidth / 2));
+	oOption.location = false;
+	oOption.directories = false;
+	oOption.status = false;
+	oOption.dependent = false;
+	var sOptions = oOption.build();
+	window.open(winlink, null, sOptions);
+	}
+	
+	function addElement(rootElementID, content) {
+		$(rootElementID).append(content);
+	}
+	
+	/**************************************************************
+	 * End of functions used to display a pop up
+	 ***************************************************************/
+     

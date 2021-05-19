@@ -1,0 +1,23 @@
+//tealium universal tag - utag.1260 ut4.0.202010271942, Copyright 2020 Tealium.com Inc. All Rights Reserved.
+try{(function(id,loader){var u={};utag.o[loader].sender[id]=u;if(utag===undefined){utag={};}if(utag.ut===undefined){utag.ut={};}if(utag.ut.loader===undefined){u.loader=function(o){var a,b,c,l;a=document;if(o.type==="iframe"){b=a.createElement("iframe");b.setAttribute("height","1");b.setAttribute("width","1");b.setAttribute("style","display:none");b.setAttribute("src",o.src);}else if(o.type==="img"){utag.DB("Attach img: "+o.src);b=new Image();b.src=o.src;return;}else{b=a.createElement("script");b.language="javascript";b.type="text/javascript";b.async=1;b.charset="utf-8";b.src=o.src;}if(o.id){b.id=o.id;}if(typeof o.cb==="function"){if(b.addEventListener){b.addEventListener("load",function(){o.cb();},false);}else{b.onreadystatechange=function(){if(this.readyState==="complete"||this.readyState==="loaded"){this.onreadystatechange=null;o.cb();}};}}l=o.loc||"head";c=a.getElementsByTagName(l)[0];if(c){utag.DB("Attach to "+l+": "+o.src);if(l==="script"){c.parentNode.insertBefore(b,c);}else{c.appendChild(b);}}};}else{u.loader=utag.ut.loader;}
+u.ev={'view':1};u.initialized=false;u.map={};u.extend=[function(a,b){try{if(1){if(window.xDomTrack){window.xDomTrack.destroy();}
+window.xDomTrack=(function(){var body;var ignoreSelectors=['.search-icon','a[href="https://myvprepay.verizonwireless.com/prepaid/ui/mobile/index.html"]',];var ignorePaths=[/\/page\-/i,/\/make\-your\-own\-sale/i,/compare\-accessories/i,/\/foryourhome\/myaccount\/pr\/phone\/details/i,/\/vzauth\/UI\/Login/i
+];var ignoreSubdomains=[/espanol.verizon/,/es.verizon/,/myvprepay.verizon/];function getCookie(name){name=encodeURIComponent(name);var result=new RegExp('(^|; )'+name+'=([^;]*)').exec(document.cookie);return result===null||result.length!==3?null:decodeURIComponent(result[2]);}
+function init(){body=document.querySelector('body');body.addEventListener("click",capture);}
+function capture(e){var elem=e.target;var tag=elem.tagName;if(tag!=="A"){elem=elem.closest("A");if(elem){tag=elem.tagName;}}
+if(tag==="A"){var href=elem.href;var doit=true;var hrefAtt=elem.getAttribute("href");if(!href||!hrefAtt||hrefAtt.substr(0,1)==="#"){doit=false;}
+if(doit&&!/^(((http(s)*?):)*\/\/).*?(verizon|verizonwireless)\.com/i.test(href)){doit=false;}
+var loc=location.href;for(var i=0;i<ignoreSubdomains.length;i++){var re=ignoreSubdomains[i];if(re.test(loc)&&/(vzwqa\d|www)\.verizon/.test(href)){doit=false;break;}
+if(/(vzwqa\d|www)\.verizon/.test(loc)&&re.test(href)){doit=false;break;}}
+if(doit){for(var i=0;i<ignoreSelectors.length;i++){var sel=ignoreSelectors[i];if(elem.matches(sel)){doit=false;break;}}
+for(var i=0;i<ignorePaths.length;i++){var re=ignorePaths[i];if(re.test(href)){doit=false;break;}}
+if(doit){e.preventDefault();body.removeEventListener("click",capture);var hash="";var Ahref=href.split("#");if(Ahref.length>1){href=Ahref.shift();hash="#"+Ahref.join("#");}
+href=visitor.appendVisitorIDsTo(href);var mbox=getCookie("mbox");if(mbox){var Ambox=mbox.split("session#");if(Ambox.length>1){Ambox=Ambox[1].split("#");mbox=Ambox[0];href=href+"&mboxSession="+encodeURIComponent(mbox);}}
+var verderid=getCookie("AFFILIATE");if(verderid){href=href+"&vendorid="+encodeURIComponent(verderid);}
+var cjevent=getCookie("CJEVENT");if(cjevent){href=href+"&cjevent="+encodeURIComponent(cjevent);}
+var trackTargetIds=["131824"];var list=window.ttMETA;if(list&&list.length){for(var i=0;i<list.length;i++){var item=list[i];var aid=item["activity.id"];if(aid&&trackTargetIds.indexOf(aid)>-1){href=href.replace(/[&\?]wire(line|less)_gn_exp=[^\&]+/gi,"");href=href+"&wireless_gn_exp="+item["experience.id"]+"-"+aid;break;}}}
+var targ=elem.getAttribute("target");if(targ&&targ=="_blank"){elem.href=href+hash;var evt=new MouseEvent("click",{bubbles:true,cancelable:true,view:window});elem.dispatchEvent(evt);}else{window.location=href+hash;}}}}}
+function destroy(){body.removeEventListener("click",capture);document.removeEventListener("at-request-succeeded",window.listenForTargetTokens);}
+!function(e){e.matches||(e.matches=e.msMatchesSelector||e.webkitMatchesSelector),e.closest||(e.closest=function(e){for(var t=this;t&&1===t.nodeType;){if(t.matches(e))return t;t=t.parentNode}
+return null})}(window.Element.prototype);init();return{destroy:destroy}}());}}catch(e){utag.DB(e)}}];u.send=function(a,b){if(u.ev[a]||u.ev.all!==undefined){var c,d,e,f,i;u.data={};for(c=0;c<u.extend.length;c++){try{d=u.extend[c](a,b);if(d==false)return}catch(e){}};for(d in utag.loader.GV(u.map)){if(b[d]!==undefined&&b[d]!==""){e=u.map[d].split(",");for(f=0;f<e.length;f++){u.data[e[f]]=b[d];}}}
+}};utag.o[loader].loader.LOAD(id);})("1260","vzw.main");}catch(error){utag.DB(error);}

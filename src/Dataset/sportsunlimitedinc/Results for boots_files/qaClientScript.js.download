@@ -1,0 +1,167 @@
+/***************************************/
+/******** UTILITY FUNCTIONS ************/
+/***************************************/
+function qaIsBlank(item) {
+	item = String(item).toLowerCase();
+	if(item == "undefined" || item == "" || item == "null") return true;
+	else return false;
+}
+/****************************************************/
+/******** DISPLAY ITEM PAGE RATING STARS ************/
+/****************************************************/
+function qaCalloutDisplay(){
+	if(qaDebug){alert("qaCalloutDisplayStart");}
+	var qaCallout = document.getElementById('qaCallout');
+	if(qaCallout){
+		html = '';
+		if(pdQaOverall.questionCount > 0){
+			if(pdQaOverall.questionCount > 1){var s = "s"}else{var s = "";}
+			html += '<a href="#qaDisplay"><img src="https://cdn.practicaldatacore.com/sportsunlimitedinc/cdnLibrary/core/pdBtnAskCallout.png" border="0"></a>';
+			
+			html += '<span class="qaCalloutSummary">'
+			html += '<a href="#qaDisplay" onClick="pdOpenQaTab();"> Q&amp;A (<strong>';
+			html += pdQaOverall.questionCount;
+			html += '</strong>)</a>';
+
+			html += '</span>'
+			qaCallout.innerHTML = html;
+			qaCallout.className = "qaShow";
+		}else{
+			html += '<a href="#qaDisplay"><img src="https://cdn.practicaldatacore.com/sportsunlimitedinc/cdnLibrary/core/pdBtnAskCallout.png" border="0"> Q&amp;A (<strong>0</strong>)</a>';
+			qaCallout.innerHTML = html;
+			qaCallout.className = "qaShow";
+		}
+	}
+	if(qaDebug){alert("qaCalloutDisplayEnd");}
+}
+
+function qaDisplay(){
+	if(qaDebug){alert("qaDisplayStart");}
+	var qaDisplay = document.getElementById('qaDisplay');
+
+	if(qaDisplay){
+		var html = '';
+		/*******************************************/
+		/*********** FORMAT OVERALL INFO ***********/
+		/*******************************************/
+		if(pdQaOverall.questionCount > 0){
+			if(pdQaOverall.questionCount > 1){var s = "s"}else{var s = "";}
+      
+      html += '<a href="' + qaClientDomain + 'mod_questionsAndAnswers/questionForm.php?productId=' + pdQaOverall.productId + '"><img src="https://cdn.practicaldatacore.com/sportsunlimitedinc/cdnLibrary/core/btn-askquestion.png" border="0" style="float: right; margin-right: 20px;"></a>';
+      
+			html += '<table border="0" cellpadding="0" cellspacing="0">';
+			html += '<tr><td>';
+			html += '<a href="' + qaClientDomain + 'mod_questionsAndAnswers/questionForm.php?productId=' + pdQaOverall.productId + '"><img src="https://cdn.practicaldatacore.com/sportsunlimitedinc/cdnLibrary/core/pdBtnAsk.png" border="0"></a>';
+			html += '</td><td>&nbsp;&nbsp;&nbsp;&nbsp;</td><td>';
+			
+			/**** SUMMARY INFO *****/
+			html += '<div class="qaSummary">'
+			html += pdQaOverall.questionCount;
+			html += ' Question' + s;
+			html += ' | ';
+			html += pdQaOverall.answerCount;
+			html += ' Answer' + s;
+
+			html += '</div>'
+			html += '</td></tr>';
+			html += '</table><br>';
+		}else{
+			html += '<a href="' + qaClientDomain + 'mod_questionsAndAnswers/questionForm.php?productId=' + pdQaProductId + '"><img src="https://cdn.practicaldatacore.com/sportsunlimitedinc/cdnLibrary/core/pdBtnAsk.png" border="0"></a><br><br>';
+		}
+
+		/****************************************/
+		/*********** FORMAT Q&A HTML ************/
+		/****************************************/
+		
+		if(pdQaOverall.questionCount > 0){
+			for(var i=0; i < pdQa.length; i++){
+				html += '<div class="qaWrap">'
+				if(!pdQa[i].threadClosed){html += '<div class="qaAddAnswer"><a href="' + qaClientDomain + 'mod_questionsAndAnswers/answerForm.php?questionId=' + pdQa[i].id + '">' + qaAddAnswerText + '</a></div>';}
+				html += '<div class="qaQ">Q.</div>';
+	
+				/*** QUESTION NAME AND LOCATION ***/
+				html += '<div class="qaInfoWrap">';
+				if(!qaIsBlank(pdQa[i].name)){html += '<span class="qaName">' + pdQa[i].name + '</span>';}
+				if(!qaIsBlank(pdQa[i].location)){html += ' from <span class="qaLocation">' + pdQa[i].location + '</span>';}
+				html += ' asked:</div>';
+	
+				html += '<div class="qaQuestion">' + pdQa[i].questionText;
+				//******** QUESTION PHOTOS *******//
+				if(!qaIsBlank(pdQa[i].img1) || !qaIsBlank(pdQa[i].img2) ||  !qaIsBlank(pdQa[i].img3)){
+					html += '<br clear="all"><div class="qaQPhotos">';
+					if(!qaIsBlank(pdQa[i].img1) && pdQa[i].img1 != "error.jpg"){
+						html += '<a href="';
+						html += qaClientDomain + 'pd_custom/mod_questionsAndAnswers/userQuestionImages/large-' + pdQa[i].img1;
+						html += '" target="_blank">';
+						html += '<img src="' + qaClientDomain + 'pd_custom/mod_questionsAndAnswers/userQuestionImages/small-' + pdQa[i].img1 + '" border="0">';
+						html += '</a>';
+					}
+					if(!qaIsBlank(pdQa[i].img2) && pdQa[i].img2 != "error.jpg"){
+						html += '<a href="';
+						html += qaClientDomain + 'pd_custom/mod_questionsAndAnswers/userQuestionImages/large-' + pdQa[i].img2;
+						html += '" target="_blank">';
+						html += '<img src="' + qaClientDomain + 'pd_custom/mod_questionsAndAnswers/userQuestionImages/small-' + pdQa[i].img2 + '" border="0">';
+						html += '</a>';
+					}
+					if(!qaIsBlank(pdQa[i].img3) && pdQa[i].img3 != "error.jpg"){
+						html += '<a href="';
+						html += qaClientDomain + 'pd_custom/mod_questionsAndAnswers/userQuestionImages/large-' + pdQa[i].img3;
+						html += '" target="_blank">';
+						html += '<img src="' + qaClientDomain + 'pd_custom/mod_questionsAndAnswers/userQuestionImages/small-' + pdQa[i].img3 + '" border="0">';
+						html += '</a>';
+					}
+					html += '</div>';
+				}
+				html += '</div>';
+				
+				for(var x=0; x < pdQa[i].answers.length; x++){
+					html += '<div class="qaAnswerWrap">';
+					html += '<div class="qaA">A.</div>';
+					html += '<div class="qaAnswer">';
+					/*** ANSWER NAME AND LOCATION ***/
+					html += '<span>';
+					if(!qaIsBlank(pdQa[i].answers[x].name)){html += pdQa[i].answers[x].name;}
+					if(!qaIsBlank(pdQa[i].answers[x].location && !pdQa[i].answers[x].isAdmin)){html += ' from ' + pdQa[i].answers[x].location;}
+					html += ': </span> ';
+					if(pdQa[i].answers[x].isVerifiedBuyer){
+						html += '<div class="qaVerifiedBuyer"><img src="' + qaClientDomain + 'mod_questionsAndAnswers/skins/' + qaClientSkin + '/iconVb.gif" border="0"></div>';
+					}
+					html += pdQa[i].answers[x].answerText;
+					//******** ANSWER PHOTOS *******//
+					if(!qaIsBlank(pdQa[i].answers[x].img1) || !qaIsBlank(pdQa[i].answers[x].img2) ||  !qaIsBlank(pdQa[i].answers[x].img3)){
+						html += '<br clear="all"><div class="qaQPhotos">';
+						if(!qaIsBlank(pdQa[i].answers[x].img1) && pdQa[i].answers[x].img1 != "error.jpg"){
+							html += '<a href="';
+							html += qaClientDomain + 'pd_custom/mod_questionsAndAnswers/userAnswerImages/large-' + pdQa[i].answers[x].img1;
+							html += '" target="_blank">';
+							html += '<img src="' + qaClientDomain + 'pd_custom/mod_questionsAndAnswers/userAnswerImages/small-' + pdQa[i].answers[x].img1 + '" border="0">';
+							html += '</a>';
+						}
+						if(!qaIsBlank(pdQa[i].answers[x].img2) && pdQa[i].answers[x].img2 != "error.jpg"){
+							html += '<a href="';
+							html += qaClientDomain + 'pd_custom/mod_questionsAndAnswers/userAnswerImages/large-' + pdQa[i].answers[x].img2;
+							html += '" target="_blank">';
+							html += '<img src="' + qaClientDomain + 'pd_custom/mod_questionsAndAnswers/userAnswerImages/small-' + pdQa[i].answers[x].img2 + '" border="0">';
+							html += '</a>';
+						}
+						if(!qaIsBlank(pdQa[i].answers[x].img3) && pdQa[i].answers[x].img3 != "error.jpg"){
+							html += '<a href="';
+							html += qaClientDomain + 'pd_custom/mod_questionsAndAnswers/userAnswerImages/large-' + pdQa[i].answers[x].img3;
+							html += '" target="_blank">';
+							html += '<img src="' + qaClientDomain + 'pd_custom/mod_questionsAndAnswers/userAnswerImages/small-' + pdQa[i].answers[x].img3 + '" border="0">';
+							html += '</a>';
+						}
+						html += '</div>';
+					}
+					html += '</div>';
+					html += '<br clear="all"></div>';
+				}
+				html += '</div>';
+			}
+			html += '<br clear="all">';
+		}
+		qaDisplay.innerHTML = html;
+		qaDisplay.className = "qaShow";
+	}
+	if(qaDebug){alert("qaDisplayEnd");}
+}

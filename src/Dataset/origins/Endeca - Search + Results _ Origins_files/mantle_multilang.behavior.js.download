@@ -1,0 +1,42 @@
+
+/*
+ * We extend MantleMultiLang in the behavior js so that we have access to
+ * jquery at this point.
+ *
+ * The API defined here cannot be access in the head.
+ */
+var MantleMultiLang = (function(MantleMultiLang, $, JSBoot) {
+  // empty for now
+  return MantleMultiLang;
+})(MantleMultiLang || {}, jQuery, JSBoot);
+
+(function($, MantleMultiLang) {
+
+  Drupal.behaviors.mantleMultiLang = {
+
+    attachLinks: function(context) {
+      // attach default behaviors to trigger links.
+      var $triggers = $('.js-mantle-multilang-trigger', context);
+      $triggers.each(function(i, obj) {
+        var $trigger = $(obj);
+        $trigger.click(function(e) {
+          e.preventDefault();
+          var locale = $trigger.data('pg-locale');
+          var request_context = $trigger.data('request-context');
+
+          var target_url = $trigger.attr('href');
+          // Some language switch links have no real path target.
+          // They just work on the page they are currently on.
+          if ($trigger.data('no-follow-link') === 1) {
+            target_url = null;
+          }
+          MantleMultiLang.requestLocaleSwitch(locale, request_context, target_url);
+        });
+      });
+    },
+
+    attach: function(context) {
+      this.attachLinks(context);
+    },
+  };
+})(jQuery, MantleMultiLang);

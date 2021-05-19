@@ -1,0 +1,8 @@
+
+(function () {
+    var pl = document.createElement('script');
+    pl.type = 'text/javascript';
+    pl.async = true;
+    pl.src = '//beacon.sojern.com/pixel/p/73719?n=&fl=&';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(pl);
+})();

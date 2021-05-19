@@ -1,0 +1,38 @@
+(function(jQuery){var HRS_COMMON=window.HRS_COMMON;
+var HRS_PUW=window.HRS_PUW;
+var EventHandler=HRS_PUW&&HRS_PUW.GTM.EventHandler;
+function initLayerBasket(properties){if(!$$(".web4Basket").length){return
+}var changeTabs=$$(".changeTabs")[0];
+if(changeTabs){new SubmitFormLayer(changeTabs,$$(".basketWrap")[0],$("jsContentForm"),{requestParam:"",onSuccessCallback:initLayerBasket.bind(window,properties),activeActionValue:changeTabs.name,eventType:"click"},true)
+}var ifStickyBarExist=setInterval(function(){if(document.getElementById("stickyBar")){window.stickyBar.init();
+clearInterval(ifStickyBarExist)
+}},100);
+new ContextSensitiveHelp($$(".basketGuarantee"),{closeButton:true,timerDelay:300,openEvent:"click",minWidth:250,maxWidth:270,directions:["bottom","left"],firstDirection:"bottom",maxHeight:400,varClassName:" basketGuaranteeLayer"});
+$$(".nojsSubmit").setStyle("display","none");
+$$(".jsSetH").each(function(item,index){var priceOne=$$(".roomPrice").getElement(".price")[index].innerHTML,ifExistPriceTwo=$$("td.offerSelection").getElement(".price")[index]&&$$("td.offerSelection").getElement(".price")[index]!=null;
+if(ifExistPriceTwo){var priceTwo=$$("td.offerSelection").getElement(".price")[index].innerHTML;
+if(priceOne==priceTwo){item.getElement("div.roomTotalPrice").setStyle("display","none");
+item.getElement(".totalPriceCount").setStyle("display","none")
+}}});
+$$(".room_count").each(function(item,index){var numberOfRooms=item.getParent(".jsSetH").getAttribute("data-roomtype");
+val=item.textContent,availableRooms=null;
+if(numberOfRooms=="singleroom"){availableRooms=$$("#singleroom_count")[0].get("value")
+}else{if(numberOfRooms=="doubleroom"){availableRooms=$$("#doubleroom_count")[0].get("value")
+}}if(val==availableRooms){item.getNext().addClass("off")
+}else{if(val==0){item.getPrevious().addClass("off")
+}else{if(val>0){if(val<=1&&durationStay==1){item.getParent(".room_selection").getNext(".roomTotalPrice").setStyle("display","none");
+item.getParent(".room_selection").getNext(".totalPriceCount").setStyle("display","none")
+}else{if(val==1&&durationStay>1){item.getParent(".room_selection").getNext(".roomTotalPrice").setStyle("display","block");
+item.getParent(".room_selection").getNext(".totalPriceCount").setStyle("display","block")
+}}}}}});
+new ImageLoaderBasket({images:$$(".imageWrap img"),attribute:"title",onSingleComplete:function(image){image.getParent().addClass("finishedLoading")
+}});
+if(jQuery("body").hasClass("hasDetailsLayer")){$$(".bookingButton").removeEvents("click")
+}window.basket=new hdSinglePageBasket($$(".web4Basket"),{properties:properties});
+if(HRS_PUW&&properties.GTM_DATA_PUW&&!jQuery.isEmptyObject(properties.GTM_DATA_PUW)){if(!HRS_PUW.GTM.currentHotelId){window.GTMHelper.pushObject(properties.GTM_DATA_PUW)
+}var viewHandler=new EventHandler.ViewHandler(!HRS_PUW.GTM.currentHotelId);
+viewHandler.track();
+EventHandler.ViewHandler.instance=viewHandler;
+HRS_PUW.GTM.currentHotelId=window.dataLayerHotelDetail&&window.dataLayerHotelDetail.hotelID
+}}HRS_COMMON.initLayerBasket=initLayerBasket
+})(window.jQuery_v3_3_1);

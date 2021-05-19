@@ -1,0 +1,385 @@
+var site = site || {};
+
+/**
+ * This ADA class is used for MPP Navigation, It is also used to access Popup windows
+ * and also sets focus to Active Item using custom outline.
+ * @param {e} keyCode value is passed to ADA class to define the corresponding action to proceed
+ * such as Menu Navigation or Popup Window open.
+ *
+ * LIST OF METHODS AVAILABLE:
+ * enterKey - Method used to bind enterKey event.
+ * getKeycode - Method used to get keyCode value of keyboard event triggered.
+ * site.restrict_navigation - Method used to retain Tab Focus within selected container.
+ * customElementsNavigation - Method used to access custom elemnts like dropdown, checkbox,
+ * popup contents and radiobuttons.
+ * tabsNavigation - Method used to access products placed within Tab controls.
+ * mppFilterNavigation - Method used to access filters in the MPP pages.
+ * productsNavigation - Method used to access each individual product placed within Tab controls
+ * and enables to view product using QuickView mode.
+ * customFocusNavigation - Method used to set focus on active element with custom outline when
+ * tab key is pressed
+ */
+(function($) {
+  Drupal.behaviors.ada = {
+    attach: function(context) {
+      var $customEnterKeyAccess = $('.js-access-link', context);
+      var $prevActiveElem = null;
+      var linksToNavigate = 'a, button, input, select, textarea, iframe, object, embed, *[tabindex], *[contenteditable]';
+      var tabbableElements = 'a:tabbable, button:tabbable, input:tabbable, select:tabbable, textarea:tabbable, iframe:tabbable, object:tabbable, embed:tabbable, *[tabindex]:tabbable';
+      var noTabbableElements = '[tabindex=-1], [disabled], [aria-hidden=true]';
+      var timer;
+
+      $(document).on('mousemove', _.debounce(function() {
+        // If mouse movement is detected then remove ada class.
+        if (Drupal.settings.globals_variables && Drupal.settings.globals_variables.cr20 && $('html').hasClass('ada-enabled')) {
+          $('html').removeClass('ada-enabled');
+        }
+      }, 200));
+
+      $(window).on('keydown', function(event) {
+        var key = event.key;
+        if (!$('html').hasClass('ada-enabled') && ['Tab', 'ArrowLeft', 'ArrowRight', 'ArrowDown', 'ArrowUp'].indexOf(key) > -1) {
+          $('html').addClass('ada-enabled');
+        }
+      });
+
+      $(document).on('keydown', function(e) {
+        var key = e.key;
+        if ((Drupal.settings.globals_variables && !Drupal.settings.globals_variables.cr20) || (['Enter'].indexOf(key) === -1)) {
+          return;
+        }
+        // If the user press enter key then click
+        if (key === 'Enter') {
+          if (e.target && e.target.localName !== 'a') {
+            $(e.target).click();
+          }
+        }
+      });
+
+      $(linksToNavigate).not(noTabbableElements).on('keydown', function(event) {
+        var $this = $(this);
+        var key = event.key;
+        if ((Drupal.settings.globals_variables && !Drupal.settings.globals_variables.cr20) || (['Enter', 'Escape', 'ArrowLeft', 'ArrowRight', 'ArrowDown', 'ArrowUp'].indexOf(key) === -1)) {
+          return;
+        }
+
+        var $tabbableElements = $(tabbableElements).not(noTabbableElements);
+        var index = $tabbableElements.index($this);
+        var target;
+
+        switch (key) {
+          case 'ArrowLeft':
+            target = index === 0 ? -1 : index - 1;
+            break;
+          case 'ArrowUp':
+            target = index === 0 ? -1 : index - 1;
+            break;
+          case 'ArrowRight':
+            target = index === $tabbableElements.length - 1 ? 0 : index + 1;
+            break;
+          case 'ArrowDown':
+            target = index === $tabbableElements.length - 1 ? 0 : index + 1;
+            break;
+          case 'Enter':
+            if (timer) {
+              clearTimeout(timer);
+            }
+            if ($this.hasClass('close-popup')) {
+              focusTimer(index - 1);
+            }
+            // If the link/label has pop up then click to open
+            if ($this[0].hasAttribute('aria-haspopup')) {
+              // Focus next element after a time in case it takes time to load
+              focusTimer(index + 1);
+            }
+            break;
+          case 'Escape':
+            if (timer) {
+              clearTimeout(timer);
+            }
+            focusTimer(index - 1);
+            break;
+        }
+        if (target !== null && target !== undefined) {
+          focusElement(target);
+        }
+      });
+
+      function focusTimer(index) {
+        timer = setTimeout(function() {
+          focusElement(index);
+        }, 250);
+      }
+
+      function focusElement(index) {
+        $(tabbableElements).not(noTabbableElements).eq(index, 10).focus();
+      }
+
+      // custom jquery function for binding enter key event
+      $.fn.enterKey = function(fnc) {
+        return this.each(function() {
+          $(this).on('keydown', function(e) {
+            var keycode = site.getKeycode(e);
+            if (keycode === '13') {
+              fnc.call(this, e);
+            }
+          });
+        })
+      }
+
+      // to get keycode of keyboard events;
+      site.getKeycode = function(e) {
+        var keycode = (e.keyCode ? e.keyCode : e.which);
+        return keycode;
+      }
+
+      // custom class defined for binding Keyboard "Enter Key" event
+      $('.js-access-link').enterKey(function() {
+        $(this).trigger('click');
+      });
+
+      //code for quantity box drupal behaviours
+      $("#cart").ajaxComplete(function(event, xhr, settings) {
+        site.customElementsNavigation();
+      });
+
+      site.customElementsNavigation = function() {
+        //Custom dropdown accessibility
+        $('.select2-focusser').attr({'tabindex': '0', 'aria-expanded': 'false', 'role': 'combobox'});
+        $('select').on('select2-open', function() {
+          var $select2Container = $(this).prev('.select2-container');
+          var $inputContainer = $select2Container.find('.select2-focusser');
+          $inputContainer.attr('aria-expanded', 'true');
+          var $cbox = $inputContainer.parents('#colorbox')
+          if ($cbox.attr('tabindex')) {
+            $cbox.removeAttr('tabindex');
+          }
+        }).on('select2-close', function() {
+          var $select2Container = $(this).prev('.select2-container');
+          var $inputContainer = $select2Container.find('.select2-focusser');
+          $inputContainer.attr('aria-expanded', 'false');
+          var $cbox = $inputContainer.parents('#colorbox')
+          if (!$cbox.attr('tabindex')) {
+            $cbox.attr('tabindex', '-1');
+          }
+        });
+        $('#colorbox').attr('aria-live', 'assertive');
+      }
+
+      //Sets custom outline for focus visible for custom checkbox by jquery.fs.picker.js plugin
+      $('.field[type=checkbox]').on('focusin', function() {
+        $(this).siblings('div.picker-checkbox').css({'border': '1px dotted black'});
+      }).on('focusout', function() {
+        $(this).siblings('div.picker-checkbox').removeAttr('style');
+      });
+
+      /**
+       * This method is used to retain focus within container/popup window
+       * which is currently active when navigation is made through Tab key
+       * @param {element} Current element/container within which focus should be maintained
+       */
+      site.restrict_navigation = function(element) {
+        var $tabbables = element.find(":tabbable");
+        var $first = $tabbables.filter(":first");
+        var $last = $tabbables.filter(":last");
+
+        element.once().keydown(function(e) {
+          if (e.keyCode !== 9 || e.isDefaultPrevented()) {
+            return;
+          }
+          var target = e.target;
+          //When focus reached last or target element move focus to first element of the container opened
+          if ((target === $last[0] || target === element[0]) && !e.shiftKey) {
+            $first.focus();
+            e.preventDefault();
+          //When focus reached first or target element move focus to last element of the container opened
+          } else if ((target === $first[0] || target === element[0]) && e.shiftKey) {
+            $last.focus();
+            e.preventDefault();
+          }
+        });
+      };
+
+      //SPP Thumb image click to keydown
+      $("[class *='js-product-gallery__img-thumb']").on('keydown', function(e) {
+        $(this).addClass('js-access-link');
+      });
+
+      //adds tabindex for account select page hidden check box
+      if ($('.js-loyalty-checkbox-hide').length > 0) {
+        $('.js-loyalty-flag').attr('tabindex', '-1');
+      };
+
+      // to reset the style in collections page while accessing with keyboard
+      $('.js-cl-block-img-hover').on('focusout',function() {
+        $('.js-cl-block-img-hover').removeClass('focused');
+      });
+      /**
+      * This method is used to access products placed within Tab control
+      * such as 'Best Sellers' and 'What's New'
+      **/
+      function tabsNavigation() {
+        $('[role="tab"]').on('keydown', function(e) {
+          var $this = $(this);
+          var $prev = $this.prev();
+          var $next = $this.next();
+          var $target = [];
+
+          switch (e.keyCode) {
+            case 37:
+              $target = $prev;
+              break;
+            case 39:
+              $target = $next;
+              break;
+            case 13:
+              if ($this.children('a').length === 1) {
+                $this.children('a')[0].click();
+              } else {
+                $this.trigger('click');
+              }
+              break;
+          }
+
+          if ($target.length > 0) {
+            $this.attr({
+              'tabindex': '-1',
+              'aria-selected': null
+            });
+            $target.attr({
+              'tabindex': '0',
+              'aria-selected': true
+            }).focus();
+          }
+        });
+      }
+
+      // Fix for Filters in MPP pages
+      function mppFilterNavigation() {
+        var $parentGrid = $('.js-grid-filter');
+        var filterElements = '.js-filter-item';
+        var removeElements = '.js-remove-filter';
+        var doneButton = '.js-done-button';
+        $parentGrid.on('keydown', filterElements, function(e) {
+          var keycode = site.getKeycode(e);
+          switch(keycode) {
+            case 32:
+            case 13:
+              e.preventDefault();
+              $(this).trigger('click', filterElements);
+              break;
+            case 38:
+              e.preventDefault();
+              $(this).prev().focus();
+              break;
+            case 40:
+              e.preventDefault();
+              $(this).next().focus();
+              break;
+          }
+        });
+        $(document).on('keydown', removeElements, function(e) {
+          var keycode = site.getKeycode(e);
+          if (keycode === 13) {
+            $(this).trigger('click', removeElements);
+          }
+        });
+        $(document).on('keydown', doneButton, function(e) {
+          var keycode = site.getKeycode(e);
+          if ((keycode === 13 || keycode === 9) && !e.shiftKey) {
+            e.preventDefault();
+            var thisParent = $(this).parents().find('.grid-filter__column--active');
+            $(this).trigger('click', doneButton);
+            thisParent.find('.js-gridFilter-title').focus();
+          }
+        });
+        $('.js-gridFilter-title').on('keydown', function(e) {
+          var keycode = site.getKeycode(e);
+          if (keycode === 13) {
+            $(this).trigger('click');
+          } else if (keycode === 40) {
+            $(this).parent().find(filterElements).filter(':first').focus();
+          }
+        });
+      }
+
+      function productsNavigation() {
+        var $parent = $('.js-mpp-product-layout, .js-product-grid');
+        var $product_grid_item = $('.js-grid--mpp__item, .js-product-grid-item');
+        $product_grid_item.each(function() {
+          var $current_product = $(this);
+          $current_product.focusin(function() {
+            var $product = $current_product.find('.js-product_teaser, .js-product-brief');
+            var $tabbable_last = $current_product.find(':tabbable').filter(':last');
+            $tabbable_last.on('focusout', function() {
+              if ($product.hasClass('hover')) {
+                $product.removeClass('hover').removeAttr('aria-live');
+              }
+            });
+            $product.on('keydown', function(e) {
+              if ((e.shiftKey) && $(this).hasClass('hover')) {
+                $product.removeClass('hover');
+              }
+            });
+          });
+        });
+      }
+
+      var customFocusNavigation = function(e) {
+        $(window).keyup(function(e) {
+          var keyCode = site.getKeycode(e);
+          var $activeElement = $(document.activeElement);
+          if (keyCode === 9 && $activeElement.length) {
+            //Remove custom outline class from previously targeted element
+            if ($prevActiveElem) {
+              if ($prevActiveElem.hasClass('select2-focusser')) {
+                $prevActiveElem.parent().find('.select2-choice').removeClass('custom-outline');
+              } if ($prevActiveElem.hasClass('js-product-image')) {
+                $prevActiveElem.parents('.js-shade-trigger').removeClass('custom-outline');
+              } else {
+                $prevActiveElem.removeClass('custom-outline');
+              }
+            }
+            //Add custom outline class to current Active element
+            $prevActiveElem = $activeElement;
+            if ($prevActiveElem.hasClass('select2-focusser')) {
+              $prevActiveElem.parent().find('.select2-choice').addClass('custom-outline');
+            } if ($prevActiveElem.hasClass('js-product-image')) {
+              $prevActiveElem.parents('.js-shade-trigger').addClass('custom-outline');
+            } else {
+              $prevActiveElem.addClass('custom-outline');
+            }
+          }
+        });
+
+        //Trigger click event to the custom class added.
+        $customEnterKeyAccess.enterKey(function() {
+          $(this).trigger('click');
+        });
+      };
+
+      if (Drupal.settings.globals_variables && !Drupal.settings.globals_variables.cr20) {
+        customFocusNavigation();
+      }
+      tabsNavigation();
+      productsNavigation();
+      mppFilterNavigation();
+
+    }
+  };
+})(jQuery);
+
+/**
+ * The custom dropdowns are made accessible
+ */
+$(window).load(function() {
+  site.customElementsNavigation();
+  $('.js-mm-item').find('.slick-list.draggable').attr('tabindex', '-1');
+  $('.js-artist--products__carousel').find('.slick-list.draggable').attr('tabindex', '-1');
+});
+/**
+ * This method is used to return focusable element from the Popup Window selected
+ */
+$.curCSS = function(element, prop, val) {
+  return $(element).css(prop, val);
+};

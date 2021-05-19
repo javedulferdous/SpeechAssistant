@@ -1,0 +1,47 @@
+/* Note - Stay & Save has been removed as of 11/12/2015. This is a template for future promotions. */
+/*********** BEGIN STAY & SAVE OFFER ***********/
+ 
+/***** GLOBAL VARIABLES ACROSS SEARCH RESULTS AND PRODUCT DETAILS ****
+var stayandsave_locations_sr = ".sr-FINL, .sr-PAIG, .sr-ORCP";
+ 
+var stayandsave_locations_pd = ".pd-FINL, .pd-PAIG, .pd-ORCP";
+ 
+var stayandsave_locations_pd_em = ".pd-FINL em, .pd-PAIG em, .pd-ORCP em";
+ 
+var stayandsave_icon= '<a onclick="openSimpleLightbox($(\'.sr-stayandsave-terms\'));" id="sr-stayandsave-button"> <img src="/assets/stayandsave-50-off.png?v=b409a328a21a3bef48d873f8a982ce6b" style="width:60px"></a>';
+ 
+var stayandsave_terms='<div class="sr-stayandsave-terms" style="display:none;"><h2>*Stay and Save offers: Receive on-site stay and save vouchers to spend onsite. </h2><p>Vouchers include: 50% off food at the Blagdon Inn – up to a maximum value of £30 Valid Monday – Thursday only<br/>50% off a single Archery Session valid Monday – Thursday only. <br/>50% off a one hour personal training session, valid Monday – Thursday only. <br/>20% off a single beauty treatment, Valid Monday-Thursday only <br/>Valid for new booking only for arrivals between 01/11/15–14/12/15. Must select quote stay and save at point of booking.<br/>Vouchers are non-transferable and cannot be exchanged for money. We reserve the right to withdraw this offer at anytime. Standard booking conditions apply, see main brochure or website. </p></div>';
+ 
+/***** GLOBAL IMPLEMENTATION ****
+ 
+$('section.main').append(stayandsave_terms);
+ 
+// SEARCH RESULTS(Inc. Product details search) IMPLEMENTATION
+ 
+$(stayandsave_locations_sr).append(stayandsave_icon);
+ 
+$(stayandsave_locations_sr).fadeIn(500);
+ 
+ 
+/***** PRODUCT DETAILS IMPLEMENTATION ****
+ 
+$(stayandsave_locations_pd_em).html(stayandsave_icon);
+$(stayandsave_locations_pd).addClass('show-offer');
+ 
+ 
+if ($(stayandsave_locations_pd).is(':visible')) {
+ 
+if ($(stayandsave_locations_pd).position().top !== $(stayandsave_locations_pd).prev().position().top) {
+ 
+ 
+$(stayandsave_locations_pd).removeClass('show-offer');
+$(stayandsave_locations_pd).addClass('show-fw');
+ 
+}
+}
+ 
+ 
+ 
+/*********** END STAY & SAVE OFFER ***********/
+
+/****** BEGIN MISCELLANEOUS OFFER RELATED JS ******/

@@ -1,0 +1,2 @@
+(window.gvpc_shop_header=window.gvpc_shop_header||[]).push([[0],{37:function(n,r,E){"use strict";E.d(r,"a",(function(){return R})),E.d(r,"b",(function(){return I}));var I="REQUEST_INTERRUPTION_PERMISSION",R="INTERRUPTION_PERMISSION_RESPONSE"}}]);
+//# sourceMappingURL=0-f9661a9f6186ef8929eebb9a36c73bb3.mjs.map

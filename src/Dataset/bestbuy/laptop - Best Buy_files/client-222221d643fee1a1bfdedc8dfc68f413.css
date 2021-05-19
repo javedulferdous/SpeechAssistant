@@ -1,0 +1,41 @@
+.shop-holiday-search-container .facets-scrolling .shop-search-query-builder {
+  border: 1px solid #c5cbd5;
+  border-top: none;
+  margin-bottom: 20px;
+}
+.shop-holiday-search-container .facets-scrolling .row .col-xs-3.facets-column {
+  position: -webkit-sticky;
+  position: sticky;
+  top: 15px;
+}
+.shop-holiday-search-container .facets-scrolling .row .col-xs-3.facets-column > .sticky-container {
+  overflow: auto;
+  max-height: calc(100vh - 14px);
+  margin-bottom: 30px;
+  border-top: 1px solid #c5cbd5;
+  border-bottom: 1px solid #c5cbd5;
+}
+.shop-holiday-search-container .facets-scrolling .row .col-xs-3.facets-column > .sticky-container > div:first-child {
+  border-top: none;
+}
+.shop-holiday-search-container .facets-scrolling .row .col-xs-3.facets-column > .sticky-container > div:not(:first-child) {
+  border-top: 1px solid #c5cbd5;
+}
+.shop-holiday-search-container .facets-scrolling .shop-facets .app-container.lv {
+  border-top: none;
+  border-bottom: none;
+  margin-bottom: 0;
+}
+@media screen and (-ms-high-contrast: active), screen and (-ms-high-contrast: none) {
+  .shop-holiday-search-container .facets-scrolling .row .col-xs-3.facets-column {
+    position: relative;
+    top: 0;
+  }
+  .shop-holiday-search-container .facets-scrolling .row .col-xs-3.facets-column > div:first-child {
+    overflow: visible;
+    max-height: none;
+  }
+}
+
+
+/*# sourceMappingURL=client-222221d643fee1a1bfdedc8dfc68f413.css.map*/

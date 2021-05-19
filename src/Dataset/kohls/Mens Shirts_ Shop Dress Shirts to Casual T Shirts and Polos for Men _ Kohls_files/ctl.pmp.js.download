@@ -1,0 +1,236 @@
+$module('productMatrix', function (log, api, module, Kjs) {
+	$requires([
+		'${$jsRoot("snb")}javascript/deploy/pmpSearchPageScriptsV1-debug.js'
+	]);
+	//Required Templates
+	$tmpl.load('javascript/deploy/tpl/tpl.pmpSearchPageTmplV1.js');
+	var layout;
+	var
+	renderView = function (viewData) {
+		var
+			layoutSpotlightPanel = Kjs.pmpSearchSpotlightPanel.panel,
+			layoutVisualNavPanel = Kjs.pmpSearchVisualNavPanel.panel,
+			layoutProductListing = Kjs.productListingPanel.panel,
+			layoutProdMatrixPanel = Kjs.pmpSearchProductMatrixPanel.panel,
+			layoutFacetsPanel = Kjs.pmpSearchFacetsPanel.panel,
+			layoutLinksPanel = Kjs.pmpSearchLinksPanel.panel,
+			layoutFiltersPanel = Kjs.pmpSearchFiltersPanel.panel,
+			layoutHeaderPanel = Kjs.pmpSearchHeaderPanel.panel,
+			layoutRightAds = Kjs.pmpSearchThirdPartyRightAds.panel
+		;
+
+		layout = Kjs.pmpSearchPanel.panel
+			.attach('pmpSearchHeaderPanel', layoutHeaderPanel)
+			.attach('pmpSearchFiltersPanel', layoutFiltersPanel)
+			.attach('pmpSearchProductMatrixPanel', layoutProdMatrixPanel)
+			.attach('pmpSearchThirdPartyRightAds', layoutRightAds);
+
+		layoutProdMatrixPanel
+			.attach('pmpSearchSpotlightPanel', layoutSpotlightPanel)
+			.attach('pmpSearchVisualNavPanel', layoutVisualNavPanel)
+			.attach('productListingPanel', layoutProductListing);
+
+		layoutFiltersPanel
+			.attach('pmpSearchLinksPanel', layoutLinksPanel)
+			.attach('pmpSearchFacetsPanel', layoutFacetsPanel);
+
+
+		layout.helper(Kjs.pmpTmplHelper);
+		layout.render();
+		breadCrumpModifier();
+	},
+	/**
+	 * USECASE:- This block will remove the vertical pipe between breadcrump and closeable options available in the header
+	 * Need to add same when we add options
+	 */
+	breadCrumpModifier = function() {
+		var breadcrumbLength = $('.breadcrumb-text').length;
+		var  closebleWrapLen = $('.closeable-wrapper').length;
+
+		if (!closebleWrapLen && breadcrumbLength) {
+			$($('.breadcrumb-text')[(breadcrumbLength - 1)]).addClass('last-breadcrumps');
+		}
+
+	},
+	renderAjax = function (viewData, event, bopus) {
+		if (event != 'click' && event != 'popstate') {
+			Kjs.productListingPanel.panel.render({ $env: viewData.$env, pmpSearchJsonData: viewData.pmpSearchJsonData });
+		}
+		else {
+			layout.render({ $env: viewData.$env, pmpSearchJsonData: viewData.pmpSearchJsonData }, '#content');
+			var getAllStores = localStorage.getItem('K_storelist');
+			getAllStores = JSON.parse(getAllStores);
+			if (bopus!='bopus') {
+				if (Kjs.storage.getData('K_storelist') == null || (localStorage.getItem('K_storelist') == '' || !localStorage.getItem('K_storelist')) || !getAllStores || (getAllStores && getAllStores.allAvailableStores && getAllStores.allAvailableStores.length <= 0)) {
+					var fisSearchUrl = $env.enableSnbStoreSearch ? ($env.serviceRoot || '/') + 'storesAvailabilitySearch' : $env.fisSearchUrl;
+					Kjs.pmpPickupShippingPanel.setKohlsStorelist(fisSearchUrl, pmpSearchJsonData);
+				} else {
+					Kjs.pmpPickupShippingPanel.initializeBoss('full', pmpSearchJsonData);
+				}
+			}
+			breadCrumpModifier();
+		}
+		bindPageEvent();
+		Kjs.pmpSearchUtils.renderProductTiles(viewData, 'ajax');
+		renderThirdParty('ajax', event);
+
+	},
+	renderThirdParty = function(phase, event) {
+		var pollCount = 0;
+		Kjs.pmpThirdParty.hookLogic(pmpSearchJsonData, pmpSearchJsonData.pageType);
+		Kjs.pmpThirdParty.loadThirdparty(pmpSearchJsonData, phase, event);
+		if ($tf($env.enable_googleDFP_super_leaderboard)) {
+			$env.dfp_ads_enableTrigger = true;
+			Kjs.poll(500, function () {
+				pollCount++;
+				if (($('.hl-product') && $('.hl-product').length > 0) || pollCount == 5) {
+					return true;
+				} else {
+					return false;
+				}
+			}, function () {
+				var rows = $('.products_grid');
+				rows.each(function (index, element) {
+					if (index == 12) {
+						$(element).before('<li class="prodlist_clear"><div style="text-align: center;border-top: 1px solid #eeeeee;border-bottom: 1px solid #eeeeee" id="dfp_super_leaderboard_row2" class="dfp_super_leaderboard_row2"></div><div style="padding-bottom:40px"></div></li>');
+					}
+					if (index == 24) {
+						$(element).before('<li class="prodlist_clear"><div style="text-align: center;border-top: 1px solid #eeeeee;border-bottom: 1px solid #eeeeee" id="dfp_super_leaderboard_row6" class="dfp_super_leaderboard_row6"></div><div style="padding-bottom:40px"></div></li>');
+					}
+
+				});
+				if (event == 'init' || phase == 'init') Kjs.pmpThirdParty.defineSuperLeaderBoardAds();
+				else Kjs.pmpThirdParty.updateDFP(pmpSearchJsonData.thirdParty.dfp);
+			});
+		}
+		if (pmpSearchJsonData.isAjax != 'true') {
+			var NextProductDataSet = [],
+				WS = getParameterByName(location.href, 'WS'),
+				PPP = getParameterByName(location.href, 'PPP');
+			WS = (WS) ? parseInt(WS) : 0;
+			var myProdList = pmpSearchJsonData.products;
+			for (var k = 0; k < myProdList.length; k++) {
+				NextProductDataSet.push({ webid: myProdList[k].webID, name: myProdList[k].productTitle, url: myProdList[k].seoURL, image: myProdList[k].image.url, order: k });
+			}
+			if (NextProductDataSet.length > 0) Kjs.storage.saveData('NextProductDataSet', { 'backURL': window.location.href, 'WS': WS, 'PPP': PPP, 'prodList': NextProductDataSet });
+		}
+
+		Kjs._(function () {
+			$('#rr_result_list_page_pdp_ad_container').show();
+		});
+		$('.ggl_helptext').on('click', function (e) {
+			var offset = $(this).offset();
+			var topPosition = offset.top + 15;
+			var leftPosition = offset.left - 1;
+			if ($('.kohls-ad-wallpaper').length > 0) {
+				var topPositionNew = $('.ggl_tooltip_content').parents('#container').offset().top;
+				var leftPositionNew = $('.ggl_tooltip_content').parents('#container').offset().left;
+				topPosition = topPosition - topPositionNew;
+				leftPosition = leftPosition - leftPositionNew;
+			}
+			$('.ggl_tooltip_content').toggle();
+			$('.ggl_tooltip_content').css({ 'top': topPosition, 'left': leftPosition });
+		});
+		$('.ggl_helptext_afsh').on('click', function (e) {
+			var topPosition = 32;
+			var adsWidth = $('.gglad_block_afshcontainer.ggl_sponsered_links').width();
+			adsWidth = adsWidth - 325;
+			$('.ggl_tooltip_content_afsh').toggle();
+			$('.ggl_tooltip_content_afsh').css({ 'top': topPosition, 'left': adsWidth + 'px' });
+		});
+		$('.close_help_container').on('click', function () {
+			$('.ggl_tooltip_content').hide();
+		});
+
+		$('.afsh_close_help').on('click', function () {
+			$('.ggl_tooltip_content_afsh').hide();
+		});
+
+		if (getParameterByName(window.location.search, 'related') == 'true') {
+			$('#search').val(getParameterByName(window.location.search, 'search'));
+		}
+		if (pmpSearchJsonData && pmpSearchJsonData.bigDataEnabled == 'true') {
+			$err.exec(function _pmpSearchPage_BD_RenderingOnLoad() {
+				Kjs.pmpThirdParty.loadBigData(pmpSearchJsonData.bdRendering);
+			});
+		}
+		var boostedProductIds = getParameterByName(window.location.search, 'BST');
+		Kjs.storage.saveData('boostedProductIds', boostedProductIds);
+	},
+	bindPageEvent = function() {
+		$(window).scroll(function(){
+
+			/*var isIE11 = !!window.MSInputMethodContext && !!document.documentMode;
+			var scrollYdimensions = window.scrollY || 0;
+			if (isIE11) scrollYdimensions = document.documentElement.scrollTop;
+			if ($('#persistent_bar_container').length > 0) {
+				var stickyHeightAddition = $('#persistent_bar_container')[0].scrollHeight;
+				var stickyHeightRemoval = stickyHeightAddition;
+				var reference_facet_stickyscroll = $('#reference_facet_stickyscroll');
+				if (reference_facet_stickyscroll.length > 0) stickyHeightRemoval = $('#reference_facet_stickyscroll').offset().top - 110;
+				var itemOffset = $('.pmpSearch_facets').offset().top - $(window).scrollTop();
+				if(itemOffset <= stickyHeightAddition){
+					$('.pmpSearch_facets').css({
+						position:'fixed',
+						top:'77px'
+					});
+				}
+				//remove sticky once reached to footer
+				var stickyHeightAddition2 = $('.pmpSearch_facets')[0].scrollHeight;
+				   var itemOffset2 = $('.footer-global').offset().top - $(window).scrollTop();
+				if(itemOffset2 <= stickyHeightAddition2){
+					$('.pmpSearch_facets').css({position:'absolute', bottom:'-77px',top:'inherit'});
+					$('.pmpSearch_leftPanel.sidebar').css('position','relative');
+				}else{
+					if(scrollYdimensions< stickyHeightRemoval){
+						$('.pmpSearch_facets').css('position','static');
+						$('.pmpSearch_rightPanel').css('margin-left','6');
+					}else{
+						$('.pmpSearch_facets').css({ position:'fixed',top:'77px'});
+						$('.pmpSearch_leftPanel.sidebar').css('position','static');
+					}
+				}
+			}*/
+			if ($(this).scrollTop() > 100) {
+				$('.scrollToTop').css('display', 'block');
+				$('.scrollToTop').css('z-index', '9999');
+			} else {
+				$('.scrollToTop').css('display', 'none');
+				$('.scrollToTop').css('z-index', '9');
+			}
+		});
+		$('.scrollToTop').click(function () {
+			$('html, body').animate({
+				scrollTop: 0
+			}, 800);
+			return false;
+		});
+	};
+	$ready(function _$ready_pmpSearchRedesign($) {
+		if (typeof pmpSearchJsonData !== 'undefined') {
+			//First render
+			renderView();
+			bindPageEvent();//[*]
+			var getAllStores = Kjs.storage.getData('K_storelist');
+			if (pmpSearchJsonData.staticContents && $r('allAvailableStores.length', getAllStores)) {
+				Kjs.pmpPickupShippingPanel.initializeBoss('full', pmpSearchJsonData);
+			}
+			Kjs.pmpSearchUtils.renderProductTiles({ '$env': window.$env, 'pmpSearchJsonData': pmpSearchJsonData });
+			$(window).bind('popstate', function (e) {
+				$('.setmystoretooltip').is(':visible')?'':Kjs.pmpSearchUtils.getNewData($(this),'popstate');
+			});
+			renderThirdParty('init', 'click');
+		}
+	});
+	$init(function _$init_pmpSearchRedesign($) {
+		Kjs.datapmp.initPmpItems({'$env': window.$env, 'pmpSearchJsonData': pmpSearchJsonData});
+		var getAllStores = localStorage.getItem('K_storelist');
+		getAllStores = JSON.parse(getAllStores);
+		if (Kjs.storage.getData('K_storelist') == null || (localStorage.getItem('K_storelist') == '' || !localStorage.getItem('K_storelist')) || !getAllStores || (getAllStores && getAllStores.allAvailableStores && getAllStores.allAvailableStores.length <= 0)) {
+			var fisSearchUrl = $env.enableSnbStoreSearch ? ($env.serviceRoot || '/') + 'storesAvailabilitySearch' : $env.fisSearchUrl;
+			Kjs.pmpPickupShippingPanel.setKohlsStorelist(fisSearchUrl, pmpSearchJsonData)
+		}
+	});
+	api.renderView = renderView;
+	api.renderAjax = renderAjax;
+});

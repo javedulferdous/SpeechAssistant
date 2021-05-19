@@ -1,0 +1,55 @@
+define(["global","jquery"], function(global, $) {
+
+	$(document).ready(function(){
+
+			SZ.cookieBar = function() {
+
+				var cookieBarHTML = '<div class="cookieBar" >';
+				cookieBarHTML += '<div class="container">';
+				cookieBarHTML += '<div class="mainPadding">';
+                cookieBarHTML += '<span>'+cookieBarText+'</span>';
+				cookieBarHTML += '<button class="cookieActionAccept cookieActionClose">'+cookieBarAcceptButtonText+'</button>';
+				cookieBarHTML += "<div class=\"clearfix\"></div>\n";
+				cookieBarHTML += '</div>';
+				cookieBarHTML += '</div>';
+				cookieBarHTML += '</div>';
+
+				$(cookieBarHTML).prependTo('body');
+				
+				var cookieBar = $('.cookieBar');
+
+				// Only run this if the cookie bar exists on the page
+				if(cookieBar.length === 1) {
+
+					// Show bar if cookie has not yet been dropped
+					if(document.cookie.indexOf('cb=true') === -1) {
+						
+						// Bind close handler to links
+						$('.cookieActionAccept').click(function() {
+							
+							var expiration = new Date();
+						
+							// Drop acceptance cookie
+							expiration.setDate(expiration.getDate() + 30);
+							document.cookie = 'cb=true; expires=' + expiration.toUTCString() + '; path=/';
+						
+							cookieBar.remove();
+						});
+						// Show the bar
+						cookieBar.show();
+
+					} else {
+						cookieBar.remove();
+					}
+ 
+			}
+				
+		};
+
+		if (typeof cookieBarText !== 'undefined') {
+			new SZ.cookieBar();
+		}
+
+	});
+
+});

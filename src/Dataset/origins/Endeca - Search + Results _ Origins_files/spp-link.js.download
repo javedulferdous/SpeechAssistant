@@ -1,0 +1,10 @@
+(function($) {
+
+// SPP links open in new window if spp_in_new_window=true in config
+if (Drupal.settings.common && Drupal.settings.common.spp_in_new_window) {
+  $(document).on('click', '.js-spp-link', function() {
+    $(this).attr('target', '_blank');
+  });
+}
+
+})(jQuery);

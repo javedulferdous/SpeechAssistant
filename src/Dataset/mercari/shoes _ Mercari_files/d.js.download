@@ -1,0 +1,82 @@
+/*
+Copyright (c) 2017. IDM Global Inc.  All Rights Reserved.
+*/
+const urlParams = new URLSearchParams(document.location.search.substring(1));
+const debug = urlParams.get('debug');
+var error_augur = null;
+var augur_json = '';
+function load_io() {
+	if (debug == 'true') console.log('Loading IO');
+
+	load_script('i.js', 'https://cdn1.identitymind.com/dfp-wrapper/i.js', 'io');
+
+	window.IGLOO = window.IGLOO || {
+		bb_callback: function(bb, complete) {
+			update_dfp_json(bb);
+		}
+	};
+}
+
+function update_dfp_json(io_blob) {
+	if (debug == 'true') {
+		console.log('Udpating DFP input value...\nAU json: \n' + augur_json + '\n\nIO Blob: \n' + io_blob);
+	}
+
+	dfp_json = {
+		augur: augur_json,
+		iovation: io_blob
+	};
+
+	if (debug == 'true') {
+		console.log('DFP value updated.\nDFP Value:\n' + JSON.stringify(dfp_json));
+	}
+
+	dfpCallback(error_augur, dfp_json);
+}
+
+function load_au() {
+	if (debug == 'true') console.log('Loading AU');
+
+	var dfp_script = load_script('c.js', 'https://js.identitymind.com/js/c.min.js', 'au');
+
+	dfp_script.onerror = function() {
+		console.log('Error loading Device Fingerprint.');
+		load_io();
+	};
+}
+
+function get_au_dfp(data) {
+	if (debug == 'true') console.log('Waiting for AU DFP...');
+
+	if (data) {
+		if (debug == 'true') console.log('AU DFP loaded.');
+		augur_json = data;
+	}
+	load_io();
+}
+
+function augurCallback(error, data) {
+	if (data) {
+		get_au_dfp(data);
+	} else {
+		load_io();
+	}
+}
+
+function load_script(id, src, dft) {
+	var dfp_script = document.createElement('script');
+	dfp_script.setAttribute('id', id);
+	dfp_script.setAttribute('async', '');
+	dfp_script.setAttribute('src', src);
+
+	if (dft == 'au') {
+		dfp_script.setAttribute('data-cb', 'augurCallback');
+		dfp_script.setAttribute('data-warpspeed', 'truk');
+	}
+
+	document.head.appendChild(dfp_script);
+
+	return dfp_script;
+}
+
+load_au();

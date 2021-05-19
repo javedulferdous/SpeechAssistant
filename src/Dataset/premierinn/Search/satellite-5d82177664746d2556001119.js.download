@@ -1,0 +1,76 @@
+/*mboxUpdate('target-global-mbox', document.location.href);
+mboxCreate('L2B-Config');
+mboxCreate('Header-Config');
+if (document.location.pathname == "/gb/en/home.html"){
+mboxCreate('HP-testing');
+}
+
+adobe.target.getOffer({   
+  "mbox": "target-global-mbox",
+  "success": function(offers) {           
+        adobe.target.applyOffer( {  
+           "mbox": "target-global-mbox",
+           "offer": offers  
+        } ); 
+  },   
+  "error": function(status, error) {           
+      if (console && console.log) { 
+        console.log(status); 
+        console.log(error); 
+      } 
+  }, 
+ "timeout": 5000 
+}); 
+*/
+adobe.target.getOffer({   
+  "mbox": "L2B-Config",
+  "success": function(offers) {           
+        adobe.target.applyOffer( {  
+           "mbox": "L2B-Config",
+           "offer": offers  
+        } ); 
+  },   
+  "error": function(status, error) {           
+      if (console && console.log) { 
+        console.log(status); 
+        console.log(error); 
+      } 
+  }, 
+ "timeout": 5000 
+}); 
+
+adobe.target.getOffer({   
+  "mbox": "Header-Config",
+  "success": function(offers) {           
+        adobe.target.applyOffer( {  
+           "mbox": "Header-Config",
+           "offer": offers  
+        } ); 
+  },   
+  "error": function(status, error) {           
+      if (console && console.log) { 
+        console.log(status); 
+        console.log(error); 
+      } 
+  }, 
+ "timeout": 5000 
+}); 
+
+if (document.location.pathname == "/gb/en/home.html"){
+  adobe.target.getOffer({   
+  "mbox": "HP-testing",
+  "success": function(offers) {           
+        adobe.target.applyOffer( {  
+           "mbox": "HP-testing",
+           "offer": offers  
+        } ); 
+  },   
+  "error": function(status, error) {           
+      if (console && console.log) { 
+        console.log(status); 
+        console.log(error); 
+      } 
+  }, 
+ "timeout": 5000 
+}); 
+}

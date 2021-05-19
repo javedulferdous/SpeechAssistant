@@ -1,0 +1,2 @@
+"use strict";define(["debounce","viewport"],function(e,i){var r;return function r(n,w){var c=500,a=function e(){for(var r=window.viewTracker.length-1;r>=0;r--)i.isElementVisible(window.viewTracker[r].element)&&(window.viewTracker[r].callback.apply(),window.viewTracker.splice(r,1))};if(i.isElementVisible(n))w.apply();else{if(!window.viewTracker){window.viewTracker=[];var l=e(a,500);document.addEventListener("scroll",l)}window.viewTracker.push({element:n,callback:w})}}});
+//# sourceMappingURL=elementViewed-0b2af7b25a.js.map

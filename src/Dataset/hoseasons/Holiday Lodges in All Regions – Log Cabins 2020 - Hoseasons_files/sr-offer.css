@@ -1,0 +1,29 @@
+/* SEARCH RESULTS */
+.sr-offer {
+    width: 81px;
+    height: 100px;
+    display: block;
+    position: absolute;
+    bottom: 0px;
+    right: 0;
+    top: 28%;  
+    display:none;
+}
+
+
+/* PRODUCT DETAILS */
+
+.product-details--special-offer {
+  transition: 0.5s ease all;
+  width:45% !important;
+}
+.show-offer {
+  display:inline-block !important;
+}
+.show-fw {
+  display:block !important;
+  width:auto !important;
+}
+#sr-stayandsave-button {
+  border:none;
+}

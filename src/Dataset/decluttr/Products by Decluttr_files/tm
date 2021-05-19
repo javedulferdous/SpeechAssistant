@@ -1,0 +1,263 @@
+/*!
+TAG V5.63.7321, smct.tag-decluttr.com 
+Copyright 2012-2020 Smarter Click Technology Ltd
+*/
+if(typeof window.$smctResources !== 'undefined'){    console.warn('Cannot load Tag Resources more than once...');}else{window.$smctResources = function(){			var urls = {		tag_url : 'https://js.smct.io/t/tag-v5.63.js',		overlays_url : 'https://js.smct.io/o/overlays-v5.63.js',		overlays_data_url : 'https://smct.co/ov5/load/',		smc_debug_url :  '',		client_debug_url : 'https://js.smct.io/dp/clientDebug-v1.00.js',		basket_backup_script : '',		basket_backup_endpoint : '',		selector_tool_script : '',		selector_tool_endpoint : '',		smarter_codes_script: '',		smarter_codes_endpoint: '',		smc_jq : 'https://js.smct.io/jq/smcJQ-v3.4.1.js',		ls_endpoint : 'https://smct.co/lse1.0.html',		notification_app : '',		notification_checker : '',		px2a_source_url: 'https://js.smct.io/e/events-1.4.8.min.js',		px2b_endpoint_url: 'https://px2.smct.co/v2/event',		host : 'https://smct.co/',		pxt_domain : 'https://ep.smct.co/',		tag_data_url : 'https://smct.co/tm/data/',		overlays_engage_url : 'https://ep.smct.co/ov4/e/',		insights_url : 'https://ep.smct.co/insights/',		url_track : 'https://ep.smct.co/ut/',		client_debug_data : 'https://smct.co/cldbData/',};		var getURL = function( key, additional ){		return urls[ key ];	}; 	var getTagLoadedTime = function(){		var microtime = 1604927663.1451;		return Math.round(microtime*1000);	}; 		var tryer = function (expression , outputOnErr) {	 		try {			return eval(expression);		} catch (err) {			return outputOnErr === undefined ? '' : outputOnErr;		}	 	};		var evalOverride = function( expression ){		return tryer( expression, false );	};		var mainEvals = {		tag_custom_code : null,		overlay_shared_code : null,		ae_code : null,	};		var runCode = function( key, isDebug ){				if( mainEvals[ key ] ){			try{				eval(  mainEvals[ key ]  );			} catch( e ){				if( isDebug ){					console.warn( key + ' RUN Error! ', e);				}			}		}	 		};		return {		getURL : getURL,		getTagLoadedTime : getTagLoadedTime,		evalOverride : evalOverride,		tryer : tryer,		runCode : runCode,		staticFiles : 0, 	};}();}if(typeof window.$smctData !== 'undefined'){console.warn('Cannot load Tag Data more than once...');}else{window.$smctData = {
+	a:1, b:1, h:'https://smct.co/', o:'eyJ2ZXJzaW9uIjoiNS42MyIsImlkIjoyNTQ1LCJuYW1lIjoiZGVjbHV0dHIuY29tIiwiY3NzX2FuaW1zIjoiLnNtY3QtYW5pbWF0ZWR7LXdlYmtpdC1hbmltYXRpb24tZHVyYXRpb246MXM7YW5pbWF0aW9uLWR1cmF0aW9uOjFzOy13ZWJraXQtYW5pbWF0aW9uLWZpbGwtbW9kZTpib3RoO2FuaW1hdGlvbi1maWxsLW1vZGU6Ym90aH0uc21jdC1hbmltYXRlZC5zbWN0LWluZmluaXRley13ZWJraXQtYW5pbWF0aW9uLWl0ZXJhdGlvbi1jb3VudDppbmZpbml0ZTthbmltYXRpb24taXRlcmF0aW9uLWNvdW50OmluZmluaXRlfS5zbWN0LWFuaW1hdGVkLnNtY3QtaGluZ2V7LXdlYmtpdC1hbmltYXRpb24tZHVyYXRpb246MnM7YW5pbWF0aW9uLWR1cmF0aW9uOjJzfS5zbWN0LWFuaW1hdGVkLnNtY3QtYm91bmNlSW4sLnNtY3QtYW5pbWF0ZWQuc21jdC1ib3VuY2VPdXQsLnNtY3QtYW5pbWF0ZWQuc21jdC1mbGlwT3V0WCwuc21jdC1hbmltYXRlZC5zbWN0LWZsaXBPdXRZey13ZWJraXQtYW5pbWF0aW9uLWR1cmF0aW9uOi43NXM7YW5pbWF0aW9uLWR1cmF0aW9uOi43NXN9QC13ZWJraXQta2V5ZnJhbWVzIHNtY3QtcnViYmVyQmFuZHswJXstd2Via2l0LXRyYW5zZm9ybTpzY2FsZVgoMSk7dHJhbnNmb3JtOnNjYWxlWCgxKX0zMCV7LXdlYmtpdC10cmFuc2Zvcm06c2NhbGUzZCgxLjI1LC43NSwxKTt0cmFuc2Zvcm06c2NhbGUzZCgxLjI1LC43NSwxKX00MCV7LXdlYmtpdC10cmFuc2Zvcm06c2NhbGUzZCguNzUsMS4yNSwxKTt0cmFuc2Zvcm06c2NhbGUzZCguNzUsMS4yNSwxKX01MCV7LXdlYmtpdC10cmFuc2Zvcm06c2NhbGUzZCgxLjE1LC44NSwxKTt0cmFuc2Zvcm06c2NhbGUzZCgxLjE1LC44NSwxKX02NSV7LXdlYmtpdC10cmFuc2Zvcm06c2NhbGUzZCguOTUsMS4wNSwxKTt0cmFuc2Zvcm06c2NhbGUzZCguOTUsMS4wNSwxKX03NSV7LXdlYmtpdC10cmFuc2Zvcm06c2NhbGUzZCgxLjA1LC45NSwxKTt0cmFuc2Zvcm06c2NhbGUzZCgxLjA1LC45NSwxKX10b3std2Via2l0LXRyYW5zZm9ybTpzY2FsZVgoMSk7dHJhbnNmb3JtOnNjYWxlWCgxKX19QGtleWZyYW1lcyBzbWN0LXJ1YmJlckJhbmR7MCV7LXdlYmtpdC10cmFuc2Zvcm06c2NhbGVYKDEpO3RyYW5zZm9ybTpzY2FsZVgoMSl9MzAley13ZWJraXQtdHJhbnNmb3JtOnNjYWxlM2QoMS4yNSwuNzUsMSk7dHJhbnNmb3JtOnNjYWxlM2QoMS4yNSwuNzUsMSl9NDAley13ZWJraXQtdHJhbnNmb3JtOnNjYWxlM2QoLjc1LDEuMjUsMSk7dHJhbnNmb3JtOnNjYWxlM2QoLjc1LDEuMjUsMSl9NTAley13ZWJraXQtdHJhbnNmb3JtOnNjYWxlM2QoMS4xNSwuODUsMSk7dHJhbnNmb3JtOnNjYWxlM2QoMS4xNSwuODUsMSl9NjUley13ZWJraXQtdHJhbnNmb3JtOnNjYWxlM2QoLjk1LDEuMDUsMSk7dHJhbnNmb3JtOnNjYWxlM2QoLjk1LDEuMDUsMSl9NzUley13ZWJraXQtdHJhbnNmb3JtOnNjYWxlM2QoMS4wNSwuOTUsMSk7dHJhbnNmb3JtOnNjYWxlM2QoMS4wNSwuOTUsMSl9dG97LXdlYmtpdC10cmFuc2Zvcm06c2NhbGVYKDEpO3RyYW5zZm9ybTpzY2FsZVgoMSl9fS5zbWN0LXJ1YmJlckJhbmR7LXdlYmtpdC1hbmltYXRpb24tbmFtZTpzbWN0LXJ1YmJlckJhbmQ7YW5pbWF0aW9uLW5hbWU6c21jdC1ydWJiZXJCYW5kfUAtd2Via2l0LWtleWZyYW1lcyBzbWN0LXNoYWtlezAlLHRvey13ZWJraXQtdHJhbnNmb3JtOnRyYW5zbGF0ZVooMCk7dHJhbnNmb3JtOnRyYW5zbGF0ZVooMCl9MTAlLDMwJSw1MCUsNzAlLDkwJXstd2Via2l0LXRyYW5zZm9ybTp0cmFuc2xhdGUzZCgtMTBweCwwLDApO3RyYW5zZm9ybTp0cmFuc2xhdGUzZCgtMTBweCwwLDApfTIwJSw0MCUsNjAlLDgwJXstd2Via2l0LXRyYW5zZm9ybTp0cmFuc2xhdGUzZCgxMHB4LDAsMCk7dHJhbnNmb3JtOnRyYW5zbGF0ZTNkKDEwcHgsMCwwKX19QGtleWZyYW1lcyBzbWN0LXNoYWtlezAlLHRvey13ZWJraXQtdHJhbnNmb3JtOnRyYW5zbGF0ZVooMCk7dHJhbnNmb3JtOnRyYW5zbGF0ZVooMCl9MTAlLDMwJSw1MCUsNzAlLDkwJXstd2Via2l0LXRyYW5zZm9ybTp0cmFuc2xhdGUzZCgtMTBweCwwLDApO3RyYW5zZm9ybTp0cmFuc2xhdGUzZCgtMTBweCwwLDApfTIwJSw0MCUsNjAlLDgwJXstd2Via2l0LXRyYW5zZm9ybTp0cmFuc2xhdGUzZCgxMHB4LDAsMCk7dHJhbnNmb3JtOnRyYW5zbGF0ZTNkKDEwcHgsMCwwKX19LnNtY3Qtc2hha2V7LXdlYmtpdC1hbmltYXRpb24tbmFtZTpzbWN0LXNoYWtlO2FuaW1hdGlvbi1uYW1lOnNtY3Qtc2hha2V9QC13ZWJraXQta2V5ZnJhbWVzIHNtY3QtcHVsc2V7MCV7LXdlYmtpdC10cmFuc2Zvcm06c2NhbGVYKDEpO3RyYW5zZm9ybTpzY2FsZVgoMSl9NTAley13ZWJraXQtdHJhbnNmb3JtOnNjYWxlM2QoMS4wNSwxLjA1LDEuMDUpO3RyYW5zZm9ybTpzY2FsZTNkKDEuMDUsMS4wNSwxLjA1KX10b3std2Via2l0LXRyYW5zZm9ybTpzY2FsZVgoMSk7dHJhbnNmb3JtOnNjYWxlWCgxKX19QGtleWZyYW1lcyBzbWN0LXB1bHNlezAley13ZWJraXQtdHJhbnNmb3JtOnNjYWxlWCgxKTt0cmFuc2Zvcm06c2NhbGVYKDEpfTUwJXstd2Via2l0LXRyYW5zZm9ybTpzY2FsZTNkKDEuMDUsMS4wNSwxLjA1KTt0cmFuc2Zvcm06c2NhbGUzZCgxLjA1LDEuMDUsMS4wNSl9dG97LXdlYmtpdC10cmFuc2Zvcm06c2NhbGVYKDEpO3RyYW5zZm9ybTpzY2FsZVgoMSl9fS5zbWN0LXB1bHNley13ZWJraXQtYW5pbWF0aW9uLW5hbWU6c21jdC1wdWxzZTthbmltYXRpb24tbmFtZTpzbWN0LXB1bHNlfUAtd2Via2l0LWtleWZyYW1lcyBzbWN0LWZsYXNoezAlLDUwJSx0b3tvcGFjaXR5OjF9MjUlLDc1JXtvcGFjaXR5OjB9fUBrZXlmcmFtZXMgc21jdC1mbGFzaHswJSw1MCUsdG97b3BhY2l0eToxfTI1JSw3NSV7b3BhY2l0eTowfX0uc21jdC1mbGFzaHstd2Via2l0LWFuaW1hdGlvbi1uYW1lOnNtY3QtZmxhc2g7YW5pbWF0aW9uLW5hbWU6c21jdC1mbGFzaH0iLCJjb25maWciOnsialF1ZXJ5Rm9yY2VMb2FkIjowLCJpZ25vcmVIYXNoIjoxLCJjYXNlU2Vuc2l0aXZlIjowLCJpbnNpZ2h0cyI6MCwiYmxvY2tJZnJhbWUiOjAsInB4VHJhY2tPZmYiOjAsInJ1bGVzVVRDIjowLCJmb3JjZU9uRGVidWciOjEsInB4QXBjIjoxLCJPdlJlcUludCI6MCwiRmlyc3RDaGFyQXNjaWlGaXgiOjAsImVuY29kZUNvb2tpZXMiOjAsInJlZkV4YWN0TWF0Y2giOjAsIm1pZ3JhdGVDb29raWVzVG9Mb2NhbFN0b3JhZ2UiOjAsInRpbWVvdXQiOjMwMCwic2Nhbm5lclRpbWUiOjMwMCwiY29va2llTWF4QWdlRGF5cyI6IiIsIm92Q29va2llSGlzdG9yeSI6IiIsInNyY19jb19pbyI6ImF1dG8iLCJpbnNpZ2h0c19hdXRvIjoiIiwibHMzcmRwdHlVSUQiOjEsInRhZ1JlZnJlc2hJRCI6MTAzNDIsImR5bmFtaWNFbGVtZW50cyI6eyJTZWxsaW5nQmFza2V0Q291bnQiOnsiYWN0aXZlIjoxLCJleHBvcnQiOjEsImNvb2tpZVNlYXJjaCI6InNtY19zZWxsX2Jhc2tldF9jb3VudCIsInJlYWRDdXN0b21WYXJPckZ1bmMiOiIiLCJzdHJpbmdzIjoiIiwidXJsQ29udGFpbnMiOjAsImh0bWxDb250YWlucyI6MCwic2VhcmNoRExPYmplY3QiOiIiLCJzZWFyY2hETEtleSI6IiIsInNlbGVjdG9yIjoiIiwidXNlTGFzdCI6MCwiY29va2llQmFja3VwIjowLCJ0eXBlIjoidGV4dCIsImF0dHIiOiIiLCJjdXN0b21PdmVyUmlkZSI6IiJ9LCJOb25Nb2JpbGVJbkJhc2tldCI6eyJhY3RpdmUiOjEsImV4cG9ydCI6MSwiY29va2llU2VhcmNoIjoic21jX25vbl9tb2JpbGUiLCJyZWFkQ3VzdG9tVmFyT3JGdW5jIjoiIiwic3RyaW5ncyI6IiIsInVybENvbnRhaW5zIjowLCJodG1sQ29udGFpbnMiOjAsInNlYXJjaERMT2JqZWN0IjoiIiwic2VhcmNoRExLZXkiOiIiLCJzZWxlY3RvciI6IiIsInVzZUxhc3QiOjAsImNvb2tpZUJhY2t1cCI6MCwidHlwZSI6InRleHQiLCJhdHRyIjoiIiwiY3VzdG9tT3ZlclJpZGUiOiIifSwiQmFza2V0VmFsdWUiOnsiYWN0aXZlIjoxLCJleHBvcnQiOjEsImNvb2tpZVNlYXJjaCI6IiIsInJlYWRDdXN0b21WYXJPckZ1bmMiOiIiLCJzdHJpbmdzIjoiIiwidXJsQ29udGFpbnMiOjAsImh0bWxDb250YWlucyI6MCwic2VhcmNoRExPYmplY3QiOiIiLCJzZWFyY2hETEtleSI6IiIsInNlbGVjdG9yIjoiI0NvbnRlbnRQbGFjZUhvbGRlckRlZmF1bHRfbWFpbkNvbnRlbnRfVG90YWxWYWx1ZUJveF8xM19sYmxWYWx1ZTEiLCJ1c2VMYXN0IjowLCJjb29raWVCYWNrdXAiOjEsInR5cGUiOiJ0ZXh0IiwiYXR0ciI6IiIsImN1c3RvbU92ZXJSaWRlIjoiIiwiZnVuY3MiOlt7InR5cGUiOiJzcGVjaWFsIiwidmFscyI6WyIiLCIiXX1dfSwiTW9iaWxlSW5CYXNrZXQiOnsiYWN0aXZlIjoxLCJleHBvcnQiOjEsImNvb2tpZVNlYXJjaCI6InNtY19tb2JpbGUiLCJyZWFkQ3VzdG9tVmFyT3JGdW5jIjoiIiwic3RyaW5ncyI6IiIsInVybENvbnRhaW5zIjowLCJodG1sQ29udGFpbnMiOjAsInNlYXJjaERMT2JqZWN0IjoiIiwic2VhcmNoRExLZXkiOiIiLCJzZWxlY3RvciI6IiIsInVzZUxhc3QiOjAsImNvb2tpZUJhY2t1cCI6MCwidHlwZSI6InRleHQiLCJhdHRyIjoiIiwiY3VzdG9tT3ZlclJpZGUiOiIifSwiT09TUHJvZHVjdCI6eyJhY3RpdmUiOjEsImV4cG9ydCI6MSwiY29va2llU2VhcmNoIjoiIiwicmVhZEN1c3RvbVZhck9yRnVuYyI6Ik9PU1Byb2R1Y3QiLCJzdHJpbmdzIjoiIiwidXJsQ29udGFpbnMiOjAsImh0bWxDb250YWlucyI6MCwic2VhcmNoRExPYmplY3QiOiIiLCJzZWFyY2hETEtleSI6IiIsInNlbGVjdG9yIjoiIiwidXNlTGFzdCI6MCwiY29va2llQmFja3VwIjowLCJ0eXBlIjoidGV4dCIsImF0dHIiOiIiLCJjdXN0b21PdmVyUmlkZSI6IiJ9fSwicmVmcyI6eyIzIjp7InUiOiJzb3VyY2U9YXciLCJkIjoiMiJ9LCIxOCI6eyJ1Ijoic291cmNlPWF3aW4iLCJkIjoiMiJ9LCIyNCI6eyJ1IjoidXRtX3NvdXJjZT1BZmZpbGlhdGVXaW5kb3ciLCJkIjoiMiJ9LCIyNSI6eyJ1IjoidXRtX3NvdXJjZT1BZmZpbGlhdGVfV2luZG93IiwiZCI6IjIifSwiNDIiOnsidSI6InV0bV9zb3VyY2U9QWZmaWxpYXRlK1dpbmRvdyIsImQiOiIyIn0sIjUyIjp7InUiOiJ1dG1fbWVkaXVtPUFmZmlsaWF0ZVdpbmRvdyIsImQiOiIyIn0sIjU5Ijp7InUiOiJ1dG1fc291cmNlPUFXSU4iLCJkIjoiMiJ9LCI2MCI6eyJ1IjoidXRtX3NvdXJjZT1hd2ludWsiLCJkIjoiMiJ9LCIxNjMiOnsidSI6ImFkaWQ9YXdpbi5jb20iLCJkIjoiMiJ9LCIzMDgiOnsidSI6InV0bV9zb3VyY2U9QWZmaWxpYXRpb25fQXdpbiIsImQiOiIyIn19LCJkYiI6MCwib3ZlcmxheXNfdXJsIjoiaHR0cHM6XC9cL2pzLnNtY3QuaW9cL29cL292ZXJsYXlzLXY1LjYzLmpzIiwib3ZlcmxheXNfZGF0YV91cmwiOiJodHRwczpcL1wvc21jdC5jb1wvb3Y1XC9sb2FkXC8iLCJvdmVybGF5c19lbmdhZ2VfdXJsIjoiaHR0cHM6XC9cL2VwLnNtY3QuY29cL292NFwvZVwvIiwiaW5zaWdodHNfdXJsIjoiaHR0cHM6XC9cL2VwLnNtY3QuY29cL2luc2lnaHRzXC8iLCJjbGllbnRfZGVidWdfdXJsIjoiaHR0cHM6XC9cL2pzLnNtY3QuaW9cL2RwXC9jbGllbnREZWJ1Zy12MS4wMC5qcyIsImNsaWVudF9kZWJ1Z19kYXRhIjoiaHR0cHM6XC9cL3NtY3QuY29cL2NsZGJEYXRhXC8iLCJsc19lbmRwb2ludCI6Imh0dHBzOlwvXC9zbWN0LmNvXC9sc2UxLjAuaHRtbCIsInRhZ19wcmV2aWV3IjoiZGVmYXVsdCIsInB4dF92ZXJzaW9uIjoiMmEiLCJweHRfaWRlbnRpdHlfcG9vbF9pZCI6ImV1LXdlc3QtMTo5YTI4Y2JkZS0zODNlLTRjNWItYmRkZC0zYjM3YTlhN2QxYmUifSwicnVsZXNMaXN0IjpbeyJydWxlbmFtZSI6Ik9PUyBDYW1wYWlnbiIsInVybHMiOnsiYmxhY2tsaXN0IjpbIlwvb3JkZXJzXC8iXSwid2hpdGVsaXN0IjpbIlwvc3RvcmUiXX0sInJlZnMiOnsiYmxhY2tsaXN0IjpbMywxOCwyNCwyNSw0Miw1Miw1OSw2MCwxNjMsMzA4XSwid2hpdGVsaXN0IjpbXX0sImxvY3MiOnsiYmxhY2tsaXN0IjpbXSwid2hpdGVsaXN0IjpbXX0sInZpc2l0b3JzIjoiYWxsIiwibm90aWZpY2F0aW9uc0FjY2VwdGVkIjoiYW55IiwiZGVsYXkiOiIiLCJwYWdlVmlld3MiOiIiLCJmaWx0ZXIiOjUwLCJmaWx0ZXJHcm91cCI6IkEiLCJkeW5hbWljRWxlbWVudFJ1bGVzIjp7Ik9PU1Byb2R1Y3QiOnsiaXMxIjoidHJ1ZSIsInZhbDEiOiIiLCJhbmRPciI6IiIsImlzMiI6Ij4iLCJ2YWwyIjoiIn19LCJ0aW1lU3RhcnQiOiIiLCJ0aW1lRW5kIjoiIiwib3ZlcmxheXMiOnsiZGVza3RvcCI6eyJpZCI6NDA0Mjd9LCJtb2JpbGUiOnsiaWQiOjQwNDI4fSwidGFibGV0Ijp7ImlkIjo0MDQyOX19fSx7InJ1bGVuYW1lIjoiT09TIENhbXBhaWduIGdob3N0IG92ZXJsYXlzIiwidXJscyI6eyJibGFja2xpc3QiOlsiXC9vcmRlcnNcLyJdLCJ3aGl0ZWxpc3QiOlsiXC9zdG9yZSJdfSwicmVmcyI6eyJibGFja2xpc3QiOlszLDE4LDI0LDI1LDQyLDUyLDU5LDYwLDE2MywzMDhdLCJ3aGl0ZWxpc3QiOltdfSwibG9jcyI6eyJibGFja2xpc3QiOltdLCJ3aGl0ZWxpc3QiOltdfSwidmlzaXRvcnMiOiJhbGwiLCJub3RpZmljYXRpb25zQWNjZXB0ZWQiOiJhbnkiLCJkZWxheSI6IiIsInBhZ2VWaWV3cyI6IiIsImZpbHRlciI6NTAsImZpbHRlckdyb3VwIjoiQSIsImR5bmFtaWNFbGVtZW50UnVsZXMiOnsiT09TUHJvZHVjdCI6eyJpczEiOiJ0cnVlIiwidmFsMSI6IiIsImFuZE9yIjoiIiwiaXMyIjoiPiIsInZhbDIiOiIifX0sInRpbWVTdGFydCI6IiIsInRpbWVFbmQiOiIiLCJvdmVybGF5cyI6eyJkZXNrdG9wIjp7ImlkIjo0MTIxN30sIm1vYmlsZSI6eyJpZCI6NDEyMTh9LCJ0YWJsZXQiOnsiaWQiOjQxMjE5fX19XSwicGx1Z2lucyI6W10sInVzZUxvYyI6MCwiY3VzdG9tQ29kZSI6IiIsIm92ZXJsYXlzQ0MiOiIiLCJpcCI6IjY4LjEwLjEyNy4yMTkiLCJpcGIiOm51bGwsImRldmljZSI6ZmFsc2UsInNvdXJjZXMiOmZhbHNlLCJ0IjowLjAwMDYyNywibG9jU2lnIjoiMjc0ZjM1ZWJlOTg2Y2MxZTFmY2E1YjIyMTgzZDZlYjYifQ==',};(function(w, d) {var src_co_io = 'auto';
+if( src_co_io === 'co' || src_co_io === 'io' ){
+	var tld = src_co_io;
+	sessionStorage.setItem('smc_cdn_source', tld);
+}else{
+	var tld  = sessionStorage.getItem('smc_cdn_source');
+}
+var cspCheck = function(cb) {
+	if (tld !== null) {
+		cb();
+	} else {
+		tld = 'io';
+		var ioTest = new XMLHttpRequest();
+		ioTest.open('HEAD', 'https://js.smct.' + tld + '/csp/csp.js');
+		ioTest.send();
+		ioTest.onerror = function() {
+			tld = 'co'
+			var coTest = new XMLHttpRequest();
+			coTest.open('HEAD', 'https://js.smct.' + tld + '/csp/csp.js');
+			coTest.send();
+			coTest.onerror = function() {
+				tld = 'co';
+				cb();
+			}
+			coTest.onload = function() {
+				tld = 'co';
+				sessionStorage.setItem('smc_cdn_source', tld);
+				cb();
+			}
+		}
+		ioTest.onload = function() {
+			tld = 'io';
+			sessionStorage.setItem('smc_cdn_source', tld);
+			cb();
+		}
+	}
+}
+var addJS = function(url, callback) {
+		if(url.indexOf('://l.smct') === -1 && url.indexOf('://dev.smct') === -1 && tld !== undefined) {
+		url = url.replace(/smct.(c|i)o/i, 'smct.' + tld);
+	}
+		var h = d.getElementsByTagName("head")[0],
+		j = d.createElement('script');
+	j.type = 'text/javascript';
+	j.src = url;
+	j.charset = 'utf-8';
+	h.appendChild(j);
+	j.onload = function() {
+		if (callback) {
+			callback();
+		}
+	};
+}
+try{
+	cspCheck(function(){ 		addJS(window.$smctResources.getURL('tag_url'), function() {
+			window.$smcCallCustomScripts = function(){$smcT5.CustomScripts = {};try{/*
+ * K.O - 2019/12/19 - Timed overlay once scrolled to an element.
+ * B.L - 2020/01/23 - Selling basket count
+ */
+$smcT5.CustomScripts.scrollToTimeTrigger = function timedScrollToTrigger(selector, timeout){
+    // Default params
+    selector = selector === void(0) ? 'h2[itemprop="price"] > span' : selector;
+    timeout = timeout === void(0) ? 3000 : timeout; // Default 3000ms
+
+    var priceElement = document.querySelector(selector);
+    
+    if(priceElement){
+        var priceElementMiddlePosition;
+        var bottomOfTheScreen;
+        window.addEventListener('scroll', function scrollToTriggerListener(){
+            priceElementMiddlePosition = priceElement.offsetTop + (priceElement.offsetHeight / 2);
+            bottomOfTheScreen = window.pageYOffset + window.innerHeight;
+            if(bottomOfTheScreen >= priceElementMiddlePosition){
+                window.removeEventListener('scroll', scrollToTriggerListener);
+                setTimeout($smcO5.funcs.displayOverlay, timeout);
+            }
+        });
+    }
+};
+
+$smcT5.CustomScripts.TagCode = function() {
+    (function sellBasketCount() {
+        var url = window.location.href;
+        if (url.indexOf('/start-selling/tech-search') > -1) {
+            setInterval(function() {
+                var count = 0;
+                var countEl = document.querySelector('#lblBasketCount');
+                if (countEl) {
+                    count = Number(countEl.textContent);
+                }
+                $smcT5.CookieManager.create('smc_sell_basket_count', count, 0);
+            }, 1000);
+        }
+    })();
+    
+    (function emptyVoucherCode() {
+        var searchVoucher = setInterval(function() {
+            var input = document.querySelector('input[placeholder="VOUCHER CODE"]');
+            if (input) {
+                var hasValue = false;
+                var value = input.value;
+                if (input.value) {
+                    hasValue = true;
+                }
+                
+                $smcT5.CookieManager.create('smc_no_voucher', !hasValue, 0);
+                
+            } else if (!$smcT5.CookieManager.exists('smc_no_voucher')) {
+                $smcT5.CookieManager.create('smc_no_voucher', true, 0);
+            }
+        }, 400);
+    })();
+    
+    (function mobileBasketValue() {
+        var search = setInterval(function() {
+            var isMobile = false;
+            var val = 0;
+    
+            if (!$smcT5.CookieManager.exists('smc_phone_over_200')) {
+                $smcT5.CookieManager.create('smc_phone_over_200', false, 0);
+            }
+            if (!$smcT5.CookieManager.exists('smc_phone_over_400')) {
+                $smcT5.CookieManager.create('smc_phone_over_400', false, 0);
+            }
+    
+            for (var i = 0; i < dataLayer.length; i++) {
+                var item = dataLayer[i];
+                if (
+                    item.valPrice &&
+                    item.valCategory &&
+                    item.valCategory.toLowerCase().indexOf('phone') > -1
+                ) {
+                    isMobile = true;
+                    val = Number(item.valPrice);
+                }
+            }
+    
+            if (isMobile && val >= 200) {
+                var buttons = document.querySelectorAll(
+                    '.itemConditionSummaryBox .divItemConditionAcceptButton a, .divItemConditionAcceptButton.mobile a'
+                );
+    
+                if (buttons.length) {
+                    clearInterval(search);
+                    for (var j = 0; j < buttons.length; j++) {
+                        var button = buttons[j];
+                        button.addEventListener('click', function() {
+                            $smcT5.CookieManager.create(
+                                'smc_phone_over_200',
+                                true,
+                                0
+                            );
+                        });
+                    }
+                }
+            }
+            
+            if (isMobile && val >= 400) {
+                var buttons = document.querySelectorAll(
+                    '.itemConditionSummaryBox .divItemConditionAcceptButton a, .divItemConditionAcceptButton.mobile a'
+                );
+    
+                if (buttons.length) {
+                    clearInterval(search);
+                    for (var j = 0; j < buttons.length; j++) {
+                        var button = buttons[j];
+                        button.addEventListener('click', function() {
+                            $smcT5.CookieManager.create(
+                                'smc_phone_over_400',
+                                true,
+                                0
+                            );
+                        });
+                    }
+                }
+            }
+        }, 400);
+    })();
+};
+
+//02/10/2020 - J.M - Checks if the product page
+$smcT5.CustomScripts.OOSProduct = function(){
+    var OOSDetect = document.querySelector('.add-to-cart-button')
+    var DLSkuVal = dataLayer[1].ecommerce.detail.products[0].id;
+    if (!OOSDetect || OOSDetect.textContent === "Select options to continue"){
+        if (DLSkuVal !== undefined){
+            var categoryLink = document.querySelector('.breadcrumb li:nth-last-of-type(2) a, h1[itemprop="name"]');
+            if (categoryLink.href !== undefined){
+                $smcT5.CookieManager.create('smc_category_link', categoryLink.href);
+            }
+            else{
+                $smcT5.CookieManager.create('smc_category_link', categoryLink.textContent);
+            }
+            
+            (function scanBasket(){
+                var isDebug = typeof window.$smcDebugger === 'undefined' ? 0 : 1;
+                var item = {};
+            	var searchInterval = 400; //Time in milliseconds
+            
+                var checkObjElements = function(obj){
+                    var res = true;
+                    for (var i = 0; i < Object.keys(obj).length; i++) {
+                        var e = Object.keys(obj)[i];
+                        if(!obj[e][0]) res = false;
+                    }
+                    return res;
+                }
+            
+                var diffObject = function(objNew, objOld){
+                    var res = false;
+                    for (var i = 0; i < Object.keys(objNew).length; i++) {
+                        var e = Object.keys(objNew)[i];
+                        var old = objOld[e] ? objOld[e][0] : (void 0);
+                        if(objNew[e][0] !== old) res = true;
+                    }
+                    return res;
+                }
+            	
+            	var updateItems = function(){
+                    var obj = {};
+            		//INSERT SELECTORS HERE --- Format [Element, Property]
+                    obj.img = [ document.querySelector('#product-images #main-image img'), "src" ];
+                    obj.categoryName = [ document.querySelector('.breadcrumb li:nth-last-of-type(2), h1[itemprop="name"]'), "textContent" ];
+                    return obj;
+                };
+                var newitem = updateItems();
+            
+            	var updateCookie = function(item){
+                    //Get poperties of elements
+                    var processedItem = {};
+                    for (var key in item) {
+                        if (item.hasOwnProperty(key)) processedItem[key] = item[key][0][item[key][1]];
+                    }
+                    var itemEncoded = btoa(JSON.stringify(processedItem));
+            		$smcT5.CookieManager.create('smc_oos_product', itemEncoded, 0);
+                }
+            
+            	var search = setInterval(function(){
+            		if(checkObjElements(newitem) && diffObject(newitem, item)){
+                        //Update old items
+                        item = updateItems();
+                        //Update cookie
+                        updateCookie(item);
+            			if(isDebug) console.log('[SMC] BASKET CHANGED');
+                    }
+                    newitem = updateItems();
+                }, searchInterval);
+            })();
+            return true;
+        }
+    }
+}}catch( e ){if( 0 ){console.error("SMC Error: "+e );}}};		});
+		 });} catch(e){
+	//Actual error
+	console.log(e);
+}
+}(window, document));
+}

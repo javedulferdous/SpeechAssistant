@@ -1,0 +1,92 @@
+var wishlistProductsIds=[];$(document).ready(function(){wishlistRefreshStatus();$(document).on('change','select[name=wishlists]',function(){WishlistChangeDefault('wishlist_block_list',$(this).val());});$(document).click(function(e){if(e.target.id!='move'&&e.target.id!='move_span'){$("div[id^='popover-content_']").css("display","none");}});$});function wishlist_share_function(id_wishlist){$("#sharePopUp_"+id_wishlist).css("display","block");}
+function wishlist_share_close_function(id_wishlist){$("#sharePopUp_"+id_wishlist).css("display","none");}
+function weeklyNotificationHelpLink(id_wishlist_product){$(".weekly_"+id_wishlist_product+" #weeklyNotifyQmPopUp").css("display","block");}
+function weeklyNotifyQmPopupClose(id_wishlist_product){$(".weekly_"+id_wishlist_product+" #weeklyNotifyQmPopUp").css("display",'none');}
+function instantNotificationHelpLink(id_wishlist_product){$(".instant_"+id_wishlist_product+" #instantNotifyQmPopUp").css("display","block");}
+function instantNotifyQmPopupClose(id_wishlist_product){$(".instant_"+id_wishlist_product+" #instantNotifyQmPopUp").css("display",'none');}
+function wishlist_move_function(id_wishlist){$("#popover-content_"+id_wishlist).css("display","block");}
+function WishlistCart(id,action,id_product,id_product_attribute,quantity,id_wishlist)
+{$.ajax({type:'GET',url:baseDir+'modules/blockwishlist/cart.php?rand='+new Date().getTime(),headers:{"cache-control":"no-cache"},async:true,cache:false,data:'action='+action+'&id_product='+id_product+'&quantity='+quantity+'&token='+static_token+'&id_product_attribute='+id_product_attribute+'&id_wishlist='+id_wishlist,success:function(data)
+{if(action=='add')
+{if(isLogged==true){wishlistProductsIdsAdd(id_product);wishlistRefreshStatus();$('.wishtlist_top .cart-wishlist-number').html(data);if(!!$.prototype.fancybox)
+$.fancybox.open([{type:'inline',autoScale:true,minHeight:30,content:'<p class="fancybox-error">'+added_to_wishlist+'</p>'}],{padding:0});else{alert(added_to_wishlist);$(".panel-product-line").html('<div class="btn btn-primary wishlistDisableButton " id="wishlist_button" ><i class="material-icons">favorite</i> Added to <a href="'+mywishlist_url+' "> Wish List </a></div>');}}
+else
+{if(!!$.prototype.fancybox)
+$.fancybox.open([{type:'inline',autoScale:true,minHeight:30,content:'<p class="fancybox-error">'+loggin_required+'</p>'}],{padding:0});else
+alert(loggin_required);}}
+if(action=='delete'){wishlistProductsIdsRemove(id_product);wishlistRefreshStatus();}
+if($('#'+id).length!=0)
+{$('#'+id).slideUp('normal');document.getElementById(id).innerHTML=data;$('#'+id).slideDown('normal');}}});}
+function WishlistChangeDefault(id,id_wishlist)
+{$.ajax({type:'GET',url:baseDir+'modules/blockwishlist/cart.php?rand='+new Date().getTime(),headers:{"cache-control":"no-cache"},async:true,data:'id_wishlist='+id_wishlist+'&token='+static_token,cache:false,success:function(data)
+{$('#'+id).slideUp('normal');document.getElementById(id).innerHTML=data;$('#'+id).slideDown('normal');}});}
+function WishlistBuyProduct(token,id_product,id_product_attribute,id_quantity,button,ajax)
+{if(ajax)
+ajaxCart.add(id_product,id_product_attribute,false,button,1,[token,id_quantity]);else
+{$('#'+id_quantity).val(0);WishlistAddProductCart(token,id_product,id_product_attribute,id_quantity)
+document.forms['addtocart'+'_'+id_product+'_'+id_product_attribute].method='POST';document.forms['addtocart'+'_'+id_product+'_'+id_product_attribute].action=baseUri+'?controller=cart';document.forms['addtocart'+'_'+id_product+'_'+id_product_attribute].elements['token'].value=static_token;document.forms['addtocart'+'_'+id_product+'_'+id_product_attribute].submit();}
+return(true);}
+function WishlistAddProductCart(token,id_product,id_product_attribute,id_quantity)
+{if($('#'+id_quantity).val()<=0)
+return(false);$.ajax({type:'GET',url:baseDir+'modules/blockwishlist/buywishlistproduct.php?rand='+new Date().getTime(),headers:{"cache-control":"no-cache"},data:'token='+token+'&static_token='+static_token+'&id_product='+id_product+'&id_product_attribute='+id_product_attribute,async:true,cache:false,success:function(data)
+{if(data)
+{if(!!$.prototype.fancybox)
+$.fancybox.open([{type:'inline',autoScale:true,minHeight:30,content:'<p class="fancybox-error">'+data+'</p>'}],{padding:0});else
+alert(data);}
+else
+$('#'+id_quantity).val($('#'+id_quantity).val()-1);}});return(true);}
+function WishlistManage(id,id_wishlist)
+{$.ajax({type:'GET',async:true,url:baseDir+'modules/blockwishlist/managewishlist.php?rand='+new Date().getTime(),headers:{"cache-control":"no-cache"},data:'id_wishlist='+id_wishlist+'&refresh='+false,cache:false,success:function(data)
+{$('#'+id).hide();document.getElementById(id).innerHTML=data;$('#'+id).fadeIn('slow');$('#wishlist_presentid').val(id_wishlist);$('.wishlist_change_button').each(function(index){$(this).change(function(){wishlistProductChange($('option:selected',this).attr('data-id-product'),$('option:selected',this).attr('data-id-product-attribute'),$('option:selected',this).attr('data-id-old-wishlist'),$('option:selected',this).attr('data-id-new-wishlist'));});});}});}
+function WishlistProductManage(id,action,id_wishlist,id_product,id_product_attribute,quantity,priority)
+{$.ajax({type:'GET',async:true,url:baseDir+'modules/blockwishlist/managewishlist.php?rand='+new Date().getTime(),headers:{"cache-control":"no-cache"},data:'action='+action+'&id_wishlist='+id_wishlist+'&id_product='+id_product+'&id_product_attribute='+id_product_attribute+'&quantity='+quantity+'&priority='+priority+'&refresh='+true,cache:false,success:function(data)
+{if(action=='delete')
+$('#wlp_'+id_product+'_'+id_product_attribute).fadeOut('fast');else if(action=='update')
+{$('#wlp_'+id_product+'_'+id_product_attribute).fadeOut('fast');$('#wlp_'+id_product+'_'+id_product_attribute).fadeIn('fast');}
+nb_products=0;$("[id^='quantity']").each(function(index,element){nb_products+=parseInt(element.value);});$("#wishlist_"+id_wishlist).children('td').eq(1).html(nb_products);}});}
+function WishlistDelete(id,id_wishlist,msg)
+{var res=confirm(msg);if(res==false)
+return(false);if(typeof mywishlist_url=='undefined')
+return(false);$.ajax({type:'GET',async:true,dataType:"json",url:mywishlist_url,headers:{"cache-control":"no-cache"},cache:false,data:{rand:new Date().getTime(),deleted:1,myajax:1,id_wishlist:id_wishlist,action:'deletelist'},success:function(data)
+{var mywishlist_siblings_count=$('#'+id).siblings().length;$('#'+id).fadeOut('slow').remove();if(mywishlist_siblings_count==0)
+$("#block-history").remove();if(data.id_default)
+{var td_default=$("#wishlist_"+data.id_default+" > .wishlist_default");$("#wishlist_"+data.id_default+" > .wishlist_default > a").remove();td_default.append('<p class="is_wish_list_default"><i class="material-icons">check_circle</i></p>');}}});}
+function WishlistDefault(id,id_wishlist)
+{if(typeof mywishlist_url=='undefined')
+return(false);$.ajax({type:'GET',async:true,url:mywishlist_url,headers:{"cache-control":"no-cache"},cache:false,data:{rand:new Date().getTime(),'default':1,id_wishlist:id_wishlist,myajax:1,action:'setdefault'},success:function(data)
+{var old_default_id=$(".is_wish_list_default").parents("tr").attr("id");var td_check=$(".is_wish_list_default").parent();$(".is_wish_list_default").remove();td_check.append('<a href="#" onclick="javascript:event.preventDefault();(WishlistDefault(\''+old_default_id+'\', \''+old_default_id.replace("wishlist_","")+'\'));"><i class="material-icons">radio_button_unchecked</i></a>');var td_default=$("#"+id+" > .wishlist_default");$("#"+id+" > .wishlist_default > a").remove();td_default.append('<div class="is_wish_list_default"><i class="material-icons">check_circle</i></div>');}});}
+function changeNotification(id_wishlist,id_wishlist_product,notification,checkedValue){$.ajax({type:'GET',async:true,url:mywishlist_url,headers:{"cache-control":"no-cache"},cache:false,data:{id_wishlist:id_wishlist,myajax:1,id_wishlist_product:id_wishlist_product,checkedValue:checkedValue,notification:notification,action:'notification'},success:function(data)
+{if(notification==0){if(checkedValue==1)
+$(".weekly_"+id_wishlist_product).html('<a href="#"  onclick="javascript:event.preventDefault();(changeNotification(\''+id_wishlist+'\',\''+id_wishlist_product+'\',0,0));"> <i class=" material-icons"> check_box </i> Weekly Notification </a> <div class="weeklyNotificationDiv" ><a id="weeklyNotificationHelpLink" onclick="weeklyNotificationHelpLink(\''+id_wishlist_product+'\')"><i class="material-icons">help_outline</i></a><div id="weeklyNotifyQmPopUp" class="is-hidden Wishlist-weeklyEmailPopup"><div id="weeklyNotifyQmPopUpClose" class="Wishlist-popupClose"><a  onclick="weeklyNotifyQmPopupClose(\''+id_wishlist_product+'\')" >(X) Close</a></div><div><strong>What is Weekly Notification?</strong></div><div>Check this to get a weekly notification of the items that are in stock at the time we send the email.</div></div></div>');else
+$(".weekly_"+id_wishlist_product).html('<a href="#"   onclick="javascript:event.preventDefault();(changeNotification(\''+id_wishlist+'\',\''+id_wishlist_product+'\',0,1));"> <i class=" material-icons"> check_box_outline_blank </i> Weekly Notification</a> <div class="weeklyNotificationDiv" ><a id="weeklyNotificationHelpLink" onclick="weeklyNotificationHelpLink(\''+id_wishlist_product+'\')"><i class="material-icons">help_outline</i></a><div id="weeklyNotifyQmPopUp" class="is-hidden Wishlist-weeklyEmailPopup"><div id="weeklyNotifyQmPopUpClose" class="Wishlist-popupClose"><a  onclick="weeklyNotifyQmPopupClose(\''+id_wishlist_product+'\')" >(X) Close</a></div><div><strong>What is Weekly Notification?</strong></div><div>Check this to get a weekly notification of the items that are in stock at the time we send the email.</div></div></div>');}else if(notification==1){if(checkedValue==1)
+$(".instant_"+id_wishlist_product).html('<a href="#"   onclick="javascript:event.preventDefault();(changeNotification(\''+id_wishlist+'\',\''+id_wishlist_product+'\',1,0));"> <i class=" material-icons"> check_box </i> Instant Notification</a> <div class="instantNotificationDiv" ><a id="instantNotificationHelpLink" onclick="instantNotificationHelpLink(\''+id_wishlist_product+'\')"><i class="material-icons">help_outline</i></a><div id="instantNotifyQmPopUp" class="is-hidden Wishlist-instantEmailPopup"><div id="instantNotifyQmPopUpClose" class="Wishlist-popupClose"><a  onclick="instantNotifyQmPopupClose(\''+id_wishlist_product+'\')" >(X) Close</a></div><div><strong>What is Instant Notification?</strong></div><div>Check this box if you want to receive an email the moment we get a copy in stock. This option is selected by default when you add an item that is not in stock.</div></div></div>');else
+$(".instant_"+id_wishlist_product).html('<a href="#"  onclick="javascript:event.preventDefault();(changeNotification(\''+id_wishlist+'\',\''+id_wishlist_product+'\',1,1));"> <i class=" material-icons"> check_box_outline_blank </i> Instant Notification </a> <div class="instantNotificationDiv" ><a id="instantNotificationHelpLink" onclick="instantNotificationHelpLink(\''+id_wishlist_product+'\')"><i class="material-icons">help_outline</i></a><div id="instantNotifyQmPopUp" class="is-hidden Wishlist-instantEmailPopup"><div id="instantNotifyQmPopUpClose" class="Wishlist-popupClose"><a  onclick="instantNotifyQmPopupClose(\''+id_wishlist_product+'\')" >(X) Close</a></div><div><strong>What is Instant Notification?</strong></div><div>Check this box if you want to receive an email the moment we get a copy in stock. This option is selected by default when you add an item that is not in stock.</div></div></div>');}}});}
+function WishlistVisibility(bought_class,id_button)
+{if($('#hide'+id_button).is(':hidden'))
+{$('.'+bought_class).slideDown('fast');$('#show'+id_button).hide();$('#hide'+id_button).css('display','block');}
+else
+{$('.'+bought_class).slideUp('fast');$('#hide'+id_button).hide();$('#show'+id_button).css('display','block');}}
+function WishlistSend(id,id_wishlist,id_email)
+{$.post(baseDir+'modules/blockwishlist/sendwishlist.php',{token:static_token,id_wishlist:id_wishlist,email1:$('#'+id_email+'1').val(),email2:$('#'+id_email+'2').val(),email3:$('#'+id_email+'3').val(),email4:$('#'+id_email+'4').val(),email5:$('#'+id_email+'5').val(),email6:$('#'+id_email+'6').val(),email7:$('#'+id_email+'7').val(),email8:$('#'+id_email+'8').val(),email9:$('#'+id_email+'9').val(),email10:$('#'+id_email+'10').val()},function(data)
+{if(data)
+{if(!!$.prototype.fancybox)
+$.fancybox.open([{type:'inline',autoScale:true,minHeight:30,content:'<p class="fancybox-error">'+data+'</p>'}],{padding:0});else
+alert(data);}
+else
+WishlistVisibility(id,'hideSendWishlist');});}
+function wishlistProductsIdsAdd(id)
+{if($.inArray(parseInt(id),wishlistProductsIds)==-1)
+wishlistProductsIds.push(parseInt(id))}
+function wishlistProductsIdsRemove(id)
+{wishlistProductsIds.splice($.inArray(parseInt(id),wishlistProductsIds),1)}
+function wishlistRefreshStatus()
+{$('.addToWishlist').each(function(){if($.inArray(parseInt($(this).prop('rel')),wishlistProductsIds)!=-1)
+$(this).addClass('checked');else
+$(this).removeClass('checked');});}
+function wishlistProductChange(id_product,id_product_attribute,id_old_wishlist,id_new_wishlist)
+{if(typeof mywishlist_url=='undefined')
+return(false);var quantity=$('#quantity_'+id_product+'_'+id_product_attribute).val();$.ajax({type:'GET',url:mywishlist_url,headers:{"cache-control":"no-cache"},async:true,cache:false,dataType:"json",data:{id_product:id_product,id_product_attribute:id_product_attribute,quantity:quantity,priority:$('#priority_'+id_product+'_'+id_product_attribute).val(),id_old_wishlist:id_old_wishlist,id_new_wishlist:id_new_wishlist,myajax:1,action:'productchangewishlist'},success:function(data)
+{if(data.success==true){$('#wlp_'+id_product+'_'+id_product_attribute).fadeOut('slow');}
+else
+{if(!!$.prototype.fancybox)
+$.fancybox.open([{type:'inline',autoScale:true,minHeight:30,content:'<p class="fancybox-error">'+data.error+'</p>'}],{padding:0});}}});}

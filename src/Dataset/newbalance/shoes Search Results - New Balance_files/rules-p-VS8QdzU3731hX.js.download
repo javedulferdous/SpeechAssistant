@@ -1,0 +1,6 @@
+/*
+ Quantcast measurement tag
+ Copyright (c) 2008-2019, Quantcast Corp.
+*/
+(function(e,h,f){try{__qc("defaults",e,{labels:"_fp.event.Default"})}catch(n){}var l=function(a){var b=f.createElement("a");b.href=a;return b},m=function(a,b,c){return a?"nc"===a?!b||!c||0>b.indexOf(c):"eq"===a?b===c:"sw"===a?0===b.indexOf(c):"ew"===a?(a=b.length-c.length,b=b.lastIndexOf(c,a),-1!==b&&b===a):"c"===a?0<=b.indexOf(c):!1:!1},k=function(a,b,c){var d;d=h.top===h.self?f.location.href:l(f.referrer).href;m(b,d,c)?a(d):a(!1)},g=function(a){return"array"==={}.toString.call(a).match(/\s([a-zA-Z]+)/)[1].toLowerCase()?
+{labels:a.join(",")}:{labels:""+a}};__qc.apply(null,["rules",[e,null,[[g,"_fp.channel.Women"]],[[k,"c","/women"]]],[e,null,[[g,"_fp.channel.Mens"]],[[k,"c","/men"]]],[e,null,[[g,"_fp.event.997 Sport"]],[[k,"c","997-sport/"]]],[e,null,[[g,"_fp.event.997 Splash Page"]],[[k,"c","https://www.newbalance.com/997/"]]],[e,null,[[g,"_fp.event.Homepage"]],[[function(a,b,c){var d;d=h.top===h.self?f.location.pathname:l(f.referrer).pathname;m(b,d,c)?a(d):a(!1)},"eq","/"]]]])})("p-VS8QdzU3731hX",window,document);

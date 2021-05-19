@@ -1,0 +1,1006 @@
+/* global generic, google, Mustache */
+
+var site = site || {};
+var Model = Model || {};
+
+site.bopisSPP = function() {
+  var that = this;
+  this.dom = {};
+  this.skuId = null;
+  this.doors = [];
+  this.doorsInv = null;
+  this.map = null;
+  this.markers = [];
+  this.infoWindow = null;
+  this.searchPanelData = null;
+  this.namespace = 'invis';
+  this.bopis_prod_in_stock = false;
+  this.product = null;
+  this.isMobileView = site.client.isMobile || $(window).width() < 1024;
+  this.productSkus = [];
+  this.invisInit = false;
+  this.hasCourierableDoors = false;
+  // disable bopis if there are no store in this radius
+  this.bopisRadius = Drupal.settings.globals_variables.bopis_default_radius && parseInt(Drupal.settings.globals_variables.bopis_default_radius) || 50;
+  this.maxStoresDisplayed = Drupal.settings.globals_variables.bopis_max_store_displayed && parseInt(Drupal.settings.globals_variables.bopis_max_store_displayed) || 15;
+  this.postmatesRadius = 10;
+  this.disableInvOnPageLoad = Drupal.settings.globals_variables.disable_inventory_visibility_on_pageload;
+  this.bopis_enabled = Drupal.settings.globals_variables.bopis_enabled;
+  this.twoHourDeliveryEnabled = Drupal.settings.globals_variables.two_hours_delivery;
+  this.isFirstRun = true;
+  this.templateName = 'bopis_v1';
+  this.currentLocationDoors = null;
+  this.currentLocationInventory;
+  this.overlays = {
+    postmates: 'postmates',
+    bopis: 'bopis'
+  };
+  this.currentOverlay = null;
+  this.lastZipSearch = '';
+  this.isUserCustomSearch = false;
+  this.matchHeightwithSmartgift = !!$('.js-product-smart-gift') && $('.js-product-smart-gift').length > 0 && !site.client.isMobile;
+
+  $(document).on('bopis:init', function(e, args) {
+    if (!that.bopis_enabled || !(site && site.templates && site.templates[that.templateName])) {
+      that.activateProductCheck(args);
+      return false;
+    }
+    that.product = that.product || args.product;
+    that.productSkus = (that.product &&
+      that.product.skus.length &&
+      that.product.skus.map(function(sku) {
+        return sku.SKU_BASE_ID;
+      }) ||
+      [that.skuId])
+      .sort();
+    that.handleInit(args);
+  });
+
+  $(document).on('product.skuSelect', '.js-product-full', function(e, skuId) {
+    var selectedSku = that.product && that.product.skus.find(function(sku) {
+      return sku.SKU_BASE_ID === skuId;
+    });
+    that.skuId = skuId;
+    that.product && $.extend(that.product, selectedSku);
+    that.invisInit && that.handleTemplatesInserted();
+  });
+
+  $(document).on('bopis:templates:inserted', function() {
+    that.handleTemplatesInserted();
+    that.invisInit = true;
+  });
+
+  $(document).on('BopisInventory:query:success', function(e, args) {
+    // show bopis if there are any doors available
+    if ((!args.sorted || !args.sorted.length) && (args.params && args.params[0] && args.params[0].use_header)) {
+      that.activateProductCheck();
+      return false;
+    }
+    that.isFirstRun = false;
+    if (that.isUserCustomSearch) {
+      that.isUserCustomSearch = false;
+      that.analytics({
+        action: 'bopisSearchResults',
+        payload: {event_label: args.count || 0}
+      });
+    }
+    that.hasCourierableDoors = !!(args.courierable_door_ids && args.courierable_door_ids.length);
+    if (args.params && args.params[0] && args.params[0].use_header && args.params[0].use_header === 1 && !that.currentLocationDoors) {
+      that.currentLocationDoors = args.sorted;
+      that.currentLocationInventory = args;
+    }
+    $('.js-spp-bopis-has-stores').removeClass('hidden');
+    if (that.matchHeightwithSmartgift) {
+      $('.js-product-smart-gift').addClass('product-smart-gift--has-bopis-stores');
+      $('.js-spp-bopis').addClass('product-details__bopis-spp--has-bopis-stores');
+      $('.js-product-smart-gift, .js-spp-bopis').matchHeight();
+    }
+    that.doors = args.sorted;
+    that.inventory = args;
+    that.handleHasStores();
+    if (that.currentOverlay === that.overlays.postmates) {
+      that.bindPostmatesData(args);
+    } else {
+      that.handleDoorsInvResp(args);
+    }
+  });
+
+  $(document).on('BopisInventory:query:noDoors', function() {
+    that.activateProductCheck();
+  });
+
+  $(document).on('BopisInventory:query:failure', function(e, args) {
+    if (that.currentOverlay !== that.overlays.postmates) {
+      that.activateProductCheck();
+      that.handleDoorsInvFail(args);
+    } else if (args.errors && args.errors.length) {
+      $('.js-postmates-error').addClass('hidden');
+      args.errors.forEach(function(error) {
+        $('.js-' + error.key).removeClass('hidden');
+      });
+    }
+  });
+
+  $(document).on('bopis:searchPanel:rendered', function(e, args) {
+    that.handleSearchPanelRendered();
+  });
+
+  $(document).on('bopis:mainPanel:rendered', function(e, args) {
+    that.handleMainPanelRendered(args);
+  });
+
+  $(document).on('BopisMapApi:init:complete', function() {
+    that.renderMap();
+    that.renderStores();
+    $(document).trigger(that.namespace + ':render:complete');
+  });
+
+  this.activateProductCheck = function(args) {
+    if (!this.isFirstRun) {
+      return false;
+    }
+    that.handleNoStores();
+    if (!Drupal.settings.globals_variables.enable_prod_store_check) {
+      return false;
+    }
+    args = args || {};
+    args.product = args.product || that.product;
+    args.skuId = args.skuId || that.skuId;
+    $(document).trigger('invis:init', args);
+    return false;
+  };
+
+  /*
+   * Log the user event into analytics module
+   */
+  this.analytics = function(payload) {
+    if (site && site.track && site.track.trackBopisEvent && Drupal.settings.globals_variables.bopis_analytics_enabled) {
+      site.track.trackBopisEvent(payload);
+    }
+  };
+
+  /*
+   * Handles init event. Called from outside the app.
+   */
+  this.handleInit = function(args) {
+    that.getNodes();
+    if (this.disableInvOnPageLoad) {
+      this.handleHasStores();
+    }
+    if (args) {
+      that.skuId = args.skuId;
+    }
+    that.initTemplates();
+
+    // check that this product isn't excluded by PRODUCT_ID, DEFAULT_CAT_ID, or MISC_FLAGS
+    var isValidProd = site.inStoreLocator.prototype.checkProdFlags(args.product)
+                      && site.inStoreLocator.prototype.checkProdCats(args.product)
+                      && site.inStoreLocator.prototype.checkProdIds(args.product);
+    if (!isValidProd) {
+      that.dom.$app.each(function() {
+        $(this).remove();
+      });
+    }
+  };
+
+  this.handleHasStores = function() {
+    $('.js-bopis-spp-container').removeClass('bopis-no-stores-available');
+  };
+
+  this.enableTwoHourDelivery = function(result) {
+    var hasPostmatesAvailable = !!this.isPostmatesAvailable();
+    $('body').toggleClass('courier-available', hasPostmatesAvailable);
+  };
+
+  this.handleNoDoorsPopup = function() {
+    var resultsHtml = that.renderTemplate('/invis/search/no_results', {zipCode: this.lastZipSearch});
+    $('.js-invis-form-container').remove();
+    $('.js-invis-search-container').append(resultsHtml);
+    that.resizeOverlay(true);
+  };
+
+  this.handleNoStores = function() {
+    $('.js-spp-bopis-has-stores').addClass('hidden');
+    $('.js-prod-store-check-no-bopis').removeClass('hidden');
+    if (this.matchHeightwithSmartgift) {
+      $('.js-product-smart-gift').addClass('product-smart-gift--no-bopis-stores');
+      $('.js-spp-bopis').addClass('product-details__bopis-spp--no-bopis-stores');
+      $('.js-product-smart-gift, .js-spp-bopis').matchHeight();
+    }
+  };
+
+  /*
+   * Handles success response to doorsandskustatus RPC (called in model/doors_inventory.js).
+   * Stores doors inventory response in private vars
+   */
+  this.handleDoorsInvResp = function(response) {
+    var isSearchPanelActive = $('.js-invis-search-container').length > 0;
+    $('#colorbox').toggleClass('no-doors-available', !response.count);
+
+    that.doors = response.sorted;
+
+    that.doorsInv = response.door_inventory;
+    if (isSearchPanelActive) {
+      var args = {doors: that.doors};
+      this.renderSearchPanel(args);
+    }
+    this.bopis_prod_in_stock = _.some(that.doorsInv, function(door) {
+      return door.skus_onhand && door.skus_onhand[that.skuId] && door.skus_onhand[that.skuId].is_available;
+    });
+
+    that.renderStartPanelContent();
+    that.resizeOverlay();
+  };
+
+  /*
+   * Handles failure response to doorsandskustatus RPC (called in model/doors_inventory.js).
+   * argument Object
+   * example {errors: [{key: 'err_invalid_zip'}]}
+   */
+  this.handleDoorsInvFail = function(args) {
+    args.hasNoDoors = true;
+    that.handleNoDoorsPopup();
+    if (args.errors && args.errors.length) {
+      that.renderMessages(args);
+    }
+  };
+
+  /*
+   * Handles event fired when tempaltes become available.
+   * Launches initial query to doorsandskustatus.
+   */
+  this.handleTemplatesInserted = function() {
+    this.renderStartPanel();
+    if (this.disableInvOnPageLoad) {
+      this.renderStartPanelContent(); // Required to render the element that the user can click on to open the locator popup
+    } else {
+      // Do NOT run on page load. This will prevent locator.doorsandskustatus from running on every SPP page load.
+      this.queryDoors({
+        // zip: 10014, // change for testing initial query with test zip instead of header
+        radius: that.bopisRadius,
+        region_id: this.region_id
+      });
+    }
+  };
+
+  /*
+   * Inserts unbound start panel into DOM, pulls CMS data from the rendered element
+   */
+  this.renderStartPanel = function() {
+    var tmpl = that.renderTemplate('invis/start_panel');
+
+    this.dom.$app.find('.js-invis-start-panel').remove();
+    this.dom.$app.append(tmpl);
+    this.dom.$startPanel = this.dom.$app.find('.js-invis-start-panel');
+    this.safetyStock = this.dom.$startPanel.data('safety-stock');
+    this.region_id = this.dom.$startPanel.data('region-id') || null;
+  };
+
+  /*
+   * Inserts start panel into DOM, pulls CMS data from the rendered element.
+   * binds data & events to UI
+   */
+  this.renderStartPanelContent = function() {
+    var panelData = {'twoHourDeliveryEnabled': that.twoHourDeliveryEnabled};
+    if ($('.js-invis-start-content').length) {
+      return false;
+    }
+    this.enableTwoHourDelivery();
+    panelData.door = that.findBestDoor();
+    if (panelData.door) {
+      panelData.hasLocalDoors = 1;
+      if (panelData.door.skus_onhand) {
+        panelData.hasInventory = 1;
+        if (panelData.door.skus_onhand[that.skuId] && panelData.door.skus_onhand[that.skuId]['is_available']) {
+          panelData.hasAvailable = 1;
+        }
+      }
+    }
+    if (panelData.door) {
+      var tmpl = that.renderTemplate('invis/start_panel_content', panelData);
+      var $oldContent = this.dom.$startPanel.find('.js-invis-start-content');
+      if ($oldContent.length) {
+        $oldContent.remove();
+      }
+      this.dom.$startPanel.html(tmpl);
+    }
+
+    if (panelData.door) {
+      // wire up store name button
+      var fields = ['DOORNAME', 'ADDRESS', 'ADDRESS2', 'CITY', 'STATE_OR_PROVINCE', 'COUNTRY', 'ZIP_OR_POSTAL'];
+      var queryStr = '';
+      _.each(fields, function(f) {
+        queryStr += panelData.door[f] ? panelData.door[f] : '';
+      });
+      $('.js-link-open-store')
+        .attr('href', that.getGoogleMapsHref(panelData.door))
+        .attr('target', 'store_map');
+    }
+
+    // buttons to open empty search panel
+    $('.js-link-open-finder', this.dom.$startPanel).on('click', function(e) {
+      // If door/inventory loading is disabled on pageload, then we need to attempt to load it when the user
+      // clicks the link to open the finder and populate the data if found, this way the user will see results
+      // for their location without having to enter their zipcode.
+      if (that.disableInvOnPageLoad) {
+        Model.BopisInventory.loadDoorsOnly({
+          skus: that.skuId,
+          callback: function(result) {
+            if (result.count > 0) {
+              that.handleDoorsInvResp(result);
+              that.handleOpenResultsClick();
+            } else {
+              that.handleOpenFinderClick();
+            }
+          }
+        });
+      } else {
+        that.handleOpenFinderClick();
+      }
+      e.preventDefault();
+    });
+
+    $('.js-link-open-postmates', this.dom.$startPanel).on('click', that.openPostmatesPopup);
+
+    this.addEventisteners();
+    this.resizeOverlay(!this.inventory.count ? true : false);
+  };
+
+  this.bindPostmatesData = function(args) {
+    var isAvailable,
+        availabilityContainer,
+        $modal = $('#colorbox');
+    args = args || this.inventory;
+    isAvailable = this.isPostmatesAvailable(args, true);
+    $modal.find('.js-postmates-error').addClass('hidden');
+    $modal.find('.js-invis-messages').remove();
+    $modal.find('.js-input-zip').val(that.lastZipSearch);
+    availabilityContainer = $modal.find('.js-spp-postmates-availability');
+    availabilityContainer.find('.available').toggleClass('hidden', !isAvailable);
+    availabilityContainer.find('.not-available').toggleClass('hidden', !!isAvailable);
+    this.resizeOverlay();
+  };
+
+  this.resizeOverlay = function(adjustWidth) {
+    var params = {};
+    params.width = adjustWidth ? 600 : $(window).width() > 1300 ? '1100px' : '980px';
+    !this.isMobileView && generic.overlay.resize(params);
+  };
+
+  this.isPostmatesAvailable = function(data, inRadiusOnly) {
+    var inventory = data || this.inventory;
+    inRadiusOnly = inRadiusOnly || false;
+    return !!this.getCourierablesStoreIds(inventory, inRadiusOnly).length;
+  };
+
+  this.getCourierablesStoreIds = function(data, inRadiusOnly) {
+    return data && data.courierable_door_ids && data.courierable_door_ids.filter(function(doorId) {
+      var hasAllAvailable = true,
+          skuId = that.skuId;
+      if (inRadiusOnly && data.results && data.results[doorId] && parseFloat(data.results[doorId].DISTANCE) > that.postmatesRadius) {
+        hasAllAvailable = false;
+      }
+      if (!(data.door_inventory && data.door_inventory[doorId] && data.door_inventory[doorId].skus_onhand &&
+        data.door_inventory[doorId].skus_onhand[skuId] && data.door_inventory[doorId].skus_onhand[skuId].is_available)) {
+        hasAllAvailable = false;
+      }
+      return hasAllAvailable;
+    }) || [];
+  };
+
+  this.openPostmatesPopup = function() {
+    var _content = that.renderTemplate('postmates/search_panel', {hasDoors: !!that.inventory.count, sku: that.product, twoHourDeliveryEnabled: that.twoHourDeliveryEnabled, zipCode: that.lastZipSearch}),
+        height = that.isMobileView ? '400px' : '330px',
+        width = that.isMobileView ? '100%' : '700px';
+
+    that.analytics({action: 'sppOpenPostmatesOverlay'});
+
+    generic.overlay.launch({
+      content: _content,
+      includeBackground: true,
+      includeCloseLink: true,
+      initialHeight: 0,
+      cssClass: 'postmates-overlay',
+      height: height,
+      width: width,
+      fixed: that.isMobileView ? true : false,
+      override_mobile_width_height: 1,
+      onClosed: function() {
+        that.lastZipSearch = '';
+      },
+      onComplete: function() {
+        that.onPostmatesOverlayOpen();
+        that.currentOverlay = that.overlays.postmates;
+        that.addPostmatesEvents();
+      }
+    });
+  };
+
+  this.onPostmatesOverlayOpen = function() {
+    this.bindPostmatesData();
+  };
+
+  this.addPostmatesEvents = function() {
+    var modal = $('#cboxLoadedContent');
+    modal.find('.js-postmates-search-submit').off().on('click', this.submitSearchForm);
+    modal.find('.js-input-zip').off('keyup').on('keyup', function(e) {
+      if (e.keyCode === 13) {
+        that.submitSearchForm.bind(this)();
+      }
+    });
+    modal.find('.js-input-zip').off('keydown').on('keydown', function(e) {
+      if (that.isInvalidZipCharacter(e)) {
+        e.preventDefault();
+        return false;
+      }
+    });
+    modal.find('.js-invis-current-location').off().on('click', function() {
+      that.analytics({
+        action: 'bopisSearchCurrentLocation',
+        payload: {event_category: 'delivery_options'}
+      });
+      that.lastZipSearch = '';
+      Model.BopisInventory.load({
+        skus: that.productSkus,
+        useHeader: true
+      });
+    });
+  };
+
+  /*
+   * Add the event listeners once the modal is ready
+   */
+  this.addEventisteners = function() {
+    var $modal = $('#cboxLoadedContent'),
+        _toggleLocationForm = function(evt) {
+          var $formContainer = $(evt.target).closest('.js-invis-form-container');
+          $formContainer.find('.js-bopis-search-form-mobile').toggle('show');
+          $(this).toggleClass('active');
+        };
+
+    // button to open search panel with results
+    $('.js-bopis-open-results', this.dom.$startPanel).off('click').on('click', function(e) {
+      that.handleOpenResultsClick();
+      e.preventDefault();
+    });
+    $('.js-bopis-more-info').off('click').on('click', this.showMoreInfoModal);
+    $modal.off('click', '.js-toggle-search-form')
+      .off('click', '.js-invis-current-location')
+      .on('click', '.js-toggle-search-form', _toggleLocationForm)
+      .on('click', '.js-invis-current-location', function() {
+        that.analytics({
+          action: 'bopisSearchCurrentLocation',
+          payload: {event_category: 'delivery_options'}
+        });
+        that.lastZipSearch = '';
+        Model.BopisInventory.load({
+          skus: that.productSkus,
+          useHeader: true
+        });
+      });
+  };
+
+  this.showMoreInfoModal = function(e) {
+    e.preventDefault();
+    var content = $('.js-bopis-info-container'),
+        width = $(window).width() > 1200 ? '1200px' : '100%';
+    if (content.length > 0) {
+      generic.overlay.launch({
+        content: content.clone(true).removeClass('hidden'),
+        includeBackground: true,
+        includeCloseLink: true,
+        initialHeight: 0,
+        fixed: that.isMobileView ? true : false,
+        height: 0,
+        width: width,
+        onComplete: function() {
+          $(window).trigger('macproMakeVisible');
+        }
+      });
+    }
+  };
+
+  /*
+   * Handles event fired when the main panel (the container for the search panel)
+   * is added to the DOM.
+   * arguments Object optional contains an array of door objects
+   * example { doors: [{DOOR_ID: 12345}]}
+   */
+  this.handleMainPanelRendered = function(args) {
+    this.renderSearchPanel(args);
+  };
+
+  /**
+   * tell Model to request doors & inventory
+   */
+  this.queryDoors = function(params) {
+    var args = {
+      skus: that.productSkus,
+      display: this.maxStoresDisplayed,
+      safetyStock: that.safetyStock,
+      radius: params.radius || this.bopisRadius,
+      region_id: that.region_id,
+      useHeader: !(params.zip || params.zip === '')
+    };
+
+    if (params) {
+      args = _.assign(args, params);
+    }
+
+    if (site.prodStoreCheck && site.prodStoreCheck.storeTypes) {
+      args = _.assign(args, {
+        inv_store_types: site.prodStoreCheck.storeTypes
+      });
+    }
+
+    Model.BopisInventory.load(args);
+  };
+
+  /**
+   * Fetch DOM nodes and store as jQuery objects
+   **/
+  this.getNodes = function() {
+    this.dom.$app = $('.js-bopis-app-container');
+    this.dom.$closeLink = $('.js-close-link');
+  };
+
+  /**
+   * Get an Invis template
+   * returns: unprocessed template
+   **/
+  this.getTemplate = function(templateName) {
+    var tmpl = this.dom.$app.find('script.inline-template[path="' + templateName + '"]').html();
+    return tmpl;
+  };
+
+  /**
+   * Get an Invis template and processes it with data
+   * returns: html (processed template)
+   **/
+  this.renderTemplate = function(templateName, data) {
+    var tmpl = that.getTemplate(templateName);
+    var rendered = data ? Mustache.render(tmpl, data) : tmpl;
+    return rendered;
+  };
+
+  /**
+   * Insert Invis templates into the DOM for fast retrieval
+   * returns: Set of unprocessed templates wrapped in script.inline-template tags
+   **/
+  this.initTemplates = function() {
+    if (site && site.templates && site.templates[this.templateName]) {
+      site.template.get({
+        name: this.templateName,
+        callback: function(html) {
+          // Need to filter out no visible container since mobile and pc templates are used together.
+          that.dom.$app.html(html);
+          $(document).trigger('bopis:templates:inserted');
+        }
+      });
+    }
+  };
+
+  this.handleOpenResultsClick = function() {
+    this.renderMainPanel({doors: that.doors});
+  };
+
+  this.handleOverlayOpened = function() {
+  };
+
+  this.handleOverlayClosed = function() {
+  };
+
+  this.handleOpenFinderClick = function() {
+    // always open the popup in with the current location stores
+    that.doors = that.currentLocationDoors || that.doors;
+    that.inventory = that.currentLocationInventory || that.inventory;
+    this.renderMainPanel({doors: that.doors});
+  };
+
+  /*
+   * Renders main panel, which is effectively an unbound search panel.
+   * It puts the search panel into an overlay.
+   */
+  this.renderMainPanel = function(args) {
+    var doors = args && args.doors ? args.doors : [];
+    var panelHtml = that.renderTemplate('invis/search_panel', {sku: this.product, twoHourDeliveryEnabled: that.twoHourDeliveryEnabled});
+    // $('body').append( panelHtml );
+    var onCompleteFn = function() {
+      $(document).trigger('bopis:mainPanel:rendered', args);
+    };
+    var onClosedFn = function() {
+      that.lastZipSearch = '';
+      if (that.currentLocationInventory) {
+        that.inventory = that.currentLocationInventory;
+      }
+      $(document).trigger('invis:mainPanel:closed', args);
+    };
+    this.openOverlay({
+      content: panelHtml,
+      onComplete: onCompleteFn,
+      onClosed: onClosedFn
+    });
+    that.dom.$searchPanel = $('.js-invis-search-container');
+  };
+
+  /*
+   * After search panel is insterted into DOM, wires up
+   * data & events for the components.
+   */
+  this.renderSearchPanel = function(args) {
+    var $modal = $('#cboxLoadedContent');
+    this.bindLocationSearchForm();
+    $modal.find('.js-invis-results').remove();
+    $modal.find('.js-invis-form-container').remove();
+    $modal.find('.bopis-search-mobile.js-invis-form-container').remove();
+    if (args) {
+      if (args.doors && args.doors.length) { // render door results
+        that.renderResults(args.doors);
+        that.initMap(args.doors);
+      } else { // search form was submitted
+        that.handleNoDoorsPopup();
+      }
+    } else { // no args, treat it as initial view
+      $modal.find('.js-input-zip').val('');
+    }
+    $(document).trigger('bopis:searchPanel:rendered');
+  };
+
+  /*
+   * Binds events to search form.
+   */
+  this.bindLocationSearchForm = function() {
+    var $modal = $('#cboxLoadedContent');
+    var $radius = $('.js-invis-select-radius');
+    var _formSubmit = this.submitSearchForm;
+    var defaultDistance = $radius.attr('data-default-distance') || this.bopisRadius;
+    // set default option
+    $radius.find('option[value=' + defaultDistance + ']').attr('selected', 'selected');
+    $modal.off('click', '.js-invis-search-submit').on('click', '.js-invis-search-submit', _formSubmit);
+    $modal.off('keyup').on('keyup', '.js-input-zip', function(e) {
+      if (e.keyCode === 13) {
+        _formSubmit.bind(this)({zip: $(e.target).val()});
+      }
+    });
+    $modal.off('keydown').on('keydown', '.js-input-zip', function(e) {
+      if (that.isInvalidZipCharacter(e)) {
+        e.preventDefault();
+        return false;
+      }
+    });
+  };
+
+  this.submitSearchForm = function() {
+    var $form = $(this).closest('.js-invis-form-container'),
+        zip = $form.find('.js-input-zip').val(),
+        radius = $form.find('.js-invis-select-radius').val(),
+        payload = { skus: that.skuId,
+          zip: zip,
+          radius: radius,
+        };
+    that.lastZipSearch = zip;
+    that.isUserCustomSearch = true;
+    that.analytics({
+      action: 'bopisSearch',
+      payload: {event_category: that.currentOverlay === that.overlays.postmates ? 'delivery_options' : 'bopis'}
+    });
+    return that.queryDoors(payload);
+  };
+
+  /*
+   * Handles event called after search panel is rendered.
+   * Launches initial query to doorsandskustatus.
+   */
+  this.handleSearchPanelRendered = function() {
+    var resizeType = this.isMobileView ? {height: $(window).height()} : {};
+    $(window).resize(function() { /* Adding a window resize for Orientation changes for colorbox height and width  */
+      $(this).colorbox.resize(resizeType);
+    });
+  };
+
+  /*
+   * Fetches template for search results container, renders & inserts into DOM
+   */
+  this.renderResults = function(args) {
+    var resultsHtml = that.renderTemplate('/invis/search/results', {hasDoors: !!this.inventory.count, twoHourDeliveryEnabled: that.twoHourDeliveryEnabled, zipCode: this.lastZipSearch});
+    $('.js-invis-search-container').append(resultsHtml);
+  };
+
+  this.renderMessages = function(args) {
+    var panelData = {hasNoDoors: !!args.hasNoDoors};
+    _.each(args.errors, function(err) {
+      switch (err.key) {
+        case 'err_no_results':
+          panelData.hasNoResults = 1;
+          break;
+        case 'err_invalid_zip':
+          panelData.invalidZip = 1;
+          break;
+        case 'err_missing_zip':
+          panelData.missingZip = 1;
+          break;
+        default:
+          break;
+      }
+    });
+    var msgsHtml = that.renderTemplate('/invis/search/messages', panelData);
+    if (that.currentOverlay === that.overlays.postmates) {
+      $('.js-invis-form-container .js-invis-messages').remove();
+      $('.js-invis-form-container').append(msgsHtml);
+      generic.overlay.resize();
+      return false;
+    }
+    var $oldResults = that.dom.$searchPanel && that.dom.$searchPanel.find('.js-invis-results');
+    if ($oldResults && $oldResults.length) {
+      $oldResults.remove();
+    }
+    that.dom.$searchPanel.append(msgsHtml);
+    !that.isMobileView && $(this).colorbox.resize();
+  };
+
+  this.openOverlay = function(args) {
+    var _content = args.content;
+    var _onComplete = args.onComplete;
+    var _onClosed = args.onClosed;
+    var $window = $(window);
+    var windowWidth = $window.width();
+    var windowHeight = $window.height();
+    var width = !this.isMobileView && !this.inventory.count ? '600px' : windowWidth > 1300 ? '1100px' : windowWidth < 1024 ? '100%' : '980px';
+    var height = this.isMobileView ? windowHeight + 'px' : 720;
+
+    that.analytics({action: 'sppOpenBopisOverlay'});
+
+    generic.overlay.launch({
+      content: _content,
+      includeBackground: true,
+      includeCloseLink: true,
+      initialHeight: 0,
+      className: 'bopis-overlay',
+      height: height,
+      override_mobile_width_height: 1,
+      innerHeight: height,
+      width: width,
+      fixed: that.isMobileView ? true : false,
+      // onComplete : _onComplete,
+      onClosed: _onClosed,
+      onComplete: function() {
+        _onComplete();
+        that.currentOverlay = that.overlays.bopis;
+        that.addEventisteners();
+      }
+    });
+  };
+
+  this.initMap = function() {
+    Model.MapApi.init('BopisMapApi:init:complete');
+  };
+
+  this.getGoogleMapsHref = function(door) {
+    var fields = ['ADDRESS', 'ADDRESS2', 'CITY', 'STATE_OR_PROVINCE', 'COUNTRY', 'ZIP_OR_POSTAL'];
+    // adding a comma after door name to help Google parse query string into viable address
+    var queryStr = door['DOORNAME'] ? door['DOORNAME'] + ',' : '';
+    _.each(fields, function(f) {
+      queryStr += door[f] ? door[f] + ' ' : '';
+    });
+    return 'http://maps.google.com/maps?q=' + encodeURIComponent(queryStr);
+  };
+
+  this.generateOpenHours = function(door, date) {
+    var hours = this.inventory.store_hours[door.DOOR_ID],
+        todayHours = hours && hours.opening_hours.raw[date.day],
+        toAM = function(nHour) {
+          nHour = nHour / 100;
+          var rHour = nHour % 12;
+          if (!Number.isInteger(rHour)) {
+            rHour = rHour.toFixed(2);
+          }
+
+          return (rHour > 0 ? rHour : 12) + (nHour / 12 > 1 ? 'PM' : 'AM');
+        };
+
+    if (!hours) {
+      return '';
+    }
+    if (parseInt(todayHours.open) > parseInt(date.hour) && parseInt(todayHours.close) > parseInt(date.hour)) {
+      return toAM(parseInt(todayHours.open)) + ' - ' + toAM(parseInt(todayHours.close));
+    } else {
+      return 'Open - Closes ' + toAM(parseInt(todayHours.close));
+    }
+  };
+
+  this.renderStores = function() {
+    if (!that.doors || !that.doors.length || !google.maps) {
+      return null;
+    }
+    var tableHtml = that.renderTemplate('/invis/search/doors_table'),
+        currentDate = new Date(),
+        date = {
+          day: currentDate.getDay(),
+          hour: parseInt(currentDate.getHours() + '00')
+        };
+
+    $('.js-stores-container').html(tableHtml);
+    that.dom.$doorsTable = $('ul.js-results-list');
+
+    var bounds = new google.maps.LatLngBounds();
+    that.markers = [];
+    _.each(that.doors, function(door, idx) {
+      door.idx = idx;
+      door.googleMapsHref = that.getGoogleMapsHref(door);
+      door.markerSrc = '/media/export/cms/store_location_pins/Stores_' + (idx + 1) + '-01.svg';
+      door['hasInventory'] = 0;
+      door['hasAvailable'] = 0;
+      door['isCall'] = 0;
+      door['statusClass'] = 'no-inventory';
+      if (door.skus_onhand && door.skus_onhand[that.skuId]) {
+        var inv = door.skus_onhand[that.skuId];
+        door['hasInventory'] = 1;
+        door['statusClass'] = 'has-inventory';
+        if (inv['is_available']) {
+          door['statusClass'] = 'has-available';
+          door['hasAvailable'] = 1;
+        } else if (inv['is_call']) {
+          door['isCall'] = 1;
+          door['statusClass'] += ' call-for-availability';
+        }
+      }
+      door.openHours = that.generateOpenHours(door, date);
+      // add store to results list
+      var doorHtml = that.renderTemplate('/invis/search/door', door);
+      that.dom.$doorsTable.append(doorHtml);
+      // place marker on Google Map
+      if (that.map) {
+        var latLng = new google.maps.LatLng(door.LATITUDE, door.LONGITUDE);
+        bounds.extend(latLng);
+        var marker = new google.maps.Marker({
+          position: latLng,
+          map: that.map,
+          icon: {
+            url: door.markerSrc,
+            scaledSize: new google.maps.Size(31, 41),
+            origin: new google.maps.Point(0, 0),
+            anchor: new google.maps.Point(0, 41)
+          },
+          optimized: false,
+          index: idx,
+          title: '' + door.DOOR_ID
+        });
+        that.map.fitBounds(bounds);
+
+        marker.addListener('click', function(e) {
+          that.handleStoreClick(marker.index);
+        });
+
+        that.markers.push(marker);
+      }
+    }); // end _.each
+
+    // bind event to doors list items
+    that.dom.$doorsTable.find('.js-door-list-item').on('click', function(e) {
+      var i = $(this).data('door-idx');
+      that.handleStoreClick(i);
+    });
+
+    $('.shade-picker__next', that.dom.$searchPanel).once().click(function() {
+      that.dom.$doorsTable.scrollTo(that.dom.$doorsTable.scrollTop() + 300 + 'px', 300);
+    });
+    $('.shade-picker__previous', that.dom.$searchPanel).once().click(function() {
+      that.dom.$doorsTable.scrollTo(that.dom.$doorsTable.scrollTop() - 300 + 'px', 300);
+    });
+    that.handleSearchPanelRendered();
+  }; // end renderStores
+
+  this.handleStoreClick = function(i) {
+    that.analytics({
+      action: 'bopisStoreClick',
+      payload: {event_label: that.doors[i] && that.doors[i].DOORNAME + ' ' + (that.doors[i].SUB_HEADING || '')}
+    });
+    that.displayInfoWindow(i);
+    that.selectDoorInList(i);
+  };
+
+  this.displayInfoWindow = function(i) {
+    if (that.infoWindow) {
+      that.infoWindow.close();
+    }
+    var door = that.doors[i];
+    var marker = that.markers[i];
+    that.infoWindow = new google.maps.InfoWindow({
+      content: '<div>' + door.DOORNAME + '</div><div>' + door.ADDRESS + '</div>'
+    });
+    that.infoWindow.open(that.map, marker);
+    that.map.setCenter(marker.getPosition());
+    google.maps.event.addListener(that.infoWindow, 'domready', function() {
+      var iwOuter = $('.gm-style-iw');
+      var iwCloseBtn = iwOuter.find('.gm-ui-hover-effect');
+      iwCloseBtn.css({
+        opacity: '1',
+        color: '#FFFFFF',
+        top: '0',
+        right: '0'
+      })
+        .html('X');
+      iwCloseBtn.mouseout(function() {
+        $(this).css({opacity: '1'});
+      });
+    });
+  };
+
+  this.selectDoorInList = function(i) {
+    var $list = that.dom.$doorsTable,
+        $selectedLi;
+    $list.find('li').removeClass('selected');
+    $selectedLi = $list.find('li[data-door-idx=' + i + ']');
+    if ($selectedLi.length) {
+      $selectedLi.addClass('selected');
+      $list.animate({
+        scrollTop: $selectedLi.offset().top - $list.offset().top + $list.scrollTop()
+      });
+    }
+  };
+
+  this.renderMap = function() {
+    if (!that.doors || !that.doors.length || !google.maps) {
+      return null;
+    }
+
+    var zoomLevel = 5,
+        mapOptions = {
+          zoom: zoomLevel,
+          center: new google.maps.LatLng(that.doors[0]['LATITUDE'], that.doors[0]['LONGITUDE']),
+          mapTypeId: google.maps.MapTypeId.ROADMAP,
+          disableDefaultUI: false,
+          navigationControl: true,
+          mapTypeControl: false,
+          scaleControl: false
+        };
+    this.map = new google.maps.Map($('.js-map-container')[0], mapOptions);
+  };
+
+  /*
+   * Doors are returned from the model sorted by distance. This function
+   * searches through doors to find the closest door with available inventory.
+   * If none is found, look for a door with  any inevntory. If neither is
+   * found, return the closest door.
+   */
+  this.findBestDoor = function() {
+    var door = null;
+    door = _.find(that.doors, function(d) {
+      return d.skus_onhand
+          && d.skus_onhand[that.skuId]
+          && d.skus_onhand[that.skuId]['is_available'];
+    });
+    if (!door) {
+      door = _.find(that.doors, function(d) {
+        return d.skus_onhand
+            && d.skus_onhand[that.skuId];
+      });
+    }
+    if (!door) {
+      door = that.doors[0];
+    }
+    return door;
+  };
+
+  /*
+   * returns boolean indicating whether current breakpoint is 102epx+
+   */
+  this.isDesktop = function() {
+    return parseInt(Unison.fetch.now().width) >= 1023;
+  };
+
+  /*
+   * Zip code field should allow only numeric values and "Enter", "Backspace", "ArrowLeft" and "ArrowRight" keys.
+   */ 
+  this.isInvalidZipCharacter = function(e) {
+    var regex = new RegExp(Drupal.settings.prod_store_check_zipcode_valid_symbols_regex || '[0-9]'),
+        key = e.key,
+        keyCode = Number(e.which);
+
+    return !regex.test(key) && keyCode !== 13 && keyCode !== 8 && keyCode !== 37 && keyCode !== 39;
+  };
+
+  return that;
+};
+
+this.bopis = new site.bopisSPP();

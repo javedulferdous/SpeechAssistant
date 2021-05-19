@@ -1,0 +1,193 @@
+_satellite.pushAsyncScript(function(event, target, $variables){
+  /* code for setting eVar5, eVar163 and event18  based on filter and null search starts here */
+if(_satellite.getVar("Enable_DTM_CCPA") === "false") {
+var isFilterApplied = false;
+var nullPageFlag = false;
+var BASObject = window.dtmObject.BAS;
+if(BASObject.SearchResultsFilterInfo !== undefined && BASObject.SearchResultsFilterInfo.selectedRefinements !== undefined && BASObject.SearchResultsFilterInfo.selectedRefinements.length > 0){
+	isFilterApplied = true;
+}
+if(BASObject.SearchResultsWholeInfo !== undefined && BASObject.SearchResultsWholeInfo.messages !== undefined && BASObject.SearchResultsWholeInfo.messages[0].code == 'WAG_I_SR_0003'){
+	nullPageFlag = true;
+}
+if(!isFilterApplied && window.location.href.indexOf('/q/') === -1){
+	window.s.linkTrackEvents = "event18";
+	s.events = 'event18';
+}else{
+	s.linkTrackEvent="event99";
+	s.events = 'event99';
+}
+if(nullPageFlag){
+  window.s.eVar163 = '';
+	window.s.eVar24 = _satellite.getVar("BAS_SearchResult_Keyword_Evar5");
+}
+if(!isFilterApplied){
+	window.s.eVar5 = _satellite.getVar("BAS_SearchResult_Keyword_Evar5");
+	if(!nullPageFlag){
+		window.s.eVar163 = _satellite.getVar("BAS_SearchResult_Keyword_Evar5");
+    s.eVar24 = '';
+	}
+}else{
+window.s.eVar5 = '';
+window.s.eVar163 = '';
+}
+/* code for setting eVar5, eVar163 and event18  based on filter and null search ends here */
+
+//setTimeout(function(){
+    s.linkTrackVars="events,eVar5,eVar10,eVar15,eVar67,eVar72,prop14,prop15,prop30,eVar25,eVar24,eVar98,eVar77,eVar89,eVar109,eVar97";
+    s.eVar10 = _satellite.getVar('BAS_SearchResult_Keyword_Evar10');
+    s.eVar15 = _satellite.getVar('BAS_SearchResult_Keyword_Evar15');
+    s.eVar67 = _satellite.getVar('BAS_isGeotargeted');
+    s.prop14 = 'Search Results';
+    s.prop15 = _satellite.getVar('BAS_last_searched_keyword');
+    s.eVar77 = '';
+    s.eVar89 = '';
+    s.eVar109 = '';
+
+    s.eVar25 = _satellite.getVar('BAS-SRP-Product-Count');
+    s.eVar72 = _satellite.getVar('BAS_Device_Type_Global_EVar72');
+    
+    s.prop30 = '';
+    s.eVar98 = _satellite.getVar('BAS_SearchResult_Keyword_Evar5');
+  
+  /* Evar 97 relevancy template ID tracking starts */
+  	s.eVar97 = '';
+    if (window.location.search.indexOf('&tmplId') !== -1) {    
+      if(BASObject && BASObject.SearchResultsWholeInfo && BASObject.SearchResultsWholeInfo.qparam && BASObject.SearchResultsWholeInfo.qparam.tmplId){
+        s.eVar97 = BASObject.SearchResultsWholeInfo.qparam.tmplId;
+      }
+    }
+ 	/* Evar 97 relevancy template ID tracking Ends */
+  
+  
+    if (window.dtmObject && window.dtmObject.BAS && window.dtmObject.BAS.SearchResultsWholeInfo && window.dtmObject.BAS.SearchResultsWholeInfo.drugContents) {
+        s.prop30 = "Drug Information | Integrated | Search Results | Walgreens";
+    } else {
+          s.eVar99 = "";
+    }
+    if (window.dtmObject && window.dtmObject.BAS && window.dtmObject.BAS.SearchResultsWholeInfo && window.dtmObject.BAS.SearchResultsWholeInfo.summary && window.dtmObject.BAS.SearchResultsWholeInfo.summary.productInfoCount == 0 && window.dtmObject.BAS.SearchResultsWholeInfo.summary.healthInfoCount == 0 && window.dtmObject.BAS.SearchResultsWholeInfo.summary.drugInfoCount == 0 && (window.dtmObject.BAS.SearchResultsWholeInfo.summary.inStoreTotalResults == 0 || window.dtmObject.BAS.SearchResultsWholeInfo.summary.inStoreTotalResults == undefined)) {
+    if (sessionStorage.getItem("navHeaderSearchBoxFlag") !== null && typeof sessionStorage.getItem("navHeaderSearchBoxFlag") !== "undefined") {
+        sessionStorage.removeItem("navHeaderSearchBoxFlag");
+     s.linkTrackEvent="event78";
+     s.events=s.events+",event78";
+    } else if (sessionStorage.getItem("relatedSearchFlag") !== null && typeof sessionStorage.getItem("relatedSearchFlag") !== "undefined") {
+        sessionStorage.removeItem("relatedSearchFlag");
+      s.linkTrackEvent="event81";
+      s.events=s.events+",event81";
+    } else {
+      s.linkTrackEvent="event79";
+      s.events=s.events+",event79";
+    }
+    if (typeof window.dtmObject.BAS.SearchResultsWholeInfo.products === "undefined") {
+    s.eVar24 = $('#keyword').val();
+    }
+    } else {
+    if (sessionStorage.getItem("navHeaderSearchBoxFlag") !== null && typeof sessionStorage.getItem("navHeaderSearchBoxFlag") !== "undefined") {
+    sessionStorage.removeItem("navHeaderSearchBoxFlag");
+     s.linkTrackEvent="event76";
+     s.events=s.events+",event76";
+    } else if (sessionStorage.getItem("relatedSearchFlag") !== null && typeof sessionStorage.getItem("relatedSearchFlag") !== "undefined") {
+    sessionStorage.removeItem("relatedSearchFlag");
+     s.linkTrackEvent="event80";
+     s.events=s.events+",event80";
+    } else {
+     s.linkTrackEvent="event77";
+     s.events=s.events+",event77";
+    }
+    }
+    if(window.dtmObject.BAS && window.dtmObject.BAS.SearchResultsWholeInfo && (window.dtmObject.BAS.SearchResultsWholeInfo.filter && window.dtmObject.BAS.SearchResultsWholeInfo.filter.closeMatchKeyword) || (window.dtmObject.BAS.SearchResultsWholeInfo.messages && window.dtmObject.BAS.SearchResultsWholeInfo.messages[0] && window.dtmObject.BAS.SearchResultsWholeInfo.messages[0].code=="WAG_I_SR_0003")){
+    s.linkTrackEvent="event112";
+    s.events=s.events+",event112";
+    }
+    s.tl();
+    s.linkTrackVars="None";
+      //}, 2500);
+    
+     if(typeof Clazz !=='undefined') {
+        setTimeout(function() {
+            var sponsored = setInterval(function() {
+                if(angular.element('#sponsored').length) {
+                    clearInterval(sponsored);
+                    var sponsoredProducts = angular.element('#sponsored').scope();
+                    if(sponsoredProducts && sponsoredProducts.sponsored && sponsoredProducts.sponsored.carouseldata && sponsoredProducts.sponsored.carouseldata.products && sponsoredProducts.sponsored.carouseldata.products.length ===0){
+                        angular.element('#sponsored').addClass('hide');
+                    }
+                    if(sponsoredProducts && sponsoredProducts.sponsored && sponsoredProducts.sponsored.carouseldata && sponsoredProducts.sponsored.carouseldata.products && sponsoredProducts.sponsored.carouseldata.products.length>0){
+                      angular.element('#sponsored').removeClass('hide');
+                    }        
+                } 
+            },100);
+        },1000);
+    }
+      // VPD Angular to React Redirection Start.
+      /*$('body').on("click", "a[href*='/store/']", function(e){ 
+        var VPDURL=$(this).attr('href');
+        var clProductIds=['prod6017176', 'prod4093553', 'prod6258783', 'prod6157375', 'prod6007153', 'prod3898670', 'prod4118862', 'prod5666725', 'prod6300763', 'prod2301391', 'prod6312311', 'prod5581626', 'prod3998114', 'prod6188362', 'prod6229500', 'prod2301413', 'prod3067753', 'prod6110864', 'prod6257622', 'prod6022300', 'prod3898682', 'prod2301362', 'prod6198018', 'prod6091900', 'prod4128096', 'prod6297029', 'prod6258364', 'prod6281852', 'prod6335750', 'prod6022299', 'prod6347400', 'prod3898683', 'prod3898669', 'prod3898673', 'prod6007157', 'prod3976300', 'prod6257624', 'prod6300516', 'prod2301352', 'prod6046881', 'prod6229499', 'prod6358602', 'prod2301342', 'prod2301343', 'prod3898684', 'prod6003610', 'prod6257621', 'prod6339702', 'prod6270630', 'prod2302116', 'prod3898680', 'prod6055845', 'prod2301408', 'prod6343351', 'prod2600990', 'prod3898685', 'prod3898675', 'prod3898678', 'prod6258366', 'prod6315827', 'prod2417196', 'prod6297030', 'prod6095155', 'prod6091901', 'prod4403761', 'prod6281851', 'prod6114075', 'prod2301341', 'prod6342050', 'prod6257623', 'prod2301340', 'prod2533516','prod3898676', 'prod6288657', 'prod2533513', 'prod6288656', 'prod2301409', 'prod6288652', 'prod2301361', 'prod6288655', 'prod6343350', 'prod6258365', 'prod2533507', 'prod6288653', 'prod2533512', 'prod6281405', 'prod6288654', 'prod6028376', 'prod6288658', 'prod6355200', 'prod3898677', 'prod6288659', 'prod2301345', 'prod2301346', 'prod2301338', 'prod6288650', 'prod3937841', 'prod6288651', 'prod3898681', 'prod2533515', 'prod6028375', 'prod6296943', 'prod2301348', 'prod2301394', 'prod2533501', 'prod2417193', 'prod2301350']; 
+        var productsMatches=RegExp(clProductIds.join('|')).exec(VPDURL); 
+        if (productsMatches){
+          e.preventDefault();
+          window.location.href=VPDURL;
+        } else { 
+          if( VPDURL.indexOf('/ID=prod') >= 0 || VPDURL.indexOf('/view_product_details.jsp') >= 0){
+            e.preventDefault();
+            var checkForParam="?";
+            if (VPDURL.indexOf("?") >= 0){
+              checkForParam="&";
+            }
+            var newVPDURl=VPDURL+checkForParam+"reactjs=true";
+            window.location.href=newVPDURl;
+          } else { 
+            //window.location.href = VPDURL; 
+          }
+        }
+      }); */
+      // VPD Angular to React Redirection End.
+      /*$('body').on('click', '.search-result-list-container .wag-compare-quickcmpbuttons>a, .wag-compare-drawer-box a:eq(1)', function(e){
+        window.location.href = '/search/productcomparison.jsp?reactjs=true';
+        return false;
+      });*/
+
+
+//Adding click action to the conversion pixel
+$(document).ready(function(){
+	let url = window.location.href.indexOf('Ntt=mucinex');
+  if(url > -1){
+  let couponmucinex = Object.values($('.wag-coupon-brandname.wag-hn-lt-heavy.wag-txt-elipsis'))
+    let clip = [];
+    console.log('in mucinex page', couponmucinex);
+    couponmucinex && couponmucinex.map((item, key) => {
+      console.log('item for testing', item.textContent)
+      if( item.textContent && item.textContent.indexOf('Mucinex') > -1){
+        console.log('item, key values', item, key);
+        clip.push(key);
+        console.log('clip value', clip);
+      }
+    })
+    if(clip !== []){
+      console.log('clip value', clip);
+      clip && clip.map((item,key) => {
+        let click = $('.wag-coupons-btn-btm.wag-clear-both.pt15').find('a')[item];
+        console.log('click value', click);  
+        if(click){
+            console.log('click[0] value', click);
+            click.onclick = () => {
+              console.log('testing mucinex', key);
+              return gtag_report_conversion();
+            }
+          }
+      })
+    }  
+  }
+})
+
+//Fixing the empty promo banner issue
+if($('.row.mb20.banners').text() === 'false'){
+  setTimeout(()=>{
+			$('.row.mb20.banners').hide();
+		},500);
+}
+}
+
+
+
+});

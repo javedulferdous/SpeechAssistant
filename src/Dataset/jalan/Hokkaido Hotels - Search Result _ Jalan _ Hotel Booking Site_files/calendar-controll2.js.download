@@ -1,0 +1,555 @@
+var $calendar3 = $('#jsi-calendar3'),
+	$calendar4 = $('#jsi-calendar4'),
+	$checkInTrigger2 = $('.jsc-check-in-trigger2'),
+	$checkOutTrigger2 = $('.jsc-check-out-trigger2'),
+	$startDate2 = $('#jsi-start-date2'),
+	$endDate2 = $('#jsi-end-date2'),
+	$roomTrigger2 = $('.jsc-room-trigger2'),
+	clickCount2 = 0,
+	checkInIndex2 = null,
+	checkOutIndex2 = null,
+	checkIn2 = {},
+	checkOut2 = {},
+	checkTmp2 = {},
+	mouseDownIndex2 = -1,
+	selectingTarget2 = 0,
+	selectedMonth2 = {},
+	startDate2 = new Date(),
+	endDate2 = new Date(startDate2.getFullYear(), startDate2.getMonth(), startDate2.getDate() + 1),
+	thisMonth2 = new Date(),
+	nextMonth2 = new Date(thisMonth2.getFullYear(), thisMonth2.getMonth() + 1),
+	today2 = new Date(),
+	$cellContainer2 = $('.jsc-calendar-target2'),
+	$cells2 = null,
+	$allCells2 = null,
+	grabbedElement2 = 0,
+	calendarClickFlag2;
+	
+	options3 = {
+		previousLimit : {year : thisMonth2.getFullYear(), month : thisMonth2.getMonth() + 1},
+		nextLimit : {year : null, month : null, date : null},
+		previousText : '<',
+		nextText : '',
+		disableBeforeToday : true,
+		showOtherMonthDate : false,
+		showYearLabel : true,
+		paddingMonthLabel : false,
+		labelOfDay : ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'],
+		closeByCellClicked : false,
+		onMonthChange : null,
+		onCellClick : function(year, month, date, day){
+			var check = checkTmp2;
+			
+			switch(clickCount2){
+			case 0:
+				check = checkIn2;
+				break;
+			case 1:
+				check = checkOut2;
+				break;
+			}
+			check.year = year;
+			check.month = month;
+			check.date = date;
+		},
+		enableToChangeMonth : true,
+		enableToSelectDate : true,
+		defaultDisplay : {
+			year : thisMonth2.getFullYear(),
+			month : thisMonth2.getMonth() + 1
+		}
+	};
+var createDateInfo = function(date){
+	return (date.getMonth() + 1) + '/' + date.getDate() + '/' + String(date.getFullYear()).substring(2, 4);
+};
+var getCellIndex = function(date){
+	var last = new Date(selectedMonth2.year, selectedMonth2.month - 2, 1),
+		lastYear = last.getFullYear(),
+		lastMonth = last.getMonth() + 1,
+		lastDate = (new Date(selectedMonth2.year, selectedMonth2.month - 1, 0)).getDate(),
+		index = 0;
+	
+	if(date.getMonth() + 1 == lastMonth){
+		index = date.getDate() - 1;
+	}else{
+		index = lastDate + date.getDate() - 1;
+	}
+	if(today2.getFullYear() == selectedMonth2.year && (today2.getMonth() + 1) == selectedMonth2.month
+		|| today2.getFullYear() == lastYear && (today2.getMonth() + 1) == lastMonth){
+		index -= today2.getDate() - 1;
+	}
+	return index;
+};
+var checkIncludeStatus = function(){
+	var date = new Date(selectedMonth2.year, selectedMonth2.month - 2, 1),
+		lastYear = date.getFullYear(),
+		lastMonth = date.getMonth() + 1,
+		lastDate = (new Date(selectedMonth2.year, selectedMonth2.month - 1, 0)).getDate();
+		
+	return {
+		checkin : (checkInIndex2 !== null) && checkIn2.year >= lastYear && checkIn2.month >= lastMonth && checkIn2.year <= selectedMonth2.year && checkIn2.month <= selectedMonth2.month,
+		checkout : (checkOutIndex2 !== null) && checkOut2.year >= lastYear && checkOut2.month >= lastMonth && checkOut2.year <= selectedMonth2.year && checkOut2.month <= selectedMonth2.month
+	};
+};
+$calendar3.setSimpleCalendar(options3);
+
+var options4 = $.extend(true, options3, {
+	previousText : '',
+	nextText : '>',
+	defaultDisplay : {
+		year : nextMonth2.getFullYear(),
+		month : nextMonth2.getMonth() + 1
+	},
+	onMonthChange : function(year, month){
+		selectedMonth2.year = year;
+		selectedMonth2.month = month;
+		
+		if($cells2){
+			$cells2.off('click.jli');
+			$cells2.off('mouseenter.jli');
+			$cells2.off('mousedown.jli');
+			$cells2.removeClass('check-in check-out stay');
+		}
+		if($allCells2){
+			$allCells2.off('mouseup.jli');
+		}else{
+			$allCells2 = $cellContainer2.find('td');
+		}
+		$cells2 = $allCells2.filter(':not(.simple-calendar-other-month-cell, .simple-calendar-disabled-cell)');
+		$cells2.filter('.selecting').removeClass('simple-calendar-disabled-cell selecting');
+		
+		var status = checkIncludeStatus();
+		
+		if(status.checkin && !checkOutIndex2){
+			var currentIndex = getCellIndex(new Date(checkIn2.year, checkIn2.month - 1, checkIn2.date));
+			
+			$cells2.each(function(index){
+				if(index < currentIndex){
+					$(this).addClass('simple-calendar-disabled-cell selecting');
+				}
+			});
+		}
+		$cells2.on('click.jli', function(){
+			var $self = $(this);
+			
+			if($self.hasClass('check-in') || $self.hasClass('check-out')){
+				return;
+			}
+			var index = $cells2.index($self),
+				status = checkIncludeStatus();
+			
+			$cells2.filter('.selecting').removeClass('simple-calendar-disabled-cell selecting');
+			
+			switch(clickCount2){
+			case 0:
+				$cells2.removeClass('check-in check-out stay');
+				$self.addClass('check-in');
+				checkInIndex2 = $cells2.index($self);
+				checkOutIndex2 = null;
+				$checkInTrigger2.val(checkIn2.month + '/' + checkIn2.date + '/' + String(checkIn2.year).substring(2, 4));
+				clickCount2++;
+				$startDate2.removeClass('selected');
+				$startDate2.css('color','#000000');
+				$endDate2.addClass('selected');
+				$endDate2.css({'color':'#000000','background-color':'#FFFFFF'});
+				$endDate2.val('');
+				$endDate2.attr('disabled', false);
+				$endDate2.removeClass('disabled');
+				selectingTarget = 1;
+				
+				var startIndex = $cells2.index($cells2.filter('.check-in'));
+				
+				$cells2.each(function(index){
+					if(index <= startIndex){
+						$(this).addClass('simple-calendar-disabled-cell selecting');
+					}
+				});
+				break;
+			case 1:
+				if(status.checkin && checkInIndex2 >= index){
+//					alert('チェックイン以前の日付を選択することはできません');
+					break;
+				}else{
+					var checkInDate = new Date(checkIn2.year, checkIn2.month - 1, checkIn2.date),
+						checkOutDate = new Date(checkOut2.year, checkOut2.month - 1, checkOut2.date);
+					
+					if((checkOutDate.getTime() - checkInDate.getTime()) > 28 * 24 * 60 * 60 * 1000){
+						$alert.show();
+						$alert.find('.alert-error-description').html('Your check-out date is more than 28 nights after your check-in date.<br>Bookings can only be made for a maximum of 28 nights. Please enter different dates and try again.');
+						$cells2.removeClass('stay');
+						break;
+					}
+				}
+				checkOutIndex2 = index;
+				$self.addClass('check-out').removeClass('stay');
+				
+				$cells2.each(function(index){
+					if(index > checkInIndex2 && index < checkOutIndex2){
+						$(this).addClass('stay');
+					}
+				});
+				$checkOutTrigger2.val(checkOut2.month + '/' + checkOut2.date + '/' + String(checkOut2.year).substring(2, 4));
+				clickCount2++;
+				setTimeout(function(){
+					$endDate2.removeClass('selected');
+					$('.jsc-calendar-target2').slideUp(300);
+					// automaticIndex++;
+					
+					if(calendarClickFlag2 || roomClickFlag){
+						return;
+					}
+					$roomTrigger2.focus();
+					$roomTrigger2.trigger('click');
+					calendarClickFlag2 = true;
+				}, 600);
+				break;
+			default:
+				switch(selectingTarget2){
+				case 0:
+					$cells2.removeClass('check-in check-out stay');
+					$self.addClass('check-in');
+					checkInIndex2 = index;
+					checkOutIndex2 = null;
+					checkIn2 = $.extend(true, {}, checkTmp2);
+					$checkInTrigger2.val(checkTmp2.month + '/' + checkTmp2.date + '/' + String(checkTmp2.year).substring(2, 4));
+					clickCount2 = 1;
+					$startDate2.removeClass('selected');
+					$endDate2.addClass('selected');
+					$endDate2.val('');
+					$endDate2.attr('disabled', false);
+					$endDate2.removeClass('disabled');
+					selectingTarget2 = 1;
+					
+					var startIndex = $cells2.index($cells2.filter('.check-in'));
+					
+					$cells2.each(function(index){
+						if(index <= startIndex){
+							$(this).addClass('simple-calendar-disabled-cell selecting');
+						}
+					});
+					break;
+				case 1:
+					if(status.checkin && checkInIndex2 >= index){
+//						alert('チェックイン以前の日付を選択することはできません');
+						break;
+					}else{
+						var checkInDate = new Date(checkIn2.year, checkIn2.month - 1, checkIn2.date),
+							checkOutDate = new Date(checkTmp2.year, checkTmp2.month - 1, checkTmp2.date);
+						
+						if((checkOutDate.getTime() - checkInDate.getTime()) > 28 * 24 * 60 * 60 * 1000){
+							$alert.show();
+							$alert.find('.alert-error-description').html('Your check-out date is more than 28 nights after your check-in date.<br>Bookings can only be made for a maximum of 28 nights. Please enter different dates and try again.');
+							break;
+						}
+					}
+					$cells2.removeClass('check-out stay');
+					$self.addClass('check-out');
+					checkOutIndex2 = index;
+					checkOut2 = $.extend(true, {}, checkTmp2);
+					
+					var initIndex = status.checkin ? (checkInIndex2 + 1) : 0;
+					
+					$cells2.each(function(index){
+						if(index >= initIndex && index < checkOutIndex2){
+							$(this).addClass('stay');
+						}
+					});
+					$checkOutTrigger2.val(checkOut2.month + '/' + checkOut2.date + '/' + String(checkOut2.year).substring(2, 4));
+					setTimeout(function(){
+						$endDate2.removeClass('selected');
+						$('.jsc-calendar-target2').slideUp(300);
+						
+						// automaticIndex++;
+						
+						if(calendarClickFlag2 || roomClickFlag){
+							return;
+						}
+						$roomTrigger2.focus();
+						$roomTrigger2.trigger('click');
+						calendarClickFlag2 = true;
+					}, 600);
+					break;
+				}
+			}
+		});
+		$cells2.on('mouseenter.jli', function(){
+			var $self = $(this),
+				currentIndex = $cells2.index($self),
+				status = checkIncludeStatus();
+			
+			if($self.hasClass('simple-calendar-disabled-cell')){
+//				$cells2.filter('.selecting').removeClass('simple-calendar-disabled-cell selecting');
+				return;
+			}
+			switch(grabbedElement2){
+			case 1:
+				var endIndex = status.checkout ? (checkOutIndex2 - 1) : ($cells2.size() - 1);
+				
+				$cells2.removeClass('check-in stay');
+//				$cells2.filter('.selecting').removeClass('simple-calendar-disabled-cell selecting');
+				$self.addClass('check-in');
+				
+				if(checkOutIndex2){
+					$cells2.each(function(index){
+						if(index > currentIndex && index <= endIndex){
+							$(this).addClass('stay');
+						}
+					});
+				}
+				var currentDate = new Date(checkIn2.year, checkIn2.month - 1, checkIn2.date - (checkInIndex2 - currentIndex));
+				$startDate2.val(createDateInfo(currentDate));
+				break;
+			case 2:
+				var startIndex = status.checkin ? (checkInIndex2 + 1) : 0;
+				
+				$cells2.removeClass('check-out stay');
+				$self.addClass('check-out');
+				
+				$cells2.each(function(index){
+					if(index >= startIndex && index < currentIndex){
+						$(this).addClass('stay');
+					}
+				});
+				var currentDate = new Date(checkOut2.year, checkOut2.month - 1, checkOut2.date - (checkOutIndex2 - currentIndex));
+				$endDate2.val(createDateInfo(currentDate));
+				break;
+			default:
+				if(checkInIndex2 === null || checkOutIndex2 !== null){
+					return;
+				}
+				$cells2.removeClass('stay');
+				
+				if(checkInIndex2 >= currentIndex){
+					return;
+				}
+				var initIndex = Math.abs(selectedMonth2.month - checkIn2.month) >= 2 ? 0 : (checkInIndex2 + 1);
+				
+				$cells2.each(function(index){
+					if(index >= initIndex && index <= currentIndex){
+						$(this).addClass('stay');
+					}
+				});
+				break;
+			}
+		});
+		$cells2.on('mousedown.jli', function(){
+			var $self = $(this),
+				status = checkIncludeStatus();
+			
+			mouseDownIndex2 = $cells2.index($self);
+			
+			if($self.hasClass('check-in')){
+				var endIndex = $cells2.index($cells2.filter('.check-out'));
+				
+				grabbedElement2 = 1;
+				
+				if(status.checkout){
+					$cells2.each(function(index){
+						if(index >= endIndex){
+							$(this).addClass('simple-calendar-disabled-cell selecting');
+						}
+					});
+				}
+			}else if($self.hasClass('check-out')){
+				var startIndex = $cells2.index($cells2.filter('.check-in'));
+				
+				grabbedElement2 = 2;
+				
+				if(status.checkin){
+					$cells2.each(function(index){
+						if(index <= startIndex){
+							$(this).addClass('simple-calendar-disabled-cell selecting');
+						}
+					});
+				}
+			}else{
+				grabbedElement2 = 0;
+			}
+		});
+		$allCells2.on('mouseup.jli', function(){
+			if(grabbedElement2 == 0){
+				return;
+			}
+			if($cells2.index($(this)) == mouseDownIndex2 + ($allCells2.size() - $cells2.size())){
+				return;
+			}
+			$cells2.filter('.selecting').removeClass('simple-calendar-disabled-cell selecting');
+				
+			var status = checkIncludeStatus(),
+				startIndex = -1,
+				endIndex = -1,
+				toRecover = false;
+				
+			$cells2.each(function(index){
+				var $self = $(this);
+				
+				if($self.hasClass('check-in')){
+					startIndex = index;
+				}else if($self.hasClass('check-out')){
+					endIndex = index;
+				}
+			});
+			var startDate2 = new Date(checkIn2.year, checkIn2.month - 1, checkIn2.date - (status.checkin ? (checkInIndex2 - startIndex) : 0)),
+				endDate2 = new Date(checkOut2.year, checkOut2.month - 1, checkOut2.date + (status.checkout ? (endIndex - checkOutIndex2) : 0)),
+				offset2 = endDate2.getTime() - startDate2.getTime();
+				
+			if(offset < 0){
+				toRecover = true;
+			}else if(offset > 28 * 24 * 60 * 60 * 1000){
+				$alert.show();
+				$alert.find('.alert-error-description').html('Your check-out date is more than 28 nights after your check-in date.<br>Bookings can only be made for a maximum of 28 nights. Please enter different dates and try again.');
+				toRecover = true;
+			}
+			if(toRecover){
+				var startDate2 = new Date(checkIn2.year, checkIn2.month - 1, checkIn2.date),
+					endDate2 = new Date(checkOut2.year, checkOut2.month - 1, checkOut2.date),
+					startIndex = status.checkin ? getCellIndex(startDate2) : -1,
+					endIndex = status.checkout ? getCellIndex(endDate2) : $cells2.size();
+				
+				$cells2.removeClass('check-in check-out stay');
+				
+				$cells2.each(function(index){
+					var $self = $(this);
+					
+					if(index == startIndex){
+						$self.addClass('check-in');
+					}else if(index == endIndex){
+						$self.addClass('check-out');
+						return false;
+					}else if(index > startIndex && index < endIndex){
+						$self.addClass('stay');
+					}
+				});
+				$startDate2.val(createDateInfo(startDate2));
+				$endDate2.val(createDateInfo(endDate2));
+			}else{
+				switch(grabbedElement2){
+				case 1:
+					var startDate2 = new Date(checkIn2.year, checkIn2.month - 1, checkIn2.date - (checkInIndex2 - startIndex));
+					$startDate2.val(createDateInfo(startDate2));
+					checkInIndex2 = startIndex;
+					checkIn2.year = startDate2.getFullYear();
+					checkIn2.month = startDate2.getMonth() + 1;
+					checkIn2.date = startDate2.getDate();
+					break;
+				case 2:
+					var endDate2 = new Date(checkOut2.year, checkOut2.month - 1, checkOut2.date + (endIndex - checkOutIndex2));
+					$endDate2.val(createDateInfo(endDate));
+					checkOutIndex2 = endIndex;
+					checkOut2.year = endDate2.getFullYear();
+					checkOut2.month = endDate2.getMonth() + 1;
+					checkOut2.date = endDate2.getDate();
+					checkOutIndex2 = endIndex;
+					setTimeout(function(){
+						$endDate2.removeClass('selected');
+						$('.jsc-calendar-target2').slideUp(300);
+						
+						// automaticIndex++;
+						
+						if(calendarClickFlag2 || roomClickFlag){
+							return;
+						}
+						$roomTrigger2.focus();
+						$roomTrigger2.trigger('click');
+						calendarClickFlag2 = true;
+						
+					}, 600);
+					break;
+				}
+			}
+			grabbedElement2 = 0;
+		});
+		if(checkInIndex2 === null){
+			return;
+		}
+		var date = new Date(year, month - 2, 1),
+			lastYear = date.getFullYear(),
+			lastMonth = date.getMonth() + 1,
+			lastDate = (new Date(year, month - 1, 0)).getDate();
+			isIncluded = checkIncludeStatus();
+			
+		if(!isIncluded.checkin && !isIncluded.checkout){
+			return;
+		}
+		if(isIncluded.checkin){
+			if(checkIn2.month == lastMonth){
+				checkInIndex2 = checkIn2.date - 1;
+			}else{
+				checkInIndex2 = lastDate + checkIn2.date - 1;
+			}
+			if(lastYear == today2.getFullYear() && lastMonth == today2.getMonth() + 1){
+				checkInIndex2 -= today2.getDate() - 1;
+			}
+		}
+		if(isIncluded.checkout){
+			if(checkOut2.month == lastMonth){
+				checkOutIndex2 = checkOut2.date - 1;
+			}else{
+				checkOutIndex2 = lastDate + checkOut2.date - 1;
+			}
+			if(lastYear == today2.getFullYear() && lastMonth == today2.getMonth() + 1){
+				checkOutIndex2 -= today2.getDate() - 1;
+			}
+		}
+		if(isIncluded.checkin && isIncluded.checkout){
+			$cells2.eq(checkInIndex2).addClass('check-in');
+			$cells2.eq(checkOutIndex2).addClass('check-out');
+			
+			$cells2.each(function(index){
+				if(index > checkInIndex2 && index < checkOutIndex2){
+					$(this).addClass('stay');
+				}
+			});
+		}else if(isIncluded.checkin){
+			$cells2.eq(checkInIndex2).addClass('check-in');
+			
+			if(checkOutIndex2){
+				$cells2.each(function(index){
+					if(index > checkInIndex2){
+						$(this).addClass('stay');
+					}
+				});
+			}
+		}else if(isIncluded.checkout){
+			$cells2.eq(checkOutIndex2).addClass('check-out');
+			
+			if(checkInIndex2){
+				$cells2.each(function(index){
+					if(index < checkOutIndex2){
+						$(this).addClass('stay');
+					}
+				});
+			}
+		}
+	}
+})
+$calendar4.setSimpleCalendar(options3);
+
+var $previous = $('.simple-calendar-previous-container').find('a'),
+	$next = $('.simple-calendar-next-container').find('a');
+	
+$previous.on('click',function(){
+	$calendar3.controlSimpleCalendar('SHOW_PREVIOUS_MONTH');
+	$calendar4.controlSimpleCalendar('SHOW_PREVIOUS_MONTH');
+});
+$next.on('click',function(){
+	$calendar3.controlSimpleCalendar('SHOW_NEXT_MONTH');
+	$calendar4.controlSimpleCalendar('SHOW_NEXT_MONTH');
+});
+
+var $cells2 = $cellContainer2.find('td').filter(':not(.simple-calendar-other-month-cell, .simple-calendar-disabled-cell)');
+
+$startDate2.on('click', function(){
+	$startDate2.addClass('selected');
+	$endDate2.removeClass('selected');
+	clickCount2 = 0;
+	selectingTarget2 = 0;
+});
+$endDate2.on('click', function(){
+	$startDate2.removeClass('selected');
+	$endDate2.addClass('selected');
+	clickCount2 = 2;
+	selectingTarget2 = 1;
+});
+// $('#jsi-search-condition-form').get(0).reset();
+$endDate2.attr('disabled', true);

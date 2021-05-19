@@ -1,0 +1,178 @@
+.intl-tel-input {
+    width: 70%
+}
+
+#phone {
+    width: 100%
+}
+
+.intl-tel-input .country-list {
+    max-width: 250px;
+    overflow-x: hidden;
+}
+
+.small .intl-tel-input .country-list {
+    max-width: 180px;
+    overflow-x: hidden;
+}
+
+#esc-out-of-stock-inputs .esc-btn {
+    width: 30%;
+    margin: 0;
+    padding: 4px;
+    border-top-width: 3px;
+    border-bottom-width: 1px;
+    vertical-align: top;
+    border-color: transparent;
+    outline: none;
+    color: white;
+    font-size: 90%;
+    height: 40px;
+}
+
+#esc-out-of-stock-inputs {
+    color: #808080;
+    line-height: 150%;
+    margin: 8px 0;
+    border: 1px solid #d9d9d9;
+    border-radius: 0px;
+    padding: 16px;
+}
+
+#esc-out-of-stock-inputs .esc-out-of-stock-title {
+    margin-bottom: 5px;
+    text-align: center;
+    font-size: 110%
+}
+
+#esc-out-of-stock-inputs .esc-success {
+    color: #2ebaa3;
+}
+
+#esc-out-of-stock-inputs .esc-error {
+    color: #cc0000;
+}
+
+
+#esc-out-of-stock-inputs .esc-btn[disabled] {
+    color: gray;
+}
+
+#esc-out-of-stock-inputs .countrySelect {
+    width: 20%;
+    height: 40px;
+    background-color: #2ebaa3;
+    color: white;
+    border-width: 0px;
+    border-right: 0;
+    border-style: solid;
+    border-color: #d9d9d9;
+    border-top-left-radius: 0px;
+    border-bottom-left-radius: 0px;
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+    padding-left: 10px;
+    font-size: 90%;
+    padding-top: 5px;
+    padding-bottom: 5px;
+}
+
+#esc-out-of-stock-inputs .esc-email-container input {
+    width: 70%;
+}
+
+#esc-out-of-stock-inputs .esc-sms-container input, .esc-email-container input, .esc-sms-container select {
+
+    box-sizing: border-box;
+    border-width: 1px;
+    border-top-right-radius: 0px;
+    border-bottom-right-radius: 0px;
+    border-right: 0;
+    border-style: solid;
+    border-color: #d9d9d9;
+    height: 40px;
+    font-size: 100%;
+    color: #808080;
+    background-color: white;
+    font-style: normal;
+    margin-bottom: 0;
+}
+
+#esc-out-of-stock-inputs input:focus, #esc-out-of-stock-inputs input:focus,  #esc-out-of-stock-inputs select:focus{
+    outline: none;
+}
+
+#esc-out-of-stock-inputs .esc-sms-container, .esc-email-container {
+
+}
+
+#esc-out-of-stock-inputs .esc-sms-container::after, .esc-email-container::after {
+    content: '';
+    display: block;
+    clear: both;
+}
+
+#esc-out-of-stock-inputs .esc-email-container {
+    margin-top: 20px;
+    margin-bottom: 10px;
+}
+
+#esc-out-of-stock-inputs .esc-notification {
+    padding-top: 5px;
+    padding-left: 15px;
+    text-align: left;
+    margin-top: 5px;
+    clear: both;
+}
+
+#esc-out-of-stock-inputs .esc-sms-input {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+}
+
+
+#esc-out-of-stock-inputs .esc-sms-container input, .esc-email-container input, .esc-sms-container select {
+
+    border-right: 1px;
+    border-style: solid;
+    border-color: #d9d9d9;
+    margin-bottom: 5px;
+
+}
+
+.small .intl-tel-input {
+    width: 100%
+}
+
+.small #esc-out-of-stock-inputs .esc-btn {
+    width: 100%;
+    margin-top: 5px;
+}
+
+.small #esc-out-of-stock-inputs .countrySelect,
+.small #esc-out-of-stock-inputs .esc-sms-input,
+.small #esc-out-of-stock-inputs .esc-email-input,
+.small #esc-out-of-stock-inputs .esc-sms-container input,
+.small #esc-out-of-stock-inputs .esc-email-container input {
+    width: 100%
+}
+
+
+.small #esc-out-of-stock-inputs .esc-sms-container input, .esc-email-container input, .esc-sms-container select {
+
+    border-right: 1px;
+    border-left: 1px;
+    border-style: solid;
+    border-color: #d9d9d9;
+    margin-bottom: 5px;
+
+}
+
+.esc-sms-select-country-title {
+    text-align: left
+}
+.esc-out-of-stock-subtitle {
+    margin-bottom: 10px;
+}
+
+.iti-flag {background-image: url("/assets/img/flags.png");}

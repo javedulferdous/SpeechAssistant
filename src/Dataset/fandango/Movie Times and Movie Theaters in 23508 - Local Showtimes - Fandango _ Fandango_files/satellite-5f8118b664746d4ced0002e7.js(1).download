@@ -1,0 +1,26 @@
+_satellite.pushAsyncScript(function(event, target, $variables){
+  //Yellow Rose 221438
+if(_satellite.getVar('Movie ID') == '221438'){
+  //pxl-602
+//mop
+ if(_satellite.getVar('Page Level 2') == 'movie | overview'){
+//Yellow Rose MOP Desktop pxl-633
+_satellite.loadScript('https://www.googletagmanager.com/gtag/js?id=DC-4480452');
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'AW-657832849');
+  gtag('event', 'conversion', {'send_to': 'AW-657832849/vLs8CNGhgOABEJH31rkC'});
+}
+//msp
+  if(_satellite.getVar('Page Level 2') == 'movie times | by movie'){
+//Yellow Rose MSP Desktop pxl-633
+_satellite.loadScript('https://www.googletagmanager.com/gtag/js?id=DC-4480452');
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'AW-657832849');
+  gtag('event', 'conversion', {'send_to': 'AW-657832849/y9BECLS-kuABEJH31rkC'});
+  	}
+ }
+});

@@ -1,0 +1,39 @@
+var smartLockLogin=new function(){var self=this;
+this.init=function(){if(navigator.credentials){if(document.body.classList.contains("signedin")){self.preventAutologin(-1);
+navigator.credentials.preventSilentAccess();
+return
+}if(window.location.protocol=="https:"&&!document.querySelector("#wrap.hotelData")){self.tryAutoLogin()
+}}};
+this.tryAutoLogin=function(){if(navigator.credentials&&document.location.href.indexOf("&activity=logout")<0&&document.cookie.indexOf("chromeCredentialsShown=1")<0){navigator.credentials.get({password:true}).then(function(c){if(!c){self.preventAutologin(15);
+return
+}var formData=new URLSearchParams();
+formData.append("activity","login");
+formData.append("loginRegisterForm","true");
+formData.append("rememberMe","on");
+formData.append("doLogin","true");
+formData.append("smartLockLogin","1");
+formData.append("loginKey",document.querySelector("#FormLoginKey").value);
+c.idName="username";
+c.passwordName="password";
+c.additionalData=formData;
+fetch(document.querySelector("#loginFlyout").action,{credentials:c,method:"POST"}).then(function(response){if(response.type&&response.type=="opaqueredirect"){s.linkTrackVars="eVar65";
+s.eVar65=s.pageName.replace(/\s|:/g,"")+":SmartLock";
+s.events=s.events?s.events+",event118":"event118";
+var request=new Request.JSON({url:"/web3/rest/user-details/get-sme-info",method:"get",onSuccess:function(response){if(typeof response.result!=="undefined"){if(response.result===true){s.events+=",event26";
+s.eVar33=s.prop33="3;1;11"
+}else{s.events+=",event3";
+s.eVar33=s.prop33="3;0;0"
+}s.linkTrackEvents=s.events;
+s.tl(true,"o",s.pageName);
+window.location.reload()
+}}}).send()
+}})
+})
+}};
+this.preventAutologin=function(min){var date=new Date();
+date.setTime(date.getTime()+min*60000);
+var expires="expires="+date.toGMTString();
+document.cookie="chromeCredentialsShown=1; "+expires+"; path=/"
+};
+this.init()
+};

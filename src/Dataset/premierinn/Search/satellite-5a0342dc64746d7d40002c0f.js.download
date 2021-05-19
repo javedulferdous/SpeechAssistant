@@ -1,0 +1,31 @@
+_satellite.pushAsyncScript(function(event, target, $variables){
+  try{
+    if (window.location.href.indexOf("/business-booker/") == -1){
+  if (document.location.href.match(/cid=/ig)) {
+
+  function setAffCookie(cookieName, cookieValue, nDays) {
+    var today = new Date();
+    var expire = new Date();
+    if (nDays == null || nDays == 0) nDays = 1;
+    expire.setTime(today.getTime() + 3600000 * 24 * nDays); // changed that to * days
+    document.cookie = cookieName + "=" + escape(cookieValue) + ";expires=" + expire.toGMTString()+";domain=.premierinn.com;path=/";
+  }
+  setAffCookie('s_campaign', _satellite.getVar("cid"), 30)
+  }
+    !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+  n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
+  n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;
+  t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,
+  document,'script','//www.dwin1.com/3916.js');
+
+  !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+  n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
+  n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;
+  t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,
+  document,'script','//www.dwin1.com/3916.js');
+}
+}
+catch(err) {
+  _satellite.notify("Direct Call Rule Error - Combined - pageLoaded Awin Tag: " + err.message,[3]);
+}
+});

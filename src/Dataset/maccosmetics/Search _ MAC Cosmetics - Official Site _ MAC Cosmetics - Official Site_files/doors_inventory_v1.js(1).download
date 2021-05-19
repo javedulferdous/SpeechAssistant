@@ -1,0 +1,621 @@
+var generic = generic || {};
+var Model = Model || {};
+
+/**
+  * Singleton data model that handles collecting door inventory data for a single or set of skus.
+  * This model can also be used to only call door data if needed.
+  * When you pass a sku, or set of skus, with the door query, a door_inventory data object will be included.
+  * Also, the rpc method changes from 'locator.doorsandevents' to 'locator.doorsandskustatus' when a sku is passed.
+  * On success, the event 'BopisInventory:query:success' is fired and other panels can listen in on that event.
+  * Also available are helper methods that when passed a door id and sku id, can return the inventory object or just let
+  *   you know if a sku is in-stock or not.
+  * NOTE: Each store has a safety stock number and that safety stock is included with the totals coming from the RPC call.
+  * You do not need to factor in the saftey stock when computing if a stock is availble or not.
+*/
+Model.BopisInventory = (function() {
+  var that = {};
+
+  that.data = null;
+  that.defaultZipRegEx = '(^\\d{5}(-\\d{4})?$)|(^[ABCEGHJKLMNPRSTVXYabceghjklmnpstvxy]{1}\\d{1}[A-Za-z]{1} ?\\d{1}[A-Za-z]{1}\\d{1})$';
+  that.storeTypesReq = ['MAC', 'MAC_PRO', 'MAC Pro', 'Mac Pro', 'MAC PRO', 'Mac PRO'];
+  that.cacheInventory = {};
+  that.defaultRadius = Drupal.settings.globals_variables.bopis_default_radius && parseInt(Drupal.settings.globals_variables.bopis_default_radius) || 50;
+  that.cacheLifetime = 15 * 60 * 1000;
+  that.useBrowserLocation = Drupal.settings.globals_variables.bopis_use_browser_location && navigator.geolocation && navigator.geolocation.getCurrentPosition;
+
+  /**
+    * Method used to call the load doors and inventory data query.
+    * When a sku, or array of skus, is passed, it will return an inventory data object with the door data.
+    * This is done by passing the 'use_header' flag, which tells the backend to get the location data via the akamai header data.
+    * The default radius for the doors query is within a 50 mile radius unless an optional radius is passed.
+    * The queryFieldss are set within the model using the queryFields array object.
+    * You can pass an optional callback function or use the event 'BopisInventory:query:success' on success to receive results data.
+    * Here is an example of the return data object with 'door_inventory'.
+    *   "value":{
+    *     "driving_directions":"yes",
+    *     "longitude":"-117.9073244",
+    *     "count":8,
+    *     "country_code":"us",
+    *     "latitude":"33.6834142",
+    *     "doors":[446387,185639,165341,165395,165411,429482,429489,429376],
+    *     "door_inventory": { ..Inventory objects by door.. },
+    *     "results":{ ..Result door data.. }
+    *   }
+  */
+  that.load = function(args) {
+
+    var that = this;
+    var _errors = [];
+    var _args = args || {};
+    var _zip = _args.zip || null;
+    var _radius = _args.radius || that.defaultRadius;
+    var _state = _args.state || null;
+    var _city = _args.city || null;
+    var _region_id = _args.region_id || null;
+    var _store_types = _args.inv_store_types ? _args.inv_store_types.split(',') : that.storeTypesReq;
+    var _display = ( _args.display && _args.display != '_' ) ? _args.display : null;
+    var _skus = _.isArray(_args.skus) ? _args.skus : [_args.skus];
+    var _callback = _args.callback || null;
+    var _useHeader = _args.useHeader || false;
+    var _safetyStock = _args.safetyStock || 0;
+    var _uom = _args.uom || Drupal.settings.globals_variables.enable_prod_store_check_kilometer ? 'km' : 'mile';
+
+    // Trim _store_types to account for CMS spacing.
+    _store_types = _.map(_store_types, _.trim);
+
+    var queryArgs = {
+      params : [{
+        'radius': _radius,
+        'display': _display,
+        'region_id': _region_id,
+        'inv_store_types': _store_types,
+        'skus': _skus,
+        'safetyStock': _safetyStock,
+        'uom': _uom
+      }]
+    };
+
+    if (_zip) {
+      // If zip is entered, check for valid zip.
+      var zipRegEx = that.getLocalisedZipRegEx(Drupal.settings.globals_variables);
+      if (zipRegEx.test(_zip)) {
+        queryArgs.params[0].zip = _zip;
+      } else {
+        _errors.push({ key: 'err_invalid_zip' });
+      }
+    } else if (_state && _city) {
+      // If state and city are entered
+      queryArgs.params[0].state = _state;
+      queryArgs.params[0].city = _city;
+    } else if (_useHeader) {
+      // User header param is set.
+      queryArgs.params[0].use_header = 1;
+    } else {
+      // When all else fails.
+      _errors.push({ key: 'err_missing_zip' });
+    }
+
+    // Override to force the location for headers.
+    var queryParams = document.location.search;
+    var hasTestingOverride = queryParams.match(/OVERRIDE_CITY=(\w*)/);
+    if (hasTestingOverride && hasTestingOverride[1] && ( !_zip && !_state && !_city )) {
+      queryArgs.params[0].fake_mode = hasTestingOverride[1]; // Param for testing to be removed
+      queryArgs.params[0].show_message = 1; //Param for testing to be removed
+      queryArgs.params[0].use_header = 1;
+    }
+
+    queryArgs.onSuccess = function( results ) {
+      if (typeof _callback == 'function') {
+        _callback(results);
+      }
+      $(document).trigger('BopisInventory:query:success', results);
+    };
+
+    queryArgs.onFailure = function( results ) {
+
+      if (_callback) {
+        _callback(results);
+      }
+      $(document).trigger('BopisInventory:query:failure', results);
+    };
+
+    if ( _errors[0] ) {
+       $(document).trigger('BopisInventory:query:failure', {
+        errors : _errors
+       });
+    } else {
+
+      // JSON-RPC request
+      that.query(queryArgs);
+    }
+  };
+
+  that.SSKeys = {
+    doors: 'doors_cache',
+    distance: 'distance',
+    inventory: '+inventory',
+    dateTime: 'cache_dateTime'
+  };
+
+  that.SSNamespace = 'BOPIS+';
+
+  that.getSSDoorsKey = function(args) {
+    return that.SSNamespace + (args.zip || 'no-zip') + '+' + args.radius + '+' + that.SSKeys.doors;
+  };
+
+  that.getSSDistanceKey = function(args) {
+    return that.SSNamespace + (args.zip || 'no-zip') + '+' + args.radius + '+' + that.SSKeys.distance;
+  }
+
+  that.getSSInvKey = function(args) {
+    return that.getSSDoorsKey(args) + that.SSKeys.inventory + args.skus.join('+');
+  };
+
+  that.getSSDateTimeKey = function() {
+    return that.SSNamespace + that.SSKeys.dateTime;
+  };
+
+  // return if the cache is still active or not
+  // if is expired it delete the default cache
+  that.isSSCacheActive = function() {
+    var args = {radius: that.defaultRadius},
+      cacheDateTime = parseInt(sessionStorage.getItem(that.getSSDateTimeKey()));
+
+    if (Date.now() - cacheDateTime > that.cacheLifetime) {
+      sessionStorage.removeItem(that.getSSDoorsKey(args));
+      sessionStorage.removeItem(that.getSSDistanceKey(args));
+      sessionStorage.removeItem(that.getSSDateTimeKey());
+      return false;
+    }
+    return true;
+  }
+
+  that.getSSData = function(args) {
+    var doorKey = that.getSSDoorsKey(args),
+        distanceKey = that.getSSDistanceKey(args),
+        invKey = that.getSSInvKey(args);
+
+    if (!that.isSSCacheActive()) {
+      return {
+        doors: null,
+        distance: null,
+        inventory: null
+      };
+    }
+
+    return {
+      doors: sessionStorage.getItem(doorKey),
+      distance: sessionStorage.getItem(distanceKey),
+      inventory: sessionStorage.getItem(invKey)
+    };
+  };
+
+  that.setSSData = function(args, result) {
+    var doorKey = that.getSSDoorsKey(args),
+        invKey = that.getSSInvKey(args),
+        storesNotSaved = !sessionStorage.getItem(that.getSSDoorsKey(args)),
+        sDoors = storesNotSaved && Array.isArray(result.doors) ? result.doors.join(',') : '',
+        distance = {};
+
+    if (storesNotSaved) {
+      sessionStorage.setItem(that.getSSDateTimeKey(), Date.now());
+      sessionStorage.setItem(doorKey, sDoors);
+      result.results && $.each(result.results, function(id,data) {distance[id] = data.DISTANCE;});
+      sessionStorage.setItem(that.getSSDistanceKey(args), JSON.stringify(distance));
+    }
+    sessionStorage.setItem(invKey, JSON.stringify(result));
+  };
+
+  /**
+    * Method used to call the load only door query.
+    * Uses the 'use_header' flag to tell the backend to get the location data via the akamai header data.
+    * The default radius for the doors query is within a 50 mile radius unless an optional radius is passed.
+    * The queryFieldss are set within the model using the queryFields array object.
+    * You can pass an optional callback function or use the event
+    *   'DoorsInventory:queryAreaDoors:success' on success to receive results data.
+    * Here is an example of the return data object without 'door_inventory'.
+    *   "value":{
+    *     "driving_directions":"yes",
+    *     "longitude":"-117.9073244",
+    *     "count":8,
+    *     "country_code":"us",
+    *     "latitude":"33.6834142",
+    *     "doors":[446387,185639,165341,165395,165411,429482,429489,429376],
+    *     "results":{ ..Result door data.. }
+    *   }
+  */
+  that.loadDoorsOnly = function(args) {
+
+    var that = this;
+    var _args = args || {};
+    var _radius = _args.radius || that.defaultRadius;
+    var _callback = _args.callback || null;
+    var _skus = ( _.isArray(_args.skus)) ? _args.skus : [_args.skus];
+
+    var queryArgs = {
+      params : [{
+        'radius' : _radius,
+        'skus' : _skus,
+        'use_header' : 1
+      }]
+    };
+
+    queryArgs.onSuccess = function( results ) {
+      if (_callback) {
+        _callback(results);
+      }
+
+      $(document).trigger('BopisInventory:query:success', results);
+    };
+
+    queryArgs.onFailure = function( results ) {
+      if (_callback) {
+        _callback(results);
+      }
+      $(document).trigger('BopisInventory:query:failure', results);
+    };
+
+    that.query(queryArgs);
+  };
+
+  /**
+    * Method responsible for making the generic jsonrpc fetch to backend.
+    * If skus are passed, the 'locator.doorsandskustatus' method is called.
+    * Otherwise, the default method 'locator.doorsandevents' is called instead.
+    * The 'locator.doorsandskustatus' method returns a 'door_inventory' with sku info in the door data.
+    * The 'locator.doorsandevents' will only return door data.
+    * The query also handles an onFailure and onSuccess callback.
+    * If successful, it will return the result along with filtering the data and setting the class var data.
+  */
+  that.query = function(args) {
+    var that = this,
+        _args = args || {},
+        params = _args.params && args.params[0],
+        oSSData = that.getSSData(params),
+        sDoors = oSSData.doors,
+        mode = params.zip ? 'address' : sDoors ? 'door_id' : that.useBrowserLocation ? 'coords' : 'use_header',
+        payload = {
+          brand: 1,
+          region: 0,
+          mode: mode,
+          radius: params.radius,
+          sku_ids: params.skus.join(',')
+        },
+        localCache = that.cacheInventory[that.getSSInvKey(params)] || null,
+        _handleInventory = function(result) {
+          var distance = JSON.parse(oSSData.distance);
+          that.cacheInventory[that.getSSInvKey(params)] = result;
+          if (sDoors && distance) {
+            result.results && $.each(result.results, function(id, data) {
+              if (distance[id]) {
+                data.DISTANCE = distance[id];
+              }
+            });
+          }
+          (sDoors === null || oSSData.inventory === null) && that.setSSData(params, result);
+          if (_args.onSuccess && typeof _args.onSuccess == 'function') {
+            result.params = _args.params;
+
+            result.sorted = that.filterResults(result, _args);
+            result.results = that.updateResults(result);
+            that.data = result;
+            _args.onSuccess(result);
+          }
+        };
+
+    if (Drupal.settings.globals_variables.two_hours_delivery) {
+      payload.courier = 1;
+    }
+
+    if (localCache) {
+      _handleInventory(localCache);
+      return;
+    }
+
+    // comment this code because we will use only the doors from the session storage
+    /*
+    if (oSSData.inventory) {
+      _handleInventory(JSON.parse(oSSData.inventory));
+      return;
+    }
+    */
+
+    if (params.zip) {
+      payload.zip = params.zip;
+    }
+    if (sDoors) {
+      payload.door_ids = sDoors;
+    } else if (sDoors === '' && payload.mode !== 'address') {
+      $(document).trigger('BopisInventory:query:noDoors', null);
+      return false;
+    }
+
+    if (payload.mode === 'coords') {
+      navigator.geolocation.getCurrentPosition(
+          function(position) {
+            payload.latitude = position.coords.latitude;
+            payload.longitude = position.coords.longitude;
+            that.sendRequest(payload, _handleInventory);
+          },
+          function() {
+            payload.mode = 'use_header';
+            that.sendRequest(payload, _handleInventory);
+          }
+      );
+    } else {
+      that.sendRequest(payload, _handleInventory);
+    }
+  };
+
+  that.sendRequest = function(payload, _cb) {
+    $.ajax({
+      url: '/rest/api/v1/bopis/inventory?' + $.param(payload),
+      contentType: 'application/json',
+      dataType: 'json',
+      success: _cb,
+      error: function(r) {
+        if (payload.onFailure && typeof payload.onFailure == 'function') {
+          _payload.onFailure(r);
+        } else {
+          console.log('bopis inventory failure');
+        }
+      }
+    });
+  };
+
+  that.updateResults = function( rawResultData ) {
+    if (!rawResultData || !rawResultData.results) {
+      return null;
+    }
+    var modResults = $.extend({}, rawResultData.results);
+    for (var result in modResults) {
+      if (modResults[result] && modResults[result].DISTANCE) {
+        var distance = modResults[result].DISTANCE;
+        var match = distance.match(/\d*.\d/);
+        if ( match ) {
+          modResults[result].distance_short = parseFloat(match[0]);
+        }
+      }
+    }
+    return modResults;
+  };
+
+  that.checkSkuAvailability = function (door, skuId, safetyStock) {
+    var isAvailable = 0;
+    if (door.skus_onhand && door.skus_onhand[skuId]) {
+      if (door.skus_onhand[skuId]['available_qty'] - safetyStock > 0) {
+        isAvailable = 1;
+      }
+    }
+    return isAvailable;
+  };
+
+
+  /**
+    * Method responsible for filtering the raw result data by distance.
+    * It will iterate through all results and order them by using the door DISTANCE param.
+    * First, if a maxDistance is passed, it will filter out doors over that limit.
+    * Then it will sort the data by distance by creating a sortedDoorIds array to organize the doors.
+`   * Once that list is created, the door data objects will be placed into a sortedResults.
+    * If a doorLimit is passed, it will stop adding doors to the sortedResults.
+    * Otherwise, it will use the array length as the limit.
+  */
+  that.filterResults = function( data, args ) {
+    var that = this;
+    var _args = args || {};
+    var _resultData = $.extend({}, data);
+    var skuId = data.params[0]['skus'][0];
+    var safetyStock = data.params[0]['safetyStock'];
+    var i, doorLimit, params;
+
+    if (data.door_inventory) {
+      for (var d in data.door_inventory) {
+        var door = data.door_inventory[d];
+        // set inventory status for each door
+        // door.skus_onhand[skuId]['is_available'] = that.checkSkuAvailability(door, skuId, safetyStock);
+        // fold doors_inventory data into doors list
+        _.extend(_resultData.results[d], door);
+      }
+    }
+    //
+    // filter out results that exceed max distance
+    if (_resultData.maxDistance) { // max distance exists
+      var filteredResults = {};
+      for (var d in _resultData.results) {
+        if (_resultData.results[d].DISTANCE < _resultData.maxDistance) {
+          filteredResults[d] = data.results[d];
+        }
+      }
+      _resultData.results = filteredResults;
+    }
+
+    // asc. sort by distance
+    var sortedResults = [];
+    var r  = _resultData.results ? _resultData.results : {};
+    var sortedDoorIds = _resultData.doors || [];
+
+    function sortByDistance( a, b ) {
+      var aDist = (!r[a].DISTANCE || isNaN(r[a].DISTANCE)) ? 0 : parseFloat(r[a].DISTANCE);
+      var bDist = (!r[b].DISTANCE || isNaN(r[b].DISTANCE)) ? 0 : parseFloat(r[b].DISTANCE);
+
+      if ( aDist > bDist ) { return 1; }
+      else if ( aDist < bDist ) { return -1; }
+        return 0;
+    }
+
+    function sortByInvAndDistance( a, b ) {
+      var aDist = (!r[a].DISTANCE || isNaN(r[a].DISTANCE)) ? 0 : parseFloat(r[a].DISTANCE);
+      var bDist = (!r[b].DISTANCE || isNaN(r[b].DISTANCE)) ? 0 : parseFloat(r[b].DISTANCE);
+
+      if (r[a].skus_onhand && r[b].skus_onhand) return sortByDistance(a,b);
+      if (!r[a].skus_onhand && !r[b].skus_onhand) return sortByDistance(a,b);
+
+      if (r[a].skus_onhand && !r[b].skus_onhand) return -1;
+      if (!r[a].skus_onhand && r[b].skus_onhand) return 1;
+    }
+
+    // sortedDoorIds.sort(sortByInvAndDistance);
+    sortedDoorIds.sort(sortByDistance);
+
+    params = ( data.params && data.params[0] ) ? data.params[0] : null;
+    doorLimit = Math.min(parseInt(params.display || 999), parseInt(sortedDoorIds.length));
+    for (i = 0; i < doorLimit; i++) {
+        sortedResults.push(r[sortedDoorIds[i]]);
+    }
+    return sortedResults;
+  };
+
+  /**
+    * Helper method used to extract the sku inventory object from the internal data object.
+    * You need to pass the doorId and skuId and that will return the inventory object for that sku and door.
+    * When calling this method you'll get the current inventory data stored from the latest query.
+    * If no door ID or SKU ID is passed, the function will return the full door_inventory object.
+    * Here is an example of how the door_inventory object looks like.
+    *     "429482": {
+    *       "skus_onhand":{
+    *         "L11R01": {"available_qty":116,"is_available":1,"last_polled_date":"11/6/2015 12:00:00 AM"}
+    *       },
+    *       "store_code":17504
+    *     }
+  */
+  that.getDoorSkuInventoryData = function(args) {
+
+    var _args = args || {};
+    var doorId = _args.doorId ? _args.doorId.toString() : null;
+    var skuId = _args.skuId ? _args.skuId.toString() : null;
+    var callback = _args.callback;
+    var inventoryData  = (that.data && that.data.door_inventory) ? that.data.door_inventory : null;
+
+    // if neither id is passed, return the full set of data
+    if (!doorId && !skuId) return inventoryData;
+
+    var doorInventoryObj = (inventoryData && inventoryData[doorId]) ? inventoryData[doorId]: null;
+    if ( !doorInventoryObj) {
+      return null;
+    }
+    doorInventoryObj = ( doorInventoryObj && doorInventoryObj.skus_onhand ) ? doorInventoryObj.skus_onhand : null;
+    var skuInventory = ( doorInventoryObj && doorInventoryObj[skuId] ) ? doorInventoryObj[skuId] : null;
+
+    return skuInventory;
+  };
+
+  /**
+    * Helper method to determine if a particular sku is available at a specific door.
+    * If door data is available or not with for that sku and door, it will pass a boolean.
+    * If data isn't available, it will pass null.
+    * It uses the internal method getDoorSkuInventoryData to get the door inventory object.
+    * NOTE: Back end determines is_available, is_unavailable and is_call.
+  */
+  that.isDoorSkuInStock = function( args ) {
+
+    var callback = args.callback;
+    var skuInventory = that.getDoorSkuInventoryData(args);
+
+    var inStock = null;
+    if ( skuInventory && skuInventory.is_available ) {
+      inStock = true;
+    } else if ( skuInventory && skuInventory.is_unavailable ) {
+      inStock = false;
+    }
+
+    if (typeof callback == 'function') {
+      callback(inStock);
+    } else {
+      return inStock;
+    }
+  };
+
+  that.getSortedDoors = function () {
+    if (!that.data || !that.data.sorted) return [];
+    return that.data.sorted;
+  };
+
+  that.getDoorsWithInv = function () {
+    if (!that.data || !that.data.door_inventory) return [];
+    var doors = [];
+    var i = 0;
+    for (var id in that.data.door_inventory ) {
+      doors.push(that.data.results[id]);
+      doors[i] = _.extend(doors[i], that.data.door_inventory[id]);
+      i++;
+    }
+    return doors;
+  };
+
+  that.getDoors = function (args) {
+    if (!that.data) return null;
+    var doors = [];
+    if (!args) {
+      for (var id in that.data.results) {
+        doors.push(that.data.results[id]);
+      }
+      return doors;
+    }
+
+    var doorIds = [];
+    if (!_.isArray(args)) {
+      doorIds.push(args)
+    } else {
+      doorIds = args;
+    }
+
+    var filteredDoors = _.map(doorIds, function(id) {
+      return that.data.results[id];
+    });
+    return filteredDoors;
+  }
+
+  /**
+    * Helper method to get the last polled date for a particular sku with a specific door.
+    * It uses the internal method getDoorSkuInventoryData to get the door inventory object.
+    * If the date is available, it will return that date otherwise it will return null;
+    * NOTE: Date format is also configurable on the back-end, so try there first before using this method.
+  */
+  that.getDoorSkuPolledDate = function(args) {
+
+    var skuInventory = that.getDoorSkuInventoryData(args);
+
+    var polledDate = (skuInventory && skuInventory.last_polled_date) ? skuInventory.last_polled_date : null;
+    var date = polledDate ? polledDate.match(/([\w\d\/]*)/gi) : [];
+
+    return date[0];
+  };
+
+  /**
+   * Returns the regex to use for testing the user-entered zip/postcode
+   * Should be set in the relevant domains/*.inc file but if not defaults
+   * back to returning the value of that.defaultZipRegEx in this file
+   *
+   * @param {object} args The Drupal global variables (allows for easier unit testing :))
+   * @return {object} RegExp object
+  */
+  that.getLocalisedZipRegEx = function(args) {
+    if (typeof args.prod_store_check_zipcode_regex !== 'undefined') {
+      try {
+        return new RegExp(args.prod_store_check_zipcode_regex, 'i');
+      } catch (e) {
+        // swallow any invalid regular expression pattern errors for now
+      }
+    }
+
+    return new RegExp(that.defaultZipRegEx);
+  };
+
+  /** Check if two hours delivery is available for a particular sku
+   * @param {number}  skuId  The sku you want to test
+   * @param {object}  data   optional - doors and inventory data provided by inventory api. If param is not defined it will use self data
+   * @return {bool}   available or not
+   */
+  that.isTwoHoursDeliveryAvailable = function(skuId, data) {
+    data = data || that.data;
+    if (data.courierable_door_ids && data.courierable_door_ids.length && skuId) {
+      return data.courierable_door_ids.some(function(doorId) {
+        return data.door_inventory && data.door_inventory[doorId] && data.door_inventory[doorId].skus_onhand &&
+              data.door_inventory[doorId].skus_onhand[skuId] && data.door_inventory[doorId].skus_onhand[skuId].is_available;
+      });
+    }
+    return false;
+  };
+
+  return that;
+}());

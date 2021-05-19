@@ -1,0 +1,17 @@
+_satellite.pushAsyncScript(function(event, target, $variables){
+  try {
+  if (window.location.href.indexOf("/business-booker/") == -1){
+    if (document.location.href.indexOf("/gb/en") > -1) {
+      var myImage = new Image(0, 0);
+      myImage.src = "https://sp.analytics.yahoo.com/spp.pl?a=10000&.yp=10093054";
+      document.body.appendChild(myImage).style.visibility = "none";
+      setTimeout(function(){ 
+        document.body.removeChild(myImage);
+      }, 500);
+    }
+  }
+}
+catch (err) {
+  _satellite.notify('Direct Call Rule Error - Core - Resp SRP List Verizon Tag: ' + err.message,[3]);
+}
+});

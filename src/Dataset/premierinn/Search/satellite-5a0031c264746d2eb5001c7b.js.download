@@ -1,0 +1,17 @@
+_satellite.pushAsyncScript(function(event, target, $variables){
+  try {   
+  if (window.location.href.indexOf("/business-booker/") == -1){
+var url = window.location.pathname;
+var englishTag = url.indexOf("/gb/en/");
+  
+ if (englishTag >= 0) { 
+  if (window.location.href.match(/\/home\.html/)) {
+    new Image().src = document.location.protocol + "//tag.yieldoptimizer.com/ps/ps?t=s&p=4846&_rtgid=596";
+  }
+  new Image().src = document.location.protocol + "//tag.yieldoptimizer.com/ps/ps?t=s&p=4846&_rtgid=598";
+ 											 }
+  }
+}catch(err) {
+  _satellite.notify("Direct Call Rule Error - Core - pageLoaded Adara Tag: " + err.message,[3]);
+}
+});

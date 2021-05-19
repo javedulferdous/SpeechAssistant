@@ -1,0 +1,559 @@
+(function() {
+	// Hoseasons RHS Data
+
+	/*
+	Rules for list child object:
+	{label: 'Cornwall', regionId: 1020}
+	{label: 'Argyll & Bute', url: 'argyll-and-bute', regionId: 22340}
+
+	The list child object accepts an optional 'url' property which when specified will be the url appended in the query string upon search.
+	If there is no url property specified, a method within the search widget will take the label property, convert it to lowercase and replace spaces with hyphens.
+	*/
+
+	var oaRHSData = [
+		// Lodges
+		{
+			/*
+			regionRoot object:
+			label, url (optional) and id used to create the regionRootSelect.
+			Add the optional url property if the url is different from the lowercase hyphen separated version of the label.
+			id number is a unique number to identify the region root (set of RHS), doesn't have to correspond to a brand but must
+			be the same as the regionRootId's used in the setup API for defaultRegionRootId (used to selected a default region root) and date.maxYear properties.
+
+			defaultSelectedRegionId will look at one of the list[*].regionId properties below, used to select a region by default
+			*/
+			regionRoot: {label: 'Lodges', id:15944},
+			regions: [
+				// South West of England
+				{
+					parent: {label: 'South West of England'},
+					list: [
+						{label: 'All South West of England', url: 'south-west-of-england', regionId: 1131},
+						{label: 'Cornwall', regionId: 1020},
+						{label: 'Devon', regionId: 1141},
+						{label: 'Dorset', regionId: 1024},
+						{label: 'Somerset', regionId: 1059}
+					]
+				},
+				// South of England
+				{
+					parent: {label: 'South of England'},
+					list: [
+						{label: 'All South of England', url: 'south-of-england', regionId: 1132},
+						{label: 'Hampshire', regionId: 1032},
+						{label: 'Isle Of Wight', regionId: 1036},
+						{label: 'Kent', regionId: 1037},
+						{label: 'Surrey', regionId: 1065},
+						{label: 'Sussex', regionId: 1133}
+					]
+				},
+				// East of England
+				{
+					parent: {label: 'East of England'},
+					list: [
+						{label: 'All East of England', url: 'east-of-england', regionId: 1134},
+						{label: 'Cambridgeshire', regionId: 1142},
+						{label: 'Essex', regionId: 1028},
+						{label: 'Lincolnshire', regionId: 1040},
+						{label: 'Norfolk', regionId: 1044},
+						{label: 'Suffolk', regionId: 1064}
+					]
+				},
+				// Heart of England
+				{
+					parent: {label: 'Heart of England'},
+					list: [
+						{label: 'All Heart of England', url: 'heart-of-england', regionId: 1130},
+						{label: 'Cheshire', regionId: 1018},
+						{label: 'Derbyshire', regionId: 1023},
+						{label: 'Gloucestershire', regionId: 1030},
+						{label: 'Herefordshire', regionId: 1033},
+						{label: 'Leicestershire', regionId: 1167},
+						{label: 'Northamptonshire', regionId: 1169},
+						{label: 'Nottinghamshire', regionId: 1049},
+						{label: 'Oxfordshire', regionId: 1050},
+						{label: 'Shropshire', regionId: 1058},
+						{label: 'Staffordshire', regionId: 1062},
+						{label: 'Wiltshire', regionId: 1072},
+						{label: 'Worcestershire', regionId: 1073}
+					]
+				},
+				// North of England
+				{
+					parent: {label: 'North of England'},
+					list: [
+						{label: 'All North of England', url: 'north-of-england', regionId: 1139},
+						{label: 'County Durham', regionId: 1163},
+						{label: 'Cumbria & The Lakes', regionId: 1021},
+						{label: 'Lancashire', regionId: 1039},
+						{label: 'Northumberland', regionId: 1048},
+						{label: 'Yorkshire', regionId: 1140}
+					]
+				},
+				// Wales
+				{
+					parent: {label: 'Wales'},
+					list: [
+						{label: 'All Wales', url: 'wales', regionId: 1135},
+						{label: 'Mid Wales', regionId: 1137},
+						{label: 'North Wales & Snowdonia', regionId: 1136},
+						{label: 'South Wales', regionId: 1138}
+					]
+				},
+				// Scotland
+				{
+					parent: {label: 'Scotland'},
+					list: [
+						{label: 'All Scotland', url: 'scotland', regionId: 1146},
+						{label: 'Edinburgh & the Borders', regionId: 1149},
+						{label: 'Northern Highlands', regionId: 1147},
+						{label: 'Perthshire & Southern Highlands', regionId: 1148},
+						{label: 'South West Scotland', regionId: 1150}
+					]
+				},
+				// Northern Ireland
+				{
+					parent: {label: 'Northern Ireland'},
+					list: [
+						{label: 'All Northern Ireland', url: 'northern-ireland', regionId: 23748},
+						{label: 'County Antrim', regionId: 23750},
+						{label: 'County Fermanagh', regionId: 23749}
+					]
+				}
+			]
+		},
+		// Parks
+		{
+			/*
+			regionRoot object:
+			label, url and id used to create the regionRootSelect
+			id number is a unique number to identify the region root (set of RHS), doesn't have to correspond to a brand but must
+			be the same as the regionRootId's used in the setup API for defaultRegionRootId, defaultSelectedRegionId and date.maxYear properties
+			*/
+			regionRoot: {label: 'Holiday Parks', id:15943},
+			regions: [
+				// South West of England
+				{
+					parent: {label: 'South West of England'},
+					list: [
+						{label: 'All South West of England', url: 'south-west-of-england', regionId: 1131},
+						{label: 'Cornwall', regionId: 1020},
+						{label: 'Devon', regionId: 1141},
+						{label: 'Dorset', regionId: 1024},
+						{label: 'Somerset', regionId: 1059}
+					]
+				},
+				// South of England
+				{
+					parent: {label: 'South of England'},
+					list: [
+						{label: 'All South of England', url: 'south-of-england', regionId: 1132},
+						{label: 'Hampshire', regionId: 1032},
+						{label: 'Isle Of Wight', regionId: 1036},
+						{label: 'Kent', regionId: 1037},
+						{label: 'Surrey', regionId: 1065},
+						{label: 'Sussex', regionId: 1133}
+					]
+				},
+				// East of England
+				{
+					parent: {label: 'East of England'},
+					list: [
+						{label: 'All East of England', url: 'east-of-england', regionId: 1134},
+						{label: 'Cambridgeshire', regionId: 1142},
+						{label: 'Essex', regionId: 1028},
+						{label: 'Lincolnshire', regionId: 1040},
+						{label: 'Norfolk', regionId: 1044},
+						{label: 'Suffolk', regionId: 1064}
+					]
+				},
+				// Heart of England
+				{
+					parent: {label: 'Heart of England'},
+					list: [
+						{label: 'All Heart of England', url: 'heart-of-england', regionId: 1130},
+						{label: 'Cheshire', regionId: 1018},
+						{label: 'Derbyshire', regionId: 1023},
+						{label: 'Gloucestershire', regionId: 1030},
+						{label: 'Hertfordshire', regionId: 1168},
+						{label: 'Herefordshire', regionId: 1033},
+						{label: 'Leicestershire', regionId: 1167},
+						{label: 'Northamptonshire', regionId: 1169},
+						{label: 'Nottinghamshire', regionId: 1049},
+						{label: 'Oxfordshire', regionId: 1050},
+						{label: 'Shropshire', regionId: 1058},
+						{label: 'Staffordshire', regionId: 1062},
+						{label: 'Wiltshire', regionId: 1072},
+						{label: 'Worcestershire', regionId: 1073}
+					]
+				},
+				// North of England
+				{
+					parent: {label: 'North of England'},
+					list: [
+						{label: 'All North of England', url: 'north-of-england', regionId: 1139},
+						{label: 'County Durham', regionId: 1163},
+						{label: 'Cumbria & The Lakes', regionId: 1021},
+						{label: 'Lancashire', regionId: 1039},
+						{label: 'Northumberland', regionId: 1048},
+						{label: 'Yorkshire', regionId: 1140}
+					]
+				},
+				// Wales
+				{
+					parent: {label: 'Wales'},
+					list: [
+						{label: 'All Wales', url: 'wales', regionId: 1135},
+						{label: 'Mid Wales', regionId: 1137},
+						{label: 'North Wales & Snowdonia', regionId: 1136},
+						{label: 'South Wales', regionId: 1138}
+					]
+				},
+				// Scotland
+				{
+					parent: {label: 'Scotland'},
+					list: [
+						{label: 'All Scotland', url: 'scotland', regionId: 1146},
+						{label: 'Edinburgh & the Borders', regionId: 1149},
+						{label: 'Northern Highlands', regionId: 1147},
+						{label: 'Perthshire & Southern Highlands', regionId: 1148},
+						{label: 'South West Scotland', regionId: 1150}
+					]
+				},
+				// Northern Ireland
+				{
+					parent: {label: 'Northern Ireland'},
+					list: [
+						{label: 'All Northern Ireland', url: 'northern-ireland', regionId: 23748},
+						{label: 'County Antrim', regionId: 23750},
+						{label: 'County Fermanagh', regionId: 23749}
+					]
+				}
+			]
+		},
+		// Cottages
+		{
+			regionRoot: {label: 'Cottages', id:15951, featureId:10387},
+			regions: [
+				// Central Scotland
+				{
+					parent: {label: 'Central Scotland'},
+					list: [
+						{label: 'All Central Scotland', url: 'central-scotland', regionId: 22334},
+						{label: 'Angus', regionId: 22335},
+						{label: 'Argyll & Bute', url: 'argyll-and-bute', regionId: 22340},
+						{label: 'Fife', regionId: 22360},
+						{label: 'Isle of Islay', regionId: 23657},
+						{label: 'Isle of Mull', regionId: 22352},
+						{label: 'Isle of Tiree', regionId: 23654},
+						{label: 'Perthshire', regionId: 22364},
+						{label: 'Stirlingshire', regionId: 22355}
+					]
+				},
+				// Northern Scotland
+				{
+					parent: {label: 'Northern Scotland'},
+					list: [
+						{label: 'All Northern Scotland', url: 'northern-scotland', regionId: 22293},
+						{label: 'Aberdeenshire', regionId: 22329},
+						{label: 'Highlands', regionId: 22301},
+						{label: 'Isle of Skye', regionId: 22294},
+						{label: 'Orkney Islands', regionId: 22298},
+						{label: 'Outer Hebrides', regionId: 22326}
+					]
+				},
+				// Southern Scotland
+				{
+					parent: {label: 'Southern Scotland'},
+					list: [
+						{label: 'All Southern Scotland', url: 'southern-scotland', regionId: 22370},
+						{label: 'Ayrshire', regionId: 22374},
+						{label: 'Dumfries & Galloway', url: 'dumfries-and-galloway', regionId: 22384},
+						{label: 'Edinburgh & the Lothians', url: 'edinburgh-and-the-lothians', regionId: 22371},
+						{label: 'Glasgow & the Clyde Valley', url: 'glasgow-and-the-clyde-valley', regionId: 22380},
+						{label: 'Isle of Arran', regionId: 22401},
+						{label: 'Isle of Cumbrae', regionId: 23519},
+						{label: 'The Scottish Borders', regionId: 22394}
+					]
+				},
+				// Central England
+				{
+					parent: {label: 'Central England'},
+					list: [
+						{label: 'All Central England', url: 'central-england', regionId: 21808},
+						{label: 'All West Midlands', regionId: 23673},
+						{label: 'Bedfordshire', regionId: 21895},
+						{label: 'Buckinghamshire', regionId: 21889},
+						{label: 'Derbyshire', regionId: 21863},
+						{label: 'Gloucestershire', regionId: 21843},
+						{label: 'Herefordshire', regionId: 21898},
+						{label: 'Hertfordshire', regionId: 21814},
+						{label: 'Leicestershire', regionId: 21892},
+						{label: 'Lincolnshire', regionId: 21817},
+						{label: 'Northamptonshire', regionId: 21877},
+						{label: 'Nottinghamshire', regionId: 21835},
+						{label: 'Oxfordshire', regionId: 21809},
+						{label: 'Rutland', regionId: 21832},
+						{label: 'Shropshire', regionId: 21880},
+						{label: 'Staffordshire', regionId: 21838},
+						{label: 'Warwickshire', regionId: 21827},
+						{label: 'Worcestershire', regionId: 21857}
+					]
+				},
+				// East Anglia
+				{
+					parent: {label: 'East Anglia'},
+					list: [
+						{label: 'All East Anglia', url: 'east-anglia', regionId: 21906},
+						{label: 'Cambridgeshire', regionId: 21907},
+						{label: 'Essex', regionId: 21948},
+						{label: 'Norfolk', regionId: 21911},
+						{label: 'Suffolk', regionId: 21933}
+					]
+				},
+				// North East England
+				{
+					parent: {label: 'North East England'},
+					list: [
+						{label: 'All North East England', url: 'north-east-england', regionId: 21740},
+						{label: 'County Durham', regionId: 21757},
+						{label: 'Northumberland', regionId: 21741}
+					]
+				},
+				// North West England
+				{
+					parent: {label: 'North West England'},
+					list: [
+						{label: 'All North West England', url: 'north-west-england', regionId: 21952},
+						{label: 'Cheshire', regionId: 21953},
+						{label: 'Cumbria', regionId: 21966},
+						{label: 'Lancashire', regionId: 21958}
+					]
+				},
+				// South West England
+				{
+					parent: {label: 'South West England'},
+					list: [
+						{label: 'All South West England', url: 'south-west-england', regionId: 21996},
+						{label: 'Cornwall', regionId: 22070},
+						{label: 'Devon', regionId: 21997},
+						{label: 'Dorset', regionId: 22035},
+						{label: 'Somerset', regionId: 22052}
+					]
+				},
+				// Southern England
+				{
+					parent: {label: 'Southern England'},
+					list: [
+						{label: 'All Southern England', url: 'southern-england', regionId: 21668},
+						{label: 'Berkshire', regionId: 21696},
+						{label: 'Greater London', regionId: 21727},
+						{label: 'Hampshire', regionId: 21711},
+						{label: 'Isle of Wight', regionId: 21730},
+						{label: 'Kent', regionId: 21669},
+						{label: 'Surrey', regionId: 21693},
+						{label: 'Sussex', regionId: 21699},
+						{label: 'Wiltshire', regionId: 21679}
+					]
+				},
+				// Yorkshire
+				{
+					parent: {label: 'Yorkshire'},
+					list: [
+						{label: 'All Yorkshire', url: 'yorkshire', regionId: 21763},
+						{label: 'Yorkshire', regionId: 21764}
+					]
+				},
+				// Mid Wales
+				{
+					parent: {label: 'Mid Wales'},
+					list: [
+						{label: 'All Mid Wales', url: 'mid-wales', regionId: 22218},
+						{label: 'Cardigan/Ceredigion', url: 'cardiganceredigion', regionId: 22226},
+						{label: 'Powys', regionId: 22219}
+					]
+				},
+				// North Wales
+				{
+					parent: {label: 'North Wales'},
+					list: [
+						{label: 'All North Wales', url: 'north-wales', regionId: 22258},
+						{label: 'Anglesey', regionId: 22263},
+						{label: 'County Conwy', regionId: 22286},
+						{label: 'Gwynedd', regionId: 22269},
+						{label: 'North Wales Borders', regionId: 22259}
+					]
+				},
+				// South Wales
+				{
+					parent: {label: 'South Wales'},
+					list: [
+						{label: 'All South Wales', url: 'south-wales', regionId: 22234},
+						{label: 'Carmarthenshire', regionId: 22239},
+						{label: 'Glamorgan', regionId: 22247},
+						{label: 'Monmouthshire', regionId: 22235},
+						{label: 'Pembrokeshire', regionId: 22251}
+					]
+				},
+				// Ireland
+				{
+					parent: {label: 'Ireland'},
+					list: [
+						{label: 'All of Ireland', url: 'ireland', regionId: 23063},
+					]
+				},
+				// Northern Ireland
+				{
+					parent: {label: 'Northern Ireland'},
+					list: [
+						{label: 'All Northern Ireland', url: 'northern-ireland', regionId: 23748},
+					]
+				}
+			]
+		},
+		// Boats
+		{
+			regionRoot: {label: 'Boats', url: 'boat-holidays', id:15979},
+			regions: [
+				// The Broads
+				{
+					parent: {label: 'The Broads'},
+					list: [
+						{label: 'All of The Broads', url: 'the-broads', regionId: 21645},
+						{label: 'Acle', regionId: 21648},
+						{label: 'Brundall', regionId: 21649},
+						{label: 'Burgh St Peter', regionId: 20001},
+						{label: 'Hickling & Stalham', url: 'hickling-stalham', regionId: 21651},
+						{label: 'Houseboats', regionId: 21652},
+						{label: 'Reedham', regionId: 21650},
+						{label: 'Wroxham & Horning', url: 'wroxham-horning', regionId: 21647}
+					]
+				},
+				// Canals and Rivers
+				{
+					parent: {label: 'Canals and Rivers'},
+					list: [
+						{label: 'All Canals and Rivers', url: 'canals-and-rivers', regionId: 21646},
+						{label: 'Cambridgeshire Waterways', regionId: 21653},
+						{label: 'Cheshire Ring & Llangollen Canal', url: 'cheshire-ring-llangollen-canal', regionId: 21659},
+						{label: 'Heart of England Canals', regionId: 21657},
+						{label: 'Kennet & Avon Canal', url: 'kennet-avon-canal', regionId: 21655},
+						{label: 'Leeds & Liverpool Canal', url: 'leeds-liverpool-canal', regionId: 23671},
+						{label: 'Monmouth & Brecon Canal', url: 'monmouth-brecon-canal', regionId: 21660},
+						{label: 'Northern Ireland Loughs & Rivers', url: 'northern-ireland-loughs-rivers', regionId: 23756},
+						{label: 'Oxford & Midlands Canal', url: 'oxford-midlands-canal', regionId: 21656},
+						{label: 'River Thames', url: 'river-thames-wey', regionId: 21654},
+						{label: 'Scotland Lochs & Canals', url: 'scotland-lochs-canals', regionId: 21661}
+					]
+				}
+			]
+		},
+		// City Breaks
+		{
+			regionRoot: {label: 'City Breaks', id:15947},
+			regions: [
+				// England
+				{
+					parent: {label: 'England'},
+					list: [
+						{label: 'All England', url: 'england', regionId: 997},
+						{label: 'Birmingham', regionId: 1392},
+						{label: 'Bristol', regionId: 1393},
+						{label: 'Lincoln', regionId: 1399},
+						{label: 'York', regionId: 1407}
+					]
+				},
+				// Scotland
+				{
+					parent: {label: 'Scotland'},
+					list: [
+						{label: 'All Scotland', url: 'scotland', regionId: 998},
+						{label: 'Aberdeen', regionId: 1408},
+						{label: 'Edinburgh', regionId: 1409},
+						{label: 'Glasgow', regionId: 1410}
+					]
+				}
+			]
+		},
+		// EU Parks
+		{
+			regionRoot: {label: 'European Parks', url: 'holiday-parks-in-europe', id:15949},
+			regions: [
+				// France
+				{
+					parent: {label: 'France'},
+					list: [
+						{label: 'All France', url: 'france', regionId: 805},
+						{label: 'Alps & Jura', url: 'apls-jura', regionId: 938},
+						{label: 'Atlantic Coast', regionId: 759},
+						{label: 'Brittany', regionId: 765},
+						{label: 'Burgundy', regionId: 23521},
+						{label: 'Languedoc Roussillon', regionId: 972},
+						{label: 'Loire Valley', regionId: 1606},
+						{label: 'Northern France', regionId: 1611},
+						{label: 'Paris & Ile-de-France', url: 'paris-ile-de-france', regionId: 977},
+						{label: 'Provence & Côte d\'Azur', url: 'provence-cte-dazur', regionId: 974}
+					]
+				},
+				// Croatia
+				{
+					parent: {label: 'Croatia'},
+					list: [
+						{label: 'All Croatia', url: 'croatia', regionId: 23514},
+						{label: 'Istria', regionId: 23517}
+					]
+				},
+				// Single Countries
+				{
+					parent: {label: 'Holland'},
+					list: [
+						{label: 'All Holland', url: 'holland', regionId: 764}
+					]
+				},
+				{
+					parent: {label: 'Germany'},
+					list: [
+						{label: 'All Germany', url: 'germany', regionId: 761}
+					]
+				},
+				{
+					parent: {label: 'Belgium'},
+					list: [
+						{label: 'All Belgium', url: 'belgium', regionId: 757}
+					]
+				},
+				{
+					parent: {label: 'Switzerland'},
+					list: [
+						{label: 'All Switzerland', url: 'switzerland', regionId: 770}
+					]
+				},
+				{
+					parent: {label: 'Austria'},
+					list: [
+						{label: 'All Austria', url: 'austria', regionId: 756}
+					]
+				},
+				{
+					parent: {label: 'Czech Republic'},
+					list: [
+						{label: 'Czech Republic', url: 'czech-republic', regionId: 23579}
+					]
+				},
+				{
+					parent: {label: 'Denmark'},
+					list: [
+						{label: 'All Denmark', url: 'denmark', regionId: 1373}
+					]
+				},
+				{
+					parent: {label: 'Hungary'},
+					list: [
+						{label: 'All Hungary', url: 'hungary', regionId: 106}
+					]
+				}
+			]
+		}
+	];
+	GlobalSearchWidget.setRHSData(oaRHSData);
+}());

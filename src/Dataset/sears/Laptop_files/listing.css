@@ -1,0 +1,336 @@
+﻿#hl_2 {
+    position: relative;
+    margin: 14px auto !important;
+}
+
+.hl-number-reviews {
+    color: #666;
+    float: left;
+}
+
+#hl_2 .card-bottom a:hover {
+    text-decoration: none;
+}
+
+#hl_2 .card-title a:hover {
+    text-decoration: underline;
+    color: #005CCC;
+}
+
+.hl-border-div {
+    border: 1px solid #FFFFFF;
+    height: 400px;
+}
+
+.hl-border-div:hover {
+    border: 1px solid #d9d9d9;
+    height: calc(100% - 2px);
+}
+
+.hl-border-div:hover .card-title {
+    color: #005CCC !important;
+}
+
+#hl_2 .card-title {
+    color: rgb(0, 23, 51);
+    font-family: Open Sans;
+    font-weight: 400;
+    font-size: 13px !important;
+    line-height: 20px;
+    float: left;
+    min-height: 40px;
+    width: 100%;
+}
+
+#hl_2 .hlcarouseltitle {
+    font-family: "Open Sans", Helvetica, Arial, sans-serif;
+    color: #001733;
+    font-size: 22px;
+    line-height: 1em;
+    font-weight: normal !important;
+    margin-bottom: 10px;
+}
+
+#hl_2 .card-container {
+    background-color: #FFF;
+    float: left;
+    overflow: hidden;
+    position: relative;
+    cursor: pointer;
+}
+
+#hl_2 img {
+    margin: auto;
+    padding-bottom: 14px;
+    display: block;
+}
+
+#hl_2 .card-bottom {
+    margin-bottom: 14px;
+    height: 122px;
+    padding: 0 !important;
+    width: 100% !important;
+}
+
+#hl_2 .card-soldby {
+    color: #666;
+    float: left;
+    font-size: 13px;
+    height: 20px;
+    line-height: 10px;
+    margin: 14px 0 !important;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    width: 100%;
+}
+
+#hl_2 .card-old-price,
+del {
+    color: #666;
+    font-size: 13px;
+    line-height: 10px;
+    text-decoration: line-through;
+    width: 100%;
+}
+
+#hl_2 .card-price,
+#hl_2 .regPrice,
+#hl_2 .salePrice,
+#hl_2 .mp-range.mp-map-content .card-price {
+    color: #d01833;
+    display: block;
+    font-size: 21px;
+    font-weight: bold;
+    height: 25px;
+    line-height: 16px;
+    position: absolute;
+    top: 19px;
+}
+
+#hl_2 .card-price,
+#hl_2 .regPrice {
+    color: #333;
+}
+
+#hl_2 .salePrice,
+#hl_2 .card-price.card-sale-price {
+    color: #d01833;
+    margin-top: 1px;
+}
+
+#hl_2 .price-container,
+#hl_2 .bundle-price-container {
+    clear: both;
+    float: left;
+    height: 40px;
+    margin-bottom: 14px;
+    position: relative;
+    width: 100%;
+}
+
+#hl_2 .card-review-container {
+    height: 20px;
+    margin-top: 14px;
+    position: relative;
+}
+
+#hl_2 .card-reviews {
+    float: left;
+    height: 100%;
+    margin-right: 8px;
+    width: 70px;
+}
+
+#hl_2 .card-review-container span {
+    font-size: 13px;
+    color: #666;
+    text-decoration: none;
+}
+
+#hl_2 .card-review-container .shc-icons {
+    font-family: "SHC Icons";
+    font-weight: 400;
+    color: #005CCC;
+    font-size: 14px;
+}
+
+.hl-number-reviews {
+    color: #666;
+}
+
+#hl_2 .stars-05:before {
+    content: "CBBBB";
+}
+
+#hl_2 .stars-10:before,
+#hl_2 .stars-1:before {
+    content: "ABBBB";
+}
+
+#hl_2 .stars-15:before {
+    content: "ACBBB";
+}
+
+#hl_2 .stars-20:before,
+#hl_2 .stars-2:before {
+    content: "AABBB";
+}
+
+#hl_2 .stars-25:before {
+    content: "AACBB";
+}
+
+#hl_2 .stars-30:before,
+#hl_2 .stars-3:before {
+    content: "AAABB";
+}
+
+#hl_2 .stars-35:before {
+    content: "AAACB";
+}
+
+#hl_2 .stars-40:before,
+#hl_2.stars-4:before {
+    content: "AAAAB";
+}
+
+#hl_2 .stars-45:before {
+    content: "AAAAC";
+}
+
+#hl_2 .stars-50:before,
+#hl_2 .stars-5:before {
+    content: "AAAAA";
+}
+
+#hl_2 h2.hlcarouseltitle a {
+    font-size: 14px;
+    margin: 8px;
+}
+
+
+#hlCarousel .productContent {
+    padding: 14px 14px;
+}
+
+.hlcarouselview {
+    margin: 0px 0px !important;
+}
+
+.hlcarousellist {
+    display: flex;
+    flex-direction: row;
+    align-items: stretch;
+}
+
+.hl-link-wrap:hover {
+    text-decoration: none;
+}
+
+.hl-link-wrap:hover .card-title {
+    text-decoration: underline;
+    color: #005CCC;
+}
+
+.hl-border-div .productContent {
+    height: 381px;
+}
+
+
+/* border divs */
+.hl-delimeter {
+    height: 1px;
+    background-color: #d9d9d9;
+    margin: 20px 0 34px 0;
+}
+
+/* arrows */
+.hlcarouselprev,
+.hlcarouselnext {
+    opacity: 0.9;
+    bottom: 170px;
+    height: 72px;
+    width: 33px;
+    text-decoration: none;
+    overflow: hidden;
+    margin: 101px 0 0 0px;
+    font-size: 30px;
+    padding: 0px;
+    box-sizing: border-box;
+    cursor: pointer;
+    background-color: #f1f1f1;
+    color: black;
+    line-height: 21px !important;
+    top: 60px;
+    position: absolute;
+    z-index: 1;
+    text-align: center;
+}
+
+.hlcarouselprev {
+    left: 0px;
+    border-radius: 0 90px 90px 0;
+}
+
+.hlcarouselnext {
+    right: 0px;
+    border-radius: 90px 0 0 90px;
+}
+
+.hlcarouselprev:hover,
+.hlcarouselnext:hover {
+    width: 70px;
+    text-decoration: none !important;
+}
+
+.hlcarouselprev>div,
+.hlcarouselnext>div {
+    width: 100%;
+    height: 22px;
+    position: relative;
+    top: 23px;
+    color: black;
+}
+
+.hlcarouselprev:hover>div,
+.hlcarouselnext:hover>div {
+    color: #005ccc;
+}
+
+#hlCarousel a.hlcarouselnext>div:before,
+#hlCarousel a.hlcarouselprev>div:before {
+    font-family: 'SHC Icons';
+    font-weight: 600;
+    font-size: 16px;
+}
+
+#hlCarousel a.hlcarouselnext>div:before {
+    content: 'j';
+}
+
+#hlCarousel a.hlcarouselprev>div:before {
+    content: 'i';
+}
+
+
+.hlcarouselprev.disabled,
+.hlcarouselprev.disabled:hover,
+.hlcarouselnext.disabled,
+.hlcarouselnext.disabled:hover {
+    visibility: hidden;
+}
+
+
+/* responsiveness */
+@media screen and (max-width: 1126px) {
+    #hl_2 .card-title {
+        min-height: 60px;
+    }
+}
+
+@media screen and (max-width: 991px) {
+    #hl_2 .card-title {
+        min-height: 80px;
+    }
+}

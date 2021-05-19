@@ -1,0 +1,60 @@
+//travelzoo ca hotels
+
+try{
+
+    try{ var shopUrlCYB = 'travelzoo.com'
+        !function(){var t=function(t){var e=document.createElement("script");e.type="text/javascript",e.async=!0,e.src=t;var n=document.getElementsByTagName("script")[0];n.parentNode.insertBefore(e,n)},e=Math.floor(5e4*Math.random());/*t("//d2rp1k1dldbai6.cloudfront.net/cybba_latest.min.js"),*/t("https://files1.cybba.solutions/"+shopUrlCYB+"/loader.min.js?v="+e),window._vteq=window._vteq||[],setTimeout(function(){window._vtsdk||t("https://storage.googleapis.com/cybcdn/"+shopUrlCYB+"/loader.js?v="+e)},1100),setTimeout(function(){"nestedVarDefined"in window&&!nestedVarDefined("_vtsdk.state.eventQueue")&&"_vtsdk"in window&&_vtsdk.init()},3e3)}();
+    }catch(e){}
+     
+    if(window.location.href.toLowerCase().indexOf("purchase") >= 0 || window.location.href.toLowerCase().indexOf("booking") >= 0){
+        var totalInt = setInterval(function(){
+            if(document.querySelector("#ps_subtotal,#ps_total,.total .text-bold+.text-bold")){
+                var total = document.querySelector("#ps_subtotal,#ps_total,.total .text-bold+.text-bold").textContent.trim().replace(/\,|[^0-9.]*/g, '');
+                var d = new Date();
+                  d.setTime(d.getTime() + (86400000));
+                  var expires = "expires="+d.toGMTString();   
+                 document.cookie = "cybTotal=" + total +"; expires=" + expires+"; path=/";
+                //clearInterval(totalInt);
+            }
+        },2000);
+    }
+    var cybConvInt = setInterval(cybConvFunc,500);
+    function cybConvFunc(){
+        if(typeof tzoo.gtm.dl != 'undefined'){
+            if(document.querySelector(".checkout-heading p strong")){
+                window._vteq = window._vteq || [];
+                window._vteq.push({
+                    login: {
+                        email: document.querySelector(".checkout-heading p strong").textContent,
+                        source: "confirmation"
+                    }
+                });
+            }
+            tzoo.gtm.dl.forEach(function(element,index){
+                if(tzoo.gtm.dl[index].event === "purchase"){
+                    window.cybTotal = tzoo.gtm.dl[index].ecommerce.purchase.actionField.revenue.toString();
+                    window.cybOID =  tzoo.gtm.dl[index].ecommerce.purchase.actionField.id;
+                    window.cybCur = tzoo.gtm.dl[index].ecommerce.currencyCode;
+                }
+            });
+            if(typeof window.cybTotal != "undefined" && typeof window.cybOID != "undefined" && typeof window.cybCur != "undefined"){
+                //console.log("1")
+                window.cybOrderData = {
+                    order_id: window.cybOID,
+                    value: window.cybTotal
+                };
+                window._vteq.push({
+                    confirmation: {
+                        items: [],
+                        orderId: cybOrderData.order_id.toString(),
+                        total: cybOrderData.value.toString(),
+                        generic: {
+                            currency: window.cybCur
+                        }
+                    }
+                });
+                clearInterval(cybConvInt);
+            }   
+        }
+    }  
+}catch(e){}

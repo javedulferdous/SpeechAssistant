@@ -1,0 +1,46 @@
+_satellite.pushAsyncScript(function(event, target, $variables){
+  window.hwDtm.page.prevUrl = window.hwDtm.page.url;
+
+  var linkName=this.getAttribute("om-data-bdd")  || this.getAttribute("data-bdd") || '', filterRegExp=/filteritem/i;
+
+
+   var findFirstTextChild=function(el)  {
+                   if (el.children.length>0) return findFirstTextChild(el.children[0]);
+                       else return filterRegExp.test(el.className) || filterRegExp.test(el.getAttribute('om-data-bdd') || el.getAttribute('data-bdd'))?el.innerHTML:el.parentElement.children[1].innerHTML 
+                      	                                                                                                                                                                        
+                },
+
+                normalizeLinkName=function(linkname){                
+                                return linkname?linkname.toString().toLowerCase().trim().replace(/\s\-\s/g,'-').replace(/\s/g, '-').replace(/\(|\)/g, ''):'';               
+                };
+  if(filterRegExp.test(linkName)){
+                if(linkName=='starFilterItem'){
+                                linkName=this.getElementsByClassName('glyphicon-star').length + '.0-star';
+                }
+                else{      
+                                linkName=normalizeLinkName(findFirstTextChild(this));
+                                  
+                }              
+}
+
+window.hwDtm.page.link = linkName;
+var findOmModule = function(el) {
+  try {
+  while (el && el.parentNode && el.parentNode != null) {
+    el = el.parentNode;
+    if (el != null && typeof el.getAttribute == 'function' && el.getAttribute("data-module")) {
+      return el.getAttribute("data-module");
+    }
+  }
+  }catch(e){
+    console.log('_satelite error:' + e);
+  }
+
+  return null;
+}
+window.hwDtm.page.omModule = '';
+var moduleName = findOmModule(this);
+if(moduleName != null) {
+                window.hwDtm.page.omModule = moduleName;          
+}
+});

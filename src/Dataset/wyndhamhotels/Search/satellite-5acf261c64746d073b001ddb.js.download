@@ -1,0 +1,46 @@
+_satellite.pushBlockingScript(function(event, target, $variables){
+  (function (){
+  function updateContent(){
+  	jQuery(document).ajaxComplete(function(event, xhr, settings ){
+      if(settings.url.indexOf("getMultiPropertySearch") > -1){
+        window.propResponse = xhr["responseText"];
+      }
+      if(settings.url.indexOf("member/twoFormVerificationSubmit") > -1){
+        //console.log(offer.tag, JSON.parse(xhr["responseText"]));
+        try{
+        var response = JSON.parse(xhr.responseText);
+        if(response["Success"] === "true"){
+          console.log("Login successfully tracked");
+          /*adobe.target.getOffer({
+            "mbox": "target-global-mbox",
+            "params": {"userAuthenticatedNew": "AUTHENTICATED"},
+            "success": function(offer) {
+              adobe.target.applyOffer({ 
+                "mbox": "target-global-mbox",
+                "offer": offer 
+              });
+            },
+            "error": function(status, error) {          
+              console.log('Error', status, error);
+            }
+          });*/
+          if(location.pathname === "/wyndham-rewards"){
+            setTimeout(function (){location.reload();},1500);
+          }
+        }
+        }catch(err){
+             console.error(err);
+           }
+      }
+    });
+	}
+	function checkContent() {
+    if (typeof jQuery !== "undefined") {
+      updateContent();
+    } else {
+      setTimeout(checkContent, 500)
+    }
+	}
+  checkContent();
+})();
+});

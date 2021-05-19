@@ -1,0 +1,198 @@
+var quickLookHandler = function(parentDiv) {
+	quickLook = this;
+	var obj = this;
+	this.quickLookArray = []
+	this.quickLookTabs = ["Details","Description"];
+
+	this.parentDiv = $(parentDiv);
+	this.currentlyDisplayedItem = "";
+	this.currentlyDisplayedTab = this.quickLookTabs[0];
+	this.newDisplayTab = "";
+	this.isLoading = false;
+	
+	this.loading = function(target) {
+		obj.isLoading = true;
+		this.image = $('<div id="quickLookLoading"><img src="/images/icons/loading.gif"/></div>');
+		target.append(this.image);	
+	}
+  
+	this.clearLoading = function() {
+		obj.isLoading = false;
+		$("#quickLookLoading").remove();
+	}
+
+	this.hideCurrent = function() {
+		$('#quickLook_'+ obj.currentlyDisplayed).hide();
+		return false;
+	}
+
+	this.showQuickLook = function(productId,margin) {
+		if(obj.isLoading == false) {
+			obj.hideCurrent();
+			if(productId) {
+				if(this.quickLookArray[productId]) {
+					if(margin) {
+						$('#quickLook_'+ productId).css("margin-top", margin.top + "px");
+						$('#quickLook_'+ productId).css("margin-left", margin.left + "px");
+					}
+					$('#quickLook_'+ productId).show();
+				} else {
+					obj.createNewQuickLook(productId,margin);
+				}
+				obj.currentlyDisplayed = productId;
+			}
+		}
+		return false;
+	}
+
+	this.createNewQuickLook = function(productId,margin) {
+		var createObj = this;
+		this.newDiv = $('<div class="quickLook" id="quickLook_'+ productId +'"></div>');
+		if(margin) {
+			$(this.newDiv).css("margin-top",margin.top + "px");
+			$(this.newDiv).css("margin-left",margin.left + "px");
+		}
+		obj.loading(this.newDiv);
+		obj.parentDiv.append(this.newDiv);
+
+		// jQuery.getJSON(pageUpdater.data.getProduct +"?productId="+ productId, function(JSONdata) {
+		jQuery.getJSON(detailsJSONUrl+"?productId="+ productId, function(JSONdata) {
+			obj.clearLoading();
+			createObj.newDiv.append(renderQuickLook(JSONdata));
+			var tempTarget = [];
+			tempTarget.hash = "#" + obj.currentlyDisplayedTab;
+			obj.tabSwitch(tempTarget);
+		});
+		return false;
+	}
+
+	this.tabSwitch = function(target) {
+		obj.newDisplayTab = target.hash;
+		for(id in obj.quickLookArray) {
+			$('#quickLook_'+ obj.quickLookArray[id] +' > .quickLookTabs > a[hash!="'+ obj.newDisplayTab +'"]').each( function(){ 
+				$(this).attr("class","");
+			});
+			$('#quickLook_'+ obj.quickLookArray[id] +' > .quickLookTabs > a[hash="'+ obj.newDisplayTab +'"]').each( function(){ 
+				$(this).attr("class","selected");
+			});
+		}
+		$(".quickLook" + obj.currentlyDisplayedTab).css("display","none");
+		$(".quickLook" + obj.newDisplayTab.replace("#","")).show();
+		obj.currentlyDisplayedTab = obj.newDisplayTab.replace("#","");
+		return false;
+	}
+	
+	this.renderQuickLook = function(product) {
+		quickLook.quickLookArray[product.productId] = product.productId;
+		
+			this.moreInfoString = '';
+ 			this.closeString = '';
+		
+
+		
+		if(product.borrowImage != "purchase" && product.borrowImage != "none") {
+			var futureRatesString = "";
+ 
+ 			// if(typeof(pageUpdater) != 'undefined' && pageUpdater.data.addToWishlistUrl) {
+ 			if(1) {
+				this.closeString = '<div class="closePopup"><a href="#close" onclick="return quickLook.hideCurrent();">Close</a></div>';
+				this.moreInfoString = '<div class="dot"></div>\
+				<a href="' + product.detailsUrl + '" class="callToArrow">More Details</a><br />';
+				
+				if(product.isWaitlistable=='false') {
+					this.link = '<a href="'+ product.detailsUrl + '">CLOSED ADD TO WISH LIST</a><br/><br/>';
+				} else {
+					this.link = '<a href="'+ product.detailsUrl + '"><img src="'+ buttonImages[product.borrowImage + "ButtonImage"] +'" /></a>';
+				}
+			} else {
+				this.link = '<a href="'+ product.detailsUrl +'" class="callToArrow">More Details</a><br />';
+			}
+			
+
+
+			this.product = $('\
+					<div class="quickLookTabs">\
+						<a href="#Details" onclick="return quickLook.tabSwitch(this);" class="selected">Details</a>\
+						<a href="#Description" onclick="return quickLook.tabSwitch(this);">Description</a>\
+					</div>\
+					<div class="quickLookContent">\
+						'+ this.closeString +'\
+						<div class="quickLookIntro">\
+							<div class="brandName">'+ product.brand +'</div>\
+							<div class="name">'+ product.name +'</div>\
+              <div class="sku">SKU# ' + product.productId +'</div>\
+						</div>\
+						<div class="quickLookDetails">\
+							<div class="featured"><img src="'+ product.imageUpsell +'" /></div>\
+						</div>\
+						<div class="quickLookDescription">\
+							<div class="thumb"><img src="'+ product.image +'" /></div>\
+							'+ product.description +'\
+						</div>\
+						<div class="quickLookRates">\
+							<div class="rates">\
+								<img src="/images/navigation/title/member_pricing.gif" alt="Member Pricing"><img src="/images/icons/dot_pipe.gif" class="dotPipe" alt=""><br />\
+								'+ product.memberRates + '\
+							</div>\
+							' + futureRatesString + '\
+							<div class="rates">\
+								<img src="/images/navigation/title/guest_pricing.gif" alt="Guest Pricing"><img src="/images/icons/dot_pipe.gif" class="dotPipe" alt=""><br />\
+								'+ product.guestRates + '\
+							</div>\
+							<div class="button">\
+								'+ this.link +'\
+							</div>\
+							'+ this.moreInfoString +'\
+						</div>\
+					</div>\
+			');
+		} else {
+			if(product.borrowImage == "purchase") {
+				this.link = '<a href="'+ product.detailsOutletUrl + '"><img src="'+ buttonImages[product.borrowImage + "ButtonImage"] +'" /></a>';
+			} else {
+				this.link = "Unfortunately this item is no longer available for purchase."; 
+			}
+			
+			// if(pageUpdater.data.addToWishlistUrl) {
+			if(1) {
+				this.closeString = '<div class="closePopup"><a href="#close" onclick="return quickLook.hideCurrent();">Close</a></div>';
+				this.moreInfoString = '<div class="dot"></div>\
+				<a href="'+ product.detailsOutletUrl +'" class="callToArrow">More Details</a><br />';
+			}
+			
+			this.product = $('\
+					<div class="quickLookTabs">\
+						<a href="#Details" onclick="return quickLook.tabSwitch(this);" class="selected">Details</a>\
+						<a href="#Description" onclick="return quickLook.tabSwitch(this);">Description</a>\
+					</div>\
+					<div class="quickLookContent">\
+							'+ this.closeString +'\
+						<div class="quickLookIntro">\
+							<div class="brandName">'+ product.brand +'</div>\
+							<div class="name">'+ product.name +'</div>\
+						</div>\
+						<div class="quickLookDetails">\
+							<div class="featured"><img src="'+ product.imageUpsell +'" /></div>\
+						</div>\
+						<div class="quickLookDescription">\
+							<div class="thumb"><img src="'+ product.image +'" /></div>\
+							'+ product.description +'\
+						</div>\
+						<div class="quickLookRates">\
+							<div class="rates">\
+								Now : '+ product.outletPrice + '\
+							</div>\
+							<div class="button">\
+								'+ this.link +'\
+							</div>\
+							'+ this.moreInfoString +'\
+						</div>\
+					</div>\
+			');
+		}
+		return this.product;
+	}  
+
+	return false;
+}
+

@@ -1,0 +1,445 @@
+#inside_holder[pageurl*='Builder'] div#inside_tabs {
+    top: calc(100vh - 120px) !important;
+}
+#inside_joinTheCallChatTab {
+    display: none !important;
+}
+
+#inside_leaveMessageForm .inside_closeCross {
+    color: black !important;
+    font-size: 32px  !important;
+    right: 0px  !important;
+}
+
+#inside_platform_link {
+	pointer-events: none;
+}
+
+#inside_holder {
+	position: fixed;
+	height:0px;
+	z-index: 999999 !important;
+}
+
+#inside_holder .intl-tel-input .country-list {
+    visibility: visible;
+}
+
+/* hide icons on prechat form */
+#inside_holder .inside_chatPane.prechat #inside_emailIcon,
+#inside_holder .inside_chatPane.prechat #inside_printIcon,
+#inside_holder .inside_chatPane.prechat #inside_joinTheCallIcon {
+	display: none;
+}
+
+/* mobile */
+#inside_holder.mobile-device .inside_chatPane {
+	margin: 0;
+}
+
+/* hide print and email icon on offline chat pane */
+.inside_chatPane.offline #inside_printIcon, .inside_chatPane.offline #inside_emailIcon {
+	display: none;
+}
+
+/* button customisation */
+.insideSubmitButton {
+	background-color: #0092db;
+	padding: 6.5px 14px !important;
+	border: none !important;
+	font-size: 12.5px;
+	font-weight: bold;
+	font-style: normal;
+	font-stretch: normal;
+	line-height: normal;
+	letter-spacing: -0.2px;
+	border-radius: 2px;
+	font-family: open sans,helvetica neue,Helvetica,Arial,sans-serif;
+	min-width: 80px;
+}
+#inside_holder .insideSubmitButton.cancel {
+	background-color: #73787a;
+}
+#inside_holder #inside_emailForm {
+	text-align: center;
+}
+#inside_holder #inside_emailForm .inside_systemMessageTitle {
+	background: none !important;
+	font-size: 13px;
+	font-weight: normal;
+	font-style: normal;
+	font-stretch: normal;
+	line-height: 1.46;
+	letter-spacing: normal;
+	text-align: center;
+	color: #000000;
+}
+
+#inside_holder .inside_chatPane.prechat #inside_joinTheCallIcon{
+	display: flex!important;
+}
+
+#inside_holder input#inside_chatSendButton {
+    margin-right: 9px!important;
+    margin-top:3px!important;
+    text-align:center!important;
+    font-weight: 500!important;
+}
+
+ #inside_holder #inside_chatPane_header:after, #inside_chatPaneHeader:after{
+ 	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif!important;
+ 	font-weight: 500!important;
+ 	letter-spacing:0.01px!important;
+ }
+
+#inside_holder[device="2"] #chatHeaderIcons .inside_minimise{
+	display: none;
+}
+
+#inside_holder[device="2"] div.inside_chatPane textarea{
+	font-size: 14px!important;
+}
+
+#inside_holder[device="2"] div.inside_chatPane textarea::placeholder{
+	font-size: 14px!important;
+	color: #858585!important;
+}
+
+#inside_holder input#inside_chatSendButton.active{
+	color: #fff!important
+}
+
+#inside_holder #inside_prechatForm input.insideSubmitButton{
+	padding-top: 9px!important;
+	padding-bottom: 9px!important;
+}
+
+
+#inside_holder:not(.mobile-device) div#inside_tabs, #inside_holder:not(.mobile-device) #inside_joinTheCallChatTab{
+	top: calc(57vh + 120px) !important;
+}
+#inside_holder .inside_chatMessageAssist.status.typing .inside_chatFrom{
+	color:#444!important;
+}
+#inside_holder #inside_chat_send_cell #inside_chatSendButton{
+	max-height: 36px!important;
+}
+
+#inside_holder .inside_visitorNotify.survey.embed .inside_submitButtonHolder .insideSubmitButton {
+text-transform: capitalize!important;
+	}
+
+#inside_holder .inside_cobrowseRequest button.inside_cobrowseAcceptBtn {
+	background: #444;
+	color:#fff;
+font-weight: 300!important;
+}
+
+
+#inside_holder .inside_cobrowseRequest button.inside_cobrowseRejectBtn {
+	background: #ddd;
+	color: #fff;
+font-weight: 300!important;
+}
+ 
+div#inside_holder .inside_cobrowseRequest button.inside_cobrowseAcceptBtn,
+div#inside_holder #closeChatButton{
+		background: #444!important;
+	color:#fff!important;
+	border: 1px solid #444!important;
+}
+
+div#inside_holder .inside_cobrowseRequest button.inside_cobrowseRejectBtn,
+#inside_holder .insideSubmitButton.cancel{
+		background: #fff!important;
+	color: #444!important;
+	border: 1px solid #444!important;
+}
+
+#inside_holder[device="2"] #inside_liveChatTab{
+	max-width: 21px!important;
+} 
+
+#inside_holder[device="2"] #chatHeaderIcons .inside_minimise {
+display: inline-block!important;
+padding-right: 0;
+}
+
+#inside_holder[device="2"] div#inside_tabs{
+	display:none!important;
+}
+
+
+#inside_holder .closeChat.overlay #closeChatHolder .insideSubmitButton,
+#inside_holder .inside_cobrowseRequest .inside_cobrowseAcceptBtn{
+	border-radius: 20px!important;
+	text-transform: capitalize!important;
+font-weight: 300!important;
+}
+
+#inside_holder #inside_leaveMessageForm input.inside_sendButton{
+    margin-left:auto!important;
+}
+
+div#inside_holder #inside_leaveMessageForm input.inside_sendButton {
+    font-size: 12px !important;
+max-width: 66px!important;
+    min-width: 66px!important;
+}
+
+#inside_holder #inside_prechatForm_form input[type=radio]{
+	width: auto!important;
+}
+
+
+#inside_holder #inside_prechatForm input.insideSubmitButton {
+  font-weight: normal !important;
+  border-radius: 20px;
+}
+#inside_holder .inside_systemMessage.emailForm #inside_emailForm .insideSubmitButton {
+  margin-top: 0;
+  text-transform: capitalize !important;
+}
+
+#inside_holder .inside_systemMessage.emailForm #inside_emailForm .insideSubmitButton{
+	font-weight: 300!important;
+}
+
+#inside_holder  .inside_chatPane #inside_chatInputTableHolder{
+	margin-top: -1px!important;
+}
+
+#inside_holder .inside_chatPane.offline .chatHeaderIcons .inside_icon_online#inside_joinTheCallIcon{
+	    display: inline-flex!important;
+}
+
+#inside_holder #inside_chatInputHolderTable td{
+	padding: 0!important;
+}
+
+#inside_holder .inside_visitorNotify.survey[eventid="489"] {
+  box-shadow: none !important;
+  background: #dddddd !important;
+  border: none;
+  width: 250px;
+}
+#inside_holder .inside_visitorNotify.survey[eventid="489"] .inside_closeButton {
+  margin-top: 2px;
+  margin-right: 7px;
+}
+#inside_holder .inside_visitorNotify.survey[eventid="489"] .inside_closeButton:before {
+  color: #fff !important;
+}
+#inside_holder .inside_visitorNotify.survey[eventid="489"] .insideSubmitButton {
+  font-family: open sans, helvetica neue, Helvetica, Arial, sans-serif;
+  background: #444 !important;
+  color: #fff !important;
+  border: 1px solid #444 !important;
+  width: 80px;
+  display: block;
+  height: 32px;
+  line-height: 30px;
+  border-radius: 20px;
+  padding: 0 !important;
+  left: -10px;
+  position: relative;
+}
+#inside_holder .inside_visitorNotify.survey[eventid="489"] .inside_survey_header {
+  background: #444;
+  font-family: HelveticaNeue, Helvetica, Arial, sans-serif;
+  font-size: 14px;
+  text-align: left;
+}
+#inside_holder .inside_visitorNotify.survey[eventid="489"] textarea {
+  border: none;
+  resize: none;
+  height: 108px;
+  min-width: calc(100% + 20px) !important;
+  position: relative;
+  right: 10px !important;
+  padding-left: 7px !important;
+  padding-top: 7px !important;
+  font-size: 12px !important;
+  border-radius: 4px !important;
+  border: 1px solid transparent;
+}
+#inside_holder .inside_visitorNotify.survey[eventid="489"] textarea:focus {
+  border: 1px solid #000;
+  transition: all ease 1s;
+}
+#inside_holder .inside_visitorNotify.survey[eventid="489"] .insideSurveyQuestion {
+  margin-top: 15px;
+}
+#inside_holder .inside_visitorNotify.survey[eventid="489"] .insideSurveyQuestionImage {
+  margin: 0 !important;
+  margin-top: 15px !important;
+}
+#inside_holder .inside_visitorNotify.survey[eventid="489"] .insideSurveyQuestionImage:hover {
+  transform: none !important;
+}
+#inside_holder .inside_visitorNotify.survey[eventid="489"] .insideSurveyQuestionImage[value=yes]:before {
+  content: "yes";
+  font-weight: 300 !important;
+  text-transform: capitalize !important;
+  font-family: open sans, helvetica neue, Helvetica, Arial, sans-serif;
+  background: #444 !important;
+  color: #fff !important;
+  border: 1px solid #444 !important;
+  width: 80px;
+  display: block;
+  height: 32px;
+  line-height: 30px;
+  border-radius: 20px;
+}
+#inside_holder .inside_visitorNotify.survey[eventid="489"] .insideSurveyQuestionImage[value=no]:before {
+  content: "no";
+  font-weight: 300 !important;
+  text-transform: capitalize !important;
+  font-family: open sans, helvetica neue, Helvetica, Arial, sans-serif;
+  background: #fff !important;
+  color: #444 !important;
+  border: 1px solid #444 !important;
+  width: 80px;
+  display: block;
+  height: 32px;
+  line-height: 30px;
+  border-radius: 20px;
+}
+#inside_holder .inside_visitorNotify.survey[eventid="489"] .insideSurveyQuestionImage img {
+  display: none !important;
+}
+
+
+#inside_holder .inside_visitorNotify.survey[eventid="489"] #insideSurveyHolder[surveyid="18"] .inside_survey_answertype_image{
+  max-height: 70px!important;
+  min-height: 70px!important;
+}
+
+#inside_holder .inside_visitorNotify.survey[eventid="489"] .answer.completed{
+display:none;
+}
+
+#inside_holder .inside_visitorNotify.survey[eventid="489"] .inside_closeButton{
+	display:block!important;
+	color: white;
+}
+
+/* set chat tab position on login page (alt chat setting id="21")*/
+#inside_holder[chatsettingsid="21"]:not(.mobile-device) div#inside_tabs, 
+#inside_holder[chatsettingsid="21"]:not(.mobile-device) #inside_joinTheCallChatTab{
+	top: calc(1vh - 5px) !important;
+}
+#inside_holder[pageurl*="staples.com/idm/com/login"][chatsettingsid="21"]:not(.mobile-device) div#inside_tabs, 
+#inside_holder[pageurl*="staples.com/idm/com/login"][chatsettingsid="21"]:not(.mobile-device) #inside_joinTheCallChatTab{
+	top: calc(1vh - 15px) !important;
+}
+
+/* set links color */
+#inside_holder a {
+    text-decoration: none;
+    color: blue;
+}
+
+/* 1.25.0 upgrade */
+.inside_dept_selector input {
+  width: auto;
+  display: inline-block;
+  vertical-align: middle;
+  margin: 0 5px 0 0;
+}
+
+#inside_prechatForm .inside_dept_selector label {
+  margin-bottom: 0;
+  position: relative;
+  padding-right: 5px;
+}
+
+#inside_holder #inside_prechatForm select {
+  height: auto;
+}
+
+#inside_prechatForm .inside_dept_selector input[type="radio"]:focus + .box {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  outline: 1px solid #2776c5;
+}
+
+.inside_dept_selector input:focus,
+#inside_holder .insideSubmitButton:focus,
+#inside_holder [type="button"]:focus {
+  outline: 1px solid #2776c5 !important;
+}
+
+#inside_prechatForm .inside_dept_selector input[type="radio"],
+.inside_messageText:focus,
+.inside_systemMessage:focus,
+.inside_messageText .staples-bot-action-button:focus,
+#inside_chatHeaderAndWindowHolder,
+#inside_prechatForm {
+  outline: none !important;
+}
+
+#inside_holder label {
+  text-transform: none;
+}
+
+#inside_holder #inside_prechatForm_form .insideSubmitButton {
+  width: 100%;
+  padding: 0 14px !important;
+  min-height: 36px;
+}
+
+#closeChatHolder {
+  outline: none;
+}
+
+#inside_holder .insideJoinTheCallSessionCodeHolder {
+  text-align: center;
+}
+
+#inside_holder .insideJoinTheCallSessionCodeHolder>span:nth-child(2) {
+  float: none !important;
+  height: auto !important;
+  display: block;
+  margin: 0 !important;
+}
+
+#inside_holder .insideJoinTheCallSessionCodeHolder:before {
+  content: '';
+}
+
+#inside_holder .insideJoinTheCallSessionCodeHolder>span:nth-child(2):before {
+  content: 'Co-Browse Session Code:';
+  font-size: 13px;
+  display: block;
+}
+
+#inside_chat_input_cell .cross {
+  position: absolute;
+  right: 80px;
+  top: 10px;
+  width: 30px;
+  height: 30px;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-image: url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3E%3Cpath fill='%23444' fill-rule='evenodd' d='M9.414 8l5.657 5.657a1 1 0 0 1-1.414 1.414L8 9.414l-5.657 5.657A1 1 0 0 1 .93 13.657L6.586 8 .929 2.343A1 1 0 1 1 2.343.93L8 6.586 13.657.929a1 1 0 1 1 1.414 1.414L9.414 8z'/%3E%3C/svg%3E");
+  cursor: pointer;
+  background-size: 11px;
+  display: none;
+}
+
+/* set offline header color */
+.inside_chatPane.offline #inside_chatPaneHeader:before,
+#inside_chatPaneHeader.inside_chat_offline:before {
+  background: #7d7c7e;
+}
+
+/* ADA compliance updates */
+.inside_chatPane #inside_chatInput {
+  display: none; /* to prevent screen reader read the placeholder */ 
+}
+.inside_chatPane.chatInputEnabled #inside_chatInput {
+  display: inline-block;
+}

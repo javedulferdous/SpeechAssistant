@@ -1,0 +1,85 @@
+requirejs.config({
+	baseUrl: "/media/endeca/store/script/",
+	paths: {
+		'jquery': 'jquery-3.2.1.min',
+		'qtip': 'jquery.qtip',
+		'autosuggest': 'AutoSuggest',
+		'metrics': '/media/js/metrics/metrics',
+		'util': '/media/js/endeca-store-util',
+		'fpp': '/media/js/fpp-detail',
+		'handlebars': '/media/js/handlebars',
+		'bootstrap': '/media/psm/script/bootstrap.min',
+		'psm': '/media/psm/script/ps'
+
+	},
+	shim: {
+		"bootstrap": {
+		  deps: ["jquery"]
+		},
+		"psm": {
+		  deps: ["bootstrap"]
+		}
+	},
+	packages: [
+		{ name: 'dojo', location: '/external/scripts/dojo-1.9.7' },
+		{ name: 'dijit', location: '/external/scripts/dijit-1.9.7' },
+	]
+});
+
+if (typeof jsonAddress === 'undefined') {
+	require(['jquery', 'autosuggest', 'metrics', 'util', 'bootstrap', 'psm'], function($){
+		// Custom functions start
+
+		// Run only for product detail page.
+		if (window.location.pathname.indexOf('/store/product') === 0) {
+			USPS.ENDECASTOREUTIL.productDetail_init();
+			USPS.ENDECASTOREUTIL.refreshTotals();
+		}
+		// Scroll to top for search results page only.
+		if (window.location.pathname.indexOf('/store/results') === 0) {
+			$(window).scroll(function(){
+				if ( ($(this).height() + $(this).scrollTop())>1000) {
+					if (!$('.results-return').hasClass('active')){
+						$('.results-return').addClass('active');
+					};
+				} else {
+					if ($('.results-return').hasClass('active')){
+						$('.results-return').removeClass('active');
+					};
+				}
+			});
+			$('.results-return a').on('click touch', function(e){e.preventDefault();window.scrollTo(0,0);});
+		}
+	});
+} else {
+	// Run only for forever prepaid product detail page.
+	require(['jquery', 'autosuggest', 'metrics', 'util',
+			'fpp', 'handlebars', 'bootstrap', 'psm'], function($){
+		$(document).ready(function() {
+			if (typeof fppMode !== 'undefined') {
+				if (fppMode === 5) {
+					USPS.FPP.populateJsonAddressFromHidden();
+					USPS.FPP.populateReturnAddressUI();
+				} else {
+					USPS.FPP.populateHiddenFromJsonAddress();
+					USPS.ENDECASTOREUTIL._setAddressForm();
+				}
+			}
+
+			USPS.ENDECASTOREUTIL._populateAddress();
+			USPS.ENDECASTOREUTIL.productDetail_init();
+			USPS.ENDECASTOREUTIL.refreshTotalsFPP();
+			USPS.ENDECASTOREUTIL.checkForeignCountryFPP();
+		});
+
+		//No RESULTS FOUND ADDRESS SEARCH
+		// This is for the prepaid labels address search box.
+		$(document.body).on('keyup','.addr-book-login #address-search', function(e){console.log('keyup working');
+			if (($('input#address-search').val().length>2)&&($('#eac-container-address-search ul li').length< 1)) {
+				$('#eac-container-address-search').html('<ul class="emptyResults"><li>No Results Found</li></ul>');
+				$('#eac-container-address-search ul.emptyResults').css('display', 'block');
+
+			}
+		});
+	});
+}

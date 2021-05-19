@@ -1,0 +1,67 @@
+(function initAuthPopupOverlay($){var HRS_PUW=window.HRS_PUW;
+var GTM=HRS_PUW.GTM;
+var GTMHelper=window.GTMHelper;
+var POPUP_TYPE={REGISTER:"MyHRS Registration Form",LOGIN:"MyHRS Login Form"};
+function AuthPopupOverlay(){this.popup=null;
+this.touchpoint="";
+this.pageName="";
+this.backdrop=$("#KisSMELightBox_veilPopup");
+this.closingElements=["#KisSMELightBox_veilPopup",".myHRSLightBox .close",".myHRSLightBox .closeLink",".lightboxVeil",".myHRSLightBox.privateRegisterOk .submit","#layoverRegisterWrapper input.closeButton","#layoverRegisterWrapper .close"];
+this.initEventHandlers()
+}AuthPopupOverlay.prototype.initEventHandlers=function initEventHandlers(){$("#wrap").on("click",this.handleClick.bind(this))
+};
+AuthPopupOverlay.prototype.handleClick=function handleClick(e){for(var i=0;
+i<this.closingElements.length;
+i+=1){if(e.target.matches(this.closingElements[i])){this.hide(true);
+break
+}}};
+AuthPopupOverlay.prototype.hide=function close(track){this.popup.addClass("hide").hide();
+this.backdrop.hide();
+if(track){this.handleOverlayCloseTracking()
+}};
+AuthPopupOverlay.prototype.show=function open(options){this.setPopup(options.popup);
+this.popup.removeClass("hide").show();
+if(!options.isStandAlone){this.backdrop.show()
+}if(options.touchpoint&&options.popupName){this.handleOverlayPageViewTracking(options.touchpoint,options.popupName)
+}};
+AuthPopupOverlay.prototype.switchPopup=function switchPopup(options){this.hide(false);
+this.show(options)
+};
+AuthPopupOverlay.prototype.setPopup=function setPopup(popup){this.popup=$(popup)
+};
+AuthPopupOverlay.prototype.setTouchpointName=function setTouchpointName(touchpoint){this.touchpoint=touchpoint
+};
+AuthPopupOverlay.prototype.getTouchpointName=function getTouchpointName(){return this.touchpoint
+};
+AuthPopupOverlay.prototype.setPageName=function setPageName(pageName){this.pageName=pageName
+};
+AuthPopupOverlay.prototype.handleOverlayPageViewTracking=function handleOverlayPageViewTracking(touchpoint,popupName){var pageName=GTMHelper.getInitialPageName();
+if(HRS_PUW.isHotelDetailsLayer()){pageName="Hotel Detail"
+}var touchpointName=GTMHelper.Utils.getMyHRSTouchpoint(touchpoint,pageName);
+var trackingData={pageName:popupName,touchpointMyHRS:touchpointName};
+GTMHelper.Utils.pushMyhrsData(trackingData);
+if(popupName===POPUP_TYPE.REGISTER){this.handleRegistrationProcess(pageName,touchpointName)
+}};
+AuthPopupOverlay.prototype.handleRegistrationProcess=function handleRegistrationProcess(pageName,touchpointName){this.setTouchpointName(touchpointName);
+this.setPageName(pageName);
+this.handleRegisterStep()
+};
+AuthPopupOverlay.prototype.handleRegisterStep=function handleRegisterStep(){GTMHelper.pushObject({event:"puwRegisterStep1",pageProduct:"Public Web",pageName:this.pageName,registerStep:"1 - Registration Started",touchpointMyHRS:this.touchpoint})
+};
+AuthPopupOverlay.prototype.handleRegistrationSuccess=function handleRegistrationSuccess(data,rememberLogin){GTMHelper.pushObject({event:"puwSmeRegistrationSuccess",pageName:this.pageName,pageProduct:"Public Web",registerMethod:"Email",userMyHRSID:data.mumyuid,userType:data.muut,userNewsletterOptIn:"N",userStayLoggedIn:rememberLogin?"Y":"N",touchpointMyHRS:this.touchpoint})
+};
+AuthPopupOverlay.prototype.handleRegistrationFailure=function handleRegistrationFailure(){GTMHelper.pushObject({event:"puwRegisterFailed",registerMethod:"Email",touchpointMyHRS:this.touchpoint})
+};
+AuthPopupOverlay.prototype.handleOverlayCloseTracking=function handleOverlayCloseTracking(){var dataLayerHotelList=GTM.hotelListSearchDataLayer;
+var dataLayerHotelDetails=window.dataLayerHotelDetail;
+var hotelListLength=(dataLayerHotelList&&dataLayerHotelList.searchNumberOfResults||dataLayerHotelDetails&&dataLayerHotelDetails.searchNumberOfResults);
+var modifier={event:"puwOverlayClosed"};
+if(window.HRS_PUW.isHotelDetailsLayer()){modifier=Object.assign(modifier,{searchNumberOfResults:hotelListLength});
+GTMHelper.pushDataWithModifier(dataLayerHotelDetails,modifier)
+}else{if(HRS_PUW.isHotelListPage){modifier=Object.assign(modifier,dataLayerHotelList);
+GTMHelper.pushData(modifier)
+}else{GTMHelper.pushData(modifier)
+}}};
+HRS_PUW.AuthPopupOverlay=AuthPopupOverlay;
+HRS_PUW.AuthPopupOverlay.instance=new AuthPopupOverlay()
+})(window.jQuery_v3_3_1);

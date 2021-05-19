@@ -1,0 +1,271 @@
+var site = site || {};
+
+/**
+ * This ADA class is used for Main Menu(gnav) Navigation, It is also used to access Popup windows
+ * and also sets focus to Active Item using custom outline.
+ * @param {e} keyCode value is passed to ADA class to define the corresponding action to proceed
+ * such as Menu Navigation or Popup Window open.
+ *
+ * LIST OF METHODS AVAILABLE:
+ * enterKey - Method used to bind enterKey event.
+ * getKeycode - Method used to get keyCode value of keyboard event triggered.
+ * site.restrict_navigation - Method used to retain Tab Focus within selected container.
+ * primaryMenuNavigation - Method used to navigate through Main Menu and products by
+ * ‘Category & Collection’
+ * tabsNavigation - Method used to access products placed within Tab controls such as
+ * 'Best Sellers' and 'What's New'
+ * productsNavigation - Method used to access each individual product placed within Tab controls
+ * and enables to view product using QuickView mode
+ * customFocusNavigation - Method used to set focus on active element with custom outline when
+ * Tab key is pressed
+ */
+(function($) {
+  Drupal.behaviors.ada = {
+    attach: function(context) {
+      var $customEnterKeyAccess = $('.js-access-link', context);
+      var $mainNav = $('.page-header__nav__main', context);
+      var $mainMenuItem = $('.js-main-menu', $mainNav);
+      var $mainMenuFooterItem = $('.js-gnav-dropdown-email-link', $mainMenuItem);
+      var $prevActiveElem = null;
+
+      /**
+       * This method is used to bind enter key event for elements
+       * @param {callback function} Callback function that will execute after
+       * enter key is pressed
+       */
+      $.fn.enterKey = function(fnc) {
+        return this.each(function() {
+          $(this).on('keydown', function(e) {
+            var keyCode = site.getKeycode(e);
+            if (keyCode === 13) {
+              fnc.call(this, e);
+            }
+          });
+        })
+      };
+
+      /**
+       * This method is used to get key code of the event passed
+       * @param {event} Current event whose key code needs to be retrieved
+       */
+      site.getKeycode = function(e) {
+        var keyCode = (e.keyCode ? e.keyCode : e.which);
+        return keyCode;
+      };
+
+      /**
+       * This method is used to retain focus within container/popup window
+       * which is currently active when navigation is made through Tab key
+       * @param {element} Current element/container within which focus should be maintained
+       */
+      site.restrict_navigation = function(element) {
+        var tabbables = element.find(":tabbable");
+        var first = tabbables.filter(":first");
+        var last = tabbables.filter(":last");
+
+        element.once().keydown(function(e) {
+          if (e.keyCode !== 9 || e.isDefaultPrevented()) {
+            return;
+          }
+          var target = e.target;
+          //When focus reached last or target element move focus to first element of the container opened
+          if ((target === last[0] || target === element[0]) && !e.shiftKey) {
+            first.focus();
+            if (element.find($('.js-product-shade-picker-shades')).length === 0) {
+              e.preventDefault();
+            }
+          //When focus reached first or target element move focus to last element of the container opened
+          } else if ((target === first[0] || target === element[0]) && e.shiftKey) {
+            last.focus();
+            e.preventDefault();
+          }
+        });
+      };
+
+      /**
+       * This method is used to perform navigation to main menu and enables the user to access
+       * products by Category & Collection
+       */
+      var primaryMenuNavigation = function() {
+        $mainMenuItem.on({
+          keydown: function(e) {
+            var keyCode = site.getKeycode(e),
+                $this = $(this);
+            switch (keyCode) {
+              case 9: //  Tab
+                var $link = (e.shiftKey) ? $this.prev() : $this.next();
+                if ($this.hasClass('menu__item--expanded')) {
+                  // Trigger mouseout event when subMenu expanded and last element added with custom outline class.
+                  if ($this.find($mainMenuFooterItem).hasClass('custom-outline') && !e.shiftKey) {
+                    $this.trigger('mouseout').attr("aria-expanded", "false");
+                  }
+                  // Trigger mouseout event when subMenu expanded and shift tab key pressed.
+                  if ($this.hasClass('custom-outline') && e.shiftKey) {
+                    e.preventDefault();
+                    $this.trigger('mouseout').attr('aria-expanded', 'false');
+                  }
+                } else if ($link.length > 0) {
+                  // Focus to anchor element if sub menu is not available.
+                  e.preventDefault();
+                  ($link.children('a').length > 0) ? $link.children('a').focus() : $link.focus();
+                  return false;
+                } else {
+                  // Focus to SignIn pod when last menu item is reached.
+                  e.preventDefault();
+                  $('.js-gnav-signin').focus();
+                  return false;
+                }
+                break;
+              case 13: //Enter Key
+                if ($this.hasClass('menu__item--expanded')) {
+                  $this.trigger('mouseout').attr('aria-expanded', 'false');
+                } else {
+                  $this.attr('aria-expanded', 'true');
+                  $this.children('span').trigger('mouseover');
+                }
+                break;
+            }
+          }
+        });
+      };
+
+      /**
+       * This event used for tabs navigation in Regimen section as role attribute is added dynamically through regimen_page.js
+       */
+      $('.menu__item--lvl-1').on('keydown', function(e) {
+        $('.js-regimen-page-results').find('a.menu__link--lvl-1').attr('tabindex', '-1');
+        tabsNavigation();
+      });
+
+      /**
+       * This method is used to access products placed within Tab control
+       * such as 'Best Sellers' and 'What's New'
+       */
+      var tabsNavigation = function() {
+        $('[role="tab"]').on('keydown', function(e) {
+          var $this = $(this);
+          var $prev = $this.prev();
+          var $next = $this.next();
+          var $target = new Array();
+
+          switch (e.keyCode) {
+            case 37: //  left arrow
+              $target = $prev;
+              break;
+            case 39: //  right arrow
+              $target = $next;
+              break;
+            case 9:
+              $prev.attr('tabindex', '-1');
+              $next.attr('tabindex', '-1');
+              break;
+            case 13: //  enter
+             if ($this.children('a').length === 1) {
+                $this.children('a')[0].click();
+              } else {
+                $this.trigger('click');
+              }
+              break;
+          }
+
+          if ($target.length > 0) {
+            $this.attr({
+              'tabindex': '-1',
+              'aria-selected': null
+            });
+            $this.removeClass('custom-outline');
+            $target.attr({
+              'tabindex': '0',
+              'aria-selected': true
+            }).focus();
+            $target.addClass('custom-outline');
+          }
+        });
+      };
+
+      /**
+       * This method is used to access each individual product placed within Tab controls and will
+       * enable the user to view product using the QuickView mode
+       */
+      var productsNavigation = function(e) {
+        var $parent = $('.js-product-grid');
+        var targetElem = '.js-access-content, a.add_to_cart, .js-access-button';
+
+        $parent.on('keydown', targetElem, function(e) {
+          var $this = $(this);
+          var keyCode = site.getKeycode(e);
+          switch (keyCode) {
+            case 13: //  enter
+            case 32: //  space
+              if ($this.hasClass('js-quickshop-trigger')) {
+                $this.addClass('js-active-qs')
+              };
+              $(document).on("product.quickshop.close", ".js-product", function(e, data) {
+                $('.js-active-qs').focus().removeClass('js-active-qs');
+              });
+              $this.trigger('click');
+              return false;
+              break;
+            case 37: //  left arrow
+              if ($this.hasClass('js-product-grid-item')) {
+                $this.prevAll('.js-access-content').first().focus();
+              }
+              break;
+            case 39: //  right arrow
+              if ($this.hasClass('js-product-grid-item')) {
+                $this.nextAll('.js-access-content').first().focus();
+              }
+              break;
+          }
+        });
+      };
+
+      /**
+       * This method is used to add custom class for each active element while using TAB keys to
+       * focus the elements using keyboard navigation
+       */
+      var customFocusNavigation = function(e) {
+        $(window).keyup(function(e) {
+          var keyCode = site.getKeycode(e);
+          if (keyCode === 9 && $(document.activeElement).length) {
+            // Remove custom outline class from previously targeted element
+            if ($prevActiveElem) {
+              $prevActiveElem.removeClass('custom-outline');
+            }
+            // Add custom outline class to current Active element
+            $prevActiveElem = $(document.activeElement);
+            $prevActiveElem.addClass('custom-outline');
+          }
+        });
+
+        //Trigger click event to the custom class added.
+        $customEnterKeyAccess.enterKey(function() {
+          $(this).trigger('click');
+        });
+      };
+      //Set focus indication to custom checkbox/radio
+      $("input:checkbox, input:radio").focusin(function(e) {
+        $(this).siblings('label').addClass('custom-outline');
+      }).focusout(function(e) {
+        $(this).siblings('label').removeClass('custom-outline');
+      });
+
+      primaryMenuNavigation();
+      tabsNavigation();
+      productsNavigation();
+      customFocusNavigation();
+    }
+  };
+})(jQuery);
+
+/**
+ * This method is used to return focusable element from the Popup Window selected
+ */
+$.curCSS = function(element, prop, val) {
+  return $(element).css(prop, val);
+};
+
+$('.js-storelocator-out').focusout(function(e) {
+  $('.js-page-footer .menu__link--has-children').first().focus();
+});
+

@@ -1,0 +1,131 @@
+(function() {
+
+  var CONSENT_PARAMETER = 'cs';
+  var BTID_PARAMETER = 'dx_btid';
+  var DX_COOKIE_NAME = 'wfivefivec';
+  var PIXELS_PARAMETER = 'pixels';
+  var TX_PARAMETER = 'tx';
+  var UNSAFE_CHAR_LIST = ['|'];
+
+  var dxUpx = function () {
+
+    var queryStringHash = getQueryStringHash();
+    var pixelIds = getQueryStringParamByName(PIXELS_PARAMETER, queryStringHash);
+    var consentStringValue = getQueryStringParamByName(CONSENT_PARAMETER, queryStringHash);
+    var uspsConsentString = getUSPS();
+
+    // The original TX is already encoded with | characters.  We don't want this to be encoded twice
+    var originalTx = decodeURIComponent(getQueryStringParamByName(TX_PARAMETER, queryStringHash));
+    var dxCookie = getCookie(DX_COOKIE_NAME);
+
+    delete queryStringHash[PIXELS_PARAMETER];
+
+    var newTx = encodeUnsafe(dxCookie + '|' + originalTx);
+    queryStringHash[TX_PARAMETER] = newTx;
+
+    queryString = '';
+    for (var key in queryStringHash) {
+      if (queryString !== '') {
+        queryString += '&';
+      }
+
+      queryString += key + '=' + queryStringHash[key];
+    }
+
+    var dxDomain = '//tags.w55c.net/rs?id=';
+    var pixels = pixelIds.split(',');
+
+    for (var i = 0; i < pixels.length; i++) {
+      var dxPixelId = pixels[i];
+      var cb = Math.floor(Math.random() * 99999);
+      var pixelSrc = dxDomain + dxPixelId + '&rnd=' + cb + '&' + queryString;
+
+      if (consentStringValue !== '') {
+        pixelSrc += '&cs=' + consentStringValue;
+      }
+
+      if (uspsConsentString !== '') {
+        pixelSrc += '&us_privacy=' + uspsConsentString;
+      }
+
+      var img = document.createElement('img');
+      img.src = pixelSrc;
+    }
+  };
+
+  var getUSPS = function() {
+    var uspsConsentString = '';
+
+    var ccpaCallback = function (uspData, success) {
+      if (success) {
+        uspsConsentString = uspData.uspString;
+      }
+    };
+
+    // Get CCPA consent string if API is available
+    if (typeof __uspapi == typeof(Function)) {
+      __uspapi('getUSPData', 1, ccpaCallback);
+    }
+
+    return uspsConsentString;
+  };
+
+  var getQueryStringHash = function() {
+    var search = location.search.substring(1),
+    queryData = decodeURI(search).replace(/"/g, '\\"').replace(/&/g, '","').replace(/=/g, '":"');
+    return queryData ? JSON.parse('{"' + queryData + '"}') : {};
+  };
+
+  var getQueryStringParamByName = function(name, queryStringHash) {
+    queryStringObj = typeof queryStringHash === 'undefined' ? getQueryStringHash() : queryStringHash;
+    return name in queryStringObj ? queryStringObj[name] : '';
+  };
+
+  /* return the cookie with the specified name, or null if none exists. */
+  var getCookie = function(cname) {
+    var name = cname + "=";
+    var ca = document.cookie.split(';');
+    for (var i = 0; i < ca.length; i++) {
+      var c = ca[i];
+      while (c.charAt(0) == ' ') {
+        c = c.substring(1);
+      }
+      if (c.indexOf(name) === 0) {
+        return c.substring(name.length, c.length);
+      }
+    }
+
+    return '';
+  };
+
+  var encodeUnsafe = function(param) {
+    if (!param) {
+      return param;
+    }
+
+    var needsEncoding = false;
+    for (var index = 0; index < UNSAFE_CHAR_LIST.length; index++) {
+      if (param.indexOf(UNSAFE_CHAR_LIST[index]) > -1) {
+        needsEncoding = true;
+        break;
+      }
+    }
+
+    if (needsEncoding) {
+      return encodeURIComponent(param);
+    }
+
+    return param;
+  };
+
+
+  // be sure page loads before running
+  if (document.readyState !== "loading") {
+    dxUpx();
+  } else {
+    document.addEventListener("DOMContentLoaded", function(event) {
+      dxUpx();
+    });
+  }
+
+})();

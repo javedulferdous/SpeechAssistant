@@ -1,0 +1,171 @@
+    //Comment Card Javascript Template for Universal Code
+    iperceptions_128721 = window.iperceptions || {};
+
+    //BEGIN Configuration variables
+    iperceptions_128721.imgSizeOut = [68, 68];
+    iperceptions_128721.imgSizeOver = [180, 68];
+    iperceptions_128721.blockMobile = false;
+    iperceptions_128721.surveyID = 128721;
+    iperceptions_128721.langIDArray = [5];
+    iperceptions_128721.langID = 1;
+    iperceptions_128721.posXArray = ["right"];
+    iperceptions_128721.posYArray = ["bottom"];
+    iperceptions_128721.winWidth = 720;
+    iperceptions_128721.winHeight = 676;
+    iperceptions_128721.iconBrandID = null;
+    iperceptions_128721.logoBrandID = null;
+    iperceptions_128721.siteID = null;
+    iperceptions_128721.imgOutArray = [];
+    iperceptions_128721.imgOverArray = [];
+    //iperceptions_128721.iconVersion = window.location.href.toLowerCase().indexOf("iptest=128721") > -1 ? 2 : "";
+    //END Configuration variables.
+
+    //API function to add floating icon
+    iperceptions_128721.ipeIcon = function(config) {
+        config = config || {};
+        if(iperceptions_128721.launchedIcon) {
+            return;
+        }
+        iperceptions_128721.launchedIcon = true;
+        var langIDIndex = 0; 
+        for (var i = 0; i < iperceptions_128721.langIDArray.length; i++)
+        {
+            if ( iperceptions_128721.langIDArray[i] == config.langID )
+            {
+                langIDIndex = i;
+                break;
+            }
+        }
+        //Generic method to attach an event to a DOM element
+        domAddEvent = function (target, eventName, handlerFn) {
+            if (target.addEventListener)
+                target.addEventListener(eventName, handlerFn, true);
+            else if (target.attachEvent)
+                target.attachEvent("on" + eventName, handlerFn);
+            else
+                target["on" + eventName] = handlerFn;
+        },
+        isIE = function() {
+            var ua = navigator.userAgent.toLowerCase(),
+            isOpera = (ua.indexOf("opera") != -1);
+            return ua.indexOf("msie") != -1 && !isOpera && (ua.indexOf("webtv") == -1);
+        },
+        IEMajorVersion = function() {
+            var m = /MSIE\s*(\d*)/.exec(navigator.userAgent),
+                v = (m && m[1]) || -1;
+            if(isNaN(parseInt(v, 10))) {
+                v = -1;
+            }
+            return v;
+        },
+        ipeIconComplete = function() {
+            domAddEvent(document.getElementById("ipecc-icon"), "click", function (e) {
+                iperceptions_128721.ipeCC(config);
+            });
+        },
+        _is_ie = isIE();
+        //Now blocking IE6 and mobile devices
+        if(_is_ie && IEMajorVersion() < 8) {
+            return;
+        }
+        _icon_timer = setInterval(function() {
+            if(document.readyState === "complete") {
+                //Inject icon
+                if(!document.getElementById("ipecc-feedback")){
+                    iperceptions_128721.includeCSS(iperceptions_128721.cssStyle);
+                    iperceptions_128721.injectElement("ipecc-feedback", iperceptions_128721.htmlTemplate);
+                }
+                clearInterval(_icon_timer);
+                ipeIconComplete();
+            }
+        }, 250);
+    }
+
+    //API function to launch comment card
+    iperceptions_128721.ipeCC = function(config) {
+        var config = config || {};
+        config.surveyID = config.surveyID || iperceptions_128721.surveyID;
+
+        iperceptions_128721.launch(config);
+    }
+
+    iperceptions_128721.viewSize = function() {
+        var width = 0, height = 0;
+        if (typeof (window.innerWidth) == "number") {
+            width = window.innerWidth;
+            height = window.innerHeight;
+        } else if (document.documentElement && (document.documentElement.clientWidth || document.documentElement.clientHeight)) {
+            width = document.documentElement.clientWidth;
+            height = document.documentElement.clientHeight;
+        } else if (document.body && (document.body.clientWidth || document.body.clientHeight)) {
+            width = document.body.clientWidth;
+            height = document.body.clientHeight;
+        }
+        return [width, height];
+    }
+
+    iperceptions_128721.includeCSS = function (b) {
+        var c = document.createElement("style");
+        c.type = "text/css";
+        var d = document.createTextNode(b);
+        c.appendChild(d);
+        var e = document.getElementsByTagName("head")[0];
+        e.appendChild(c);
+    };
+
+    iperceptions_128721.injectElement = function(elementId, htmlString){
+        var el = document.createElement("div");
+        el.id = elementId;
+        el.innerHTML = htmlString;
+        document.body.appendChild(el);
+    };
+    iperceptions_128721.getPosition = function(){
+        if(iPerceptions.Wrapper.device == "mobile"){
+            return "40%";
+        }else if(iPerceptions.Wrapper.device == "tablet"){
+            return "30%";
+        }else {
+            return "30%";
+        }
+    };
+    //Default icon
+    //iperceptions_128721.cssStyle = "#ipecc-icon {position:fixed; right:0; bottom:5px;cursor:pointer;width: 60px !important;height:60px !important;}";
+    //iperceptions_128721.htmlTemplate = "<img id=\"ipecc-icon\" src=\"https://sd.iperceptions.com/custom-content-collection/feedback_icon_default_128721.png\" alt=\"Feedback icon\">";
+
+    //Testing new icon
+    iperceptions_128721.cssStyle = "#ipecc-icon {position:fixed; right:0; bottom:" + iperceptions_128721.getPosition() + ";cursor:pointer;}";
+    iperceptions_128721.htmlTemplate = "<svg id=\"ipecc-icon\" xmlns=\"http://www.w3.org/2000/svg\" width=\"30\" height=\"90\" viewBox=\"0 0 19 80\">"+
+                                        "<g fill=\"none\" fill-rule=\"evenodd\">"+
+                                        "<path fill=\"#FFF\" stroke=\"#000\" stroke-width=\".5\" d=\"M22.75.25H10.256C6.76.25 5.489.605 4.21 1.289c-1.26.674-2.248 1.662-2.922 2.922C.605 5.489.25 6.76.25 10.256v59.488c0 3.496.355 4.767 1.039 6.045.674 1.26 1.662 2.248 2.922 2.922 1.278.684 2.55 1.039 6.045 1.039H22.75V.25z\"/>"+
+                                        "<g>"+
+                                        "<text fill=\"#000\" font-family=\"Nunito-Regular, Nunito\" font-size=\"10\" transform=\"translate(5 8) rotate(-90 7 22)\">"+
+                                        "<tspan x=\"-15\" y=\"25\">Feedback</tspan>"+
+                                        "</text>"+
+                                        "<g fill=\"#003057\" fill-rule=\"nonzero\">"+
+                                        "<path d=\"M10.235 13h-8.47C.792 13 0 12.271 0 11.375v-9.75C0 .729.792 0 1.765 0h8.47C11.208 0 12 .729 12 1.625v9.75c0 .896-.792 1.625-1.765 1.625zM1.84.812C1.267.813.8 1.238.8 1.76v9.48c0 .522.467.947 1.04.947h8.32c.573 0 1.04-.425 1.04-.947V1.76c0-.522-.467-.948-1.04-.948H1.84z\" transform=\"translate(5 8) rotate(-90 32.5 32)\"/>"+
+                                        "<g>"+
+                                        "<path d=\"M5.58.972H.329C.148.972 0 .754 0 .486S.147 0 .328 0h5.253c.181 0 .328.218.328.486s-.147.486-.328.486zM5.58 3.597H.329C.148 3.597 0 3.38 0 3.111s.147-.486.328-.486h5.253c.181 0 .328.218.328.486s-.147.486-.328.486zM5.58 6.222H.329c-.18 0-.328-.218-.328-.486s.147-.486.328-.486h5.253c.181 0 .328.218.328.486s-.147.486-.328.486z\" transform=\"translate(5 8) rotate(-90 32.5 32) translate(3 3)\"/>"+
+                                        "</g>"+
+                                        "</g>"+
+                                        "</g>"+
+                                        "</g>"+
+                                        "</svg>";
+
+    iperceptions_128721.launch = function(config) {
+        config.langID = config.langID || iperceptions_128721.langID;
+        var name = "IPerceptions_comment_" + config.surveyID;
+        var w = 0, h = 0, l = 0, t = 0, vs = iperceptions_128721.viewSize(), sdfc = "1e6748e1" + "-" + config.surveyID + "-" + "a4f416de-7c5c-4a5d-88aa-57abf5e6b0e8";
+        w = iperceptions_128721.winWidth || 720;
+        h = iperceptions_128721.winHeight || 676;
+        l = Math.max((vs[0] - w) / 2, 0);
+        t = Math.max((vs[1] - h) / 2, 0);
+
+        var features = "width=" + w + ",height=" + h + ", left=" + l + ", top=" + t + ", resizable=yes, toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=yes, copyhistory=no";
+
+        window.open(
+            "https://ips-invite.iperceptions.com/WebValidator.aspx?lID=" + config.langID + "&sdfc=" + sdfc + "&source=91787&destination=commentcard&referrer=" + encodeURIComponent(window.location.href) + (iperceptions_128721.logoBrandID ? "&brandID=" + iperceptions_128721.logoBrandID : "" ) + (iperceptions_128721.siteID ? "&siteID=" + iperceptions_128721.siteID : "" ) + "&hv1=qmSessionCookie~" + (typeof QuantumMetricAPI.getSession == "function" ? QuantumMetricAPI.getSession() : ""), 
+            name, 
+            features
+        );
+    }
+    var ipeCC = [iperceptions_128721];

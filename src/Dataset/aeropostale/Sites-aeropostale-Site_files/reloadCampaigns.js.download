@@ -1,0 +1,69 @@
+//<script>
+bouncex.tryCatch(function reloadCampaigns(){
+	var newCampaigns = false;
+	bouncex.creatives = false;
+	bouncex.brandStyles = false;
+	bouncex.webfonts = false;
+
+	if (bouncex.gbi) {
+		bouncex.gbi.stacks = false;
+	}
+
+	var newCookie = {"hardID":"1Szc8BS3vcj0ODbLzsGc70nWkG4","softID":"1Szc86m75Yp5TVMICU2RKD369jV","v":{"ever_logged_in":false,"cart_qty":0,"cart_total":0,"submitted_email_onsite":false,"ibx_test":false,"cart":false,"cart_quantity":0,"logged_in_identified":false,"affiliate_promo":false,"affiliate_campaign":false,"cart_plurality":"item","submitted_referral":false,"threshold_countdown100":100,"threshold_countdown75":75,"threshold_countdown50":50,"email_promo_code":false,"email_promo_offer":false},"fvt":1604230582,"vid":1604230427333710,"ao":2,"lp":"https%3A%2F%2Fwww.aeropostale.com%2F","as":2,"vpv":2,"d":"d","r":"www.reviewsxp.com","cvt":1604230427,"sid":12,"gcr":69,"m":0,"did":"2343062592578115313","lvt":1604230657,"campaigns":{"1242074":{"vv":1,"lvt":1604230427,"lavid":1604230427333710,"la":1604230427,"av":1,"fsa":1604230427,"as":1,"ao":1,"oa":[1604230427],"io":1,"wcv":1604230543,"wc":1604230543},"1242092":{"vv":2,"lvt":1604230657,"lavid":1604230427333710,"la":1604230657,"av":1,"fsa":1604230657,"as":1,"ao":1,"oa":[1604230657],"io":1,"wcv":1604230659,"wc":1604230659}}};	
+	var campaignAdded = false;
+	for (var campaignId in newCampaigns) {
+		if (newCampaigns.hasOwnProperty(campaignId)) {
+			// if campaign cookie does not exist
+			if (!bouncex.cookie.campaigns) {
+				bouncex.cookie.campaigns = {};
+			}
+			if (!bouncex.cookie.campaigns[campaignId]) {
+				campaignAdded = true;
+				bouncex.cookie.campaigns[campaignId] = {lvt:bouncex.cookie.lvt, vv:0};
+			} else if (newCookie.campaigns[campaignId]) {
+				// need to set campaign cookie's activations_sessions to the new cookie as it gets modified in reloadCampaigns
+				campaignAdded = true;
+				bouncex.cookie.campaigns[campaignId].as = newCookie.campaigns[campaignId].as;
+			}
+		}
+	}
+	if (campaignAdded) {
+		bouncex.setBounceCookie();
+	}
+
+	for (var campaignId in bouncex.campaigns) {
+		if (bouncex.campaigns.hasOwnProperty(campaignId)) { //copy state vars
+			if (newCampaigns[campaignId]) {
+				newCampaigns[campaignId].ap = bouncex.campaigns[campaignId].ap;
+				newCampaigns[campaignId].repressed = Boolean(bouncex.campaigns[campaignId].repressed);
+			}
+
+			if (newCampaigns[campaignId] &&
+				bouncex.campaigns[campaignId].ad_visible &&
+				newCampaigns[campaignId].html.replace(/fsa=(\d+)&|width=(\d+)&|height=(\d+)&/gi,'') == bouncex.campaigns[campaignId].html.replace(/fsa=(\d+)&|width=(\d+)&|height=(\d+)&/gi,'')) {
+								newCampaigns[campaignId] = bouncex.campaigns[campaignId];
+			} else if (newCampaigns[campaignId] && bouncex.isGbi2Campaign(campaignId) && bouncex.campaigns[campaignId].gbi.hasBegunAuction) {
+								newCampaigns[campaignId] = bouncex.campaigns[campaignId];
+			} else {
+				bouncex.destroy_ad(campaignId);
+			}
+		}
+	}
+
+	bouncex.campaigns = newCampaigns;
+	newCampaigns = {};
+
+	bouncex.debug = false;
+		bouncex.setBounceCookie();
+	if (bouncex.campaigns) {
+		for (var campaignId in bouncex.campaigns) {
+			if (bouncex.campaigns[campaignId].ad_visible && typeof bouncex.repressCampaigns === 'function') {
+				bouncex.repressCampaigns(campaignId);
+			}
+		}
+		bouncex.loadBounceCss(bouncex.initActivationFuncs);
+	}
+		bouncex.loadBrandStyles();
+	bouncex.loadWebfonts();
+
+	})();

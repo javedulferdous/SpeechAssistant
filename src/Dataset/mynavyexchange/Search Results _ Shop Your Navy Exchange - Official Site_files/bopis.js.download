@@ -1,0 +1,819 @@
+$.fn.showSpinner = function() {
+	if (this.find('.spinner').length == 0) {
+		this.addClass('loadingSpinner').append( '<div class="spinner"><div class="bounce1"></div><div class="bounce2"></div><div class="bounce3"></div></div>' );
+	}
+	return this;
+};
+$.fn.hideSpinner = function() {
+	this.removeClass('loadingSpinner').find('.spinner').remove();
+	return this;
+};
+
+var stringUtil = {
+	/* Returns a boolean of whether the string provided begins with the given prefix. */
+	beginsWith: function (str, prefix) {
+		if (str == '' || prefix == '') {
+			return false;
+		}
+		return str.indexOf(prefix) === 0;
+	},
+
+	/* Returns a boolean of whether the string provided ends with the given suffix. */
+	endsWith: function (str, suffix) {
+		if (str == '' || suffix == '') {
+			return false;
+		}
+		return str.indexOf(suffix, this.length - suffix.length) !== -1;
+	},
+
+	/* Returns a boolean of whether the full string provided contains the given find string. */
+	contains: function (fullStr, findStr) {
+		if (fullStr == '' || findStr == '') {
+			return false;
+		}
+		return fullStr.indexOf(findStr) >= 0;
+	},
+
+	/* Returns the trimmed version of the string. */
+	trim: function (str) {
+		return $.trim(str);
+	},
+
+	/* Returns a boolean of whether the string provided is numeric. */
+	isNumber: function (str) {
+		return !isNaN(parseFloat(str)) && isFinite(str);
+	}
+};
+
+var requestUtil = {
+	/* Removes a parameter and it's value by providing both the parameter name and value from the given URL. */
+	removeParamValue: function (url, param, value) {
+		var baseUrl = this.getBaseUrl(url);
+		var params = this.getQueryStringParams(url);
+		var firstParam = true;
+		var queryString = '';
+		for (var i = 0; i < params.length; i++) {
+			if (decodeURI(params[i]) == (param + "=" + value)) {
+				continue;
+			} else if (params[i] != '') {
+				queryString += (firstParam) ? '' : '&';
+				queryString += params[i];
+				firstParam = false;
+			}
+		}
+
+		return this.buildUrl(baseUrl, queryString);
+	},
+
+	/* Removes all instances of the parameter and it's value by providing the parameter name from the given URL. */
+	removeParams: function (url, param) {
+		var baseUrl = this.getBaseUrl(url);
+		param = encodeURI(param);
+		var params = this.getQueryStringParams(url);
+		var firstParam = true;
+		var queryString = '';
+		for (var i = 0; i < params.length; i++) {
+			if (params[i].indexOf(param) == -1 && params[i] != '') {
+				queryString += (firstParam) ? '' : '&';
+				queryString += params[i];
+				firstParam = false;
+			}
+		}
+
+		return this.buildUrl(baseUrl, queryString);
+	},
+
+	/* Inserts the parameter and value to the given URL. */
+	insertParam: function (url, param, value) {
+		if (param == '' || value == '') {
+			return url;
+		}
+		var baseUrl = this.getBaseUrl(url);
+		param = encodeURI(param);
+		value = encodeURI(value);
+		var queryString = url.replace(baseUrl, '').replace('?', '');
+		queryString += (queryString != '') ? '&' : '';
+		queryString += param + '=' + value;
+
+		return this.buildUrl(baseUrl, queryString);
+	},
+
+	/* Updates all instances of the parameter with the new value from the given URL. */
+	updateParam: function (url, param, value) {
+		var baseUrl = this.getBaseUrl(url);
+		param = encodeURI(param);
+		value = encodeURI(value);
+		if (param == '') {
+			return url;
+		}
+		if (value == '') {
+			return this.removeParams(url, param);
+		}
+		if (!stringUtil.contains(url, param)) {
+			return this.insertParam(url, param, value);
+		}
+		var params = this.getQueryStringParams(url);
+		var queryString = '';
+		if (params.length == 0) {
+			queryString = param + '=' + value;
+		} else {
+			for (var i = 0; i < params.length; i++) {
+				queryString += (i > 0) ? '&' : '';
+				if (params[i].indexOf(param) >= 0 && params[i] != '') {
+					queryString += param + '=' + value;
+				} else {
+					queryString += params[i];
+				}
+			}
+		}
+		return this.buildUrl(baseUrl, queryString);
+	},
+
+	/* Returns an array of query string parameters from the given URL. (i.e. [parameterName=parameterValue])  */
+	getQueryStringParams: function (url) {
+		if (url == '') {
+			return [];
+		}
+		if (url.indexOf('?') >= 0) {
+			url = url.split('?')[1];
+		}
+		url = '?' + url;
+
+		return url.substr(1).split('&');
+	},
+
+	/* Returns a query string parameter value from the given URL. If the parameter is not found, then the default will be returned. */
+	getQueryStringValue: function (url, key, default_) {
+		var params = this.getQueryStringParams(url);
+		var queryString = '';
+		if (params.length == 0) {
+			return default_;
+		} else {
+			for (var i = 0; i < params.length; i++) {
+				if (params[i].indexOf(key) <= 0 && params[i] != '') {
+					return params[i].split('=')[1];
+				}
+			}
+		}
+		return default_;
+	},
+
+	/* Returns the base URL portion of the given URL without query string parameters. */
+	getBaseUrl: function (url) {
+		if (url == '') {
+			return '';
+		}
+		if (url.indexOf('?') >= 0) {
+			url = url.split('?')[0];
+		}
+		return url;
+	},
+
+	/* Returns the full URL by combining both the base URL and the query string parameters while handling the question marks and ampersands. */
+	buildUrl: function (url, queryString) {
+		if (url == '' && queryString == '') {
+			return '?';
+		}
+		/* Check if the URL doesn't contain a question mark then add it to the query string. */
+		if (url.indexOf('?') < 0 && !stringUtil.beginsWith(url, '?')) {
+			queryString = '?' + queryString;
+		}
+		/* Check if the URL contains a question mark and doesn't end with a question mark or ampersand. */
+		if (url.indexOf('?') >= 0 && !stringUtil.endsWith(url, '?') && !stringUtil.endsWith(url, '&')) {
+			// If so, ensure the query string begins with an ampersand.
+			if (queryString != '' && !stringUtil.beginsWith(queryString, '&')) {
+				queryString = '&' + queryString;
+			}
+		}
+
+		return url + queryString;
+	}
+};
+
+
+var layerUtil = function () {
+	/* private methods here */
+	var _wrapperSelector = ".jquery-modal.current";
+	var _contentSelector = ".jquery-modal.current .modal-inner";
+	var _titleBarSkinClass = "titled";
+	var _contextualLayerClass = "contextual-layer";
+
+	var _defaultSettings = {
+		useFlex: true,
+		destroyOnClose: true,
+		closeExisting: true,
+		closeContextualLayers: true,
+		closeText: '<i class="icon-close"><span class="view-hidden">Close</span></i>',
+		spinnerHtml: '<div class="loading"></div>',
+		modalClass: 'default'
+	};
+
+	var _openLayer = function (el, html, options) {
+		var settings = $.extend({}, _defaultSettings, options);
+		var finalHtml = '<div id="modalClassDiv" class="modal"';
+
+		if (settings.closeContextualLayers) {
+			layerUtil.closeContextualLayer();
+		}
+
+		if (settings.width) {
+			var width = settings.width;
+			if (!isNaN(width)) {
+				width = parseFloat(width) + 'px';
+			}
+			finalHtml += ' style="width: 100%; max-width: ' + width + '"';
+		}
+
+		finalHtml += '>';
+
+		if (settings.onComplete && typeof settings.onComplete === "function") {
+			$(document).one("layerUtil_complete", function () {
+				settings.onComplete();
+			});
+		}
+
+		if (settings.title && settings.title.length > 0) {
+			var title = (settings.title);
+			finalHtml += '<div class="modal-title">' + title + '</div>';
+			/* if a title is specified, load the title bar experience and go full screen on mobile */
+			settings.modalClass = (settings.modalClass) ? settings.modalClass + " " + _titleBarSkinClass : _titleBarSkinClass
+		}
+
+		if (settings.omitInner && settings.omitInner == true) {
+			finalHtml += html + '</div>';
+		} else {
+			finalHtml += '<div class="modal-inner">' + html + '</div></div>';
+		}
+
+		$(finalHtml).appendTo('body').modal(settings);
+
+	};
+
+	var _openAjaxLayer = function (href, options) {
+		var onCompleteFn = null;
+
+		if (options && options.onComplete && typeof options.onComplete === "function") {
+			onCompleteFn = options.onComplete;
+			options.onComplete = null;
+		}
+
+		var multiColClass = null;
+
+		if (options && options.modalClass && options.modalClass.indexOf("multi-col") > -1) {
+			/* set the initial loading layer to the default class, then transition to multi-color on success */
+			options.modalClass = options.modalClass.replace("multi-col", "modal-loading");
+			multiColClass = "multi-col";
+		}
+
+		_openLayer(null, '<div id="modal-loading" class="loading"></div>', options);
+
+		var ajaxMethod = (options.ajaxMethod) ? options.ajaxMethod : 'GET';
+
+		$.ajax({
+			url: href,
+			method: ajaxMethod,
+			dataType: 'html',
+			cache: false,
+			success: function (html) {
+				var successFn = function () {
+					if (options && options.omitInner && options.omitInner == true) {
+						/* if we have omitted the modal-inner, then we need to change the _contentSelector lookup */
+						$(_wrapperSelector + ' #modal-loading').replaceWith(html);
+					} else {
+						$(_contentSelector).html(html);
+					}
+
+					if (onCompleteFn != null) {
+						onCompleteFn();
+					}
+				};
+
+				if (multiColClass) {
+					$(_wrapperSelector + ' > .modal').addClass(multiColClass).removeClass("modal-loading");
+					setTimeout(function () {
+						successFn();
+					}, 250);
+				} else {
+					successFn();
+				}
+			}
+		});
+	};
+
+	var _openInlineLayer = function (html, options) {
+		//var settings = $.extend( {}, _defaultSettings, options );
+		//_openLayer(settings);
+
+		_openLayer(null, html, options);
+	};
+
+	/* referenceEl may be a selector (#idOfEl) or the jquery object of the el */
+	var _openInlineLayerReference = function (referenceEl, options) {
+		//var settings = $.extend( {}, _defaultSettings, options );
+		//_openLayer(settings);
+
+		/* if a custom oncomplete was passed in, make sure we don't overwrite it */
+		var _onComplete = null;
+		if (options && options.onComplete) {
+			_onComplete = options.onComplete;
+		}
+
+		options.onComplete = function () {
+			if (_onComplete) {
+				_onComplete();
+			}
+
+			/* since a inline layer has been duplicated in the DOM, we need to make the for/id unique within the layer */
+			var $labels = $(layerUtil.getContentSelector()).find('.type_radio > label');
+			$labels.each(function () {
+				var $this = $(this);
+				var attr = $this.attr('for');
+				$this.attr('for', attr + '-layer');
+				$this.children('input[type=radio]').attr('id', attr + '-layer');
+			});
+		};
+
+		_openLayer(null, $(referenceEl).html(), options);
+	};
+
+	var _openIFrameLayer = function (href, options) {
+		//var settings = $.extend( {}, _defaultSettings, options );
+		//_openLayer(settings);
+
+		_openLayer(null, '<iframe width="100%" height="100%" frameborder="0" src="' + href + '" />', options);
+	};
+
+	var _bindCustomEvents = function () {
+		$(document)
+			.on("modal:open", function () {
+				$(document).trigger("layerUtil_open");
+			})
+			.on("modal:ajax:complete", function () {
+				$(document).trigger("layerUtil_ajax:complete");
+			})
+			.on("modal:open", function () {
+				$(document).trigger("layerUtil_complete");
+			})
+			.on("modal:before-close", function () {
+				$(document).trigger("layerUtil_beforeClose");
+			})
+			.on("modal:after-close", function () {
+				$(document).trigger("layerUtil_closed");
+			});
+	};
+
+	/* public methods here */
+	/*
+	 AVAILABLE OPTIONS:
+	 title: null,            // Specify a title thru the options object if you want the fixed title bar at the top
+	 width: null,            // Specify a fixed maxWidth, this is not recommended, better to build a class and use modalClass
+	 closeExisting: true,    // Close existing modals. Set this to false if you need to stack multiple modal instances.
+	 escapeClose: true,      // Allows the user to close the modal by pressing `ESC`
+	 clickClose: true,       // Allows the user to close the modal by clicking the overlay
+	 closeText: '<i class="icon-Close"><span class="view-hidden">Close</span></i>',     // Text content for the close <a> tag.
+	 closeClass: '',         // Add additional class(es) to the close <a> tag.
+	 backButtonClass: '',    // Specifying a class here will show the back arrow in the title bar and add the class to the nested <a> for JS binding.
+	 showClose: true,        // Shows a (X) icon/link in the top-right corner
+	 modalClass: "default",    // CSS class added to the element being displayed in the modal.
+	 blockerClass: "modal",  // CSS class added to the overlay (blocker).
+
+	 // HTML appended to the default spinner during AJAX requests.
+	 spinnerHtml: '<div class="rect1"></div><div class="rect2"></div><div class="rect3"></div><div class="rect4"></div>',
+
+	 showSpinner: true,      // Enable/disable the default spinner during AJAX requests triggered by <a href="ajax.html" rel="modal:open">.
+	 fadeDuration: null,     // Number of milliseconds the fade transition takes (null means no transition)
+	 fadeDelay: 1.0          // Point during the overlay's fade-in that the modal begins to fade in (.5 = 50%, 1.5 = 150%, etc.)
+
+	 Custom Hannaford options:
+	 omitInner: false,  // WARNING: omit modal-inner only if you are going to add it into your content (used on PDP to create a 2 column modal)
+	 useFlex: false
+	 destroyOnClose: false
+	 onComplete: null
+	 ajaxMethod: 'GET'
+
+	 Note: IF Sticky Buttons are required
+	 1) you must use the title option (this will trigger the titled modal - with the gray title bar)
+	 2) you must specify 'button-bottom' as one of the classnames in the modalClass option
+	 3) you must make your buttons an ancestor of a div with the class 'modal-button-group'
+	 */
+
+	return {
+		focusFirstChild: function () {
+			/* .not('input[type=hidden],input[type=button],input[type=submit],input[type=reset],input[type=image],button') */
+			/* wait for setFormLabels to load */
+			setTimeout(function(){
+				$(_contentSelector).find('input, textarea, select')
+					.not('input[type=hidden]')
+					.filter(':enabled:visible:first')
+					.focus();
+			}, 200);
+		},
+
+		isLayerOpen: function (_modalClass, checkHiddenModals) {
+			/* if a class is specified, check for that specific modal, otherwise test for ANY modal */
+			var modalClass = (_modalClass != null) ? ' .' + _modalClass : '';
+			var _wrapper = _wrapperSelector;
+			if (checkHiddenModals === true) {
+				_wrapper = _wrapper.replace('.current','');
+			}
+			var $modal = $(_wrapper + modalClass);
+			return ($modal.length > 0 && $modal.is(':visible'));
+		},
+
+		getWrapperSelector: function () {
+			return _wrapperSelector;
+		},
+
+		getContentSelector: function () {
+			return _contentSelector;
+		},
+
+		openAjaxLayer: function (href, options) {
+			_openAjaxLayer(href, options);
+		},
+
+		openInlineLayer: function (html, options) {
+			_openInlineLayer(html, options);
+		},
+
+		/* referenceEl may be a selector (#idOfEl) or the jquery object of the el */
+		openInlineLayerFromEl: function (referenceEl, options) {
+			_openInlineLayerReference(referenceEl, options);
+		},
+
+		openIFrameLayer: function (href, options) {
+			_openIFrameLayer(href, options);
+		},
+
+		openLoadingLayer: function (options) {
+			_openLayer(null, '<div id="modal-loading" class="loading"></div>', options);
+		},
+
+		updateOpenLayer: function (html, _modalClass, _checkHiddenModals) {
+			var modalSelector = _contentSelector;
+			if (_modalClass != null) {
+				var modalClass = (_modalClass != null) ? ' .' + _modalClass : '';
+				var _wrapper = _wrapperSelector;
+				if (_checkHiddenModals === true) {
+					_wrapper = _wrapper.replace('.current','');
+				}
+				modalSelector = _wrapper + modalClass;
+			}
+
+			var $modalContent = $(modalSelector);
+			$modalContent.html(html);
+		},
+
+		openContextualLayer: function($anchorEl, options) {
+			if ($anchorEl.find('.' + _contextualLayerClass).length > 0) {
+				layerUtil.closeContextualLayer(); // close any other active contextualLayers
+				return; // do not reopen the same contextualLayer if reclicked
+			}
+			layerUtil.closeContextualLayer(); // close any other active contextualLayers
+
+			var contextLayerOptions = {
+				url: null, /* use 'url' for making an ajax call to the layer */
+				content: null, /* use 'content' for loading inline markup into the layer */
+				contentEl: null, /* use 'contentEl' for loading inline markup from a reference element */
+				layerPosition: 'below', /* above or below the anchorEl */
+				arrowPosition: 'center', /* left, right, center */
+				showClose: true,
+				layerClass: '',
+				appendTo: $anchorEl /* defaults to itself, pass a jq object or the keyword 'parent', which uses the immediate parent */
+			};
+			var _options = $.extend({}, contextLayerOptions, options);
+			if (options.appendOffset && (parseInt(options.appendOffset) > 0)) {
+				_options.appendTo = $anchorEl.first().parents(':eq(' + (parseInt(options.appendOffset)) + ')');
+			}
+
+			var klass = _contextualLayerClass + " " + _options.layerPosition + " " + _options.arrowPosition + " " + _options.layerClass;
+
+			var content = [];
+			content.push('<div class="' + _contextualLayerClass + '-positioner">');
+			content.push('<div class="' + klass + '">');
+			if (_options.showClose) {
+				content.push('<div class="tip-close"><a href="javascript:;" onclick="layerUtil.closeContextualLayer();"><i class="icon-Close"></i><span class="view-hidden">Close</span></a></div>');
+			}
+			content.push('<div class="loading"></div></div></div>');
+
+			if (_options.appendTo == 'parent') {
+				_options.appendTo = $anchorEl.parent();
+			}
+
+			if (_options.layerPosition == 'above') {
+				$(_options.appendTo)
+					.prepend(content.join(''));
+			} else {
+				$(_options.appendTo)
+					.append(content.join(''));
+			}
+
+			var _buildLayer = function(content){
+				$(_options.appendTo).find('.' + _contextualLayerClass + ' .loading').replaceWith(content);
+				$(document)
+					.on('click.contextLayer tap.contextLayer', function(e) {
+						if (($(e.target).closest('.' + _contextualLayerClass).length === 0)) {
+							layerUtil.closeContextualLayer();
+						}
+					});
+			};
+
+			if (_options.content !== null) {
+				_buildLayer(_options.content);
+			} else if (_options.contentEl !== null) {
+				_buildLayer(jQuery(_options.contentEl).html());
+			} else if (_options.url !== null) {
+				jQuery.ajax({
+					cache:false,
+					url:_options.url,
+					success:function(response) {
+						_buildLayer(response);
+					}
+				});
+			}
+		},
+
+		closeContextualLayer: function () {
+			$('.' + _contextualLayerClass + '-positioner').remove();
+			$(document).off('.contextLayer');
+		},
+
+		closeLayer: function () {
+			$.modal.close();
+		},
+
+		destroyLayer: function () {
+			$.modal.close();
+		},
+
+		resize: function (options) {
+			/* this method is not needed with jquery-modal, resizing specs should be built into the modalClass */
+		},
+
+		resizeEvent: function () {
+			/* this method is not needed with jquery-modal, resizing specs should be built into the modalClass */
+		},
+
+		initLayerUtil: function () {
+			_bindCustomEvents();
+		}
+	}
+}($);
+
+layerUtil.initLayerUtil();
+
+$(document).on('click', '.jsOpenModalLayer,.openModalLayer', function (e) {
+	/*
+	 OPTIONS:
+	 use data-ajax-href to specify and alternate path for the ajax call
+	 - this allows for the non-ajax path to work (/content_popup.jsp) while letting us
+	 ajax directly to the /content_popup_body.jsp to avoid reloading all the JS and CSS
+	 use data-modal-options to specify options that can be passed into layerUtil
+	 - you must use a properly formed JSON object, complete with double quoted keys and vals (if strings)
+	 (ex: data-modal-options='{"closeExisting":false}')
+
+	 */
+	e.preventDefault();
+	var href = '';
+	if ($(this).data('ajax-href') != null && $(this).data('ajax-href') != '') {
+		href = $(this).data('ajax-href');
+	} else {
+		href = $(this).attr('href');
+	}
+	var options = $(this).data('modal-options');
+	layerUtil.openAjaxLayer(href, options);
+});
+
+$(document).on('submit', '.jsAjaxFormSubmit', function (e) {
+	e.preventDefault();
+	var $this = $(this);
+	$.ajax({
+		data: $this.serialize(),
+		url: $this.attr("action"),
+		type: $this.attr("method") || "GET",
+		dataType: "html",
+		success: function(resp) {
+			$this.closest('.jsAjaxFormSubmitRoot').html(resp);
+		}
+	});
+	return false
+});
+
+$(document).on('submit', '.jsUpdateParamsOnSubmit', function (e) {
+	var $this = $(this);
+	if (!$this.data('params-added')) {
+		e.preventDefault();
+		var returnUrl = window.location.href;
+		if ($this.find('input[name="fromPage"]').length > 0) {
+			if (returnUrl.indexOf('fromPage=') > -1) {
+				returnUrl = requestUtil.updateParam(returnUrl, 'fromPage', $this.find('input[name="fromPage"]').val());
+			} else {
+				returnUrl = requestUtil.insertParam(returnUrl, 'fromPage', $this.find('input[name="fromPage"]').val());
+			}
+		} else if (returnUrl.indexOf('fromPage=') > -1) {
+			returnUrl = requestUtil.updateParam(returnUrl, 'fromPage', '');
+		}
+
+		if ($this.find('input[name="selectedSku"]').length > 0) {
+			if (returnUrl.indexOf('selectedSku=') > -1) {
+				returnUrl = requestUtil.updateParam(returnUrl, 'selectedSku', $this.find('input[name="selectedSku"]').val());
+			} else {
+				returnUrl = requestUtil.insertParam(returnUrl, 'selectedSku', $this.find('input[name="selectedSku"]').val());
+			}
+		} else if (returnUrl.indexOf('selectedSku=') > -1) {
+			returnUrl = requestUtil.updateParam(returnUrl, 'selectedSku', '');
+		}
+
+		$this
+			.data('params-added', true)
+			.find('input[name="successURL"],input[name="failureURL"]').val(returnUrl).end()
+		.submit();
+	}
+});
+
+$(document).on('click', '.openContextLayer', function(e) {
+	/*
+	 OPTIONS:
+	 use data-ajax-href to specify and alternate path for the ajax call
+	 - this allows for the non-ajax path to work (/content_popup.jsp) while letting us
+	 ajax directly to the /content_popup_body.jsp to avoid reloading all the JS and CSS
+	 use data-layer-options to specify options that can be passed into layerUtil
+	 - you must use a properly formed JSON object, complete with double quoted keys and vals (if strings)
+	 (ex: data-modal-options='{"closeExisting":false}')
+	 - appendOffset : defaults to 0 which would append to itself, setting 1 would append to one level higher (the parent)
+	 */
+
+	e.preventDefault();
+	e.stopPropagation();
+	var options = $(this).data('layer-options');
+
+	if (!options.url) {
+		if ($(this).data('ajax-href') != null && $(this).data('ajax-href') != '') {
+			options.url = $(this).data('ajax-href');
+		} else {
+			options.url = $(this).attr('href');
+		}
+	}
+
+	layerUtil.openContextualLayer($(this), options);
+}).on('click', '.openContextLayer a', function(e){
+	e.stopPropagation();
+	/* allow child <a> clicks to function as normal */
+});
+
+
+/* Tab System */
+$(document).on('click', 'a.tab-link', function (e) {
+	e.preventDefault();
+	var $this = $(this);
+	var thisHref = $this.attr('href');
+	var $tabRoot = $(this).parents('.tab-system');
+	var $newTabHead = $('a[class="tab-link"][href="' + thisHref + '"]', ".tab-system-head"); /* need to account for internal links with no head */
+	if ($newTabHead.length > 0) {
+		$('.tab-active', $tabRoot).removeClass('tab-active');
+		$newTabHead.addClass('tab-active');
+	}
+	$('.tab-panel', $tabRoot).hide();
+	$(thisHref, $tabRoot).show();
+});
+
+
+/* Accordion System */
+function accordSelectionInit($rootEl) {
+	if ($rootEl.hasClass('accord-bound')) {
+		return;
+	}
+	$rootEl.addClass('accord-bound');
+	var eventType = "click";
+	if ($rootEl.attr('data-accord-event')) {
+		eventType = $rootEl.attr('data-accord-event');
+	}
+
+	$rootEl
+		.on(eventType, '.accord-trigger', function() {
+			var $selection = $(this).closest('.accord-selection');
+			if (!$selection.hasClass('open')) {
+				$rootEl
+					.find('.accord-selection.open').removeClass('open')
+					.find('.accord-panel').slideUp(200);
+				$selection
+					.addClass('open').find('.accord-panel').slideDown(350);
+			}
+		})
+		.find('.accord-trigger[checked]').change();
+}
+
+$(document).ready(function() {
+	$('.jsAccordSelection').each(function(){
+		accordSelectionInit($(this));
+	})
+});
+
+
+/* store results pagination */
+
+var paginator = function () {
+	/* private methods here */
+	var _getButton = function(label, klass) {
+		return '<button class="btn btn-primary ' + klass + '">' + label + '</button>';
+	};
+	var _getPrevButton = function(label) {
+		return _getButton(label, 'paginator-prev');
+	};
+	var _getNextButton = function(label) {
+		return _getButton(label, 'paginator-next');
+	};
+
+	return {
+
+		paginate: function ($parent, _childFilter, _pageSize) {
+			var pageSize = (_pageSize ? _pageSize : 5);
+			var $items = null;
+			if (_childFilter) {
+				$items = $parent.find(_childFilter);
+			} else if ($parent) {
+				$items = $parent.children();
+			} else {
+				return;
+			}
+
+			var mockDelay = 1000;
+			var start = 1;
+			var btns = '';
+			if ($parent.data('current-index')) {
+				start = $parent.data('current-index');
+			} else {
+				$parent
+					.data('current-index', start)
+					.on('click.paginator', '.paginator-prev', function(e){
+						e.preventDefault();
+						$parent.showSpinner().data('current-index', $parent.data('current-index') - pageSize);
+						setTimeout(function(){
+							paginator.paginate($parent, _childFilter, pageSize);
+							var windowSelector = 'html, body';
+							if (layerUtil.isLayerOpen()) {
+								windowSelector = layerUtil.getContentSelector();
+							}
+							$(windowSelector).animate({
+								scrollTop: $parent.offset().top
+							}, 450);
+						}, mockDelay);
+					})
+					.on('click.paginator', '.paginator-next', function(e){
+						e.preventDefault();
+						$parent.showSpinner().data('current-index', $parent.data('current-index') + pageSize);
+						setTimeout(function(){
+							paginator.paginate($parent, _childFilter, pageSize);
+							var windowSelector = 'html, body';
+							if (layerUtil.isLayerOpen()) {
+								windowSelector = layerUtil.getContentSelector();
+							}
+							$(windowSelector).animate({
+								scrollTop: $parent.offset().top
+							}, 450);
+						}, mockDelay);
+					});
+			}
+
+			if ($parent.find('.jsPaginatorButtons').length == 0) {
+				$parent.append('<div class="btn-row jsPaginatorButtons"></div>');
+			}
+
+			$items.show();
+
+			/* hide any previous ones */
+			if (start > 1) {
+				$items.slice(0, start-1).hide();
+				btns += _getPrevButton('prev');
+			}
+
+			/* hide other pages */
+			if (($items.length - start) > pageSize) {
+				$items.slice((start-1) + pageSize).hide();
+				btns += _getNextButton('next');
+			}
+
+			$parent
+				.hideSpinner()
+				.find('.jsPaginatorButtons').html(btns);
+		}
+
+	}
+}($);
+
+
+$(document).on('click','.jsOpenInMaps',function(e) {
+	e.preventDefault();
+	var address = $(this).html();
+	address = $('<div/>')
+		.html(address)
+		.text() // strip tags
+		.replace(/\s\s+/g, " "); // remove spaces
+	address = encodeURIComponent(address);
+	if ((navigator.platform.indexOf('iPhone') != -1) || (navigator.platform.indexOf('iPad') != -1) || (navigator.platform.indexOf('iPod') != -1)){/* if we're on iOS, open in Apple Maps */
+		window.open('http://maps.apple.com/?q=' + address);
+	} else { /* else use Google */
+		window.open('https://maps.google.com/maps?q=' + address);
+	}
+});
+

@@ -1,0 +1,39 @@
+(function ($, generic, site) {
+  "use strict";
+
+  site.onLoadRpc = site.onLoadRpc || {};
+  site.onLoadRpc.requests = site.onLoadRpc.requests || [];
+
+  var signedIn = (site.userInfoCookie.getValue('signed_in') == 1 || site.userInfoCookie.getValue('csr_logged_in') == 1);
+  if (signedIn || !site.onLoadRpc.defaults) {
+    site.onLoadRpc.requests.push({
+      "method"    : 'user.gnavData',
+      "params"    : [{}],
+      "onSuccess" : function(result) {
+        var results = result.result.value;
+
+        // Anything that needs gnavdata can ride this like so:
+        //
+        // $(window).on('gnavdata_success', function(e, results){
+        //   // results is now an object with data we may want, ie
+        //   // var favorites = results.FAVORITE_PRODUCTS;
+        // });
+        //
+        // See implementation in places like:
+        // * add_to_favorites_v1.js
+        // * site_my_shades_v1.js
+        // * shade_picker_v1.js
+        // * site_email_signup_v1.js
+        //
+
+        $(window).trigger('gnavdata_success', [results]);
+      },
+      "onFailure" : function() {
+        // console.log(result.getMessages());
+      }
+    });
+  } else {
+    $(window).trigger('gnavdata_success', [ site.onLoadRpc.defaults.user_gnavData ]);
+  }
+
+})(jQuery, window.generic || {}, window.site || {});

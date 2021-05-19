@@ -1,0 +1,35 @@
+! function() {
+    function writeAdlCookie() {
+        var date, expires;
+        date = new Date();
+        date.setTime(date.getTime() + (7 * 24 * 60 * 60 * 1000));
+        expires = "; expires=" + date.toGMTString();
+        document.cookie = "acqsource=adlucent" + expires + "; path=/";
+    }
+
+    function expireAdlCookie() {
+        var date, expires;
+        date = new Date();
+        date.setTime(date.getTime() - (7 * 24 * 60 * 60 * 1000));
+        expires = "; expires=" + date.toGMTString();
+        document.cookie = "acqsource=adlucent" + expires + "; path=/";
+    }
+
+    function hasPS(mySearch) {
+        return (mySearch.indexOf('acqsource=') != -1);
+    }
+
+    function hasOS(mySearch) {
+        return (mySearch.indexOf('source=') != -1);
+    }
+    var urlSearch = window.location.search;
+    if (true === hasOS(urlSearch)) {
+        if (true === hasPS(urlSearch)) {
+            if (document.cookie.indexOf('acqsource=adlucent') == -1){
+                writeAdlCookie();
+            }
+        } else {
+            expireAdlCookie();
+        }
+    }
+}();

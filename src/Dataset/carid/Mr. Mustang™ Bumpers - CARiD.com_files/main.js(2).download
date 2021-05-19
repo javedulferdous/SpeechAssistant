@@ -1,0 +1,75 @@
+/****** PUBLIC ACCESS ******/
+function $(id) { return document.getElementById(id) };
+var st = setTimeout;
+var flo = document.getElementsByClassName('flo')[0];
+var stage = $('stage');
+
+/****** / PUBLIC ACCESS ******/
+	var banner = (function() {
+	'use strict';
+	function Banner() {
+		// private variables
+		$('bgExitArea').addEventListener('click',function(){window.open(window.clickTag, "_blank");})
+
+		function onEnablerVisible() {
+			//put timeline here
+			
+			st(function(){
+				$('trex').classList.add('in');
+			},100);
+			st(function(){
+				$('bg').className = 'p1';
+			},850);
+			st(function(){
+				$('trex').classList.add('out');
+			},850);
+			st(function(){
+				document.getElementsByClassName('t1')[0].classList.add('in');
+				$('trex').className = 'out2';
+			},1600);	
+			st(function(){
+				scene2();
+			},3500);
+
+			
+			function scene2(){
+				stage.className = 's2';
+				$('bg').className = 'p2';
+				
+				st(function(){
+					document.getElementsByClassName('t2')[0].classList.add('in');
+				},800);
+
+				st(function(){
+					$('bg').className = 'p3';
+					document.getElementsByClassName('t2')[0].classList.add('out');
+				},2500);
+				st(function(){
+					document.getElementsByClassName('t3')[0].classList.add('in');
+					document.getElementsByClassName('t4')[0].classList.add('in');
+					$('flo').className = 'in';
+					$('quote').className = 'in';
+				},3000);
+				st(function(){
+					$('trex').classList.add('end');
+				},3500);
+			}
+
+			st(function(){
+				roar();
+				$('bgExitArea').addEventListener('mouseover',roar);
+			},7500)
+		}
+		function roar(){
+			stage.classList.add('roar');
+			st(function(){
+				stage.classList.remove('roar');
+			},700);
+		}
+		// privileged methods
+		this.init = function() {
+			onEnablerVisible();
+		};
+	}
+	return new Banner();
+})();

@@ -1,0 +1,2 @@
+"use strict";define("utils",function(){var e;return{extend:function e(){for(var t=arguments[0],r=1;r<arguments.length;r++)for(var n in arguments[r])arguments[r].hasOwnProperty(n)&&(t[n]=arguments[r][n]);return t||{}},getProperty:function e(t,r){var n=document.querySelector("[data-component="+r+"] [data-elysium-property-name="+t+"]");if(n&&n.dataset.elysiumPropertyValue)return n.dataset.elysiumPropertyValue}}});
+//# sourceMappingURL=utils-f5865a3856.js.map

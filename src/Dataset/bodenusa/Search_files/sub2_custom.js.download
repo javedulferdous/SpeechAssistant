@@ -1,0 +1,59 @@
+__SUB2.CookiesToXML = function() {
+
+				var cookieXML = '';
+				cookieXML = '<S2Cookies>';
+				try {
+					
+					if (this.collectcookies == "Y") {
+						var i, cookie, key, val;
+						var pairs = document.cookie.split(';');
+						var len = pairs.length;
+						for (i = 0; i < len; ++i) {
+							cookie = pairs[i].split('=');
+							key = cookie[0].replace(/^\s+/, "");
+							val = unescape(cookie[1]);
+							cookieXML = cookieXML + '<' + key + '>' + val + '</' + key + '>';
+						}
+					}
+				}
+				catch (e) { }
+				try {
+						if (typeof jQuery != 'undefined' && jQuery('.pdpProductCode').length > 0 ) {
+							cookieXML += '<PRODUCT_ID>' + (jQuery('.pdpProductCode').text()) + '</PRODUCT_ID>';
+						}
+                }
+                catch (e) {
+					SUB2.clog('ERROR:CookiesToXML ' + e.message);
+                }
+				cookieXML += '</S2Cookies>';
+				
+				return cookieXML;
+}
+
+
+__SUB2.DigDataToSend = function (  ) {
+	try {
+		var sub2dg=[{
+			"mobj": "window.dataLayer",
+			"getV": "0.screen.category.name",
+			"type": "cat",
+			"exception" : [["elementExists",".product-title-key"]],
+			"drep": {
+				"fr": "\\.",
+				"to": "^"
+			}
+		},
+		{
+			//"mobj": "JSON.parse(document.getElementById(\"product-detail-data\").innerHTML)",
+			"mobj": "document.getElementById(\"product-detail-data\")!==null ? JSON.parse(document.getElementById(\"product-detail-data\").innerHTML) : null ",
+			"getV": "styleCode",
+			"type": "prd",
+			"exception" : [["elementExists",".product-grid-items"]]
+		}];	
+							
+		return SUB2_Digital.fetchData(sub2dg);
+		
+	} catch(e) { SUB2.clog( 'DigDataToSend: ' + e.message ); }
+	
+	return '';
+}

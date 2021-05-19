@@ -1,0 +1,11 @@
+(function($) {
+
+$(document).on('product.skuSelect', '.js-product', function(e, skuBaseId) {
+  $(this).data('sku-base-id', skuBaseId);
+  $('.js-add-to-cart', this).data('sku-base-id', skuBaseId);
+  $('.js-add-to-favorites', this).data('sku-base-id', skuBaseId);
+
+  $(this).trigger('product.updateInvStatus');
+});
+
+})(jQuery);

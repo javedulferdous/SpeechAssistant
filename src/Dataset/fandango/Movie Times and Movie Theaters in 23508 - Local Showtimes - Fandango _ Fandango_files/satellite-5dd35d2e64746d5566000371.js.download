@@ -1,0 +1,15 @@
+_satellite.pushAsyncScript(function(event, target, $variables){
+  
+//Black Christmas  220065
+if(_satellite.getVar('Movie ID') == '220065'){
+  //PXL-366
+//pxl-315
+    (function(e,t,n){if(e.snaptr)return;var a=e.snaptr=function(){a.handleRequest?a.handleRequest.apply(a,arguments):a.queue.push(arguments)};a.queue=[];var s='script';r=t.createElement(s);r.async=!0;r.src=n;var u=t.getElementsByTagName(s)[0];u.parentNode.insertBefore(r,u);})(window,document,'https://sc-static.net/scevent.min.js');
+
+snaptr('init', 'b1a338a8-120d-4ab6-b0d8-3aed3f3aea25', {'user_email': '_INSERT_USER_EMAIL_'});
+snaptr('track', 'b1a338a8-120d-4ab6-b0d8-3aed3f3aea25', 'PAGE_VIEW');
+ 
+}
+
+
+});

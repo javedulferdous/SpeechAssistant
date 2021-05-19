@@ -1,0 +1,21 @@
+$("#nonlinear").noUiSlider({
+	connect: true,
+	behaviour: 'tap',
+	start: [ 40, 140 ],
+	range: {
+			'min': [ 0, 10 ],
+			'40%': [ 100, 20 ],
+			'60%': [ 200, 100 ],
+			'80%': [ 500, 1000 ],
+			'max': [ 4000 ]
+	}
+});
+function leftValue ( value, handle, slider ) {
+	$(this).text( handle.parent()[0].style.left );
+}
+$('#nonlinear').Link('lower').to($('#slider-snap-value-lower'), null, wNumb({
+	decimals: 0
+}));
+$('#nonlinear').Link('upper').to($('#slider-snap-value-upper'), null, wNumb({
+	decimals: 0
+}));

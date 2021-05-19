@@ -1,0 +1,305 @@
+/* STORE-NAVIGATION *//* STORE-NAVIGATION */
+html, body, div, span, applet, object, iframe,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+a, abbr, acronym, address, big, cite, code,
+del, dfn, em, img, ins, kbd, q, s, samp,
+small, strike, strong, sub, sup, tt, var,
+b, u, i, center,
+dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td,
+article, aside, canvas, details, embed, 
+figure, figcaption, footer, header, hgroup, 
+menu, nav, output, ruby, section, summary,
+time, mark, audio, video {
+	margin: 0;
+	padding: 0;
+	border: 0;
+	font-size: 100%;
+	font: inherit;
+	vertical-align: baseline;
+}
+/* HTML5 display-role reset for older browsers */
+article, aside, details, figcaption, figure, 
+footer, header, hgroup, menu, nav, section {
+	display: block;
+}
+body {
+	line-height: 1;
+}
+
+blockquote, q {
+	quotes: none;
+}
+blockquote:before, blockquote:after,
+q:before, q:after {
+	content: '';
+	content: none;
+}
+table {
+	border-collapse: collapse;
+	border-spacing: 0;
+}
+
+html, body {
+    min-width: 0px !important;
+	overflow-x:hidden;
+}
+ /****** Store Navigation Start ******/
+
+.store-header h1 {
+	color: #333366;
+	font-size: 30px;
+	font-family: "HelveticaNeueW02-75Bold", "Helvetica Neue", Helvetica, Arial, sans-serif;
+	margin-top: 45px;
+	margin-bottom: 35px;
+}
+
+ul.store-navigation-categories a {
+	text-decoration: none;
+}
+
+.store-navigation-categories li {
+	
+}
+
+div.store-navigation-category {
+	display: block;
+	color: #333366;
+	text-align: center;
+	font-size: 14px;
+	font-family: "HelveticaNeueW02-65Medi","Helvetica Neue",Helvetica,Arial,sans-serif;
+	text-decoration: none;
+margin-bottom: 8px;
+}
+
+/* .store-navigation-categories li {
+	/* width: 16%; *
+	text-align: center;
+} */
+
+li.stamps-navigation {
+	text-align: center;
+}
+
+ul.store-navigation-categories li.active span {
+	border-bottom: 4px solid #e71921;
+}
+
+li.saved-navigation  {
+	text-align: center;
+	margin-left: 4%;
+}
+
+li.supplies-navigation, li.cards-envelopes-navigation, li.collectors-navigation, li.gifts-navigation, li.business-navigation {
+	text-align: center;
+	text-decoration: none;
+	margin-left: 0;
+	margin-right: 0;
+}
+
+.store-navigation-categories img {
+	margin-bottom: 5px;
+}
+
+ul.store-navigation-categories {
+
+}
+
+ul.store-navigation-categories li {
+	vertical-align: top;
+	position: relative;
+}
+
+/* .store-navigation-categorie a {
+	display: table-cell;
+} */
+
+.store-navigation-categories a:hover {
+	opacity: .4;
+	display: list-item;
+}
+
+
+.nav-table-holder {width: 100%;position: relative;overflow: hidden;padding: 0;height: 100px;box-sizing: border-box;}		
+.nav-table{display:table;width: 100%;}		
+.store-navigation-categories{display:table-row;-webkit-padding-start: 0;}		
+.store-navigaiton-categories li {display:table-cell;}
+
+/****** Store Navigation End ******/
+
+/*****   ToolTip Formatting  ******/
+.qtip-content h3 {
+    color: #595959;
+    font-family: "HelveticaNeueW02-75Bold", "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-size: 20px;
+	text-align: left;
+	line-height: 24px;
+	margin-top: 10px;
+    margin-bottom: 10px;
+}
+.qtip-content h4 {
+    color: #333366;
+    font-family: "HelveticaNeueW02-75Bold", "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-size: 18px;
+	line-height: 20px;
+	text-align: left;
+}
+
+.qtip-content p strong {
+    color: #333366;
+    font-family: "HelveticaNeueW02-75Bold", "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-size: 14px;
+	line-height: 16px;
+	text-align: left;
+}
+.qtip-content p {
+	font-family: "HelveticaNeueW02-55Roma", "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-size: 14px;
+	color: #595959;
+	line-height: 16px;
+	text-align: left;
+    padding-top: 5px;
+    padding-bottom: 5px;
+}
+/*****   ToolTip Formatting END  ******/
+
+
+/****    Search Suggestions     *****/
+
+.search-suggest {
+	margin-bottom: 30px;
+}
+.search-suggest h4 {
+	font-size: 16px;
+    font-family:"HelveticaNeueW02-65Medi","Helvetica Neue",Helvetica,Arial,sans-serif;
+    font-weight: normal;
+    line-height: 2em;
+}
+.search-suggest strong {
+	font-family: "HelveticaNeueW02-75Bold", "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+.search-suggest p {
+    line-height: 2em;
+    font-size: 14px;
+    margin-bottom: 15px;
+}
+/******     Search Suggestions End        *********/
+
+/****    Get rid of selected vertical lines     *****/
+* {
+    -webkit-user-select: none;        
+    -moz-user-select: none; 
+    -ms-user-select: none; 
+}
+
+@media (min-width:1600px){
+.cartridge-viewport {
+	max-width: 1500px !important;
+}
+
+.result-page-stamps-holder {
+	float: right;
+}
+}
+
+
+
+.result-text-stamps {
+	padding-left: 40px;
+}
+
+.result-sort {
+	padding-right: 0px;
+}
+
+.full-width-promotion .cartridge-viewport {
+	white-space: normal;
+}
+
+li.stamps-navigation:after, li.gifts-navigation:after, li.business-navigation:after, li.cards-envelopes-navigation:after, li.collectors-navigation:after, li.supplies-navigation:after {
+	content: "";
+	position: absolute;
+	top: 0;
+	right:0;
+	width: 13px;
+	height: 50px;
+	background: url(https://www.usps.com/store/images/ps-subicon-navline.png) center center no-repeat;
+	pointer-events: none;
+	cursor: default;
+}
+ul.store-navigation-categories li {
+	vertical-align: top;
+	padding-right: 20px;
+	position: relative;
+	border-bottom: 4px solid #FFFFFF;
+}
+
+
+.nav-table ul li {
+	display:table-cell;
+}
+			
+.store-search-form .search-wrapper {
+		z-index: 300;
+		background-color: #FFFFFF;
+		position: relative;
+	}
+	
+	input#store-search {
+		font-size: 14px !important;
+	}
+	
+	input {
+		-webkit-user-select: text !important;
+		-moz-user-select: text !important;
+		-ms-user-select: text !important;
+	}
+	
+	.mult-error {
+    	display: inline-block;
+    }
+    
+    .mult-error-foreign {
+    	color: #e71921;
+	}
+
+form.return-address-form {
+    height: 900px !important;
+}
+
+@media only screen and (min-width:1px){
+#return-address-model-dialog p.btn-cta.center, #edit-return-address-model-dialog p.btn-cta.center, #pfsl-terms-model-dialog p.btn-cta.center {
+    height: 50px;
+}}
+	
+
+	@media screen and (max-width: 1000px) {
+		.premium-banner-stamps .text-holder {
+			width: 100%;
+			line-height: 2rem;
+			margin-top: 10px;
+			margin-left: 0;
+			box-sizing: border-box;
+			display: block;
+			position: relative;
+			padding-left: 30px;
+			padding-right: 30px;
+		}
+		.breadcrumb-cartridge .cartridge-viewport {
+			box-sizing:border-box;
+			padding-left:30px;
+			padding-right:30px;
+		}
+	}
+@media (min-width: 960px) and (max-width: 1600px){
+    .nav-table-holder {
+        position:relative;
+        left:-35px
+    }
+}
+@media (min-width: 1601px){
+    .nav-table-holder {
+        position:relative;
+    }
+}

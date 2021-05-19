@@ -1,0 +1,22 @@
+// var arrowHandler = function(target) {
+// 	this.target = $(target);
+	
+// 	if(this.target.next().css('display')=='block') {
+// 		this.target.find('div.arrow > img').attr('src',this.target.find('div.arrow > img').attr('src').replace('_down','_right')); 
+// 		this.target.next().slideUp('slow'); 
+// 		filterState[this.target.attr("id")] = "1";
+// 	} else { 
+// 		this.target.find('div.arrow > img').attr('src',this.target.find('div.arrow > img').attr('src').replace('_right','_down')); 
+// 		this.target.next().slideDown('slow');
+// 		delete filterState[this.target.attr("id")];
+// 	}
+// 	$.cookie('filterState',$.toJSON(filterState));
+// }
+
+  function browsePageInit() {
+    $('#filters .attribute .arrow').show();
+    $('.filterPopupLink').show();
+    $('.hiddenForPopup').hide();
+    $(".productThumbnail").hover(function(){ $(this).find(".quickLookLink").css("visibility","visible"); },function(){ $(this).find(".quickLookLink").css("visibility","hidden"); });
+ }
+

@@ -1,0 +1,1429 @@
+/* eslint-disable */
+$('form').get(0).reset();
+
+var $destinationTrigger = $('.jsc-destination-trigger'),
+	$destinationTarget = $('.jsc-destination-target'),
+	$historyTarget = $('.jsc-history-target'),
+	destinationClickFlag,
+	calendarClickFlag,
+	roomClickFlag,
+	adultClickFlag,
+	childClickFlag,
+	$calendarTrigger = $('.jsc-calendar-trigger'),
+	$calendarTarget = $('.jsc-calendar-target'),
+	$checkInTrigger = $('.jsc-check-in-trigger'),
+	$checkOutTrigger = $('.jsc-check-out-trigger'),
+	$roomTrigger = $('.jsc-room-trigger'),
+	$roomTarget = $('.jsc-room-target'),
+	$adultTrigger = $('.jsc-adult-trigger'),
+	$adultTarget = $('.jsc-adult-target'),
+	$childTrigger = $('.jsc-child-trigger'),
+	$childTarget = $('.jsc-child-target'),
+	$toggleCompanyTrigger = $('#jsi-toggle-company-trigger'),
+	$toggleCompanyTarget = $('#jsi-toggle-company-target'),
+	$toggleCurrencyTrigger = $('#jsi-toggle-currency-trigger'),
+	$toggleCurrencyTarget = $('#jsi-toggle-currency-target'),
+	$lumpTarget = $('.jsc-lump-target'),
+	$placeholderTarget = $('.jsc-placeholder'),
+	$bgElement = $('#jsi-bg-element'),
+	$body = $('body'),
+	$searchForm = $('.jsc-search-form');
+
+	// アラート
+	$alert = $('.jsc-alert'),
+	$alertCloseBtn = $('#jsi-alert-close'),
+
+	$kvFormInput = $('input'),
+	$bgPrefecturesList = $('.jsc-bg-prefectures-list'),
+	$prefecturesListContainer = $('.prefectures-list-container'),
+
+	// 部屋数パネル
+	$roomCrackPanel = $('#jsi-room-crack-panel'),
+	$roomCrackPanelListItem = $roomCrackPanel.find('.room-crack-panel-list > li'),
+	$paneladultsTrigger = $('.jsc-panel-adults-trigger'),
+	$searchCloseBtnRoom = $('#jsi-search-close-btn-room');
+
+$(function(){
+	var controlPlaceHolder = function($target, placeholder){
+		if($target.val().length == 0 || $target.val() == placeholder){
+			$target.css('color', '#C0C0C0').val(placeholder);
+		}else{
+			$target.css('color', '#464646');
+		}
+	};
+	$placeholderTarget.each(function(){
+		var $self = $(this),
+			placeholder = $self.data('placeholder');
+
+		controlPlaceHolder($self, placeholder);
+
+		$self.on('focus', function(){
+			if($self.val() == placeholder){
+				$self.css('color', '#464646').val('');
+			}
+		});
+		$self.on('blur', function(){
+			controlPlaceHolder($self, placeholder);
+		});
+	});
+
+
+	// 黒背景の高さ設定
+	var bodyHeight = $body.height();
+	$bgElement.css('height', bodyHeight + 73);
+
+
+	// INPUTを'readonly'に
+//	$searchForm.find(':text').not($destinationTrigger).prop('readonly', true);
+
+
+	/* ----------------------------------------------------
+		イベントを中止させる。
+	---------------------------------------------------- */
+	$('.top-kv-search').on('click',function(e){
+		e.stopPropagation();
+	});
+	$('.header-toggle').on('click',function(e){
+		e.stopPropagation();
+	});
+	$('#jsi-alert').on('click',function(e){
+		e.stopPropagation();
+	});
+	$('.map').on('click',function(e){
+		e.stopPropagation();
+	});
+	$('.room-crack-panel-inner').on('click',function(e){
+		e.stopPropagation();
+	});
+
+
+	/* ----------------------------------------------------
+		bodyをクリックで全てのタブを閉じる。
+	---------------------------------------------------- */
+
+	var reset = function(){
+		if($lumpTarget.is(':visible')){
+			$lumpTarget.hide();
+		}
+		if($alert.is(':visible')){
+			$alert.hide();
+		}
+		if($prefecturesListContainer.is(':visible')){
+			$prefecturesListContainer.hide();
+			$bgPrefecturesList.hide();
+		}
+		$kvFormInput.removeClass('selected');
+
+		$adultTrigger.removeAttr("disabled");
+		$childTrigger.removeAttr("disabled");
+		$adultTrigger.parent('.top-kv-members-select').removeClass('disabled');
+		$childTrigger.parent('.top-kv-members-select').removeClass('disabled');
+
+		$bgElement.hide();
+		$('input').removeClass('selected');
+
+		$roomCrackPanelListItem.removeClass('jsc-list-right-side');
+	};
+	$body.on('click', reset);
+
+
+	/* ----------------------------------------------------
+		Destinationの開閉
+	---------------------------------------------------- */
+	$alertCloseBtn.on('click',function(e){
+		e.stopPropagation();
+		$alert.hide();
+	});
+
+
+	/* ----------------------------------------------------
+		Destinationの開閉
+	---------------------------------------------------- */
+	// Destinationフォームを"click","keyup"した時
+	$destinationTrigger.on('focus keyup',function(e){
+		$kvFormInput.removeClass('selected');
+		$destinationTrigger.addClass('selected');
+		if(!e.keyCode || e.keyCode == 9){
+			$lumpTarget.hide();
+			if($historyTarget.is(':hidden')){
+				$destinationTarget.hide();
+				$historyTarget.slideDown(300);
+			}
+		}
+	});
+
+
+	/* ----------------------------------------------------
+		カレンダーの開閉
+	---------------------------------------------------- */
+	$calendarTrigger.on('focus',function(e){
+		$lumpTarget.hide();
+		$kvFormInput.removeClass('selected');
+		$checkInTrigger.addClass('selected');
+
+		if($calendarTarget.is(':hidden')){
+			$calendarTarget.slideDown(300);
+		}
+	});
+
+
+	/* ----------------------------------------------------
+	room数の開閉
+	---------------------------------------------------- */
+	$roomTrigger.on('keyup focus',function(e){
+		$kvFormInput.removeClass('selected');
+		$roomTrigger.addClass('selected');
+		$('input').removeClass('selected');
+		if(!e.keyCode || e.keyCode == 9){
+			if($roomTrigger.val() > 1){
+				$roomTarget.hide();
+			}
+			$lumpTarget.hide();
+			if($roomTarget.is(':hidden')){
+				$roomTarget.slideDown(300);
+			}
+		}
+	});
+	$roomTarget.find('li').each(function(){
+		var $myself = $(this);
+		$myself.on('click',function(){
+			$kvFormInput.removeClass('selected');
+			var text = $myself.text();
+			$roomTrigger.val(text);
+			$roomTarget.slideUp(300);
+			$roomTrigger.removeClass('selected');
+
+
+
+
+			if($roomTrigger.val() > 1){
+				$roomCrackPanel.fadeIn(300);
+
+				$adultTrigger.attr("disabled", "disabled");
+				$childTrigger.attr("disabled", "disabled");
+				$adultTrigger.parent('.top-kv-members-select').addClass('disabled');
+				$childTrigger.parent('.top-kv-members-select').addClass('disabled');
+				$bgElement.show();
+
+				$roomCrackPanelListItem.hide();
+				var roomVal = parseInt($roomTrigger.val());
+				for(var i = 0; i < $roomCrackPanelListItem.length; i++){
+					if(i < roomVal){
+						$roomCrackPanelListItem.eq(i).show();
+						$adultTrigger.val($roomTrigger.val());
+						$childTrigger.val(0);
+						$roomCrackPanel.find('input').val(0);
+						$paneladultsTrigger.val(1);
+						$roomCrackPanelListItem.eq(roomVal - 1).addClass('jsc-list-right-side');
+					}
+				}
+				return;
+			}else if($roomTrigger.val() == 1){
+				$bgElement.hide();
+				$adultTrigger.val(2);
+				$childTrigger.val(0);
+			}
+			$adultTarget.slideDown(300);
+			$adultTrigger.addClass('selected');
+		});
+	});
+
+
+	/* ----------------------------------------------------
+		大人人数の開閉
+	---------------------------------------------------- */
+	$adultTrigger.on('keyup focus',function(e){
+		$kvFormInput.removeClass('selected');
+		$adultTrigger.addClass('selected');
+		$('input').removeClass('selected');
+		var roomVal = parseInt($roomTrigger.val());
+		if(!e.keyCode || e.keyCode == 9){
+			if($roomTrigger.val() > 1){
+				$roomCrackPanel.fadeIn(300);
+				$roomCrackPanelListItem.hide();
+				for(var i = 0; i < $roomCrackPanelListItem.length; i++){
+					if(i < roomVal){
+						$roomCrackPanelListItem.eq(i).show();
+					}
+				}
+
+				if($roomTrigger.val() > 1){
+					$adultTrigger.attr("disabled", "disabled");
+					$childTrigger.attr("disabled", "disabled");
+					$adultTrigger.parent('.top-kv-members-select').addClass('disabled');
+					$childTrigger.parent('.top-kv-members-select').addClass('disabled');
+					$bgElement.show();
+					$roomCrackPanelListItem.eq(roomVal - 1).addClass('jsc-list-right-side');
+				}
+				$adultTarget.hide();
+				return;
+			}
+			$lumpTarget.hide();
+			if($adultTarget.is(':hidden')){
+				$adultTarget.slideDown(300);
+			}
+		}
+	});
+	$adultTarget.find('li').each(function(){
+		var $myself = $(this);
+		$myself.on('click',function(){
+			$kvFormInput.removeClass('selected');
+			var text = $myself.text();
+			$adultTrigger.val(text);
+			$adultTarget.slideUp(300);
+			$adultTrigger.removeClass('selected');
+		});
+	});
+
+
+	/* ----------------------------------------------------
+		発火するbodyクリックイベントの一時停止
+	---------------------------------------------------- */
+	var escapeBubble = function () {
+		var revert = function () {
+			$body.on('click', reset);
+			$body.off('click', revert);
+		};
+		$body.off('click', reset);
+		$body.on('click', revert);
+	};
+
+	/* ----------------------------------------------------
+		子供人数の開閉
+	---------------------------------------------------- */
+	$childTrigger.on('keyup focus',function(e){
+		escapeBubble();
+		$roomCrackPanel.fadeIn(300);
+		$bgElement.show();
+		$adultTrigger.attr("disabled", "disabled");
+		$childTrigger.attr("disabled", "disabled");
+		$adultTrigger.parent('.top-kv-members-select').addClass('disabled');
+		$childTrigger.parent('.top-kv-members-select').addClass('disabled');
+		$('input').removeClass('selected');
+		$roomTarget.hide();
+		$adultTarget.hide();
+
+		var roomVal = parseInt($roomTrigger.val());
+		$roomCrackPanelListItem.eq(roomVal - 1).addClass('jsc-list-right-side');
+
+		if($roomTrigger.val() == 1){
+			$roomCrackPanel.fadeIn(300);
+			$roomCrackPanelListItem.hide();
+			for(var i = 0; i < $roomCrackPanelListItem.length; i++){
+				if(i < roomVal){
+					$roomCrackPanelListItem.eq(i).show();
+					$roomCrackPanel.find('input').val(0);
+				}
+			}
+			$paneladultsTrigger.val($adultTrigger.val());
+			return;
+		}else{
+			$roomCrackPanel.fadeIn(300);
+			$roomCrackPanelListItem.hide();
+			for(var i = 0; i < $roomCrackPanelListItem.length; i++){
+				if(i < roomVal){
+					$roomCrackPanelListItem.eq(i).show();
+				}
+			}
+			return;
+		}
+	});
+
+
+	/* ----------------------------------------------------
+		ルーム数パネルのアコーディオン
+	---------------------------------------------------- */
+	$roomCrackPanel.find('.human-number').each(function(){
+		var $myself = $(this);
+		var $trigger = $myself.find('input');
+		var $target = $myself.find('ul');
+		var totalAllInput;
+		var totalAdults;
+		$trigger.on('keyup focus',function(){
+			$roomCrackPanel.find('.human-number > ul').hide();
+			$('input').removeClass('selected');
+			$trigger.addClass('selected');
+			$target.slideDown(300);
+		});
+		$target.find('li').each(function(){
+			var $self = $(this);
+			$self.on('click',function(){
+				var text = $self.text();
+				$trigger.val(text);
+				$target.slideUp(300);
+				$('input').removeClass('selected');
+
+				var visibleAllInput = jQuery('input:visible');
+				totalAllInput = 0;
+				$('#jsi-room-crack-panel .human-number').find(visibleAllInput).each(function(){
+					var point = $(this).val();
+					totalAllInput = parseInt(point) + totalAllInput;
+				});
+
+				var visibleAdults = jQuery('.jsc-panel-adults-trigger:visible');
+				totalAdults = 0;
+				$('#jsi-room-crack-panel').find(visibleAdults).each(function(){
+					var point = $(this).val();
+					totalAdults = parseInt(point) + totalAdults;
+				});
+				$adultTrigger.val(totalAdults);
+				$childTrigger.val(totalAllInput - totalAdults);
+			});
+		});
+	});
+
+	$searchCloseBtnRoom.on('click',function(){
+		if($roomCrackPanel.is(':visible')){
+			$adultTrigger.removeAttr("disabled");
+			$childTrigger.removeAttr("disabled");
+			$adultTrigger.parent('.top-kv-members-select').removeClass('disabled');
+			$childTrigger.parent('.top-kv-members-select').removeClass('disabled');
+			$roomCrackPanel.hide();
+			$bgElement.hide();
+			$roomCrackPanelListItem.removeClass('jsc-list-right-side');
+		}
+	});
+
+
+	/* ----------------------------------------------------
+		Tabを押した時の処理
+	---------------------------------------------------- */
+	$toggleCompanyTrigger.on('click keyup',function(e){
+		if(!e.keyCode || e.keyCode == 9){
+			$lumpTarget.hide();
+			if($toggleCompanyTarget.is(':hidden')){
+				$toggleCompanyTarget.show();
+			}else{
+				$toggleCompanyTarget.hide();
+			}
+		}
+	});
+	$toggleCompanyTarget.find('li').on("click",function(){
+		$toggleCompanyTarget.hide();
+	});
+	$toggleCurrencyTrigger.on('click keyup',function(e){
+		if(!e.keyCode || e.keyCode == 9){
+			$lumpTarget.hide();
+			if($toggleCurrencyTarget.is(':hidden')){
+				$toggleCurrencyTarget.show();
+			}else{
+				$toggleCurrencyTarget.hide();
+			}
+		}
+	});
+
+	window.searchJSExists = true;
+});
+
+
+var $destinationTrigger = $('.jsc-destination-trigger'),
+	$destinationTarget = $('.jsc-destination-target'),
+	$destinationTargetItem,
+	$historyTarget = $('.jsc-history-target'),
+	$historyTargetItem,
+	jsonEntities,
+	jsonGroup,
+	jsonName,
+	jsonKeywords,
+	$outputList,
+	historyClickFlag,
+	suggestIndex = -1,
+	maxSuggestIndex,
+	$target = null,
+	$historyTargetItem = $historyTarget.find('li'),
+	destinationText,
+	destinationValue,
+	getHistory,
+	array,
+	suggestIndex = -1,
+	enterKeyFlag,
+	$destinationTargetItem,
+	$historyTargetItem;
+
+function unique(array) {
+	var storage = {};
+	var uniqueArray = [];
+	var i,value;
+	for ( i=0; i<array.length; i++) {
+		value = array[i];
+		if (!(value in storage)) {
+			storage[value] = true;
+			uniqueArray.push(value);
+		}
+	}
+	return uniqueArray;
+}
+
+/** ページング処理 */
+function selectPage(index,page,preUrl,urlParam) {
+	var targetUrl = preUrl;
+	var submitForm = document.forms["submitForm"];
+	// ページング処理を行うためのパラメータを設定
+	var url = targetUrl + urlParam + "&scVal=05&idx=" + index + "&pageNum=" + page;
+	submitForm.action = url;
+	submitForm.submit();
+}
+
+
+
+/** 日本語施設詳細(宿詳細) */
+function openYadoSyosai(yadNo) {
+  var frm = document.forms['form1'];
+
+  var actKeys = 'screenId,distCd,afCd,stnCd,lrgOsnCd,osnCd,ssc,rootCd,searchYadName,langCd,'
+              +'stayCount,minPrice,maxPrice,dateUndecided,'
+              +'careOutsidePool,careBeach5,careStation5,carePak,careItnr,careNsmr,careBath,careOnsen,'
+              +'careBathRent,carePribateBath,careDinRoom,carePet,careHighClass,carePoint,careSweet,careBt,'
+              +'careEsthetics,careLookoutBath,careSauna,careTakkyu,careJacuzzi,careMassage,careSkiRent,'
+              +'careBoardRent,careSogei,careBrkRoom,careDinPrv,careBrkPrv,careChekout11,'
+              +'roomSingle,roomTriple,roomJstyle,roomTwin,room4bed,roomHwstyle,roomDouble,'
+              +'yadHb,yadKc,yadRk,yadKy,yadPm,mealType,reShFlg,activeSort,photo,idx,vosFlg,listId, roomCrack,'
+              +'checkinTime,useTime,careCard,careCardOnly,careOpenbath,careKake,careNigori,yadNo,careExchange5,careFrontExchange,careTouristInfo5,crcyCd,areaKeyword';
+
+  var submitFormEncoder = function(frm, excludes, includes) {
+    var ary1 = [],
+        ary2 = [],
+        act = '',
+        excludesAry = stringSprit(excludes),
+        includesAry = stringSprit(includes);
+
+    if (frm.elements['dateUndecided'] == null || frm.elements['dateUndecided'].value == '' ||
+      (frm.elements['dateUndecided'].type == 'checkbox' && frm.elements['dateUndecided'].checked == false)) {
+      // 日付指定の場合
+      for (var i = 0, j = frm.elements.length; i < j; i++) {
+        var flg = checkParameter(ary2, frm, i, excludesAry, includesAry);
+
+        if(flg) {
+          ary1.push(frm.elements[i].name + '=' + encodeURIComponent(frm.elements[i].value));
+          ary2.push(frm.elements[i].name);
+        }
+      }
+    } else {
+      // 日付未定の場合
+      for (var i = 0, j = frm.elements.length; i < j; i++) {
+        var flg = checkParameter(ary2, frm, i, excludesAry, includesAry);
+
+        if(flg) {
+          switch(frm.elements[i].name){
+            case 'stayYear':
+            case 'stayMonth':
+            case 'stayDay':
+              ary1.push(frm.elements[i].name + '=');
+              ary2.push(frm.elements[i].name);
+              continue;
+            default:
+          }
+
+          ary1.push(frm.elements[i].name + '=' + encodeURIComponent(frm.elements[i].value));
+          ary2.push(frm.elements[i].name);
+        }
+      }
+    }
+
+    for(var i = 0, j = ary1.length; i < j; i++) {
+      if(i == 0) {
+        act += '?';
+      } else {
+        act += '&';
+      }
+      act += ary1[i];
+    }
+
+    return act;
+  };
+
+  var act = submitFormEncoder(frm, '', actKeys);
+
+  if (act.charAt(0) == '&' || act.charAt(0) == '?') {
+    act = '' + act.substring(1);
+  }
+
+  var submitForm = document.forms['submitForm'];
+  submitForm.target = '_self';
+
+  // 施設詳細へ遷移するためのパラメータを設定
+  var url = '/uw/uwp3000/uww3001.do?';
+
+  submitForm.action = url + act + '&yadNo=' + yadNo + '&vos=djalengyl201104c01';
+  submitForm.submit();
+}
+
+/** マップ */
+function doUiw0401Move(targetUrl) {
+	window.open(targetUrl,'map','toolbar=no,status=no,location=no,directoies=no,menubar=yes,scrollbars=yes,resizable=yes,width=700');
+}
+
+// ShowMore
+function showMorePreferences() {
+
+	var div = document.getElementById("allPreferences");
+	var link = document.getElementById("showAllLink");
+
+	div.style.display  = 'none';
+	link.style.display  = 'none';
+
+	if (div.style.display  == 'none') {
+		div.style.display  = 'block';
+	} else if (div.style.display  == 'block') {
+		div.style.display  = 'none';
+	}
+}
+/* ----------------------------------------------------
+	ロードされた場合
+---------------------------------------------------- */
+$(function(){
+
+	/* ----------------------------------------------------
+		履歴<li>を動的に作る
+	---------------------------------------------------- */
+	//getHistory = window.localStorage.getItem('history');
+	getHistory = "";
+
+	if(getHistory && getHistory != 'undefined'){
+		try{
+			array = JSON.parse(getHistory);
+		} catch(e) {
+			window.localStorage.removeItem('history');
+			array = "";
+		}
+
+		for(var i = 0; i < array.length; i++){
+			if(array[i].length <= 1) break;
+			$historyTarget.append('<li>' + array[i] + '</li>');
+		}
+		// 履歴<li>をクリックした時の処理
+		$historyTargetItem = $historyTarget.find('li');
+
+		$historyTargetItem.each(function(){
+			var $myself = $(this);
+			$myself.on('click',function(){
+				var text = $myself.text();
+//				$destinationTrigger.css('color', '#464646').val(text);
+				$historyTarget.slideUp(300);
+				$destinationTrigger.removeClass('selected');
+
+				if(historyClickFlag || destinationClickFlag || enterKeyFlag){
+					return;
+				}
+				$checkInTrigger.trigger('click').focus();
+				$calendarTarget.slideDown(300);
+				historyClickFlag = true;
+			});
+			$myself.on('mouseenter',function(){
+				$(this).addClass('current');
+			});
+			$myself.on('mouseleave',function(){
+				$destinationTargetItem.removeClass('current');
+				$historyTargetItem.removeClass('current');
+			});
+		});
+	}
+
+
+	/* ----------------------------------------------------
+		インクリメンタルサーチ(全てのリストを作る)
+	---------------------------------------------------- */
+	// 全ての配列の中身を取得し、<li>にアペンドする。
+	for(var i = 0; i < prefectures.length; i++){
+		jsonEntities = prefectures[i].entities;
+		jsonGroup = prefectures[i].group;
+
+		for(var j = 0; j < jsonEntities.length; j++){
+			jsonName = jsonEntities[j].name;
+			jsonKeywords = jsonEntities[j].key;
+
+			// 一旦、<li>を動的の作る。
+			$outputList = $('<li>' + jsonName + '</li>');
+
+			// <li>にdataメソッドを使い"key"の値を格納する。
+			$outputList.data('key',jsonKeywords);
+
+			// 上で作った<li>を<ul>の中に全て出力する。
+			$destinationTarget.append($outputList);
+		}
+	}
+
+	// <li>が生成された後で変数に定義する。
+	$destinationTargetItem = $('.jsc-destination-target').find('li');
+
+
+	/* ----------------------------------------------------
+		インクリメンタルサーチ(キー入力した時の処理)
+	---------------------------------------------------- */
+	$destinationTrigger.on('keyup focus', function(e){
+
+		var value = this.value,
+			regex = new RegExp('^' + value.replace(/\\/g, '\\\\'), 'i');
+
+		//一度消す（マッチしない時に残ることを防ぐため）
+		$destinationTargetItem.hide();
+
+		if(e.keyCode == 13){
+			return;
+		}
+		$destinationTargetItem.filter(function() {
+			var outputListData = $(this).data('key');
+
+			for(var i = 0; i < outputListData.length; i++){
+				if(outputListData[i].match(regex)){
+					return true;
+				}
+			}
+			return false;
+		}).show();
+		if(value == ""){
+			$destinationTarget.hide();
+			$destinationTarget.find('li').hide();
+		}
+	});
+
+	// <li>をクリックした時の処理
+	$destinationTargetItem.each(function(){
+		var $myself = $(this);
+		$myself.on('click',function(){
+			var text = $myself.text();
+			$destinationTrigger.val(text);
+			$destinationTarget.slideUp(300);
+			$destinationTrigger.removeClass('selected');
+
+			if(historyClickFlag || destinationClickFlag || enterKeyFlag){
+				return;
+			}
+			$calendarTarget.slideDown(300);
+			$checkInTrigger.trigger('click').focus();
+			destinationClickFlag = true;
+		});
+		$myself.on('mouseenter',function(){
+			$(this).addClass('current');
+		});
+		$myself.on('mouseleave',function(){
+			$destinationTargetItem.removeClass('current');
+			$historyTargetItem.removeClass('current');
+		});
+	});
+
+
+	/* ----------------------------------------------------
+		キー入力でリストの判別＆'↑','↓'キーの処理　
+	---------------------------------------------------- */
+	// keyupのイベント
+	$destinationTrigger.on('keyup focus',function(e){
+
+		if($destinationTrigger.val().length == 0){	// 履歴
+			$target = $historyTargetItem;
+
+			if($historyTarget.is(':hidden')){
+				suggestIndex = -1;
+				$target.removeClass('current');
+			}
+			if(e.keyCode == 13 && $historyTarget.is(':visible')){
+				var $current = $historyTargetItem.filter('.current');
+
+				if($current.size() == 1){
+					$destinationTrigger.val($current.text());
+				}
+			}
+			if($target.size() == 0 || e.keyCode == 13){					// 履歴が無い
+				$historyTarget.hide();
+			}else{										// 履歴が有る
+				$historyTarget.show();
+			}
+			$destinationTarget.hide();
+		}else{										// インクリメンタルサーチ
+			$target = $destinationTargetItem;
+			if($destinationTarget.is(':hidden')){
+				suggestIndex = -1;
+				$target.removeClass('current');
+			}
+			if($target.size() > 0){					// インクリメンタルサーチが無い
+				$target = $destinationTargetItem.filter(':visible');
+				$destinationTarget.show();
+			}
+			$historyTarget.hide();
+
+			if(e.keyCode == 13 && $destinationTarget.is(':visible')){
+				var $current = $destinationTargetItem.filter('.current');
+
+				if($current.size() == 1){
+					$destinationTrigger.val($current.text());
+				}
+			}
+		}
+		// 全ての<li>から"current"クラスを削除
+		$target.removeClass('current');
+
+		destinationText = $target.eq(suggestIndex).text();
+		maxSuggestIndex = $target.size()-1;
+
+		// キーコードを対応させる。　例）40 -> ↓キー
+		if(e.keyCode == 40){
+			suggestIndex++;
+
+			// 最後の要素が選択された場合、それ以上下を選択できないようにする。
+			if(suggestIndex >= maxSuggestIndex){
+				suggestIndex = maxSuggestIndex;
+			}
+			$target.eq(suggestIndex).addClass('current');
+		}else if(e.keyCode == 38){
+			suggestIndex--;
+
+			if(suggestIndex <= 0){
+				suggestIndex = 0;
+			}
+			$target.eq(suggestIndex).addClass('current');
+		}else if(e.keyCode == 13){							// Enterキーを押した時の処理
+			var text = $target.eq(suggestIndex).text();
+
+			var $target = $destinationTargetItem.add($historyTargetItem).filter('.current');
+
+			if($target.size() == 1){
+				$destinationTrigger.val($target.text());
+			}
+			$destinationTarget.slideUp(300);
+			$historyTarget.slideUp(300);
+
+			if(historyClickFlag || destinationClickFlag || enterKeyFlag){
+				return;
+			}
+			$calendarTarget.slideDown(300);
+			$checkInTrigger.trigger('click').focus();
+			enterKeyFlag = true;
+		} else {
+			suggestIndex = -1;
+		}
+	});
+
+	// 要素の変更
+	$destinationTrigger.change(function(e){
+		$checkInTrigger.trigger('click').focus();
+	});
+
+	/* ----------------------------------------------------
+		履歴を保存
+	---------------------------------------------------- */
+	// Submitボタンが押された場合
+	var MAX_HISTORY_COUNT = 10;
+
+  $('.jsc-list-submit-btn').on('click',function(event){
+    var isEmpty = false, isAreaCdDefined = false;
+    var _kenCd = $('input[name="kenCd"]').val();
+    var _lrgCd = $('input[name="lrgCd"]').val();
+    var _smlCd = $('input[name="smlCd"]').val();
+
+    $placeholderTarget.each(function(){
+      var $self = $(this);
+      if(($self.val().length == 0 || $self.val() == $self.data('placeholder')) && $self.is(':visible')){
+        isEmpty = true;
+        return false;
+      }
+    });
+
+    if(isEmpty){
+      $alert.show();
+      $alert.find('.alert-error-description').html('We need at least part of the name to start searching.');
+      return false;
+    }
+
+	if(document.forms[0].frwdDest.value != Suggest.oldDestinationText) {
+		// 何らか入力が変更されている場合は、古いareaCodeは使わない
+		_kenCd = _lrgCd = _smlCd = null;
+	}
+
+    if((!Suggest || !Suggest.areaCode) && (!_kenCd && !_lrgCd && !_smlCd)) {
+    	//サジェストもhiddenもない
+    	var errorMessage = 'Please enter and choose your destination.';
+
+    	switch(langDecision()) {
+    		case 'ko_KR':
+				errorMessage = '목적지를 입력하고 선택하십시오.';
+				break;
+			case 'zh_CN':
+				errorMessage = '请输入并选择目的地。';
+				break;
+			case 'zh_TW':
+				errorMessage = '請輸入並選擇目的地。';
+				break;
+			case 'th_TH':
+				errorMessage = 'โปรดป้อนและเลือกปลายทางของคุณ';
+				break;
+			case 'in_ID':
+				errorMessage = 'Harap masukkan dan pilih tujuan Anda.';
+				break;
+			case 'ms_MY':
+				errorMessage = 'Sila masukkan dan pilih destinasi anda.';
+				break;
+    	}
+
+		$alert.show();
+		$alert.find('.alert-error-description').html(errorMessage);
+		return false;
+    }
+
+    //getHistory = window.localStorage.getItem('history');
+    getHistory = "";
+
+    var destinationValue = $destinationTrigger.val(),
+        sortedArray = [destinationValue];
+
+    if(getHistory && getHistory != 'undefined'){
+      var array;
+
+      try{
+        array = JSON.parse(getHistory);
+      } catch(e) {
+        window.localStorage.removeItem('history');
+        array = '';
+      }
+
+      for(var i = Math.min(array.length, MAX_HISTORY_COUNT) - 1; i >= 0; i--){
+        if(array[i] != destinationValue){
+          sortedArray.push(array[i]);
+        }
+      }
+    }
+    // 文字列に分解し、保存する。(localStorageは文字列形式でしか保存できないため。)
+    //window.localStorage.setItem('history',JSON.stringify(sortedArray));
+
+    // 送信クエリ構築
+    var frm = document.forms['Form'];
+
+    // formにスライダーの料金を設定する
+    var minPrice = document.getElementById('slider-snap-value-lower').textContent;
+    var maxPrice = document.getElementById('slider-snap-value-upper').textContent;
+
+    var isIE8 = navigator.userAgent.indexOf('MSIE')!=-1 && navigator.userAgent.indexOf('Trident/4.0')!=-1;
+    if(isIE8){
+      minPrice = document.getElementById('slider-snap-value-lower').innerText;
+      maxPrice = document.getElementById('slider-snap-value-upper').innerText;
+    }
+
+    switch(frm.crcyCd.value){
+      case 'USD':
+        frm.minPriceUsd.value = minPrice;
+        frm.maxPriceUsd.value = maxPrice;
+        break;
+      case 'CNY':
+        frm.minPriceCny.value = minPrice;
+        frm.maxPriceCny.value = maxPrice;
+        break;
+      case 'KRW':
+        frm.minPriceKrw.value = minPrice;
+        frm.maxPriceKrw.value = maxPrice;
+        break;
+      case 'THB':
+        frm.minPriceThb.value = minPrice;
+        frm.maxPriceThb.value = maxPrice;
+        break;
+      case 'IDR':
+        frm.minPriceIdr.value = minPrice;
+        frm.maxPriceIdr.value = maxPrice;
+        break;
+      case 'MYR':
+        frm.minPriceMyr.value = minPrice;
+        frm.maxPriceMyr.value = maxPrice;
+        break;
+      case 'EUR':
+        frm.minPriceEur.value = minPrice;
+        frm.maxPriceEur.value = maxPrice;
+        break;
+      case 'TWD':
+        frm.minPriceTwd.value = minPrice;
+        frm.maxPriceTwd.value = maxPrice;
+        break;
+      case 'HKD':
+        frm.minPriceHkd.value = minPrice;
+        frm.maxPriceHkd.value = maxPrice;
+        break;
+      default:
+        frm.minPrice.value = minPrice;
+        frm.maxPrice.value = maxPrice;
+    }
+
+    // 人数・部屋割
+    var roomCnt = $roomTrigger.val();
+    var adult = 0;
+    var child1 = 0;
+    var child2 = 0;
+    var child3 = 0;
+    var child4 = 0;
+    var child5 = 0;
+    var strRoomCrack = '';
+
+    for (var i = 0, strAdultClass = ''; i < roomCnt; i++) {
+      strAdultClass = roomCnt == 1 ? '.jsc-adult-trigger' : '.jsc-panel-adults-trigger:eq(' + i + ')';
+
+      var strChild1Class = '.jsc-panel-children-trigger:eq(' + i + ')';
+      var strChild2Class = '.jsc-panel-meals-beds-trigger:eq(' + i + ')';
+      var strChild3Class = '.jsc-panel-meals-trigger:eq(' + i + ')';
+      var strChild4Class = '.jsc-panel-beds-trigger:eq(' + i +')';
+      var strChild5Class = '.jsc-panel-no-meals-beds-trigger:eq(' + i + ')';
+
+      // 各年齢区分の人数を集計
+      adult += parseInt($(strAdultClass).val(), 10);
+      child1 += parseInt($(strChild1Class).val(), 10);
+      child2 += parseInt($(strChild2Class).val(), 10);
+      child3 += parseInt($(strChild3Class).val(), 10);
+      child4 += parseInt($(strChild4Class).val(), 10);
+      child5 += parseInt($(strChild5Class).val(), 10);
+
+      // 部屋割文字列
+      if (i != 0) {
+        strRoomCrack += ',';
+      }
+
+      strRoomCrack += String(parseInt($(strAdultClass).val(), 10));
+      strRoomCrack += String(parseInt($(strChild1Class).val(), 10));
+      strRoomCrack += String(parseInt($(strChild2Class).val(), 10));
+      strRoomCrack += String(parseInt($(strChild3Class).val(), 10));
+      strRoomCrack += String(parseInt($(strChild4Class).val(), 10));
+      strRoomCrack += String(parseInt($(strChild5Class).val(), 10));
+    }
+
+    // 送信用formに人数を設定
+    frm.adultNum.value = adult;
+    frm.child1Num.value = child1;
+    frm.child2Num.value = child2;
+    frm.child3Num.value = child3;
+    frm.child4Num.value = child4;
+    frm.child5Num.value = child5;
+    frm.roomCrack.value = strRoomCrack;
+
+    var frm0 = document.forms[0];
+    frm.frwdDest.value = frm0.frwdDest.value;
+
+	//エリアCD検索時
+	var areaCodeQuery = "";
+	if(Suggest) {
+		if(Suggest.areaCode && Suggest.areaCode !== null) {
+			// サジェストから階層の組み立て
+			// 県コード
+			areaCodeQuery = '&kenCd=' + Suggest.areaCode.slice(0, 2) + '0000';
+
+			// 大エリアコード
+			if (Suggest.areaCode.slice(2,4) !== '00') {
+				areaCodeQuery = areaCodeQuery +'&lrgCd=' + Suggest.areaCode.slice(0, 4) + '00';
+			}
+
+			// 小エリアコード
+			if (Suggest.areaCode.slice(4,6) !== '00') {
+				areaCodeQuery = areaCodeQuery + '&smlCd=' + Suggest.areaCode;
+			}
+		} else {
+			// hiddenから組み立て
+			// 県コード
+			if(_kenCd) {
+				areaCodeQuery = '&kenCd=' + _kenCd;
+			}
+
+			// 大エリアコード
+			if (_lrgCd) {
+				areaCodeQuery = areaCodeQuery +'&lrgCd=' + _lrgCd;
+			}
+
+			// 小エリアコード
+			if (_smlCd) {
+				areaCodeQuery = areaCodeQuery + '&smlCd=' + _smlCd;
+			}
+
+		}
+
+		//freewordは投げない
+		frm.frwdDest.value = null;
+	}
+
+    var outYear = '',
+        outMonth = '',
+        outDay = '',
+        homeYear = '',
+        homeMonth = '',
+        homeDay = '';
+
+    try {
+      var inDateParts = frm0.checkinDate.value.split('/');
+      var outDateParts = frm0.checkoutDate.value.split('/');
+
+      outYear = parseInt('20'+inDateParts[2]);
+      outMonth = parseInt(inDateParts[0]);
+      outDay = parseInt(inDateParts[1]);
+
+      homeYear = parseInt('20'+outDateParts[2]);
+      homeMonth = parseInt(outDateParts[0]);
+      homeDay = parseInt(outDateParts[1]);
+
+      var outDate = new Date(outYear, (outMonth - 1), outDay, 0, 0, 0);
+      var homeDate = new Date(homeYear, (homeMonth -1), homeDay, 0, 0, 0);
+
+      var stayCount = 1;
+      var tmpDate = new Date(outDate.getTime() + (1000 * 60 * 60 * 24));
+
+      while (tmpDate.getTime() < homeDate.getTime()) {
+        stayCount++;
+        tmpDate = new Date(tmpDate.getTime() + (1000 * 60 * 60 * 24));
+      }
+
+      frm.stayYear.value  = outYear;
+      frm.stayMonth.value = outMonth;
+      frm.stayDay.value   = outDay;
+      frm.stayCount.value = stayCount;
+
+    } catch (e) {
+    }
+
+    var actKeys = 'screenId,distCd,afCd,stnCd,lrgOsnCd,osnCd,ssc,rootCd,'
+                 +'minPrice,maxPrice,'
+                 +'careOutsidePool,careBeach5,careStation5,carePak,careItnr,careNsmr,careBath,careOnsen,'
+                 +'careBathRent,carePribateBath,careDinRoom,carePet,careHighClass,carePoint,careSweet,careBt,'
+                 +'careEsthetics,careLookoutBath,careSauna,careTakkyu,careJacuzzi,careMassage,careSkiRent,'
+                 +'careBoardRent,careSogei,careBrkRoom,careDinPrv,careBrkPrv,careChekout11,'
+                 +'roomSingle,roomTriple,roomJstyle,roomTwin,room4bed,roomHwstyle,roomDouble,roomOther,'
+                 +'mealTypeNo,mealTypeBFst,mealTypeDiner,mealTypeBoth,'
+                 +'roomFacilityNonSmorking,roomFacilitySmorking,'
+                 +'internetFreeWifi,internetPaidWifi,internetFreeWired,internetPaidWired,'
+                 +'paymentOC,paymentLocal,'
+                 +'awardEarlyBird,awardLimitedTime,'
+                 +'yadHb,yadKc,yadRk,yadKy,yadPm,mealType,reShFlg,activeSort,photo,idx,vosFlg,listId, roomCrack,'
+                 +'checkinTime,useTime,careCard,careCardOnly,careOpenbath,careKake,careNigori,yadNo,careExchange5,careFrontExchange,careTouristInfo5,crcyCd,'
+                 +'frwdDest,fltYadNm,'
+                 +'stayYear,stayMonth,stayDay,stayCount,'
+                 +'adultNum,child1Num,child2Num,child3Num,child4Num,child5Num,langCd';
+
+    var submitFormEncoder = function(frm, excludes, includes) {
+      var ary1 = [],
+          ary2 = [],
+          act = '',
+          excludesAry = stringSprit(excludes),
+          includesAry = stringSprit(includes);
+
+      if (frm.elements['dateUndecided'] == null || frm.elements['dateUndecided'].value == '' ||
+        (frm.elements['dateUndecided'].type == 'checkbox' && frm.elements['dateUndecided'].checked == false)) {
+        // 日付指定の場合
+        for (var i = 0, j = frm.elements.length; i < j; i++) {
+          var flg = checkParameter(ary2, frm, i, excludesAry, includesAry);
+
+          if(flg) {
+            ary1.push(frm.elements[i].name + '=' + encodeURIComponent(frm.elements[i].value));
+            ary2.push(frm.elements[i].name);
+          }
+        }
+      } else {
+        // 日付未定の場合
+        for (var i = 0, j = frm.elements.length; i < j; i++) {
+          var flg = checkParameter(ary2, frm, i, excludesAry, includesAry);
+
+          if(flg) {
+            switch(frm.elements[i].name){
+              case 'stayYear':
+              case 'stayMonth':
+              case 'stayDay':
+                ary1.push(frm.elements[i].name + '=');
+                ary2.push(frm.elements[i].name);
+                continue;
+              default:
+            }
+
+            ary1.push(frm.elements[i].name + '=' + encodeURIComponent(frm.elements[i].value));
+            ary2.push(frm.elements[i].name);
+          }
+        }
+      }
+
+      for(var i = 0, j = ary1.length; i < j; i++) {
+        if(i == 0) {
+          act += '?';
+        } else {
+          act += '&';
+        }
+        act += ary1[i];
+      }
+
+      return act;
+    };
+
+    var act = submitFormEncoder(frm, '', actKeys);
+
+    if (act.charAt(0) == '&' || act.charAt(0) == '?') {
+      act = '' + act.substring(1);
+    }
+
+    var submitForm = document.forms['submitForm'];
+    targetUrl = '/ui/uip1400/uiw1402.do?';
+
+    if(areaCodeQuery) {
+    	act = act + areaCodeQuery;
+    }
+    submitForm.action = targetUrl + act + '&scVal=02';
+    submitForm.method = 'post';
+    submitForm.submit();
+  });
+
+	var $destinationSelect = $('#quickSearchDestination');
+
+	//通貨パラメータをトップページから取得し、付与
+	var $ancer = $('a');
+	this.parameter = location.href.match(/crcyCd=(.{3})/);
+
+	if(location.href.search(/\/en\/japan_hotels_ryokan\/\?/) != -1 && location.href.search(/crcyCd=(.{3})/) != -1){
+		$ancer.on('click', function(){
+			var href = $(this).attr('href');
+			if(myself.parameter != null &&
+			href.match(/\_Accommodation\//) != null ||
+			href.match(/\_Hotels\//) !=null ||
+			href.match(/\_Ryokan\//) !=null ||
+			href.match(/\_Villa\//) !=null ||
+			href.match(/\_public-inn\//) != null ||
+			href.match(/\_pension-minshuku-lodge\//) !=null ||
+			href.match(/hotel\_reviews\//) !=null ||
+			href.match(/hotel\_reviews\/detail\_/) !=null){
+				$(this).attr('href',href + '&' + myself.parameter[0]);
+			}
+		});
+	}
+
+	var myself = this;
+
+  $('#jsi-submit-btn').on('click',function(event){
+
+    var isEmpty = false;
+
+    $placeholderTarget.each(function(){
+      var $self = $(this);
+
+      if(($self.val().length == 0 || $self.val() == $self.data('placeholder')) && $self.is(':visible')){
+        isEmpty = true;
+        return false;
+      }
+    });
+
+    if($destinationSelect.get(0).selectedIndex == 0){
+      isEmpty = true;
+    }
+
+    if(isEmpty){
+      $alert.show();
+      $alert.find('.alert-error-description').html('We need at least part of the name to start searching.');
+      return false;
+    }
+    //getHistory = window.localStorage.getItem('history');
+    getHistory = '';
+
+    var destinationValue = $destinationTrigger.val(),
+        sortedArray = [destinationValue];
+
+    if(getHistory && getHistory != 'undefined'){
+      var array;
+
+      try{
+        array = JSON.parse(getHistory);
+      } catch(e) {
+        window.localStorage.removeItem('history');
+        array = '';
+      }
+
+      for(var i = Math.min(array.length, MAX_HISTORY_COUNT) - 1; i >= 0; i--){
+        if(array[i] != destinationValue){
+          sortedArray.push(array[i]);
+        }
+      }
+    }
+    // 文字列に分解し、保存する。(localStorageは文字列形式でしか保存できないため。)
+//    window.localStorage.setItem('history',JSON.stringify(sortedArray));
+
+    // 送信クエリ構築
+    var frm = document.forms[0];
+
+    // 人数・部屋割
+    var roomCnt = $roomTrigger.val();
+    var adult = 0;
+    var child1 = 0;
+    var child2 = 0;
+    var child3 = 0;
+    var child4 = 0;
+    var child5 = 0;
+    var strRoomCrack = '';
+
+    for (var i = 0, strAdultClass = ''; i < roomCnt; i++) {
+      strAdultClass = roomCnt == 1 ? '.jsc-adult-trigger' : '.jsc-panel-adults-trigger:eq(' + i + ')';
+
+      var strChild1Class = '.jsc-panel-children-trigger:eq(' + i + ')';
+      var strChild2Class = '.jsc-panel-meals-beds-trigger:eq(' + i + ')';
+      var strChild3Class = '.jsc-panel-meals-trigger:eq(' + i + ')';
+      var strChild4Class = '.jsc-panel-beds-trigger:eq(' + i +')';
+      var strChild5Class = '.jsc-panel-no-meals-beds-trigger:eq(' + i + ')';
+
+      // 各年齢区分の人数を集計
+      adult += parseInt($(strAdultClass).val(), 10);
+      child1 += parseInt($(strChild1Class).val(), 10);
+      child2 += parseInt($(strChild2Class).val(), 10);
+      child3 += parseInt($(strChild3Class).val(), 10);
+      child4 += parseInt($(strChild4Class).val(), 10);
+      child5 += parseInt($(strChild5Class).val(), 10);
+
+      // 部屋割文字列
+      if (i != 0) {
+        strRoomCrack += ',';
+      }
+
+      strRoomCrack += String(parseInt($(strAdultClass).val(), 10));
+      strRoomCrack += String(parseInt($(strChild1Class).val(), 10));
+      strRoomCrack += String(parseInt($(strChild2Class).val(), 10));
+      strRoomCrack += String(parseInt($(strChild3Class).val(), 10));
+      strRoomCrack += String(parseInt($(strChild4Class).val(), 10));
+      strRoomCrack += String(parseInt($(strChild5Class).val(), 10));
+    }
+
+    // 送信用formに人数を設定
+    frm.adultNum.value = adult;
+    frm.child1Num.value = child1;
+    frm.child2Num.value = child2;
+    frm.child3Num.value = child3;
+    frm.child4Num.value = child4;
+    frm.child5Num.value = child5;
+    frm.roomCrack.value = strRoomCrack;
+
+    var outYear = '',
+        outMonth = '',
+        outDay = '',
+        homeYear = '',
+        homeMonth = '',
+        homeDay = '';
+
+    try {
+      var inDateParts = frm.checkinDate.value.split('/');
+      var outDateParts = frm.checkoutDate.value.split('/');
+
+      outYear = parseInt('20'+inDateParts[2], 10);
+      outMonth = parseInt(inDateParts[0], 10);
+      outDay = parseInt(inDateParts[1], 10);
+
+      homeYear = parseInt('20'+outDateParts[2], 10);
+      homeMonth = parseInt(outDateParts[0], 10);
+      homeDay = parseInt(outDateParts[1], 10);
+
+      var outDate = new Date(outYear, (outMonth - 1), outDay, 0, 0, 0);
+      var homeDate = new Date(homeYear, (homeMonth -1), homeDay, 0, 0, 0);
+
+      var stayCount = 1;
+      var tmpDate = new Date(outDate.getTime() + (1000 * 60 * 60 * 24));
+
+      while (tmpDate.getTime() < homeDate.getTime()) {
+        stayCount++;
+        tmpDate = new Date(tmpDate.getTime() + (1000 * 60 * 60 * 24));
+      }
+
+      frm.stayYear.value  = outYear;
+      frm.stayMonth.value = outMonth;
+      frm.stayDay.value   = outDay;
+      frm.stayCount.value = stayCount;
+
+    } catch (e) {
+    }
+
+    var actKeys = 'screenId,distCd,afCd,stnCd,lrgOsnCd,osnCd,ssc,rootCd,'
+                 +'minPrice,maxPrice,'
+                 +'careOutsidePool,careBeach5,careStation5,carePak,careItnr,careNsmr,careBath,careOnsen,'
+                 +'careBathRent,carePribateBath,careDinRoom,carePet,careHighClass,carePoint,careSweet,careBt,'
+                 +'careEsthetics,careLookoutBath,careSauna,careTakkyu,careJacuzzi,careMassage,careSkiRent,'
+                 +'careBoardRent,careSogei,careBrkRoom,careDinPrv,careBrkPrv,careChekout11,'
+                 +'roomSingle,roomTriple,roomJstyle,roomTwin,room4bed,roomHwstyle,roomDouble,roomOther,'
+                 +'mealTypeNo,mealTypeBFst,mealTypeDiner,mealTypeBoth,'
+                 +'roomFacilityNonSmorking,roomFacilitySmorking,'
+                 +'internetFreeWifi,internetPaidWifi,internetFreeWired,internetPaidWired,'
+                 +'paymentOC,paymentLocal,'
+                 +'awardEarlyBird,awardLimitedTime,'
+                 +'yadHb,yadKc,yadRk,yadKy,yadPm,mealType,reShFlg,activeSort,photo,idx,vosFlg,listId, roomCrack,'
+                 +'checkinTime,useTime,careCard,careCardOnly,careOpenbath,careKake,careNigori,yadNo,careExchange5,careFrontExchange,careTouristInfo5,crcyCd,'
+                 +'frwdDest,fltYadNm,'
+                 +'stayYear,stayMonth,stayDay,stayCount,'
+                 +'adultNum,child1Num,child2Num,child3Num,child4Num,child5Num,langCd';
+
+    var submitFormEncoder = function(frm, excludes, includes) {
+      var ary1 = [],
+          ary2 = [],
+          act = '',
+          excludesAry = stringSprit(excludes),
+          includesAry = stringSprit(includes);
+
+      if (frm.elements['dateUndecided'] == null || frm.elements['dateUndecided'].value == '' ||
+        (frm.elements['dateUndecided'].type == 'checkbox' && frm.elements['dateUndecided'].checked == false)) {
+        // 日付指定の場合
+        for (var i = 0, j = frm.elements.length; i < j; i++) {
+          var flg = checkParameter(ary2, frm, i, excludesAry, includesAry);
+
+          if(flg) {
+            ary1.push(frm.elements[i].name + '=' + encodeURIComponent(frm.elements[i].value));
+            ary2.push(frm.elements[i].name);
+          }
+        }
+      } else {
+        // 日付未定の場合
+        for (var i = 0, j = frm.elements.length; i < j; i++) {
+          var flg = checkParameter(ary2, frm, i, excludesAry, includesAry);
+
+          if(flg) {
+            switch(frm.elements[i].name){
+              case 'stayYear':
+              case 'stayMonth':
+              case 'stayDay':
+                ary1.push(frm.elements[i].name + '=');
+                ary2.push(frm.elements[i].name);
+                continue;
+              default:
+            }
+
+            ary1.push(frm.elements[i].name + '=' + encodeURIComponent(frm.elements[i].value));
+            ary2.push(frm.elements[i].name);
+          }
+        }
+      }
+
+      for(var i = 0, j = ary1.length; i < j; i++) {
+        if(i == 0) {
+          act += '?';
+        } else {
+          act += '&';
+        }
+        act += ary1[i];
+      }
+
+      return act;
+    };
+
+    var act = submitFormEncoder(frm, '', actKeys);
+
+    if (act.charAt(0) == '&' || act.charAt(0) == '?') {
+      act = '' + act.substring(1);
+    }
+
+    var submitForm = document.createElement('form');
+    var targetUrl = '/ui/uip1400/uiw1402.do';
+
+    // for Eng.
+    if(frm.quickSearchDestination != null) {
+      if(frm.quickSearchDestination.value.lastIndexOf('/', 0) === 0) {
+        targetUrl = frm.quickSearchDestination.value;
+        act = act + '&scVal=02';
+
+        if(myself.parameter != null){
+          act += '&' + myself.parameter[0];
+        }
+      }else {
+        act = act + '&scVal=02&frwdDest=' + frm.quickSearchDestination.value;
+
+        if(myself.parameter != null){
+          act += frm.quickSearchDestination.value + '&' + myself.parameter[0];
+        }
+      }
+    }else{
+      act = act + '&scVal=02';
+
+      if(myself.parameter != null){
+        act += '&' + myself.parameter[0];
+      }
+    }
+
+    submitForm.action = targetUrl + '?' + act;
+    submitForm.method = 'post';
+    document.body.appendChild(submitForm);
+    submitForm.submit();
+  });
+});

@@ -1,0 +1,7 @@
+_satellite.pushAsyncScript(function(event, target, $variables){
+  /**
+ * Rule:   "Google Remarketing (Non-conversion)"
+ * Script: "Google Remarketing Tracking"
+ */
+if("true"!=_satellite.getDataElement("is_receipt_page"))try{!function(){window.google_conversion_id="1066383473",window.google_conversion_label="UycSCJiTvQQQs6i2_wM",window.google_remarketing_only=!0;var t=function(){if("product"===_satellite.getVar("page_category"))return"product";if("checkout:shopping cart"===_satellite.getVar("page_name"))return"cart";if("checkout:confirmation"===_satellite.getVar("page_name"))return"purchase";return null}();switch(t){case"product":var o=window.dtmData.productId;e(t,o);break;case"cart":var a=_satellite.getVar("cart").CartItems.reduce(function(e,t){return e.totalValue+=t.SubtotalAmount,e.productIds.push(t.VariantId),e.productQuantity.push(t.Quantity),e.productPrice.push(t.SubtotalAmount),e.siloNames.push(t.SiloName),e},{totalValue:0,productIds:[],productQuantity:[],productPrice:[],siloNames:[]});e(t,a.productIds,a.totalValue,a.siloNames,a.productPrice,a.productQuantity);break;default:e(_satellite.getVar("page_category"))}}()}catch(e){console.log(e)}function e(e,t,o,a,r,c){var i={google_conversion_id:"1066383473",google_conversion_label:window.google_conversion_label,google_remarketing_only:!0,google_custom_params:{ecomm_pagetype:e,ecomm_prodid:t,ecomm_totalValue:o,ecomm_category:a,ecomm_pvalue:r,ecomm_quantity:c}};_satellite.loadScript("//www.googleadservices.com/pagead/conversion_async.js",function(){window.google_trackConversion(i)})}
+});

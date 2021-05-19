@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<!-- saved from url=(0499)https://login.dotomi.com/ucm/UCMController?dtm_com=28&dtm_cid=2814&dtm_cmagic=8e987c&dtm_format=5&dtm_fid=101&cli_promo_id=3&dtmc_hotel_brand=&dtmc_hotel_city=&dtmc_hotel_rooms=&dtmc_guests=1&dtmc_hotel_room_type=&dtmc_hotel_price=&dtm_user_id=&dtmc_loyalty_status=&dtmc_marsha_code=&canonical_url=https%3A%2F%2Fwww.marriott.com%2Fsearch%2FfindHotels.mi&dtm_user_token=&dtmc_ref=https%3A%2F%2Fwww.marriott.com%2Fdefault.mi&dtmc_loc=https%3A%2F%2Fwww.marriott.com%2Fsearch%2FfindHotels.mi&fpc_status= -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><title>CNVR</title></head>
+<body data-new-gr-c-s-check-loaded="14.983.0">
+<!-- Common 73.formatter -->
+
+<script>
+  var cgver = -1,
+    rccg =  0,
+    dmcg = 0,
+    dnc = 0,
+    secure = "true" === "true" ? true : false,
+    imps = parseInt("", 10) || 1000,
+    utoken = "AQEGp0eZwr4ixQEzfljWAQEL_wE",
+    utokeng = "",
+    utokenfg = "",
+    utokenf = "",
+    dtm_max_cookie_calls = parseInt("8", 10) || -1,
+    dtm_publisher_bl = "",
+    dtm_force_cookies_drop = "false",
+    gdpr_applies = ("" !== "" ? parseInt("", 10) : 0),
+    gdpr_consent = "",
+    dtm_form_uid = "457605722120932481",
+    dtm_success = "true" === "true" ? true : false,
+    use_cookie_track = "" !== "0" ? true : false,
+    dtm_new_session = "true" === "true" ? true : false,
+    dtm_no_cookie = "false" === "true" ? true : false,
+    pixelsArr = ["https://us-u.openx.net/w/1.0/sd?id\u003d537072954\u0026val\u003dAAAHpkaYw78jxAAyf1nXAAAK_gE","https://ib.adnxs.com/setuid?entity\u003d34\u0026code\u003dAAAHpkaYw78jxAAyf1nXAAAK_gE","https://dsum-sec.casalemedia.com/rum?cm_dsp_id\u003d65\u0026external_user_id\u003dAAAHpkaYw78jxAAyf1nXAAAK_gE","https://bh.contextweb.com/bh/rtset?do\u003dadd\u0026pid\u003d530912\u0026ev\u003dAAAHpkaYw78jxAAyf1nXAAAK_gE","https://idsync.rlcdn.com/449046.gif?partner_uid\u003dAAAHpkaYw78jxAAyf1nXAAAK_gE","https://pixel.rubiconproject.com/tap.php?v\u003d5364|1|90\u0026nid\u003d2046\u0026expires\u003d90\u0026put\u003dAAAHpkaYw78jxAAyf1nXAAAK_gE","https://contextual.media.net/cksync.php?type\u003dcon\u0026ovsid\u003dAAAHpkaYw78jxAAyf1nXAAAK_gE","https://match.sharethrough.com/sync/v1?source_id\u003dXXFNqX2gk1rVb6Jw3xJ26afL\u0026source_user_id\u003dAAAHpkaYw78jxAAyf1nXAAAK_gE"],
+    successUrl;
+
+  // Command Script Macros
+  document.write('');
+  document.write('');
+  document.write('');
+
+  var errorHandler = function (ex) {
+      var pixelUrl = (ex.target && ex.target.src ? ex.target.src.substr(0, 200) : "Unknown");
+      var errorUrl = "https://s-usweb.dotomi.com/event/ad/lifecycle/current?trid=-1&site_id=-1&pid=-1&dtmid=-1&comId=2814&tid=-1&msgCampId=-1&bidServerId=-1&supplyType=-1" +
+        "&etype=15014&edtl=Pixel%20Error:%20" + encodeURIComponent(pixelUrl);
+      (new Image()).src = errorUrl;
+  };
+
+  var firePixel = function (url, useSameOriginReferrer) {
+    var imgObj = new Image();
+    imgObj.onerror = errorHandler;
+    if (useSameOriginReferrer) {
+    	imgObj.referrerPolicy = 'same-origin'
+	}
+    imgObj.src = url;
+  };
+
+  var init = function () {
+    if (dtm_success && (dtm_new_session || (dtm_no_cookie && use_cookie_track))) {
+      successUrl = "https://login-ds.dotomi.com/ucm/DMCSuccessLogger?dtmid=551205626332521412&comId=2814" +
+        "&dtm_command_op_date=1604793408515&formActMask=1&dtm_fid=101" +
+        "&sessionid=1604793408515&dtm_form_uid=457605722120932481";
+      firePixel(successUrl, false);
+    }
+
+    pixelsArr.forEach(function(pixel) {
+    	firePixel(pixel, true);
+  	});
+  };
+
+  init();
+</script>
+
+</body></html>

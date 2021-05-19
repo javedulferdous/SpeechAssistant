@@ -1,0 +1,792 @@
+/**
+ * This file is at Grand Master Global level, which means that any changes to this file will potentially affect all sites.
+ * To use any public function here, use MasterJS.*() in your code.
+ * Functions here shouldn't have any bespoke code, as they can go at site level.
+ *
+ * All functions should have a basic summary as to what they do, and should also be documented in the wiki.
+ * Public functions should also have an affected site list, so that it can be tested if updated.
+ *
+ * To find more detailed information for each function, look at:
+ * https://dev.azure.com/Awazeuk/Ecommerce/_wiki/wikis/Ecommerce.wiki/133/Global-JavaScript-functions
+ **/
+
+var MasterJS = function () {
+
+    // Returns all public functions, at top of function for easier visibility
+    return {
+        getServerTag: fnGetServerTag,
+        getNextBookingDate: fnGetNextBookingDate,
+		getQueryStringParameterByName: fnGetQueryStringParameterByName,
+		initRollingStartDates: fnInitRollingStartDates,
+        forEach: fnForEach,
+        buildAdestraForm: fnBuildAdestraForm,
+        updateSearchHistory: fnUpdateSearchHistory,
+        get: fnGet,
+		post: fnPost,
+		checkAndHideAltLocations: fnCheckAndHideAltLocations,
+        setExitIntent: fnSetExitIntent,
+        initCountdownTimer: fnInitCountdownTimer,
+        recordGAMarketingPod: fnRecordGAMarketingPod
+    }
+
+    /*///////////////////////////////
+            PUBLIC FUNCTIONS
+    ///////////////////////////////*/
+
+    // Description: Gets all server tags on the page.
+    // Returns: Object of server tag "strings"
+    function fnGetServerTag(value) {
+        var data = {
+            'SourceCode': 'W472004',
+            'SourceCodePhoneNumber': '0345 498 6060',
+            'ClickCode': '',
+            'WebsiteName': 'Hoseasons',
+            'WebsiteId': '15941',
+            'WebsiteRoute': '',
+            'WebsiteFullDomain': 'https://www.hoseasons.co.uk',
+            'WebsiteDomain': 'www.hoseasons.co.uk',
+            'PageName': 'master.js',
+            'DefaultCurrencyNonBooking': '£',
+            'SiteType': '',
+            'ParentWebsiteConfigurationRoute': '',
+            'TravelAgentName': ""
+        }
+
+        if(value) return data[value];
+        else return data;
+    }
+
+
+    // Description: Gets either friday 3 nights or monday 4 nights date based on current day
+    // Returns: Object containing Date object, string, integer
+    function fnGetNextBookingDate(extraDays) {
+        var date = new Date(),
+            day = date.getDay(),
+            hours = date.getHours(),
+            isWeekend = false;
+
+        if (day >= 5 || day === 1) {
+            switch (day) {
+                case 5:
+                    if (hours >= 12) isWeekend = true;
+                    break;
+                case 1:
+                    if (hours < 12) isWeekend = true;
+                    break;
+                default:
+                    isWeekend = true;
+            }
+        }
+
+        date.setDate(date.getDate() + (((isWeekend ? 1 : 5) + 7 - date.getDay()) % 7));
+        if(extraDays) date.setDate(date.getDate() + parseInt(extraDays));
+
+        return {
+            nextStartBookingDate: date,
+            startDate: String(date.getDate() + "-" + (date.getMonth() + 1) + "-" + date.getFullYear()),
+            duration: (isWeekend ? 4 : 3)
+        }
+    }
+
+    // Description: Gets a parameter from the query string
+    // Returns: String or null
+    function fnGetQueryStringParameterByName(url, name) {
+        name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
+        var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
+            results = regex.exec(url);
+        return results ? decodeURIComponent(results[1].replace(/\+/g, " ")) : null;
+	}
+
+
+	/*
+		Description:
+			Parses href and adds start date,
+			start date added depends on number value of data-start-day
+
+		Data Attributes:
+			data-start-day="0-6" 			target day to set start day to (sun-sat)
+			data-start-day-offset="0-6"		days prior to target day to skip to next week OPTIONAL
+
+		Example:
+			data-start-day="5"  			Set start date to coming friday
+
+			data-start-day="5"				Set start day to coming friday,
+			data-start-day-offset="2"		if date is wed-fri, skip to next friday
+	*/
+	function fnInitRollingStartDates(){
+
+
+		var	startDateNodes = document.querySelectorAll('[data-start-day]');
+
+		fnForEach(startDateNodes, function(startDateNode){
+			/* === Parse Href === */
+			var rootParamsPair = startDateNode.href.split('?'),
+				paramsPresent = rootParamsPair.length > 1
+
+			var href = {
+				root: rootParamsPair[0],
+				params: paramsPresent
+					?rootParamsPair[1]
+						.split('&')
+						.map(function(i){ var keyValPair = i.split('='); return { key: keyValPair[0], val: keyValPair[1] } }) //returns {key,val}[]
+						.filter(function(i){ return i.key !== 'start' }) // remove start
+					:[]
+			}
+
+			/* === Generate start date === */
+			var today = new Date(),
+				day = today.getDay(),
+				targetDay = parseInt(startDateNode.dataset.startDay),
+				dateOffset = Math.abs(startDateNode.dataset.startDayOffset) || 0;
+
+			var daysToAdd = targetDay - day;
+			if( daysToAdd <= dateOffset ){ daysToAdd += 7 }
+
+			href.params.push({ key: 'start', val: today.addDays(daysToAdd).toDateString('-') })
+
+
+			/* === Generate Href === */
+			startDateNode.href =
+				href.root + '?' +
+				href.params.map(function(i){ return i.key + '=' + i.val }).join('&'); //convert back to string
+		})
+	}
+
+    /* Description: Function for a for loop to reduce constantly writing the same code.
+                    callback is the function you want to use, with an item and the index as parameters
+                    items is the array of items you want to loop through */
+    function fnForEach(items, callback) {
+        for (var i = 0; i < items.length; i++) {
+            callback(items[i], i);
+        }
+    }
+
+    /*
+        Description: used to build and load an adestra signup form given an iframe id
+    */
+    function fnBuildAdestraForm(oParams) {
+        // VARS
+        var oFrame,
+            oParentElement,
+            bUseReveal = oParams.classes ? oParams.classes.indexOf("reveal") > -1 : false,
+            bSetupError = false;
+            sSiteName = window.location.hostname.split(".")[1],
+            sDomainName = (sSiteName === "landal" || sSiteName === "hoseasons") ? "https://hoseasons.msgfocus.com/k/Vacation-Rentals/email_signup_form" : "https://mail.cottages.com/k/Vacation-Rentals/newsletter_signup";
+
+
+        // Appends a string to a custom console warn that also signals that a setup error has occured
+        function warn(s) {
+            console.warn("[Adestra Builder] " + s);
+            bSetupError = true;
+        }
+
+        // Sets up a message listener for a certain message,
+        // runs a function if the message and origin both match
+        function listen(s, f) {
+            window.addEventListener("message", function(e) {
+                if(sDomainName.split("/k")[0] === e.origin && e.data.msg === s) {
+                    if(e.data.id === oParams.frameId) {
+                        f(e);
+                    }
+                }
+            });
+        }
+
+        // Sends a message to the adestra iframe containing all needed data
+        function sendMessage() {
+            oFrame.contentWindow.postMessage({
+                id: oParams.frameId,
+                className: oParams.classes,
+				pageName: oParams.pageName,
+				productName: oParams.productName,
+                pathName: window.location.pathname,
+                email: oParams.email,
+                bodyData: {
+                    id: document.body.id,
+                    className: document.body.className,
+                    digital: typeof digitalData !== "undefined" ? digitalData : null
+                }
+            }, sDomainName);
+        }
+
+        // Check for errors in setup
+        if (oParams.hasOwnProperty("frameId")) {
+            oFrame = document.getElementById(oParams.frameId);
+
+            if(!oFrame) {
+                warn("No element found using ID [" + oParams.frameId + "]");
+            } else if(oFrame.tagName !== "IFRAME") {
+                warn("Element with ID [" + oParams.frameId + "] is not an iframe");
+            }
+        } else {
+            warn("No frameId attribute given");
+        }
+
+        // Return and stop function if an error was found during setup
+        if(bSetupError) {
+            return null;
+        }
+
+        oParentElement = oFrame.parentElement;
+
+        // Update class names
+        oFrame.className = "adestra-frame " + (oParams.classes ? oParams.classes : "");
+
+        // Hide scrolling of iframe
+        oFrame.setAttribute("scrolling", "no");
+
+        // Set adestra domain
+        oFrame.setAttribute("src", sDomainName);
+
+        // Set up onSuccess message if parameter is given
+        if(oParams.onSuccess) {
+            listen("submitted", function() {
+                runFunction(oParams.onSuccess);
+
+                if (bUseReveal) {
+                    oParentElement.classList.remove("opened");
+                }
+
+                oParentElement.classList.add("submitted");
+            });
+        }
+
+        // Set up listener for reveal form being opened if reveal paramet is set
+        if(bUseReveal) {
+            listen("opened", function() {
+                oParentElement.classList.add("opened");
+            });
+        }
+
+        // Setup iframe on load
+        $(oFrame).on("load", function () {
+			window.addEventListener('message', function(e) {
+				if ((e.origin === 'https://hoseasons.msgfocus.com' || e.origin === 'https://mail.cottages.com') && e.data !== 'adestra set up complete') {
+					hideAdestraElements();
+				}
+			});
+            oFrame.style.display = "block";
+            sendMessage();
+			function hideAdestraElements() {
+				var adestraRepeater = document.getElementsByClassName('adestra-repeater')[0],
+					adestraFooter = document.getElementById('adestra-footer');
+				if (adestraRepeater) {
+					adestraRepeater.style.display = 'none';
+				}
+				if (adestraFooter) {
+					adestraFooter.style.display = 'none';
+				}
+			}
+		});
+		
+	}
+	
+
+    //AJAX EVENTS
+
+    // Description: Ajax get function using XML HTTP Requests.
+    // Returns: Data or Error
+    function fnGet(url, success, failure) {
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', url, true);
+        xhr.onload = function () {
+            xhr.status >= 200 && xhr.status < 400 ? success(this.responseText) : failure(this.statusText);
+        }
+        xhr.send();
+    }
+
+    // Description: Ajax post function using XML HTTP Requests.
+    // Returns: Data or Error
+    function fnPost(url, data, success, failure) {
+        var xhr = new XMLHttpRequest();
+        xhr.open("POST", url, true);
+        xhr.setRequestHeader('Content-Type', 'application/json');
+        xhr.onload = function () {
+            xhr.status >= 200 && xhr.status < 400 ? success(this.responseText) : failure(this.statusText);
+        }
+        xhr.send(JSON.stringify(data));
+	}
+
+	function fnCheckAndHideAltLocations(altLocationsSectionId) {
+		var stepHelperCheck = document.getElementById('hideAltAcommodations'),
+			altLocationsSection = document.getElementById(altLocationsSectionId);
+		if (stepHelperCheck && altLocationsSection) {
+			if (stepHelperCheck.innerText.trim() === 'Yes') {
+				altLocationsSection.style.display = 'none';
+			}
+		}
+    }
+
+
+    /*
+        oSearchItem {
+            location: [string]
+            start: [date]
+            nights: [int]
+            guests: [int]
+            pets: [int]
+            url: [string]
+        }
+    */
+
+    // Description: a function to add the search data (location, guests, dates) to localStorage
+    function fnUpdateSearchHistory(oSearchItem) {
+        var aHistory = JSON.parse(window.localStorage.getItem("searchHistory"));
+
+        if(!aHistory) {
+            window.localStorage.setItem("searchHistory", JSON.stringify([oSearchItem]));
+        } else {
+            var bMatchFound = false;
+
+            // If a saved search with same location already exists, update that save
+			fnForEach(aHistory, function(o) {
+				if(o.location.toLowerCase() === oSearchItem.location.toLowerCase()) {
+					for(var k in oSearchItem) {
+						o[k] = oSearchItem[k];
+					}
+					bMatchFound = true;
+				}
+            });
+
+            if(!bMatchFound) {
+				// Add to saved searches
+				if(aHistory.length < 3) {
+					aHistory.push(oSearchItem);
+				}
+				// remove first saved search, push new save
+				else {
+					aHistory.shift();
+					aHistory.push(oSearchItem);
+				}
+            }
+
+            // Update local storage
+            window.localStorage.setItem("searchHistory", JSON.stringify(aHistory));
+            console.log("UPDATED", JSON.parse(window.localStorage.getItem("searchHistory")));
+		}
+	}
+
+	//Description: Will trigger an external exit intent function if its not already been triggered
+	//Callback to a custom function, storageName should be unique to your trigger
+	function fnSetExitIntent(callback, storageName){
+		var intent = localStorage.getItem(storageName);
+
+		function setLsAndSs(){
+			sessionStorage.setItem(storageName, 'dontshow');
+			localStorage.setItem(storageName, intent ? 'never' : 'onLoad');
+		}
+
+		function addEvent(obj, evt, fn) {
+			if (obj.addEventListener) {
+				obj.addEventListener(evt, fn, false);
+			}
+			else if (obj.attachEvent) {
+				obj.attachEvent("on" + evt, fn);
+			}
+		}
+
+		if (!intent) addEvent(document, "mouseout", function(e) {
+			e = e ? e : window.event;
+			var from = e.relatedTarget || e.toElement;
+			if (!from || from.nodeName == "HTML") {
+				if (!sessionStorage.getItem(storageName)) {
+					setTimeout(function () {
+						setLsAndSs();
+						callback();
+					}, 500);
+				}
+			}
+		});
+
+		if (intent === 'onLoad' && !sessionStorage.getItem(storageName)) {
+			setLsAndSs();
+			callback();
+		}
+    }
+    
+    function fnInitCountdownTimer(endDate, textColour, digitColour) {      
+        var podCountdown = document.getElementById('pod-countdown'),
+            podDays = document.getElementById("pod-countdown-days"),
+            podHours = document.getElementById("pod-countdown-hours"),
+            podMinutes = document.getElementById("pod-countdown-minutes"),
+            podSeconds = document.getElementById("pod-countdown-seconds");
+
+        if(podCountdown && podDays && podHours && podMinutes && podSeconds) {
+
+            // Set the colour of the countdown to the desired colour
+            if (typeof textColour !== 'undefined' && textColour !== '') podCountdown.style.color = textColour;
+            if (typeof digitColour !== 'undefined' && digitColour !== '') {
+                var digits = podCountdown.querySelectorAll('.digit span');
+                for(var i = 0; i < digits.length; i++) {
+                    digits[i].style.color = digitColour;
+                }
+            }
+
+            podCountdown.style.display = 'block';
+
+            // Set the date we're counting down to
+            var countdownInit = setInterval(function () {
+                var date = new Date().getTime(),
+                    timeDiff = endDate.getTime() - date,
+                    days = Math.floor(timeDiff / (1000 * 60 * 60 * 24)),
+                    hours = Math.floor((timeDiff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)),
+                    minutes = Math.floor((timeDiff % (1000 * 60 * 60)) / (1000 * 60)),
+                    seconds = Math.floor((timeDiff % (1000 * 60)) / 1000);
+
+                days = days < 10 ? '0' + days : days;
+                hours = hours < 10 ? '0' + hours : hours;
+                minutes = minutes < 10 ? '0' + minutes : minutes;
+                seconds = seconds < 10 ? '0' + seconds : seconds;
+
+                if(podDays.innerText !==  days.toString()) podDays.innerText = days
+                if(podHours.innerText !== hours.toString()) podHours.innerText = hours
+                if(podMinutes.innerText !== minutes.toString()) podMinutes.innerText = minutes;
+                if(podSeconds.innerText !== seconds.toString()) podSeconds.innerText = seconds;
+
+                if (timeDiff <= 0) {
+                    clearInterval(countdownInit);
+                    document.getElementById("pod-countdown-text").innerHTML = "Ended";
+                    podDays.innerText = '--';
+                    podHours.innerText = '--';
+                    podMinutes.innerText = '--';
+                    podSeconds.innerText = '--';
+                }
+                }, 1000); // 1 second interval
+        } else {
+            console.error('Error: the countdown markup does not exist on this page!');
+        }
+    }
+
+    function fnRecordGAMarketingPod(link, category, action, label) {
+        try {
+            if (_gaq) _gaq.push(['_trackEvent', category, action, label]);
+            if (ga) ga('send', 'event', category, action, label);
+        } finally {
+            window.location = link;
+        }
+    }
+
+    /*///////////////////////////////
+            PRIVATE FUNCTIONS
+      These functions should only be
+         used inside this object.
+    ///////////////////////////////*/
+
+    // Description: a function that runs a function if it is a function
+    function runFunction(fn) {
+        if (typeof fn === 'function') {
+            var args = [].slice.call(arguments);
+            fn.apply(this, args.slice(1));
+        }
+    }
+}();
+
+/**
+ * This is a modal handler made to try and unify the amount of modals we are currently using.
+ * To use any public function here, use masterModal.*() in your code.
+ * All required styling is in master.css, and markup is built dynmaically.
+ **/
+var masterModal = function () {
+    return {
+        create: fnCreate,
+        delete: fnDelete
+    }
+
+    function fnCreate(content, id) {
+        var modal = document.createElement('div');
+        modal.id = id;
+        modal.style.display = 'none';
+        modal.classList.add("modal-outer");
+        modal.innerHTML = '<div class="modal-inner"><div class="modal-content">' + content + '</div><span class="modal-close" onclick="masterModal.delete(\'' + id + '\')">×</span></div>';
+
+        modal.addEventListener('click', function (event) {
+            // Checks if we're clicking the outer modal and not the inside
+            if(event.target.className.indexOf("modal-outer") > -1) {
+                masterModal.delete(id);
+            }
+        });
+
+        document.body.appendChild(modal);
+
+        $('#' + id).fadeIn();
+
+        // Add class to body to stop scrolling
+        document.body.classList.add('stop-scrolling');
+    }
+
+    function fnDelete(id) {
+        document.body.classList.remove('stop-scrolling');
+        $('#' + id).fadeOut('400', function () {
+            var element = document.getElementById(id);
+            element.parentElement.removeChild(element);
+        });
+    }
+}();
+
+var masterSlideout = function () {
+	return {
+		create: fnCreate,
+		delete: fnDelete
+	}
+
+	function fnCreate(content, id) {
+		var slideout = document.createElement('div');
+		slideout.id = id;
+		slideout.style.display = 'none';
+		slideout.classList.add("slideout-outer");
+		slideout.innerHTML = '<div class="slideout-inner slideout-offscreen"><div class="slideout-content">' + content + '</div></div><div class="close-slideout-container slideout-offscreen"><span class="close-slideout-btn" onclick="masterSlideout.delete(\'' + id + '\')">Close</span></div>';
+
+		slideout.addEventListener('click', function (event) {
+			// Checks if we're clicking the outer slideout and not the inside
+			if(event.target.className.indexOf("slideout-outer") > -1) {
+				masterSlideout.delete(id);
+			}
+		});
+
+		document.body.appendChild(slideout);
+		slideout.style.display = 'block';
+		setTimeout(function(){
+			// if we end up sliding more than 2 components probably better to loop through classes instead
+			slideout.querySelector('.slideout-inner').classList.remove('slideout-offscreen');
+			slideout.querySelector('.close-slideout-container').classList.remove('slideout-offscreen');
+			slideout.classList.add('slideout-visible');
+		}, 50);
+
+		// Add class to body to stop scrolling
+		document.body.classList.add('stop-scrolling');
+	}
+
+	function fnDelete(id) {
+		document.body.classList.remove('stop-scrolling');
+		var element = document.getElementById(id);
+		element.querySelector('.slideout-inner').classList.add('slideout-offscreen');
+		element.querySelector('.close-slideout-container').classList.add('slideout-offscreen');
+		element.classList.remove('slideout-visible');
+		setTimeout(function() {
+			element.parentElement.removeChild(element);
+		}, 400);
+	}
+}();
+
+var masterNotificationHandler = function() {
+    return {
+        error: fnError,
+        messsage: fnMessage
+    }
+
+    function fnError(selector, content) {
+        fnCreate(selector, content, 'failure');
+    }
+
+    function fnMessage(selector, content) {
+        fnCreate(selector, content);
+    }
+
+    function fnCreate(selector, content, classes) {
+        var mobileHeader = document.querySelector(selector),
+            snackBar = document.createElement('div'),
+            snackBarContent = document.createElement('div'),
+            snackBarText = document.createTextNode(content);
+            snackBar.oTextNode = snackBarText;
+            snackBar.id = "snackbar";
+            snackBar.classList = classes;
+
+            snackBarContent.id = 'snackbar__container';
+            snackBarContent.appendChild(snackBarText);
+            snackBar.appendChild(snackBarContent);
+
+        mobileHeader.appendChild(snackBar);
+
+        snackBar.addEventListener('transitionend', snackBarTransitionEnd, false);
+
+        snackBar.style.display = 'block';
+        setTimeout(function(oEvent){
+            snackBar.classList.add('snackbar--fade--out');
+        }, 150);
+
+        function snackBarTransitionEnd(oEvent) {
+            snackBar.removeEventListener('transitionend', snackBarTransitionEnd, false);
+            snackBar.remove();
+        }
+    }
+}();
+
+// Description: GA event tracking, prevents function potentially not being found.
+function recordGAEvent(link, category, action, label) {
+    MasterJS.recordGAMarketingPod(link, category, action, label);
+}
+
+// Here are prototypes additions
+
+/*///////////////////////////////
+              DATE
+///////////////////////////////*/
+
+// Description: Array of day strings
+// Returns: Array
+Date.prototype.dayStringList = [
+    'Sunday',
+    'Monday',
+    'Tuesday',
+    'Wednesday',
+    'Thursday',
+    'Friday',
+    'Saturday'
+]
+
+// Description: Array of month strings
+// Returns: Array
+Date.prototype.monthStringList = [
+    'January',
+    'February',
+    'March',
+    'April',
+    'May',
+    'June',
+    'July',
+    'August',
+    'September',
+    'October',
+    'November',
+    'December'
+]
+
+// Description: Gets the day of the date as a string
+// Returns: String
+Date.prototype.getDayString = function () {
+    return this.dayStringList[this.getDay()];
+}
+
+// Description: Gets the short (mon, tue) day of the date as a string
+// Returns: String
+Date.prototype.getShortDayString = function () {
+    return this.dayStringList[this.getDay()].slice(0, 3);
+}
+
+// Description: Gets the date of the date as a string
+// Returns: String
+Date.prototype.getDateString = function () {
+    var n = this.getDate();
+
+    // to explain this function in simpler terms: [array][number]
+    // if n is between 3 and 22 (covers 11th 12th, 13th), or n % 10 is greater than 3 (15 % 10 = 5, 2 % 10 = 2)
+    // return 0 (th), otherwise return 1, 2 or 3 (1st, 2nd, 3rd)
+    return n + (n > 0 ? ['th', 'st', 'nd', 'rd'][(n > 3 && n < 21) || n % 10 > 3 ? 0 : n % 10] : '');
+}
+
+// Description: Gets the month of the date as a string
+// Returns: String
+Date.prototype.getMonthString = function () {
+    return this.monthStringList[this.getMonth()];
+}
+
+// Gets the short (jan, feb) month of the date as a string
+// Returns: String
+Date.prototype.getShortMonthString = function () {
+    return this.monthStringList[this.getMonth()].slice(0, this.getMonth() === 8 ? 4 : 3);
+}
+
+// Adds a set amount of days to the date
+// Returns: Date
+Date.prototype.addDays = function (arg) {
+    this.setDate(this.getDate() + arg);
+    return this;
+}
+
+// Description: Gets the date and turns it into a string
+// Returns: 24-10-2019
+Date.prototype.toDateString = function (separator) {
+    if (!separator) separator = '-';
+    var arr = [this.getDate(), this.getMonth() + 1, this.getFullYear()].map(function (i) {
+        i = i.toString();
+        return i.length === 1 ? '0' + i : i;
+    });
+    return arr[0] + separator + arr[1] + separator + arr[2];
+}
+
+/*///////////////////////////////
+              STRING
+///////////////////////////////*/
+
+// Description: Wraps the string in a tag for you to put into the page
+// Returns: <tag>String</tag>
+String.prototype.wrapStr = function (tag, params) {
+    var tag = tag.toLowerCase(),
+        str = '';
+    if (params) {
+        for (var i in params) {
+            str += ' ' + i + '="' + params[i] + '"';
+        }
+    }
+    return '<' + tag + str + '>' + this + '</' + tag + '>';
+}
+
+/*///////////////////////////////
+              ARRAY
+///////////////////////////////*/
+
+// Description: Shuffles the array so that it is randomized
+// Returns: Array
+// Array.prototype.shuffle = function () {
+//     var temp, i, j;
+//     for (i = this.length - 1; i > 0; i--) {
+//         j = Math.floor(Math.random() * i);
+//         temp = this[i];
+//         this[i] = this[j];
+//         this[j] = temp;
+//     }
+//     return this;
+// }
+
+/*///////////////////////////////
+              TIMER
+///////////////////////////////*/
+
+// Description: Timer function used for looping
+// Returns: Object
+// @TODO: Remove implementation from other sites.
+function Timer(args, callback) {
+
+    if (typeof args === 'function') {
+        // only one param entered
+        this.callback = args;
+    } else {
+        this.callback = callback;
+        for (var i in args) {
+            this[i] = args[i];
+        }
+    }
+}
+
+Timer.prototype.start = function () {
+    this.frame = requestAnimationFrame(this.check.bind(this));
+    return;
+}
+
+Timer.prototype.check = function () {
+    this.frame = requestAnimationFrame(this.check.bind(this));
+    this.callback(this);
+    return;
+}
+
+Timer.prototype.stop = function () {
+    cancelAnimationFrame(this.frame);
+    return;
+}
+
+Timer.prototype.set = function (arg) {
+    for (var i in arg) {
+        this[i] = arg[i];
+    }
+    return this;
+}
+
+Timer.prototype.reduce = function (arg) {
+    this[arg]--;
+    return this;
+}
+
+Timer.prototype.add = function (arg) {
+    this[arg]++;
+    return this;
+}

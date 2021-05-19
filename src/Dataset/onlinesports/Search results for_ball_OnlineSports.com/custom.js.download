@@ -1,0 +1,114 @@
+// Drop down header menus
+
+var $s = jQuery.noConflict();
+var subMenusTab = Array('#tabNfl','#tabMlb','#tabNba','#tabNhl','#tabNcaa','#tabNascar','#tabOther');
+var subMenusDiv = Array('#nfl','#mlb','#nba','#nhl','#ncaa','#nascar','#otherleagues');
+var mainMenusDiv = Array('#menu_sports','#menu_players','#menu_teams','#menu_equipment','#menu_brands','#menu_departments','#salesclearance_submenu');
+var mainMenusTab = Array('SPORTS','PLAYERS','TEAMS','EQUIPMENT','BRANDS','DEPARTMENTS','SALES &amp; CLEARANCE');
+jQuery(function($){
+	// Main menu drop down
+	$('#topnav_left ul li a').live('mouseover',function(){
+		var sp = $(this).html();
+		//add active class	
+		if(jQuery.inArray(sp,mainMenusTab) >= 0)		
+		{
+			hideSubMenus();
+			jQuery(document).find('.activeMenu').removeClass('activeMenu');
+			//jQuery(document).find('.activesale').removeClass('activesale');
+			$(this).addClass('activeMenu');
+		}
+		animateMenu(sp,'2500');
+	})
+	
+	$('#topnav_left ul li').live('mouseover',function(){
+		var sp = $(':first-child', this).html();
+		if(jQuery.inArray(sp,mainMenusTab) >= 0)	
+			 $(this).find(':first-child').eq(0).addClass('activeMenu');
+		
+		animateMenu(sp,'');
+	})
+	$('#topnav_left ul li').mouseout(function(){
+		jQuery(document).find('.activeMenu').removeClass('activeMenu');
+		
+		hideAll();
+	})
+
+	//Team sub menus
+	for(var i=0;i<subMenusTab.length;i++)
+		showSubMenu(subMenusTab[i],subMenusDiv[i]);
+});
+function showSubMenu(tab,div)
+{
+	$s(tab).live('mouseover',function(){
+	hideSubMenus();	
+	$s(tab).addClass('activeSubMenu');	
+	$s(div).show();
+	});
+}
+function hideSubMenus()
+{
+	for(var i=0;i<subMenusTab.length;i++)
+	{
+		$s(subMenusTab[i]).removeClass('activeSubMenu');		
+		$s(subMenusDiv[i]).css('display','none');
+	}
+}
+function animateMenu(sp,delaytime)
+{
+	for(var i=0;i<mainMenusTab.length;i++)
+	{
+		if(sp == mainMenusTab[i])
+		{
+			if(delaytime != '')
+				$s(mainMenusDiv[i]).animate({width: ['show','swing'],height: ['show', 'swing'],opacity: 'toggle'}, 350, 'linear');
+			else
+				$s(mainMenusDiv[i]).show();
+		}
+	}
+}
+function hideAll(){
+	for(var i=0;i<mainMenusDiv.length;i++)
+	{
+		$s(mainMenusDiv[i]).stop(true,true);
+		$s(mainMenusDiv[i]).css('display','none');
+	}
+}
+
+
+//	Home page banner box links
+jQuery(function($){
+	$('#bannerlink1').click(function(){
+		$(location).attr('href','concierge-service/');
+	});
+	$('#bannerlink2').click(function(){
+		$(location).attr('href','military-corporate/');
+	});
+	$('#bannerlink3').click(function(){
+		$(location).attr('href','parks_recreation/');
+	});
+	$('#bannerlink1').mouseover(function(){
+		$('#bannerlink1 p').css("text-decoration", "underline");
+	});
+	$('#bannerlink1').mouseout(function(){
+		$('#bannerlink1 p').css("text-decoration", "none");
+	});
+	$('#bannerlink2').mouseover(function(){
+		$('#bannerlink2 p').css("text-decoration", "underline");
+	});
+	$('#bannerlink2').mouseout(function(){
+		$('#bannerlink2 p').css("text-decoration", "none");
+	});
+	$('#bannerlink3').mouseover(function(){
+		$('#bannerlink3 p').css("text-decoration", "underline");
+	});
+	$('#bannerlink3').mouseout(function(){
+		$('#bannerlink3 p').css("text-decoration", "none");
+	});
+});
+
+// manage tabs height on product detail page
+jQuery(document).ready(function(){
+	jQuery('.tab-container img').load(function(){
+		jQuery('#collateral-tabs').height(jQuery('#collateral-tabs .tab-container:eq(0)').height());
+	});
+});

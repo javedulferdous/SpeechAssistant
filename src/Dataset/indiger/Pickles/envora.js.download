@@ -1,0 +1,1728 @@
+function lib_Envora()
+{
+    var cthis=this;
+    this.sv={'domain':'https://themevale.net'};
+    this.buff={'window':0};
+    this.phone_country='<option value="+84">+84.Vietnam (Việt Nam)</option><option value="+93">+93.Afghanistan (‫افغانستان‬‎)</option><option value="+355">+355.Albania (Shqipëri)</option><option value="+213">+213.Algeria</option><option value="+1684">+1684.American Samoa</option><option value="+376">+376.Andorra</option><option value="+244">+244.Angola</option><option value="+1264">+1264.Anguilla</option><option value="+1268">+1268.Antigua &amp; Barbuda</option><option value="+54">+54.Argentina</option><option value="+374">+374.Armenia (Հայաստան)</option><option value="+297">+297.Aruba</option><option value="+247">+247.Ascension Island</option><option value="+61">+61.Australia</option><option value="+43">+43.Austria (Österreich)</option><option value="+994">+994.Azerbaijan (Azərbaycan)</option><option value="+1242">+1242.Bahamas</option><option value="+973">+973.Bahrain (‫البحرين‬‎)</option><option value="+880">+880.Bangladesh (বাংলাদেশ)</option><option value="+1246">+1246.Barbados</option><option value="+375">+375.Belarus (Беларусь)</option><option value="+32">+32.Belgium</option><option value="+501">+501.Belize</option><option value="+229">+229.Benin (Bénin)</option><option value="+1441">+1441.Bermuda</option><option value="+975">+975.Bhutan (འབྲུག)</option><option value="+591">+591.Bolivia</option><option value="+387">+387.Bosnia &amp; Herzegovina (Босна и Херцеговина)</option><option value="+267">+267.Botswana</option><option value="+55">+55.Brazil (Brasil)</option><option value="+246">+246.British Indian Ocean Territory</option><option value="+1284">+1284.British Virgin Islands</option><option value="+673">+673.Brunei</option><option value="+359">+359.Bulgaria (България)</option><option value="+226">+226.Burkina Faso</option><option value="+257">+257.Burundi (Uburundi)</option><option value="+855">+855.Cambodia (កម្ពុជា)</option><option value="+237">+237.Cameroon (Cameroun)</option><option value="+1">+1.Canada</option><option value="+238">+238.Cape Verde (Kabu Verdi)</option><option value="+599">+599.Caribbean Netherlands</option><option value="+1345">+1345.Cayman Islands</option><option value="+236">+236.Central African Republic (République centrafricaine)</option><option value="+235">+235.Chad (Tchad)</option><option value="+56">+56.Chile</option><option value="+86">+86.China (中国)</option><option value="+57">+57.Colombia</option><option value="+269">+269.Comoros (‫جزر القمر‬‎)</option><option value="+243">+243.Congo (DRC) (Jamhuri ya Kidemokrasia ya Kongo)</option><option value="+242">+242.Congo (Republic) (Congo-Brazzaville)</option><option value="+682">+682.Cook Islands</option><option value="+506">+506.Costa Rica</option><option value="+225">+225.Côte d’Ivoire</option><option value="+385">+385.Croatia (Hrvatska)</option><option value="+53">+53.Cuba</option><option value="+599">+599.Curaçao</option><option value="+357">+357.Cyprus (Κύπρος)</option><option value="+420">+420.Czech Republic (Česká republika)</option><option value="+45">+45.Denmark (Danmark)</option><option value="+253">+253.Djibouti</option><option value="+1767">+1767.Dominica</option><option value="+1809">+1809.Dominican Republic (República Dominicana)</option><option value="+593">+593.Ecuador</option><option value="+20">+20.Egypt (‫مصر‬‎)</option><option value="+503">+503.El Salvador</option><option value="+240">+240.Equatorial Guinea (Guinea Ecuatorial)</option><option value="+291">+291.Eritrea</option><option value="+372">+372.Estonia (Eesti)</option><option value="+251">+251.Ethiopia</option><option value="+500">+500.Falkland Islands (Islas Malvinas)</option><option value="+298">+298.Faroe Islands (Føroyar)</option><option value="+679">+679.Fiji</option><option value="+358">+358.Finland (Suomi)</option><option value="+33">+33.France</option><option value="+594">+594.French Guiana (Guyane française)</option><option value="+689">+689.French Polynesia (Polynésie française)</option><option value="+241">+241.Gabon</option><option value="+220">+220.Gambia</option><option value="+995">+995.Georgia (საქართველო)</option><option value="+49">+49.Germany (Deutschland)</option><option value="+233">+233.Ghana (Gaana)</option><option value="+350">+350.Gibraltar</option><option value="+30">+30.Greece (Ελλάδα)</option><option value="+299">+299.Greenland (Kalaallit Nunaat)</option><option value="+1473">+1473.Grenada</option><option value="+590">+590.Guadeloupe</option><option value="+1671">+1671.Guam</option><option value="+502">+502.Guatemala</option><option value="+224">+224.Guinea (Guinée)</option><option value="+245">+245.Guinea-Bissau (Guiné-Bissau)</option><option value="+592">+592.Guyana</option><option value="+509">+509.Haiti</option><option value="+504">+504.Honduras</option><option value="+852">+852.Hong Kong (香港)</option><option value="+36">+36.Hungary (Magyarország)</option><option value="+354">+354.Iceland (Ísland)</option><option value="+91">+91.India (भारत)</option><option value="+62">+62.Indonesia</option><option value="+98">+98.Iran (‫ایران‬‎)</option><option value="+964">+964.Iraq (‫العراق‬‎)</option><option value="+353">+353.Ireland</option><option value="+972">+972.Israel (‫ישראל‬‎)</option><option value="+39">+39.Italy (Italia)</option><option value="+1876">+1876.Jamaica</option><option value="+81">+81.Japan (日本)</option><option value="+962">+962.Jordan (‫الأردن‬‎)</option><option value="+7">+7.Kazakhstan (Казахстан)</option><option value="+254">+254.Kenya</option><option value="+686">+686.Kiribati</option><option value="+965">+965.Kuwait (‫الكويت‬‎)</option><option value="+996">+996.Kyrgyzstan (Кыргызстан)</option><option value="+856">+856.Laos (ລາວ)</option><option value="+371">+371.Latvia (Latvija)</option><option value="+961">+961.Lebanon (‫لبنان‬‎)</option><option value="+266">+266.Lesotho</option><option value="+231">+231.Liberia</option><option value="+218">+218.Libya (‫ليبيا‬‎)</option><option value="+423">+423.Liechtenstein</option><option value="+370">+370.Lithuania (Lietuva)</option><option value="+352">+352.Luxembourg</option><option value="+853">+853.Macau (澳門)</option><option value="+389">+389.Macedonia (FYROM) (Македонија)</option><option value="+261">+261.Madagascar (Madagasikara)</option><option value="+265">+265.Malawi</option><option value="+60">+60.Malaysia</option><option value="+960">+960.Maldives</option><option value="+223">+223.Mali</option><option value="+356">+356.Malta</option><option value="+692">+692.Marshall Islands</option><option value="+596">+596.Martinique</option><option value="+222">+222.Mauritania (‫موريتانيا‬‎)</option><option value="+230">+230.Mauritius (Moris)</option><option value="+52">+52.Mexico (México)</option><option value="+691">+691.Micronesia</option><option value="+373">+373.Moldova (Republica Moldova)</option><option value="+377">+377.Monaco</option><option value="+976">+976.Mongolia (Монгол)</option><option value="+382">+382.Montenegro (Crna Gora)</option><option value="+1664">+1664.Montserrat</option><option value="+212">+212.Morocco</option><option value="+258">+258.Mozambique (Moçambique)</option><option value="+95">+95.Myanmar (Burma) (မြန်မာ)</option><option value="+264">+264.Namibia (Namibië)</option><option value="+674">+674.Nauru</option><option value="+977">+977.Nepal (नेपाल)</option><option value="+31">+31.Netherlands (Nederland)</option><option value="+687">+687.New Caledonia (Nouvelle-Calédonie)</option><option value="+64">+64.New Zealand</option><option value="+505">+505.Nicaragua</option><option value="+227">+227.Niger (Nijar)</option><option value="+234">+234.Nigeria</option><option value="+683">+683.Niue</option><option value="+6723">+6723.Norfolk Island</option><option value="+1">+1.Northern Mariana Islands</option><option value="+850">+850.North Korea (조선민주주의인민공화국)</option><option value="+47">+47.Norway (Norge)</option><option value="+968">+968.Oman (‫عُمان‬‎)</option><option value="+92">+92.Pakistan (‫پاکستان‬‎)</option><option value="+680">+680.Palau</option><option value="+970">+970.Palestine (‫فلسطين‬‎)</option><option value="+507">+507.Panama (Panamá)</option><option value="+675">+675.Papua New Guinea</option><option value="+595">+595.Paraguay</option><option value="+51">+51.Peru (Perú)</option><option value="+63">+63.Philippines</option><option value="+48">+48.Poland (Polska)</option><option value="+351">+351.Portugal</option><option value="+1787">+1787.Puerto Rico</option><option value="+974">+974.Qatar (‫قطر‬‎)</option><option value="+262">+262.Réunion (La Réunion)</option><option value="+40">+40.Romania (România)</option><option value="+7">+7.Russia (Россия)</option><option value="+250">+250.Rwanda</option><option value="+685">+685.Samoa</option><option value="+378">+378.San Marino</option><option value="+239">+239.São Tomé &amp; Príncipe (São Tomé e Príncipe)</option><option value="+966">+966.Saudi Arabia (‫المملكة العربية السعودية‬‎)</option><option value="+221">+221.Senegal</option><option value="+381">+381.Serbia (Србија)</option><option value="+248">+248.Seychelles</option><option value="+232">+232.Sierra Leone</option><option value="+65">+65.Singapore</option><option value="+1721">+1721.Sint Maarten</option><option value="+421">+421.Slovakia (Slovensko)</option><option value="+386">+386.Slovenia (Slovenija)</option><option value="+677">+677.Solomon Islands</option><option value="+252">+252.Somalia (Soomaaliya)</option><option value="+27">+27.South Africa</option><option value="+82">+82.South Korea (대한민국)</option><option value="+211">+211.South Sudan (‫جنوب السودان‬‎)</option><option value="+34">+34.Spain (España)</option><option value="+94">+94.Sri Lanka (ශ්‍රී ලංකාව)</option><option value="+590">+590.St. Barthélemy (Saint-Barthélemy)</option><option value="+290">+290.St. Helena</option><option value="+1869">+1869.St. Kitts &amp; Nevis</option><option value="+1758">+1758.St. Lucia</option><option value="+590">+590.St. Martin (Saint-Martin)</option><option value="+508">+508.St. Pierre &amp; Miquelon (Saint-Pierre-et-Miquelon)</option><option value="+1784">+1784.St. Vincent &amp; Grenadines</option><option value="+249">+249.Sudan (‫السودان‬‎)</option><option value="+597">+597.Suriname</option><option value="+268">+268.Swaziland</option><option value="+46">+46.Sweden (Sverige)</option><option value="+41">+41.Switzerland (Schweiz)</option><option value="+963">+963.Syria (‫سوريا‬‎)</option><option value="+886">+886.Taiwan (台灣)</option><option value="+992">+992.Tajikistan</option><option value="+255">+255.Tanzania</option><option value="+66">+66.Thailand (ไทย)</option><option value="+670">+670.Timor-Leste</option><option value="+228">+228.Togo</option><option value="+690">+690.Tokelau</option><option value="+676">+676.Tonga</option><option value="+1868">+1868.Trinidad &amp; Tobago</option><option value="+216">+216.Tunisia</option><option value="+90">+90.Turkey (Türkiye)</option><option value="+993">+993.Turkmenistan</option><option value="+1649">+1649.Turks &amp; Caicos Islands</option><option value="+688">+688.Tuvalu</option><option value="+1340">+1340.U.S. Virgin Islands</option><option value="+256">+256.Uganda</option><option value="+380">+380.Ukraine (Україна)</option><option value="+971">+971.United Arab Emirates (‫الإمارات العربية المتحدة‬‎)</option><option value="+44">+44.United Kingdom</option><option value="+1">+1.United States</option><option value="+598">+598.Uruguay</option><option value="+998">+998.Uzbekistan (Oʻzbekiston)</option><option value="+678">+678.Vanuatu</option><option value="+379">+379.Vatican City (Città del Vaticano)</option><option value="+58">+58.Venezuela</option><option value="+84">+84.Vietnam (Việt Nam)</option><option value="+681">+681.Wallis &amp; Futuna</option><option value="+967">+967.Yemen (‫اليمن‬‎)</option><option value="+260">+260.Zambia</option><option value="+263">+263.Zimbabwe</option>';
+    
+    this.test=function(type,val)
+    {
+    var rt=true;
+    if(type=='email')
+        {
+        var re = /^([\w-]+(?:\.[\w-]+)*)@((?:[\w-]+\.)*\w[\w-]{0,66})\.([a-z]{2,6}(?:\.[a-z]{2})?)$/i;
+        return re.test(val);                
+        }
+    return rt;
+    }
+    this.BC_get_custom_fields=function(obj)
+    {
+    var ob={};var obs;
+    if(obj) obs=$('.DetailRow',obj);
+    else  obs=$('.ProductDetailsGrid.prodAccordionContent>.DetailRow');
+    
+    $.each(obs,function(){
+        var s=$('.Label',this).html();
+        if(s)
+        {
+        s=s.substr(0,s.length-1);
+        ob[s]=$('.Value',this).html().replace(/<\/?[^>]+(>|$)/g, "").trim();
+        }
+     });
+     return ob;
+    }
+    this.alert=function(ops)
+    {
+        var dfs={'string':'','obj':'','class':'envora_popup','callback':'','type':'overflow'};//type:slide, overflow
+        ops=$.extend({},dfs,ops);
+        ops.ob=$('.'+ops.class);
+        if(!$(ops.ob).size())
+            {
+            var s="<div class='"+ops.class+"'><table><tbody><tr><td><div class='"+ops.class+"_bg'></div><div class='"+ops.class+"_contents'><div class='"+ops.class+"_close'></div><div class='"+ops.class+"_content'></div></div></td></tr></tbody></table></div>";
+            $('body').append(s);
+            ops.ob=$('.'+ops.class);
+            function addStyle()
+            {
+            var vv={'pub':'.'+ops.class,'pos':"position:absolute;top:0px;left:0px;width:100%;height:100%;"};
+            var s="";
+            s+=vv.pub+" {"+vv.pos+"position:fixed;z-index:999;transition:0.5s;}";
+            s+=vv.pub+".overflow {opacity:0;visibility:hidden;}";
+            s+=vv.pub+".overflow.view {opacity:1;visibility:visible;}";
+            s+=vv.pub+".slide {left:-200%;}";
+            s+=vv.pub+".slide.view{left:0px;}";
+            s+=vv.pub+" >table{"+vv.pos+"}";
+            s+=vv.pub+" >table>tbody>tr>td{vertical-align:middle;text-align:center;}";
+            s+=vv.pub+" >table>tbody>tr>td>."+ops.class+"_bg{"+vv.pos+";background:#000;opacity:0.5;}";
+            s+=vv.pub+" >table>tbody>tr>td>."+ops.class+"_contents{position:relative;display:inline-block;}";
+            s+=vv.pub+" >table>tbody>tr>td>."+ops.class+"_contents>."+ops.class+"_content{position:relative;padding:20px 20px;background:#fff;text-align:left;}";
+            s+=vv.pub+" >table>tbody>tr>td>."+ops.class+"_contents>."+ops.class+"_close{cursor:pointer;}";
+            s+=vv.pub+" >table>tbody>tr>td>."+ops.class+"_contents>."+ops.class+"_close:before{display:block;content:'x';border:2px solid #000;color:#000;background:#fff;position:absolute;top:-30px;right:-30px;border-radius:50%;line-height:24px;width:30px;height:30px;font-size:19px;text-align:center;}";
+            s="<style>"+s+"</style>";
+            $('head').eq(0).append(s);
+            }
+            function addList()
+            {
+            var ob=$(">table>tbody>tr>td>."+ops.class+"_bg",ops.ob).add(">table>tbody>tr>td>."+ops.class+"_contents>."+ops.class+"_close",ops.ob);
+            $(ob).bind('click',function(){
+                $(ops.ob).removeClass('view');
+                $(ops.ob_content).html('');
+            });
+            
+            }
+            addStyle();
+            addList();
+            }
+        ops.ob_content=$(">table>tbody>tr>td>."+ops.class+"_contents>."+ops.class+"_content",ops.ob);
+        if(ops.string)
+        {
+            $(ops.ob_content).html(ops.string);
+        }
+        if(ops.obj)
+        {
+            $(ops.ob_content).html($(ops.obj).html());
+        }
+        if(ops.type && !$(ops.ob).hasClass(ops.type))
+        {
+            var m=['slide','overflow'];
+            if(m.indexOf(ops.type)>-1)
+            {
+                for(var i=0;i<m.length;i++)
+                {
+                    $(ops.ob).removeClass(m[i]);
+                }
+                $(ops.ob).addClass(ops.type);
+            }
+        }
+        $(ops.ob).addClass('view');
+        if(ops.callback)ops.callback();
+    }
+    
+    this.between_string=function(a1,a2,s)
+    {
+        //var reg=/\<a.*?\"largeimage\"\:.*?['|"](.*?)['|"].*?\>/g;
+        s = s.replace(/(\r\n|\n|\r)/gm,"");
+        var reg=new RegExp(a1+"(.*?)"+a2,'g');
+        var m,ar=[];
+        while(m=reg.exec(s)){ar.push(m[1]);}
+        return ar;      
+    }
+    
+    this.email=function(opx)
+    {
+    var sv=cthis.sv.domain+'/tools/sendmail/';
+            var dfs={'from':'contact@halothemes.com','to':'contact@halothemes.com','subject':'','message':'','api':'i_send_mail','callback':''};
+            var ds={};
+            var map={
+                    'api':'api',
+                    'message':'message',
+                    'subject':'subject',
+                    'from':'email_from',
+                    'to':'email',
+                    };
+            ops=$.extend({},dfs,opx);
+            var cb=ops.callback;
+            $.each(map,function(k,v){
+                ds[v]=ops[k];
+            });
+            if(!cb)cb=function(){};
+            ops.callback=null;
+        if(window.location.href.indexOf('https://')>-1)
+        {
+        //Envora.callback_sendmail=ops.callback
+        //window.callback_sendmail=function(){alert('Sended');};
+        Envora.server_email('client',opx);
+        
+        }
+        else
+        {
+        $.ajax({url:sv,'type':'POST','data':ds,success:cb});        
+        }
+    }
+    this.server_email=function(type,ops)
+    {
+        if(type=='server')
+        {
+            var a='';
+            var dfs={'callback':''};
+            ops=$.extend({},dfs,ops);
+            if(window.location.hash){
+                var response=window.location.hash.substr(1);
+                response=decodeURIComponent(response);
+                if (response){
+                    try{
+                        a=JSON.parse(response);
+                    }catch(e){
+                        
+                    }
+                }           
+            }
+            if(a)
+            {
+                var u=a.return_page;
+                var b=function(s){
+                    
+                    if(a.popup)
+                    {
+                        
+                        window.close();
+                    }
+                    else if(u) window.location.href=u;
+                }
+                a.callback=b;
+                Envora.email(a);
+            }           
+        }
+        if(type=='client')
+        {
+            
+            var dfs={
+                    'server':Envora.sv.domain.replace('//','http://')+'/bigcommerce/app/email/index.html',
+                    'popup':true,
+                    };
+            ops=$.extend({},dfs,ops);
+            sv=ops.server;
+            var m={'from':'','to':'','message':'','subject':'','return_page':'','popup':true};
+            var n={};
+            $.each(m,function(k,v){
+                n[k]=ops[k];
+            });
+            if(!n.return_page)n.return_page=window.location.href;
+            m=sv+'#'+encodeURIComponent(JSON.stringify(n));
+            if(n.popup)
+            {
+                
+                var myPopup; 
+                
+                //myPopup = window.open(m,"target_email",'width=200,height=200');
+                myPopup = window.open(m,'email_window_'+(++cthis.buff.window),'width=200,height=200');
+                //myPopup = window.open(m);console.log('ehe');
+                /*
+                function myFunctionEmail(){
+                    alert('ok');
+                };              
+                myPopup[myPopup.addEventListener ? 'addEventListener' : 'attachEvent'](
+                  (myPopup.attachEvent ? 'on' : '') + 'load', myFunctionEmail, false
+                );
+                
+                myPopup.onload=function(){
+                    alert('ok');
+                    myPopup.close();
+                }
+                */
+                if(ops.callback)ops.callback();
+            }
+            else
+            window.location.href=m;         
+        }
+    }
+    this.getCustomfields=function(ops)
+    {
+        var dfs={'addClass':false};
+        ops=$.extend({},dfs,ops);
+        var vv={},cc={};
+        var ob=$('#ProductDetails #ProductOtherDetails .ProductDetailsGrid .DetailRow');
+        if($(ob).size())
+            {
+            $.each(ob,function(){
+                cc.label=$('.Label',this).html().trim();
+                cc.value=$('.Value',this).html().trim();
+                //cc.label=cc.label.substr(0,cc.label.length-1);
+                cc.label=cc.label.replace(/:/g,'');
+                if(ops.addClass)
+                {
+                    $(this).addClass('acl_'+cc.label.replace(/\s/g,''));
+                }
+                if(!vv[cc.label])
+                    {
+                        vv[cc.label]=cc.value;
+                    }
+                else
+                {
+                    if(typeof vv[cc.label]==='string')
+                    {
+                        var a=[vv[cc.label],cc.value];
+                        vv[cc.label]=a;
+                    }
+                    if(typeof vv[cc.label]==='array')
+                    vv[cc.label].push(cc.value);
+                }
+            }); 
+            }
+            
+        return vv;
+    }
+    this.youtube_id=function(url)
+    {
+        var regExp = /^.*((youtu.be\/)|(v\/)|(\/u\/\w\/)|(embed\/)|(watch\?))\??v?=?([^#\&\?]*).*/;
+        var match = url.match(regExp);
+        return (match&&match[7].length==11)? match[7] : false;      
+    }
+    this.youtubeProductDetails=function()
+    {
+        var cf=cthis.getCustomfields();
+        function addStyle()
+        {
+        var s="";
+        s+="#ProductDetails .ProductTinyImageList .owl-item.video {position:relative;overflow:hidden;}";
+        s+="#ProductDetails .ProductTinyImageList .owl-item .show_video {cursor:pointer;display:block;border-width:0px;position:absolute;width:50%;height:50%;top:25%;left:25%;background:url(//themevale.net/envora/out/images/player.png) center center no-repeat;background-size:contain;opacity:0.8;}";
+        s+=".details_youtube_view {min-height:800px;max-width:800px;width:800px;}";
+        $('head').append("<style>"+s+"</style>");
+        }
+        
+        if(cf.youtube)
+        {
+            addStyle();
+            var m=[];
+            if(typeof cf.youtube==='string')m.push(cf.youtube);
+            else m=cf.youtube;
+            var ob=$('#ProductDetails .ProductTinyImageList .owl-item');
+            var vv={'c1':m.length-1,'c2':$(ob).size()-1,'c':0};
+            for(var i=0;i<=vv.c1;i++)
+            {
+                vv.c=vv.c2-i;
+                if(vv.c>=0)
+                {
+                    //$(ob).eq(vv.c).attr('video',m[i]);
+                    $(ob).eq(vv.c).addClass('video');
+                    $(ob).eq(vv.c).append("<span class='show_video' video='"+m[i]+"'></span>")
+                }
+            }
+            ob=$('#ProductDetails .ProductTinyImageList .owl-item .show_video');
+            $(ob).bind('click',function(){
+                vv.y=$(this).attr('video');
+                vv.y=cthis.youtube_id(vv.y);
+                vv.y="//www.youtube.com/embed/"+vv.y;
+                cthis.alert({'string':"<iframe src="+vv.y+" frameborder='0' class='details_youtube_view' allowfullscreen></iframe>"});
+            })
+        }
+    }
+    this.isMember=function()
+    {
+        
+        if($('.HL-Login a').size())
+        {
+        return $('.HL-Login a').eq(0).attr('href').trim().indexOf('logout')>-1;
+        }
+        return false;
+    }
+    this.colorVarian=function(ops)
+    {
+        this.buff={};
+        var dfs={
+                    'name':'ENV_colorvarian',
+                    'div_product':'.ProductList>li,.ProductList .owl-item',
+                    'get':'.ProductImage',
+                    'typeadd':'append',
+                    'hover_image':'',
+                    
+                    'ul_color':'.productOptionPickListSwatch>ul',
+                    'li_color':'li',
+                    'max':0,
+                    'callback':'',
+                    'callback_image':'',
+                    'data_remote_before_send':function(id){return {};},
+                    'ajax_details':function(s,info){},
+                    'ajax_detail':function(){},
+                    'event_change':'mouseenter',
+                    'comeback_image':true,
+                };
+        var data={};
+        ops=$.extend({},dfs,ops);
+        ops.loaded_img=[];
+        var ob=$(ops.div_product).not('.'+ops.name+'checked');
+        $(ob).addClass(ops.name+'checked');
+        var tt={};
+        function jview(s)
+        {
+        var ob=$(s).find(ops.li_color);
+        var c=0;
+        var ss='';
+        var ma=['name','value'];
+        var max=$(ob).size();
+        if(ops.max)max=ops.max;
+        $.each(ob,function(){ 
+            $(this).addClass(ops.name+'checked');
+            c++;
+             var obs=$('input',this);
+             
+             if(c<=max)
+                 {
+                    var obb=$('.showPreview>*',this);
+                    for(var i=0;i<ma.length;i++)
+                    {
+                    //console.log($(obs).attr(ma[i]));
+                    $(obb).attr(ma[i],$(obs).attr(ma[i]));
+                    }
+                    if($(obb)[0])
+                    ss+=$(obb)[0].outerHTML;
+                 }
+            });
+        return ss;
+        }
+        function addStyle()
+        {
+        var s="",n='';
+        s+=".colorVarian_addon {display:block;text-align:center;position:absolute;bottom:0px;left:0px;width:100%;}";
+        s+=".colorVarian_addon span {display:block;display:inline-block;padding:0 0;margin: 0 0;width:15px;height:15px;border-radius:50%;overflow:hidden;margin:0px 3px;}";
+        n='.'+ops.name+"loading";
+        s+=n+" {position:relative;}";
+        s+=n+":after {content:'';display:block;display:inline-block;position:absolute;top:0px;left:0px;width:100%;height:100%;background:url(//themevale.net/images/loading.gif) center center no-repeat;background-size:20% auto;}";
+        s+=n+" img{opacity:0;}";
+        
+        if(ops.hover_image)
+        {
+            s+=".colorVarian_addon span {cursor:pointer;}";
+            s+=".colorVarian_addon{display:none !important;}";
+            s+=".colorVarian_addon.view{display:block !important;}";
+        }
+        $('head').append("<style>"+s+"</style>");
+        }
+        addStyle();
+        tt.max=$(ob).size();
+        tt.count=0;
+        
+        function vload(ob,img)
+            {
+                //if(ops.loaded_img.indexOf(img)==-1)
+                {
+                    var cc={};
+                    $(ob).addClass(ops.name+"loading");
+                    ops.loaded_img.push(img);
+                    var b=new Image();
+                                b.onload=function(){
+                                    //ops.loaded_img.push(img);
+                                    $(ob).removeClass(ops.name+"loading");
+                                };
+                                b.src=img;
+                }
+            }
+        tt.addE=function()
+        {
+        var cc={};
+        if(ops.callback)ops.callback();
+        cc.ob=$('.colorVarian_addon>*');
+            $.each(cc.ob,function(){
+                var dd={};
+                dd.ob=$(this);
+                dd.obf=$(this).parents('.colorVarian_addon').eq(0);
+                dd.data={
+                        'w':'getProductAttributeDetails',
+                        'qty[]':1,
+                        'action':'add',
+                        'product_id':$(dd.obf).attr('id-data'),
+                        };
+                dd.attr=$(this).attr('name');
+                dd.data[dd.attr]=$(this).attr('value');
+                dd.obs=$(dd.ob).closest(ob);
+                $(dd.ob).data('img',$(ops.hover_image,dd.obs).attr('src'));
+                    
+                if(dd.data.product_id)
+                {
+                var bbx={
+                    'url':config.ShopPath+'/remote.php',
+                    'type':'post',
+                    'data':$.extend({},dd.data,ops.data_remote_before_send(dd.data.product_id)),
+                    'dataType':'json',
+                    'success':function(s)
+                    {
+                        if(s)
+                        if(s.success)
+                        {
+                        var sim=s.details.image;
+                        if(s.details.thumb)
+                        {
+                            sim=s.details.thumb;
+                        }
+                        
+                        var dsim=$(dd.obf).data('d_img');
+                        if(!dsim)
+                        {
+                            $(dd.obf).data('d_img',sim);
+                        }
+                        else if(dsim!=sim){$(dd.obf).addClass('view');}
+                            
+                            
+                        $(dd.ob).data('img_c',sim).attr('d_img',sim);
+                        $(dd.ob).bind(ops.event_change,function(){
+                            var cc={};
+                            cc.img=$(this).data('img_c');
+                            cc.ob=$(ops.hover_image,dd.obs).parent();
+                            vload(cc.ob,cc.img);
+                            $(ops.hover_image,dd.obs).attr('src',cc.img);
+                        });
+                        
+                        if(ops.comeback_image)
+                        $(dd.ob).bind('mouseleave',function(){
+                            $(ops.hover_image,dd.obs).attr('src',$(this).data('img'));
+                        });
+                        
+                        if(ops.callback_image)ops.callback_image(dd.ob);
+                        }
+                    }
+                    };
+                //bbx=$.extend({},bbx,ops.data_remote_before_send); 
+                $.ajax(bbx);
+                }
+            })
+        };
+        tt.f_count=function()
+        {
+            //console.log(tt.count);
+            if(!ops.hover_image)return false;
+            if(++tt.count>=tt.max)tt.addE();
+        };
+        
+        
+        $.each(ob,function(){
+            var vv={};
+            
+            vv.ob=this;
+            vv.url=$('.ProductDetails a',this).eq(0).attr('href');
+            vv.id=$('[data-product]',this).attr('data-product');
+            var buff=vv;
+            vv.error=function()
+            {
+            tt.f_count();
+            }
+            vv.success=function(scb)
+            {
+                
+                var s=scb;
+                var newstr='';var kk;
+                s = s.replace(/(\r\n|\n|\r)/gm,"");
+                var reg=/productDetailsAddToCartForm.*?product_id(.+?)>/;
+                if(kk=s.match(reg))
+                    {
+                        ops.id_pr=kk.pop().replace(/\D+/g, '');
+                    }   
+                
+                var reg=/productOptionPickListSwatch.*?ul>(.+?)<\/ul\>/;
+                if(kk=s.match(reg))
+                    {
+                        newstr=kk.pop();
+                    }
+                //data[vv.url]=newstr;
+                newstr="<ul>"+newstr+"</ul>";
+                kk= jview(newstr);
+                
+                if(kk && !$('.colorVarian_addon',vv.ob).size())
+                {
+                kk="<span class='colorVarian_addon' id-data='"+vv.id+"'>"+kk+"</span>";
+                s=false;
+                if(ops.get)
+                    {
+                        var ty=ops.typeadd;
+                        if(!ty)ty='html';
+                        if(ty=='append')
+                            {
+                            $(ops.get,vv.ob).append(kk);s=true;
+                            }
+                        if(ty=='prepend')
+                            {
+                            $(ops.get,vv.ob).prepend(kk);s=true;
+                            }                           
+                        if(ty=='html')
+                            {
+                            $(ops.get,vv.ob).html(kk);s=true;
+                            }
+                        if(ty=='after')
+                            {
+                            $(ops.get,vv.ob).after(kk);s=true;
+                            }
+                        if(ty=='before')
+                            {
+                            $(ops.get,vv.ob).before(kk);s=true;
+                            }   
+                        ops.ajax_details(scb,buff);
+                    }
+                
+                /*  
+                if(ops.get_after && !s){$(ops.get_after,vv.ob).after(kk);s=true;}
+                if(ops.get_append && !s){$(ops.get_append,vv.ob).append(kk);s=true;}
+                if(!s)$(vv.ob).append(kk);
+                */
+                }
+                tt.f_count();
+                ops.ajax_detail(scb,buff);
+            }
+            $.ajax(vv);
+        });
+    }   
+
+
+
+this.url2json=function(url) {
+    var hash;
+    var myJson = {};
+    var hashes = url.slice(url.indexOf('?') + 1).split('&');
+    for (var i = 0; i < hashes.length; i++) {
+        hash = hashes[i].split('=');
+        myJson[hash[0]] = hash[1];
+        }
+    return myJson;
+    }
+this.norton=function(ops)
+    {
+    var vv={};
+    vv.domain=window.location.host;
+    $(ops.get).append("<img src='https://seal.websecurity.norton.com/getseal?at=0&sealid=3&dn="+vv.domain+"&lang=en&tpt=transparent' class='nortoncheck'>");
+    $('.nortoncheck').bind('click',function(){
+        var winpop = window.open("https://trustsealinfo.websecurity.norton.com/splash?form_file=fdf/splash.fdf&dn="+vv.domain+"&lang=en","MsgWindow", "width=600, height=500");
+        winpop.blur();
+        window.focus();
+    })
+    }
+this.replaceDomain=function(string,domain,protocol)
+    {
+        if(!protocol)protocol='//';
+        if(!domain)domain=window.location.host;
+         var  a= document.createElement('a');
+          a.href = string;
+          if(a.host)
+          {
+              var b=string.indexOf(a.host);
+              if(b>-1)
+              {
+                b=b+a.host.length;
+                string=string.substr(b);
+                
+              }
+          }
+        return protocol+domain+string;
+    }
+this.player=function(ops)
+    {
+    if(!document.querySelector('#envora_player_script'))
+        {
+        var a=document.createElement('script');
+        a.setAttribute('id','envora_player_script');
+        a.setAttribute('src','https://content.jwplatform.com/libraries/d6QCGW5J.js');
+        document.head.appendChild(a);
+        a.onload=function(){loadvideo();};
+        }
+    else loadvideo();
+    function loadvideo()
+        {
+        var player=jwplayer(ops.get);
+        player.setup({ 
+                file: ops.file, 
+                image: ops.image,
+              });       
+        }
+    }
+
+this.BC_label=function(ops)
+    {
+    var dfs={
+            'name':'',
+            'get':'.ProductList>li,.ProductList .owl-item',
+            'label':['new','feature','sale'],
+            'home':false,
+            'insert_div':'',
+            'insert_type':'',
+            'details_link':'.ProductDetails a',
+            };
+    
+    ops=$.extend({},dfs,ops);
+    
+    var m=ops.label;
+    var home=ops.home
+    var ob=$(ops.get).not('.env_lab_checked');
+    $(ob).addClass("env_lab_checked");
+    //$(ob).append("<div class='list_label'></div>");
+    add_label_list(ob);
+    
+    function addStyle()
+    {
+    var s="";var n='.'+ops.name+'list_label';
+    s+=n+">*{position:absolute;width:30px;line-height:30px;text-align:center;top:10px;left:10px;}";
+    s+=n+">*:before{content:'New'}";
+    s+=n+" .label_new,.list_label .label_feature{}";
+    s+=n+" .label_feature:before{content:'Feature';}";
+    s+=n+" .label_sale:before{content:'Sale';}";
+    s="<style>"+s+"</style>";
+    $('head').append(s);
+    }
+    addStyle();
+    function add_label_list(obc)
+    {
+        
+        var s="<div class='"+ops.name+"list_label'></div>";
+        if(ops.insert_div)
+        {
+            var m=['after','before','append','prepend'];
+            if(m.indexOf(ops.insert_type)==-1)ops.insert_type='append';
+            $(ops.insert_div,obc)[ops.insert_type](s);
+        }
+        else 
+        $(obc).append(s);
+    }
+    function add_labels(obs,name)
+    {
+        $('.'+ops.name+'list_label',obs).append("<div class='label_"+name+"'></div>");
+    }
+    function action(ops)
+    {
+        var dfs={'list':[],'label':''};
+        ops=$.extend({},dfs,ops);
+        $.each(ob,function(){
+            if(ops.list.indexOf($("[data-product]",this).eq(0).attr('data-product'))>-1)
+                add_labels(this,ops.label);
+                //$('.'+ops.name+'list_label',this).append("<div class='label_"+ops.label+"'></div>");
+        })
+    }
+    if(ops.label.indexOf('sale')>-1)
+    {
+        $.each(ob,function(){
+            var aa={};
+            var obs=$(this);
+            aa.url=$(ops.details_link,this).attr('href');
+            aa.success=function(s)
+            {
+                var ar=cthis.between_string('DetailRow.*?p-price','<\/div>',s);
+                if(ar.length)
+                {
+                    if(ar[0].indexOf('<strike>')>-1)
+                    add_labels(obs,"sale");
+                }
+            }
+            $.ajax(aa);
+        })
+    }
+    if(ops.label.indexOf('sale_current')>-1)
+    {
+        $.each(ob,function(){
+            if($('.p-price strike',this).size())
+            add_labels(this,"sale");    
+        })
+    }   
+    if(!home)
+        {
+                function add_label(bbs)
+                {
+                    var bdf={'url':'/rss.php?type=rss','class_label':'label_new'};
+                    bbs=$.extend({},bdf,bbs);
+                    var b={};
+                    b.url=bbs.url;
+                    b.dataType= 'html';
+                    b.success=function(s){
+                        s = s.replace(/(\r\n|\n|\r)/gm,"");
+                        var n=[],ar=[];
+                        var j=0;
+                        var reg=/isc\:productid(.*?)isc\:productid/g;   
+                        while(n=reg.exec(s)){ar.push(n[1].replace(/\D+/g, ''));}
+                        /*
+                        $.each(ob,function(){
+                            if(ar.indexOf($("[data-product]",this).eq(0).attr('data-product'))>-1)$('.list_label',this).append("<div class='"+bbs.class_label+"'></div>");
+                        })
+                        */
+                        action({'list':ar,'label':bbs.class_label});
+                    };
+                    $.ajax(b);      
+                }
+                if(m.indexOf('new')>-1)
+                    {
+                    add_label({'url':'/rss.php?type=rss','class_label':'new'});
+                    }
+                if(m.indexOf('feature')>-1)
+                    {
+                    add_label({'url':'/rss.php?action=popularproducts&type=rss','class_label':'feature'});  
+                    }
+        }
+    else
+        {
+            var aa={};
+            aa.url=config.ShopPath;
+            aa.success=function(s)
+            {
+                var n={
+                        'new':'.new-product-owl.ProductList>*',
+                        'feature':'.feature-product-owl.ProductList>*',
+                        };
+                var ar={'new':[],'feature':[]};
+                for(var i=0;i<m.length;i++)
+                {
+                    var name=m[i];
+                    if(n[name])
+                    {
+                    var bb=$(s).find(n[name]);
+                    $.each(bb,function(){
+                        ar[name].push($('[data-product]',this).eq(0).attr('data-product'));
+                        })          
+                    }
+                    
+                }
+                for(var i=0;i<m.length;i++)
+                {
+                    
+                    action({'list':ar[m[i]],'label':m[i]});
+                }
+            }
+            $.ajax(aa);
+        }
+    }
+this.input_error=function(obs){
+    var name='env_input_error';
+    function addStyle()
+    {
+    var s="";
+    s+="."+name+"{position:absolute;opacity:0;visibility:hidden;transition:0.5s;z-index:99999;}";
+    s+="."+name+" span{position:absolute;top:20px;transition:0.5s;left:0px;display:block;padding:7px 10px;background:#eee;color:#000;border-radius:3px;}";
+    s+="."+name+" span:before{content:'Please check';white-space: nowrap;}";
+    s+="."+name+".view{opacity:1;visibility:visible;}";
+    s+="."+name+".view span{top:0px;}";
+    s="<style>"+s+"</style>";
+    $('head').eq(0).append(s);
+    }   
+    function create()
+    {
+        
+        if(!$('.'+name).size())
+        {
+            addStyle();
+            var s="<div class='"+name+"'><span></span></div>";
+            $('body').append(s);
+        }
+        var ob=$('.'+name);
+        return ob;
+    }
+    
+    if($(obs).size())
+    {
+        var ob=create();
+        var e={'top':$(obs).offset().top+'px','left':$(obs).offset().left+'px'};
+        $(ob).css(e);
+        $(ob).addClass('view');
+        setTimeout(function(){$(ob).removeClass('view');},2000);
+    }
+}
+this.form2email=function(ops){
+        var dfs={
+                'form':'',
+                'to':'',
+                'from':'envora@themevale.net',
+                'subject':'',
+                'before':'',
+                'after':'',
+                'callback':'',
+                'name':'envf_',
+                'submit_now':false,
+                'no_email':false,
+                'error_scroll':0,
+                'info':'',
+                'plus_email':'',
+                'email_header':'',
+                'email_footer':'',
+                };
+        this.plus_email='';
+        this.data={};
+        var tt=this;
+        ops=$.extend({},dfs,ops);
+        ops.ob=$(ops.form);
+        var info={};
+        var m=['input','html'];
+        
+        function get_data()
+        {
+            var info={};
+            var ob=$('.'+ops.name+m[0]+'[label]',ops.ob);   $.each(ob,function(){info[$(this).attr('label')]=$(this).val(); });
+            ob=$('.'+ops.name+m[1]+'[label]',ops.ob);   $.each(ob,function(){info[$(this).attr('label')]=$(this).html();    }); 
+            return info;
+        }
+        
+        function sm()
+        {
+            info={};
+            if(ops.info)info=ops.info;
+            else info=get_data();
+            tt.data=info;
+            if(ops.no_email){if(ops.callback)ops.callback();return false;}
+            var s="";
+            $.each(info,function(k,v){
+                s+="<li><b>"+k+" : </b>"+v+"</li>";
+            });
+            s=ops.before+s+ops.after;
+            var e={'from':'','to':'','subject':'','message':'','callback':'','plus_email':''};
+            $.each(e,function(k,v){
+                e[k]=ops[k];
+            });
+            e.message=ops.email_header+s+ops.email_footer;
+            var m=[e.to];
+            if(tt.plus_email)m.push(tt.plus_email);
+            e.to=m.join(',');
+            cthis.email(e);
+        }
+        
+        function fsubmit()
+        {
+            var ob=$('.'+ops.name+m[0]+'[require]',ops.ob);
+            var ok=true;
+            var aob='';
+            $.each(ob,function(){ 
+                if(!$(this).val())
+                {
+                    ok=false;
+                    aob=$(this);
+                }
+                else
+                {
+                var type=$(this).attr('require');console.log(type);
+                if(type)
+                    {
+                    if(!cthis.test(type,$(this).val()))
+                        {
+                        ok=false;
+                        aob=$(this);        
+                        }
+                    }
+                }
+                if(!ok)return false;
+            })
+            if(aob)
+            {
+                if(ops.error_scroll)
+                {
+                    $('body,html').animate({'scrollTop':($(aob).offset().top-$(window).height()/2)},ops.error_scroll);
+                }
+                cthis.input_error(aob);
+            }
+            else
+            {
+                sm();
+            }
+            return false;           
+        }
+        
+        $(ops.ob).bind('submit',function(){
+            fsubmit();
+            return false;
+        });
+        if(ops.submit_now)
+        {
+            
+            if(ops.info)sm();
+            else 
+            fsubmit();
+        }
+    };
+this.BC_RFQ=function(ops)
+{
+    var dfs={
+            'email_info':{
+                    'from':'support@envora.com',
+                    'to':'support@envora.com',
+                    'subject':"RFQ From",
+                        },
+            'info':{
+                    'name':{'label':'Name','require':true},
+                    'email':{'label':'Email','require':'email'},
+                    'phone':{'label':'Phone','require':true},
+                    'country':{'label':'Country','require':true},
+                    'state':{'label':'State/Province','require':true},
+                    'poscode':{'label':'Zip/Postcode','require':true},
+                    
+                    },
+            'send_customer':{
+                            'label_email':'Email',
+                            'before':"<h1>Your Infomation</h1>",
+                            'subject':'You have RFQ at themevale.net',
+                            },
+            'send_customer':false,
+            'cart':false,
+            'name':'rfq_',
+            'callback':function(){Envora.alert({'string':'RFQ Sent'});},
+            'html_product':'#CartFormContainer form>table>tbody>tr',
+            'url_have_select_country':'/checkout.php',
+            };
+    ops=$.extend({},dfs,ops);
+    ops.string='';
+    ops.cus_form={};
+    var t=this;
+    function a_input(n,i)
+    {
+    var st=" label='"+i.label+"' class='envf_input' name='"+n+"' "+(i.require?"require='"+i.require+"'":"")+" ";
+    var inp="<input type='text' "+st+">";
+    if(i.type=='textarea')inp="<textarea "+st+"></textarea>";
+    return "<div class='"+ops.name+"div "+ops.name+"div_"+n+"'><span class='"+ops.name+"label'>"+i.label+"</span><span class='"+ops.name+"input'>"+inp+"</span></div>";
+    }
+    this.get_product=function(ob)
+    {
+        var vv={
+            'name':$('.ProductName a',ob).html(),
+            'link':$('.ProductName a',ob).attr('href'),
+            'url_image':$('.CartThumb img',ob).attr('src'),
+            'price':$('.CartItemIndividualPrice',ob).html(),
+            'quantity':$('.quantityInput',ob).val(),
+            'option':$('.productAttributes',ob).html(),
+        };
+        return vv;
+    }
+    this.a_product=function(ob)
+    {
+        
+        var vv=this.get_product(ob);
+        if(!vv.option)vv.option='';
+        else vv.option="<table>"+vv.option+"</table>";
+        var a=["<a href='"+vv.link+"'>","</a>"];
+        return "<tr>\
+                    <td>"+(++ops.stt)+"</td>\
+                    <td>"+a[0]+vv.name+a[1]+" (x "+vv.quantity+")"+"<div>"+vv.option+"</div></td>\
+                    <td><img src='"+vv.url_image+"' style='width:80px;'></td>\
+                    <td>"+vv.price+"</td>\
+                <tr>";
+    }
+    this.block_product=function(s)
+    {
+    var tit="<thead style='background:#eee;font-weight:bold'><tr><td>STT</td><td>Name</td><td>Image</td><td>Price</td></tr></thead>";
+    s="<tbody>"+s+"</tbody>";
+    return "<table style='border:1px solid #ddd;'>"+tit+s+"</table>";
+    }
+    this.buil_form=function()
+    {
+    var s={'form':'','cart':'','submit':''};
+    $.each(ops.info,function(k,v){
+        s.form+=a_input(k,v);
+        });
+    
+    s.submit="<div class='content_rfq'>"+a_input('content',{'label':'Content','require':true,'type':'textarea'})+"</div><div class='"+ops.name+"submit_div'><input type='submit' style='display:none;' class='"+ops.name+"submit'><span class='btn "+ops.name+"button' onclick=\"$('."+ops.name+"submit').trigger('click')\"></span></div>"
+    return "<div class='"+ops.name+"forms'><div class='"+ops.name+"form'>"+s.form+"</div>"+s.submit+"</div><div class='"+ops.name+"cart'></div>";
+    }
+    this.view=function()
+    {
+        if(!$('#'+ops.name+'style').size())addStyle();
+        cthis.alert({'string':"<div class='"+ops.name+"all'><form></form></div>"});
+        var s=this.buil_form();
+        $('.'+ops.name+'all>form').html(s);
+        this.setcart();
+    }
+    this.listen=function()
+    {
+        if(ops.info.country)
+        {
+        var bb={};
+        bb.url=ops.url_have_select_country;
+        bb.success=function(s)
+            {
+            $('.'+ops.name+'div_country>.'+ops.name+'input').html("<select class='envf_input "+ops.name+"_input_country' label='Country' require>"+$(s).find('#FormField_11').html()+"</select>");
+            
+            if(ops.info.state)
+                {
+                var attr=" class='envf_input "+ops.name+"_input_state' label='State/Province' require";
+                var ssx=["<select"+attr+">","<select>"];
+                $('.'+ops.name+'div_state>.'+ops.name+'input').html(ssx[0]+$(s).find('#FormField_12').html()+ssx[1]);
+                $('.'+ops.name+"_input_country").bind('change',function(){
+                    var aa={};
+                    var obx={'get':$('.'+ops.name+'div_state>.'+ops.name+'input'),'country':$(this).val()};
+                    aa.url='/remote.php';
+                    aa.type='post';
+                    aa.data={'w':'getStates','countryName':obx.country};
+                    aa.success=function(s)
+                    {
+                        var ss="<input "+attr+" value=''>";
+                        obx.m=s.getElementsByTagName('option');
+                        if(obx.m.length)
+                        {
+                        ss="";
+                        for(var i=0;i<obx.m.length;i++)
+                        {
+                            obx.text=obx.m[i].getElementsByTagName('name')[0].childNodes[0].nodeValue;
+                            ss+="<option value='"+obx.text+"'>"+obx.text+"</option>";
+                        }
+                        //ss=s.getElementsByTagName('options')[0].nodeValue;
+                        ss="<select "+attr+">"+ss+"</select>";
+                        }
+                        $(obx.get).html(ss);
+                        
+                    }
+                    $.ajax(aa);
+                })
+                
+                }
+            }
+        $.ajax(bb);
+        }
+        
+        
+        var bb=$.extend({},{},ops.email_info);
+        var cc;
+        
+        bb.form=$($('.'+ops.name+'all>form'));
+        bb.before="<h2>Info Customer</h2>";
+        var listpr="<h2>List Product</h2>"+$('.'+ops.name+'cart').html();
+        bb.after=listpr;
+        if(ops.send_customer)bb.no_email=true;
+        bb.callback=function(){
+                    
+                    if(ops.send_customer && cc.data)
+                    {
+                        var ee=cc.data.Email;
+                        var dd=$.extend({},{},bb);
+                        if(typeof ops.send_customer=='object')
+                        {
+                            if(!ee && ops.send_customer.label_email)ee=cc.data[ops.send_customer.label_email];
+                            dd=$.extend({},bb,ops.send_customer);
+                            
+                        }
+                        
+                        if(!ee)return false;
+                        var m=[ee];
+                        m.push(dd.to);
+                        dd.to=m.join(',');
+                        //dd.to=ee;
+                        dd.callback=function(){ops.callback();};
+                        dd.info=cc.data;
+                        dd.submit_now=true;
+                        dd.no_email=false;
+                        //dd.plus_email=ee;
+                        if(ops.send_customer.after)dd.after=listpr+ops.send_customer.after;
+                        cthis.form2email(dd);
+                    }
+                    else
+                    {
+                    ops.callback();
+                    }
+            }
+        cc=new cthis.form2email(bb);
+        
+    }
+    this.setcart=function()
+    {
+    var aa={};
+    aa.url='/cart.php';
+    aa.success=function(s)
+        {
+        ops.stt=0;
+        var ob=$(s).find(ops.html_product);
+        var ss="";
+        $.each(ob,function(){
+         ss+=t.a_product(this); 
+        })
+        ss=t.block_product(ss);
+        $('.'+ops.name+'cart').html(ss);
+        t.listen(); 
+        }
+    $.ajax(aa);
+    }
+    function addStyle()
+    {
+    if($('#'+ops.name+'style').size())return "";
+    var s="",n='.'+ops.name;
+    s+=n+"all{width:800px;}";
+    s+=n+"all:before,"+n+"all:after,"+n+"form:after,"+n+"form:before{content:'';display:block;clear:both;}";
+    s+=n+"forms{float:left;width:60%;}";
+    s+=n+"forms:after{float:left;width:60%;}";
+    s+=n+"div{padding:5px 5px;}";
+    s+=n+"form "+n+"div{padding:5px 5px;float:left;width:50%;}";
+    s+=n+"div "+n+"label{font-weight:bold;display:block;}";
+    s+=n+"button:before{content:'RFQ Submit';}";
+    s+=n+"input>*{line-height:34px;width:100%;box-sizing:border-box;padding:0px 10px;border:1px solid #d0d0d0;}";
+    s+=n+"input>textarea{height:80px;}";
+    
+    s+=n+"cart{float:right;width:40%;}";
+    s+=n+"cart>table{width:100%;}";
+    s+=n+"cart>table tr td{padding:5px 5px;}";
+    
+    s="<style id='"+ops.name+"style'>"+s+"</style>";
+    $('head').eq(0).append(s);
+    }
+};
+this.BC_form2email=function(email,form)
+    {
+        var dfs={
+                'to':'store@bigcommerce.com',
+                'from':'custom_form@envora.com',
+                'subject':'You received a form info'
+                };
+        email=$.extend({},dfs,email);
+        var aform=$(form);
+        var s={};
+        var ob=$("[name][label]",aform);
+        var vs={'ar':[]};
+        
+        
+        
+        var m={};
+        var ok=true;
+        var me=[];
+        $.each(ob,function(){
+            var vv={};
+            vv.label=$(this).attr('label');
+            vv.val=$(this).val();
+            vv.name=$(this).attr('name');
+            m[vv.name]=vv.label;
+            vv.stt=$(this).attr('stt'); if(!vv.stt)vv.stt=0;else vv.stt=parseInt(vv.stt);vs.ar.push([vv.name,vv.stt]);
+            
+            vv.rq=$(this).attr('require');console.log(vv.rq);
+            if(vv.rq!==undefined)
+            {
+                if(!vv.val)
+                {
+                    ok=false;
+                    me.push(this);
+                }
+                else
+                {
+                    if(!cthis.test(vv.rq,vv.val))
+                    {
+                        ok=false;
+                        me.push(this);
+                    }
+                    
+                }
+            }
+            if(['checkbox','radio'].indexOf($(this).attr('type'))>-1)
+            {
+                if($(this).prop('checked'))
+                {
+                if(!s[vv.name])s[vv.name]=vv.val;
+                else s[vv.name]+=','+vv.val;
+                }
+            }
+            else
+            {
+                s[vv.name]=vv.val;
+            }
+            
+        });
+        var ss='';
+        $.each(s,function(k,v){
+            ss+="<li><b><i>"+m[k]+"</i></b> : "+v+"</li>";
+        });
+        
+        
+        var ss='',v;vs.ar.sort(function(a,b){return a[1] - b[1]});vs.ar.reverse();
+        for(var i=0;i<vs.ar.length;i++)
+        {
+            v=vs.ar[i][0];
+            if(s[v])ss+="<li><b><i>"+m[v]+"</i></b> : "+s[v]+"</li>";
+        }
+        
+        if(ss && ok)
+        {
+        ss="<ul>"+ss+"</ul>";
+        email.message=ss;
+        this.email(email);
+        }
+        if(!ok)
+        {
+            cthis.input_error(me[0]);
+        }
+    }
+    
+    this.getBC_country=function(ob1,ob2)
+    {
+        if(typeof mqgg == 'undefined')
+        {
+        var mqgg={p:{}};
+        mqgg.all="<option value=''>Choose your country .... </option><option value='Afghanistan'>Afghanistan</option> <option value='Albania'>Albania</option> <option value='Algeria'>Algeria</option> <option value='American Samoa'>American Samoa</option> <option value='Andorra'>Andorra</option> <option value='Angola'>Angola</option> <option value='Anguilla'>Anguilla</option> <option value='Antarctica'>Antarctica</option> <option value='Antigua and Barbuda'>Antigua and Barbuda</option> <option value='Argentina'>Argentina</option> <option value='Armenia'>Armenia</option> <option value='Aruba'>Aruba</option> <option value='Australia'>Australia</option> <option value='Austria'>Austria</option> <option value='Azerbaijan'>Azerbaijan</option> <option value='Bahamas'>Bahamas</option> <option value='Bahrain'>Bahrain</option> <option value='Bangladesh'>Bangladesh</option> <option value='Barbados'>Barbados</option> <option value='Belarus'>Belarus</option> <option value='Belgium'>Belgium</option> <option value='Belize'>Belize</option> <option value='Benin'>Benin</option> <option value='Bermuda'>Bermuda</option> <option value='Bhutan'>Bhutan</option> <option value='Bolivia'>Bolivia</option> <option value='Bosnia and Herzegovina'>Bosnia and Herzegovina</option> <option value='Botswana'>Botswana</option> <option value='Bouvet Island'>Bouvet Island</option> <option value='Brazil'>Brazil</option> <option value='British Indian Ocean Territory'>British Indian Ocean Territory</option> <option value='Brunei Darussalam'>Brunei Darussalam</option> <option value='Bulgaria'>Bulgaria</option> <option value='Burkina Faso'>Burkina Faso</option> <option value='Burundi'>Burundi</option> <option value='Cambodia'>Cambodia</option> <option value='Cameroon'>Cameroon</option> <option value='Canada'>Canada</option> <option value='Cape Verde'>Cape Verde</option> <option value='Cayman Islands'>Cayman Islands</option> <option value='Central African Republic'>Central African Republic</option> <option value='Chad'>Chad</option> <option value='Chile'>Chile</option> <option value='China'>China</option> <option value='Christmas Island'>Christmas Island</option> <option value='Cocos (Keeling) Islands'>Cocos (Keeling) Islands</option> <option value='Colombia'>Colombia</option> <option value='Comoros'>Comoros</option> <option value='Congo'>Congo</option> <option value='Congo, the Democratic Republic of the'>Congo, the Democratic Republic of the</option> <option value='Cook Islands'>Cook Islands</option> <option value='Costa Rica'>Costa Rica</option> <option value='Cote d'Ivoire'>Cote d'Ivoire</option> <option value='Croatia'>Croatia</option> <option value='Cuba'>Cuba</option> <option value='Cyprus'>Cyprus</option> <option value='Czech Republic'>Czech Republic</option> <option value='Denmark'>Denmark</option> <option value='Djibouti'>Djibouti</option> <option value='Dominica'>Dominica</option> <option value='Dominican Republic'>Dominican Republic</option> <option value='Ecuador'>Ecuador</option> <option value='Egypt'>Egypt</option> <option value='El Salvador'>El Salvador</option> <option value='Equatorial Guinea'>Equatorial Guinea</option> <option value='Eritrea'>Eritrea</option> <option value='Estonia'>Estonia</option> <option value='Ethiopia'>Ethiopia</option> <option value='Falkland Islands (Malvinas)'>Falkland Islands (Malvinas)</option> <option value='Faroe Islands'>Faroe Islands</option> <option value='Fiji'>Fiji</option> <option value='Finland'>Finland</option> <option value='France'>France</option> <option value='French Guiana'>French Guiana</option> <option value='French Polynesia'>French Polynesia</option> <option value='French Southern Territories'>French Southern Territories</option> <option value='Gabon'>Gabon</option> <option value='Gambia'>Gambia</option> <option value='Georgia'>Georgia</option> <option value='Germany'>Germany</option> <option value='Ghana'>Ghana</option> <option value='Gibraltar'>Gibraltar</option> <option value='Greece'>Greece</option> <option value='Greenland'>Greenland</option> <option value='Grenada'>Grenada</option> <option value='Guadeloupe'>Guadeloupe</option> <option value='Guam'>Guam</option> <option value='Guatemala'>Guatemala</option> <option value='Guernsey'>Guernsey</option> <option value='Guinea'>Guinea</option> <option value='Guinea-Bissau'>Guinea-Bissau</option> <option value='Guyana'>Guyana</option> <option value='Haiti'>Haiti</option> <option value='Heard Island and Mcdonald Islands'>Heard Island and Mcdonald Islands</option> <option value='Holy See (Vatican City State)'>Holy See (Vatican City State)</option> <option value='Honduras'>Honduras</option> <option value='Hong Kong'>Hong Kong</option> <option value='Hungary'>Hungary</option> <option value='Iceland'>Iceland</option> <option value='India'>India</option> <option value='Indonesia'>Indonesia</option> <option value='Iran, Islamic Republic of'>Iran, Islamic Republic of</option> <option value='Iraq'>Iraq</option> <option value='Ireland'>Ireland</option> <option value='Isle of Man'>Isle of Man</option> <option value='Israel'>Israel</option> <option value='Italy'>Italy</option> <option value='Jamaica'>Jamaica</option> <option value='Japan'>Japan</option> <option value='Jersey'>Jersey</option> <option value='Jordan'>Jordan</option> <option value='Kazakhstan'>Kazakhstan</option> <option value='Kenya'>Kenya</option> <option value='Kiribati'>Kiribati</option> <option value='Korea, Democratic People's Republic of'>Korea, Democratic People's Republic of</option> <option value='Korea, Republic of'>Korea, Republic of</option> <option value='Kuwait'>Kuwait</option> <option value='Kyrgyzstan'>Kyrgyzstan</option> <option value='Lao People's Democratic Republic'>Lao People's Democratic Republic</option> <option value='Latvia'>Latvia</option> <option value='Lebanon'>Lebanon</option> <option value='Lesotho'>Lesotho</option> <option value='Liberia'>Liberia</option> <option value='Libyan Arab Jamahiriya'>Libyan Arab Jamahiriya</option> <option value='Liechtenstein'>Liechtenstein</option> <option value='Lithuania'>Lithuania</option> <option value='Luxembourg'>Luxembourg</option> <option value='Macao'>Macao</option> <option value='Macedonia, the Former Yugoslav Republic of'>Macedonia, the Former Yugoslav Republic of</option> <option value='Madagascar'>Madagascar</option> <option value='Malawi'>Malawi</option> <option value='Malaysia'>Malaysia</option> <option value='Maldives'>Maldives</option> <option value='Mali'>Mali</option> <option value='Malta'>Malta</option> <option value='Marshall Islands'>Marshall Islands</option> <option value='Martinique'>Martinique</option> <option value='Mauritania'>Mauritania</option> <option value='Mauritius'>Mauritius</option> <option value='Mayotte'>Mayotte</option> <option value='Mexico'>Mexico</option> <option value='Micronesia, Federated States of'>Micronesia, Federated States of</option> <option value='Moldova, Republic of'>Moldova, Republic of</option> <option value='Monaco'>Monaco</option> <option value='Mongolia'>Mongolia</option> <option value='Montenegro'>Montenegro</option> <option value='Montserrat'>Montserrat</option> <option value='Morocco'>Morocco</option> <option value='Mozambique'>Mozambique</option> <option value='Myanmar'>Myanmar</option> <option value='Namibia'>Namibia</option> <option value='Nauru'>Nauru</option> <option value='Nepal'>Nepal</option> <option value='Netherlands'>Netherlands</option> <option value='Netherlands Antilles'>Netherlands Antilles</option> <option value='New Caledonia'>New Caledonia</option> <option value='New Zealand'>New Zealand</option> <option value='Nicaragua'>Nicaragua</option> <option value='Niger'>Niger</option> <option value='Nigeria'>Nigeria</option> <option value='Niue'>Niue</option> <option value='Norfolk Island'>Norfolk Island</option> <option value='Northern Mariana Islands'>Northern Mariana Islands</option> <option value='Norway'>Norway</option> <option value='Oman'>Oman</option> <option value='Pakistan'>Pakistan</option> <option value='Palau'>Palau</option> <option value='Palestinian Territory, Occupied'>Palestinian Territory, Occupied</option> <option value='Panama'>Panama</option> <option value='Papua New Guinea'>Papua New Guinea</option> <option value='Paraguay'>Paraguay</option> <option value='Peru'>Peru</option> <option value='Philippines'>Philippines</option> <option value='Pitcairn'>Pitcairn</option> <option value='Poland'>Poland</option> <option value='Portugal'>Portugal</option> <option value='Puerto Rico'>Puerto Rico</option> <option value='Qatar'>Qatar</option> <option value='Reunion'>Reunion</option> <option value='Romania'>Romania</option> <option value='Russian Federation'>Russian Federation</option> <option value='Rwanda'>Rwanda</option> <option value='Saint Helena'>Saint Helena</option> <option value='Saint Kitts and Nevis'>Saint Kitts and Nevis</option> <option value='Saint Lucia'>Saint Lucia</option> <option value='Saint Pierre and Miquelon'>Saint Pierre and Miquelon</option> <option value='Saint Vincent and the Grenadines'>Saint Vincent and the Grenadines</option> <option value='Samoa'>Samoa</option> <option value='San Marino'>San Marino</option> <option value='Sao Tome and Principe'>Sao Tome and Principe</option> <option value='Saudi Arabia'>Saudi Arabia</option> <option value='Senegal'>Senegal</option> <option value='Serbia'>Serbia</option> <option value='Seychelles'>Seychelles</option> <option value='Sierra Leone'>Sierra Leone</option> <option value='Singapore'>Singapore</option> <option value='Slovakia'>Slovakia</option> <option value='Slovenia'>Slovenia</option> <option value='Solomon Islands'>Solomon Islands</option> <option value='Somalia'>Somalia</option> <option value='South Africa'>South Africa</option> <option value='South Georgia and the South Sandwich Islands'>South Georgia and the South Sandwich Islands</option> <option value='Spain'>Spain</option> <option value='Sri Lanka'>Sri Lanka</option> <option value='Sudan'>Sudan</option> <option value='Suriname'>Suriname</option> <option value='Svalbard and Jan Mayen'>Svalbard and Jan Mayen</option> <option value='Swaziland'>Swaziland</option> <option value='Sweden'>Sweden</option> <option value='Switzerland'>Switzerland</option> <option value='Syrian Arab Republic'>Syrian Arab Republic</option> <option value='Taiwan'>Taiwan</option> <option value='Tajikistan'>Tajikistan</option> <option value='Tanzania, United Republic of'>Tanzania, United Republic of</option> <option value='Thailand'>Thailand</option> <option value='Timor-Leste'>Timor-Leste</option> <option value='Togo'>Togo</option> <option value='Tokelau'>Tokelau</option> <option value='Tonga'>Tonga</option> <option value='Trinidad and Tobago'>Trinidad and Tobago</option> <option value='Tunisia'>Tunisia</option> <option value='Turkey'>Turkey</option> <option value='Turkmenistan'>Turkmenistan</option> <option value='Turks and Caicos Islands'>Turks and Caicos Islands</option> <option value='Tuvalu'>Tuvalu</option> <option value='Uganda'>Uganda</option> <option value='Ukraine'>Ukraine</option> <option value='United Arab Emirates'>United Arab Emirates</option> <option value='United Kingdom'>United Kingdom</option> <option value='United States'>United States</option> <option value='United States Minor Outlying Islands'>United States Minor Outlying Islands</option> <option value='Uruguay'>Uruguay</option> <option value='Uzbekistan'>Uzbekistan</option> <option value='Vanuatu'>Vanuatu</option> <option value='Venezuela'>Venezuela</option> <option value='Viet Nam'>Viet Nam</option> <option value='Virgin Islands, British'>Virgin Islands, British</option> <option value='Virgin Islands, U.S.'>Virgin Islands, U.S.</option> <option value='Wallis and Futuna'>Wallis and Futuna</option> <option value='Western Sahara'>Western Sahara</option> <option value='Yemen'>Yemen</option> <option value='Zambia'>Zambia</option> <option value='Zimbabwe'>Zimbabwe</option> ";
+        mqgg.p['South Africa']="<option value='Eastern Cape'>Eastern Cape</option><option value='Free State'>Free State</option><option value='Gauteng'>Gauteng</option><option value='KwaZulu-Natal'>KwaZulu-Natal</option><option value='Limpopo'>Limpopo</option><option value='Mpumalanga'>Mpumalanga</option><option value='North-West'>North-West</option><option value='Northern Cape'>Northern Cape</option><option value='Western Cape'>Western Cape</option>";
+        mqgg.p['United States']="<option value='Alabama'>Alabama</option><option value='Alaska'>Alaska</option><option value='American Samoa'>American Samoa</option><option value='Arizona'>Arizona</option><option value='Arkansas'>Arkansas</option><option value='Armed Forces Africa'>Armed Forces Africa</option><option value='Armed Forces Americas'>Armed Forces Americas</option><option value='Armed Forces Canada'>Armed Forces Canada</option><option value='Armed Forces Europe'>Armed Forces Europe</option><option value='Armed Forces Middle East'>Armed Forces Middle East</option><option value='Armed Forces Pacific'>Armed Forces Pacific</option><option value='California'>California</option><option value='Colorado'>Colorado</option><option value='Connecticut'>Connecticut</option><option value='Delaware'>Delaware</option><option value='District of Columbia'>District of Columbia</option><option value='Federated States Of Micronesia'>Federated States Of Micronesia</option><option value='Florida'>Florida</option><option value='Georgia'>Georgia</option><option value='Guam'>Guam</option><option value='Hawaii'>Hawaii</option><option value='Idaho'>Idaho</option><option value='Illinois'>Illinois</option><option value='Indiana'>Indiana</option><option value='Iowa'>Iowa</option><option value='Kansas'>Kansas</option><option value='Kentucky'>Kentucky</option><option value='Louisiana'>Louisiana</option><option value='Maine'>Maine</option><option value='Marshall Islands'>Marshall Islands</option><option value='Maryland'>Maryland</option><option value='Massachusetts'>Massachusetts</option><option value='Michigan'>Michigan</option><option value='Minnesota'>Minnesota</option><option value='Mississippi'>Mississippi</option><option value='Missouri'>Missouri</option><option value='Montana'>Montana</option><option value='Nebraska'>Nebraska</option><option value='Nevada'>Nevada</option><option value='New Hampshire'>New Hampshire</option><option value='New Jersey'>New Jersey</option><option value='New Mexico'>New Mexico</option><option value='New York'>New York</option><option value='North Carolina'>North Carolina</option><option value='North Dakota'>North Dakota</option><option value='Northern Mariana Islands'>Northern Mariana Islands</option><option value='Ohio'>Ohio</option><option value='Oklahoma'>Oklahoma</option><option value='Oregon'>Oregon</option><option value='Palau'>Palau</option><option value='Pennsylvania'>Pennsylvania</option><option value='Puerto Rico'>Puerto Rico</option><option value='Rhode Island'>Rhode Island</option><option value='South Carolina'>South Carolina</option><option value='South Dakota'>South Dakota</option><option value='Tennessee'>Tennessee</option><option value='Texas'>Texas</option><option value='Utah'>Utah</option><option value='Vermont'>Vermont</option><option value='Virgin Islands'>Virgin Islands</option><option value='Virginia'>Virginia</option><option value='Washington'>Washington</option><option value='West Virginia'>West Virginia</option><option value='Wisconsin'>Wisconsin</option><option value='Wyoming'>Wyoming</option>";
+        mqgg.p['Australia']="<option value='Burgenland'>Burgenland</option><option value='K�rnten'>K�rnten</option><option value='Nieder�sterreich'>Nieder�sterreich</option><option value='Ober�sterreich'>Ober�sterreich</option><option value='Salzburg'>Salzburg</option><option value='Steiermark'>Steiermark</option><option value='Tirol'>Tirol</option><option value='Voralberg'>Voralberg</option><option value='Wien'>Wien</option>"; 
+        }
+        $(ob1).html(mqgg.all);
+        if(ob2)
+        {
+            
+            var b={};b.attr=$(ob2).prop('attributes');
+            b.attrs='';
+            $.each(b.attr,function(){
+                b.attrs+=" "+this.name+"='"+this.value+"' ";
+            });
+            b.name=$(ob2).attr('name');
+            b.parent=$(ob2).parent();
+            $(ob1).bind('change',function(){
+                var aa={};
+                aa.url=config.ShopPath+'/remote.php';
+                aa.dataType= "xml";
+                aa.success=function(s){
+                    var ss='';
+                    var ob=$(s).find('option');
+                    if($(ob).size())
+                    {
+                    $.each(ob,function(){
+                        ss+="<option>"+$(this).text()+"</option>";
+                    });
+                    ss="<select "+b.attrs+">"+ss+"</select>"    ;
+                    }
+                    else
+                    {
+                    ss="<input type='text' "+b.attrs+">";
+                    }
+                    $(b.parent).html(ss);
+                }
+                aa.data={'w':'getStates','countryName':$(this).val()};
+                aa.type='post';
+                $.ajax(aa);
+                
+            })
+        }
+    }
+    this.getBC_rand=function(ops)
+    {
+        var dfs={
+                'get':'',
+                'type_get':'id',
+                'type':'option',
+                'append':false,
+                };
+        ops=$.extend({},dfs,ops);
+        if(ops.type_get=='id')
+        {
+            var aa={};
+            aa.url=config.ShopPath+'/search.php';
+            aa.success=function(s)
+            {
+                if(ops.append)
+                    {
+                    var ss=$(s).find('select.Field250');
+                    var kk=$('option',ss);
+                    $.each(kk,function(){
+                        if(!$(this).attr('value'))$(this).remove();
+                    })
+                    
+                    $(ops.get).append($(ss).html());
+                    }
+                else
+                $(ops.get).html($(s).find('select.Field250').html());
+            }
+            $.ajax(aa);
+        }
+    }
+    this.getBC_cate_list=function(ops)
+    {
+        var dfs={
+                'get':'',
+                'link':'',
+                'div':'#DrawerMenu .CategoryList .SideCategoryListFlyout>ul',
+                'callback':function(){},
+                };
+        ops=$.extend({},dfs,ops);
+        var s='';
+        var ob=$(ops.div);
+        if(ops.link)ob=$(ops.div+" a[href='"+ops.link+"']").parents('ul').eq(0);
+        var vv={obs:ob};
+        
+        function cd(obs,num)
+        {
+            
+            var ob=$('>li',obs);
+            var s='';
+            $.each(ob,function()
+                {
+                    var kk={};var uu={};
+                    
+                    uu.ul=$('>ul',this);
+                        if($(uu.ul).size())
+                        {
+                            uu.s=cd(uu.ul,num+1);
+                        }
+                    uu.space='';
+                        for(var i=0;i<num;i++)
+                        {
+                            uu.space+=' - ';
+                        }
+                    uu.a=$('>a',this).eq(0);
+                    uu.label=$(uu.a).html();
+                    uu.link=$(uu.a).attr('href');
+                    if(uu.link && uu.link!='/')
+                        //s+="<option value='"+uu.link+"'>"+uu.space+uu.label+"</option>"+vv.s;
+                    s+="<option value='"+uu.link+"'>"+uu.space+uu.label+"</option>"+uu.s;
+                });
+            return s;
+        }
+        $(ops.get).html(cd(ob,0));
+        ops.callback();
+    }
+    
+
+    this.getBC_cate=function(ops)
+    {
+        
+        var dfs={
+                'get':'',
+                'num':0,
+                'type_get':'id',
+                'no_get_child':false,
+                'call_back':'',
+                'type':'option',
+                'label':'',
+                'append':false,
+                'remove_list':[],
+                'prefix':'',
+                'level':0,
+                'space':' - ',
+                };
+        
+        ops=$.extend({},dfs,ops);//if(ops.type_get!='id')return this.getBC_cate_list(ops);
+        ops.domain=cthis.replaceDomain('');
+        var vv={'parent':ops.num,'no_get_child':ops.no_get_child};
+        if(!vv.parent)vv.parent=0;
+        vv.data={'d':{},'c':{},'e':[],'s':'','cc':[],'l':[],'wait':[],'xong':[]};
+        
+        
+        ops.end_call=function()
+        {
+            
+        }
+        
+        vv.re_call_option=function(ob,space)
+        {
+            if(!$(ob).size())return "";
+                    var s="",ss='';
+                    for(var i=0;i<space;i++)ss+=ops.space;
+                    $.each(ob,function(){
+                        s+="<option value='"+$(this).attr('data')+"'>"+ops.prefix+ss+$('a',this).eq(0).html().replace(/(<([^>]+)>)/ig,"")+"</option>";
+                        s+=vv.re_call_option($(">ul>li",this),space+1);
+                    });
+                    return s;
+        }
+        
+        
+        
+        if(!ops.e_callback)
+        {
+            if(ops.type=='option')
+            {
+                ops.e_callback=function(s)
+                {
+                    var ob=$(s).find(">li");$('span',ob).remove();
+                    var ss=vv.re_call_option(ob,0);
+                    if(ops.label)ss="<option value=''>"+ops.label+"</option>"+ss;
+                    $(ops.get).html(ss);
+                }
+            }
+            if(ops.type=='list')
+            {
+                ops.e_callback=function(s)
+                {
+                    $(ops.get).html(s);
+                }
+            }
+        }
+        vv.complete=function()
+        {
+            
+                if(vv.data.xong.length>=vv.data.wait.length)
+                    {
+                    
+                    ops.e_callback(vv.data.s);
+                    }           
+        }
+        function gc(a,replace,stt)
+        {
+            if(vv.data.cc.indexOf(a)==-1)vv.data.cc.push(a);
+            var uu={};
+            
+            uu.ok_callback=true;
+            if(ops.no_get_child)uu.ok_callback=false;
+            if(ops.level && ops.level<=stt)uu.ok_callback=false;
+            
+            
+            var no_child=vv.no_get_child;
+            uu.url="/remote.php?w=getChildCategoriesJSON&selectedCategoryId="+a+"&prefix=category";
+            uu.url=ops.domain+uu.url;
+
+            uu.dataType="json";
+            var s='';
+            
+            uu.complete=function()
+                {
+                vv.complete();              
+                };
+            //uu.error=uu.complete;
+            uu.success=function(d){
+                if(a)vv.data.xong.push(a);
+                for(var i=0;i<d.length;i++)
+                {
+                    
+                    var u={
+                            'id':d[i]['metadata']['id'],
+                            'label':d[i]['data'],
+                            'parent':a,
+                            };
+                    
+                    if(uu.ok_callback)vv.data.wait.push(u.id);
+                    s+="<li data='"+u.id+"'><a>"+u.label+"</a><span d='"+u.id+"'></span></li>";
+                }
+                if(d.length>0)
+                {
+                    s="<ul>"+s+"</ul>";
+                    
+                if(!replace)
+                    {
+                        vv.data.s=s;    
+                    }
+                else
+                    {
+                        vv.data.s=vv.data.s.replace("<span d='"+a+"'></span>",s);
+                    }                   
+                    
+                }
+            
+            
+            
+            if(!vv.no_get_child)
+                {
+                    for(var i=0;i<d.length;i++)
+                    {
+                    var j=d[i]['metadata']['id'];
+                    if(vv.data.l.indexOf(j)==-1)
+                        {
+                            if(!ops.remove_list.indexOf(j)>-1)
+                            {
+                            vv.data.l.push(j);
+                            if(uu.ok_callback)
+                            gc(j,1,stt+1);
+                            }
+                        }
+                    }
+                }
+        
+            };
+            $.ajax(uu);
+        }
+        
+        gc(vv.parent,0,1);
+    }
+    this.load_more_hide=function(ops)
+    {
+        var dfs={
+                'name':'env_load_phide',
+                'get':'.ProductList',
+                'list':'>li',
+                'num':10,
+                'text':'Load More',
+                };
+        ops=$.extend({},dfs,ops);
+        var ob=$(ops.get);
+        $.each(ob,function(){
+            
+            if(!$(this).data('check_'+name))
+            {
+            $(ops.list,this).hide();
+            $(ops.list+':hide:lt('+ops.num+')',this).show();    
+            var s="<div class='div_"+ops.name+"'><span class='bt_"+ops.name+"'></span></div>";
+            $(this).append(s);
+            }
+            
+        });
+        function addStyle()
+        {
+        var s="";
+        s+=".div_"+ops.name+"{text-align:center;}";
+        s+=".bt_"+ops.name+" {display:inline-block;padding:0px 20px;line-height:30px;}";
+        s+=".bt_"+ops.name+":before {content:'Show More';}";
+        s+=".hide_bt_"+ops.name+" {display:none;}";
+        s="<style id='style_"+ops.name+"'>"+s+"</style>";
+        $('head').append(s);
+        }
+        if(!$('#style_'+ops.name).size())addStyle();
+        $('.bt_'+ops.name).bind('click',function(){
+            var ob=$(this).parents(ops.get).eq(0);
+            if($(ob).size())
+            {
+                $(ops.list+":hide:lt("+ops.num+")",ob).show();
+                if($(ops.list+":hide",ob).size()==0)
+                {
+                    $(this).addClass('hide_bt_'+ops.name);
+                }
+                else
+                {
+                    $(this).removeClass('hide_bt_'+ops.name);
+                }
+            }
+        })
+    }
+}
+
+Number.prototype.format = function() {
+    var number = this.toFixed(0) + '';
+    var x = number.split('.');
+    var x1 = x[0];
+    var x2 = x.length > 1 ? '.' + x[1] : '';
+    var rgx = /(\d+)(\d{3})/;
+    while (rgx.test(x1)) {
+        x1 = x1.replace(rgx, '$1' + ',' + '$2');
+    }
+    return x1 + x2;
+};
+
+
+var Envora=new lib_Envora();
+
+
+
+Envora.scroll_price=function()
+    {
+        var ops,t=this;
+        this.default={
+                'get':'',
+                'max':1000,
+                'min':0,
+                'val_max':0,
+                'val_min':0,
+                'callback_intialize':'',
+                'callback':'',
+                'e':{},
+                };
+        this.kq=[0,0];
+        this.b_begin=false;
+        this.config=$.extend({},this.default,this.config);
+        function draw()
+        {
+            
+        var s="<div max='"+ops.max+"' min='"+ops.min+"' class='vv_scroll_price'><div class='scroll'><div></div><span class='btu min'></span><span class='btu max'></span></div></div>";
+        return s;
+        }
+        function max_min(cc)
+        {
+            var c=[cc[0],cc[1]];
+            var n=c[0];
+            if(n>c[1])
+            {
+                c[0]=c[1];
+                c[1]=n;
+            }
+            return c;
+        }
+        this.getmax=function()
+        {
+            return ops.max;
+        }
+        this.reset_maxmin=function(cc)
+        {
+            var m=['min','max'];
+            for(var i=0;i<m.length;i++)
+            {
+            ops[m[i]]=cc[i];
+            $(ops.ob).attr(m[i],cc[i]);
+            }
+            
+        }
+        function recal()
+        {
+            
+            ops.e.width=$(ops.ob_scroll).width();
+            var c=[];
+            $.each(ops.ob_button,function(){
+                    var x=cal($(this).position().left+ops.e.e_width);
+                    c.push(x);
+                    $(this).attr('data',x);
+                    
+            });
+            
+            t.kq=c;
+            
+        }
+        function cal(num)
+        {
+            var c=num/ops.e.width;
+            return ((ops.max-ops.min)*c+ops.min).toFixed(2) ;
+        }
+        function review()
+        {
+            
+            var c={
+                'left_1':$(ops.ob_button).eq(1).position().left,
+                'left':$(ops.ob_button).eq(0).position().left,
+                
+            };
+            c.width=Math.abs(c.left-c.left_1);
+            if(c.left_1<c.left)c.left=c.left_1;
+            c.left+=ops.e.e_width;
+            $(ops.ob_view).animate({'left':c.left+'px','width':c.width+'px'},500,function(){
+                //max_min(t.kq);
+                if(ops.callback && t.b_begin)ops.callback(t.kq);
+            });
+            
+        }
+        //function slist(){}
+        function slist()
+        {
+            ops.ob=$('.vv_scroll_price');
+            ops.ob_scroll=$('>.scroll',ops.ob);
+            ops.ob_button=$('>span',ops.ob_scroll);
+            ops.ob_view=$('>div',ops.ob_scroll);
+            
+            ops.e.e_width=$(ops.ob_button).eq(0).width()/2;
+            $(ops.ob_button).css({'left':-ops.e.e_width+'px'});
+            
+            $(ops.ob_button).bind('mousedown',function(e){
+                ops.ob_cur=$(this);
+                t.b_begin=true;
+                ops.cur_index=$(ops.ob_button).index(this);
+                ops.e={
+                        'width':$(ops.ob_scroll).width(),
+                        'e_width':$(this).width()/2,
+                        
+                        };
+                ops.e.left=$(ops.ob_scroll).offset().left+ops.e.e_width;
+                ops.e.max=ops.e.width-ops.e.e_width;
+                ops.e.min=-ops.e.e_width;
+            });
+            
+            $(document).bind('mouseup',function(e){
+                e.preventDefault();
+                if(ops.ob_cur)review();
+                ops.ob_cur='';
+            })  ;       
+            $(document).bind('mousemove',function(e){
+                e.preventDefault();
+                if(ops.ob_cur)
+                {
+                    var cc=e.pageX-ops.e.left;
+                    if(cc>ops.e.max)cc=ops.e.max;
+                    if(cc<ops.e.min)cc=ops.e.min;
+                    $(ops.ob_cur).css({'left':cc+'px'});
+                    var k=cal(cc+ops.e.e_width);
+                    t.kq[ops.cur_index]=k;
+                    $(ops.ob_cur).attr('data',k);
+                }
+            });
+            recal();
+            scrollval();
+            
+        }
+        function addStyle()
+        {
+            var s='',n='.vv_scroll_price';
+            s+=n+"{margin:20px 0;margin-bottom:40px;}";
+            s+=n+" .scroll{border-top:2px solid #ddd;position:relative;}";
+            s+=n+" .scroll>div{border-top:2px solid #000;position:absolute;top:-2px;width:100%;}";
+            s+=n+" .scroll>span{width:20px;height:20px;display:block;border-radius:50%;background:#000;opacity:0.7;position:absolute;top:-11px;cursor:pointer;}";
+            s+=n+" .scroll>span+span{}";
+            s+=n+" .scroll>span:before{width:100px;text-align:center;position:absolute;top:30px;left:-40px;content:attr(data);color:#000;}";
+            s="<style id='style_price_scroll'>"+s+"</style>";
+            $('head').append(s);
+        }
+        function scrollval()
+        {
+        if(ops.val_max!=0 || ops.val_min!=0)
+            {
+                t.kq=[0,0];
+                var vv={'min':0,'max':0};
+                if(ops.val_min)
+                {
+                    vv.min=ops.val_min/ops.max*100;
+                    $(ops.ob_button).eq(0).attr('data',ops.val_min).css({'left':vv.min+'%'});
+                    t.kq[0]=ops.val_min;
+                }
+                if(ops.val_max)
+                {
+                    vv.max=ops.val_max/ops.max*100;
+                    $(ops.ob_button).eq(1).attr('data',ops.val_max).css({'left':vv.max+'%'});
+                    t.kq[1]=ops.val_max;
+                }
+                 review();
+            }
+        }
+        this.view=function(dop)
+        {
+        
+        ops=$.extend({},t.config,dop);
+        $(ops.get).html(draw());
+        slist();
+        
+        }
+        if(!$('#style_price_scroll').size())addStyle();
+    }

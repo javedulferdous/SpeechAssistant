@@ -1,0 +1,35 @@
+!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');
+ fbq('init', '645630012628409'); fbq('set', 'autoConfig', true, '645630012628409');fbq('addPixelId', '638094709973907'); fbq('set', 'autoConfig', true, '638094709973907');fbq('track', 'PageView'); rrtrackpixels = '645630012628409,638094709973907';
+             popupevent = {'try_luck_btn':'wheelio lead'};
+            if(window.jQuery){
+                $ = jQuery.noConflict();
+                $('body').on('mouseover', '.wheelio_holder', function () {
+                    fbq('trackCustom', 'ViewOptin', {content_name: 'wheelio hover'});
+                    $('body').off('mouseover', '.wheelio_holder');
+                });                 
+        
+            }if(typeof isshoptimized != 'undefined') {
+            jQuery(document).ready(function(){
+            jQuery('.quick-shop').click(function(){
+              pd_id = jQuery(this).attr('data-id');
+              price  = jQuery(this).attr('data-prod-price');
+
+                  setTimeout(function(){
+                    var source = 'https://app.redretarget.com/sapp//MY_Shopify/product/shopdiscovery.myshopify.com/?pd_id=' + pd_id;
+                    appendurl(source);
+                  jQuery('#AddToCart').click(function(){
+                      quantity = jQuery('#Quantity').val();
+                      var source = 'https://app.redretarget.com/sapp//MY_Shopify/cart/shopdiscovery.myshopify.com/?pd_id=' + pd_id + '&quantities=' + quantity + '&total_price=' + price;
+                      appendurl(source);
+                    });
+                  },100);
+              });
+            });
+            newsletterpopup = {'submit':'lead'};             
+                if(window.jQuery){
+                    $ = jQuery.noConflict();
+                    $('body').on('mouseover', '#newsletter-popup .modal-body', function () {
+                        fbq('trackCustom', 'ViewOptin', {content_name: 'Shoptimized hover'});
+                        $('body').off('mouseover', '#newsletter-popup .modal-body');
+                    });                              
+                } }

@@ -1,0 +1,872 @@
+
+var site = site || {};
+var Model = Model || {};
+var google = google || {};
+if (Drupal.settings.globals_variables.enable_iv_store_locator) {
+  var gLanguage = Drupal.settings.globals_variables.google_language;
+  var protocol = window.location.protocol === 'https:' ? 'https:' : 'http:';
+  $.getScript(protocol + '//maps.googleapis.com/maps/api/js?client=gme-estee&sensor=false&language=' + gLanguage + '&v=3.8');
+}
+
+site.InvisApp = (function () {
+
+  var that = this;
+  this.dom = {};
+  this.skuId = null;
+  this.inv_product = null;
+  this.doors = [];
+  this.doorsInv = null;
+  this.map = null;
+  this.markers = [];
+  this.infoWindow = null;
+  this.searchPanelData = null;
+  this.inv_vis_zip = null;
+  this.inv_vis_distance = null;
+  this.zip_code = null;
+  this.partnerCount = 0;
+  this.partnerTypeValue = null;
+  this.bopis_enabled = Drupal.settings.globals_variables.bopis_enabled;
+  this.templateInserted = false;
+
+  $(document).on('invis:init', function (e, args) {
+    that.handleInit(args);
+  });
+
+  $(document).on('invis:templates:inserted', function (e, args) {
+     that.handleTemplatesInserted();
+     that.templateInserted = true;
+  });
+
+  $(document).on('product.skuSelect', '.js-product-full', function(e, skuId) {
+    var selectedSku = that.inv_product && that.inv_product.skus.find(function(sku) {
+      return sku.SKU_BASE_ID === skuId;
+    });
+    that.skuId = skuId;
+    that.inv_product && $.extend(that.inv_product, selectedSku);
+    that.templateInserted && that.handleInit({
+      product: that.inv_product,
+      skuId: that.skuId
+    });
+  });
+
+  $(document).on('DoorsInventory:query:success', function (e, args) {
+    if (Drupal.settings.globals_variables.enable_partner_count && args.partnerCount && args.partnerTypeValue) {
+      that.partnerCount = args.partnerCount;
+      that.partnerTypeValue = args.partnerTypeValue;
+    }
+    that.handleDoorsInvResp(args);
+    // set form defaults if search successfull
+    if (typeof args.params !== 'undefined') {
+      that.inv_vis_zip = (typeof args.params[0].zip === 'undefined'
+                            && args.akamai_zip
+                            && args.akamai_zip.length > 4) ? args.akamai_zip.substring(0, 5) : args.params[0].zip;
+      that.inv_vis_distance = parseInt(args.params[0].radius);
+      var $radius = $(".js-invis-select-radius");
+      $radius.find('option[value='+that.inv_vis_distance+']').attr('selected', 'selected');
+    }
+    $('.js-loading', '.js-invis-search-container').addClass('hidden');
+  });
+
+  $(document).on('DoorsInventory:query:failure', function (e, args) {
+    that.handleDoorsInvFail(args);
+    $('.js-loading', '.js-invis-search-container').addClass('hidden');
+  });
+
+  $(document).on('invis:searchPanel:rendered', function (e, args) {
+    that.handleSearchPanelRendered();
+  });
+
+  $(document).on('invis:searchPanel:closed', function (e, args) {
+    that.handleSearchPanelClosed();
+  });
+
+  $(document).on('invis:mainPanel:closed', function (e, args) {
+    // that.handleMainPanelClosed();
+  });
+
+  $(document).on('invis:mainPanel:rendered', function (e, args) {
+    that.handleMainPanelRendered(args);
+  });
+
+  $(document).on('MapApi:textToLatLng:complete', function (e, args) {
+    handleLatLngComplete(args);
+  });
+
+  $(document).on('MapApi:init:complete', function() {
+    that.renderMap();
+    that.renderStores();
+  })
+
+  /*
+   * Handles init event. Called from outside the app.
+   */
+  this.handleInit = function (args) {
+    that.getNodes();
+    if (args) {
+      that.skuId = args.skuId;
+      that.inv_product = args.product;
+    }
+    that.initTemplates();
+
+    // check that this product isn't excluded by PRODUCT_ID, DEFAULT_CAT_ID, or MISC_FLAGS
+    var isValidProd = site.inStoreLocator.prototype.checkProdFlags(args.product)
+                      && site.inStoreLocator.prototype.checkProdCats(args.product)
+                      && site.inStoreLocator.prototype.checkProdIds(args.product);
+    if (isValidProd) {
+      // Reset doors
+      that.doors = [];
+      // reset default zip value - reset value when diff sku selected
+      that.inv_vis_zip = null;
+      // reset default distance - reset value when diff sku selected
+      that.inv_vis_distance = null;
+    } else { // this product / category / misc flag is excluded so remove inv nodes
+      that.dom.$app.each(function(){
+        $(this).remove();
+      });
+    }
+  };
+
+  /*
+   * Handles success response to doorsandskustatus RPC (called in model/doors_inventory.js).
+   * Stores doors inventory response in private vars
+   */
+  this.handleDoorsInvResp = function (response) {
+    // console.log('handling response-----');
+    // console.log(response);
+    var isSearchPanelActive = $(".js-invis-search-container").length > 0;
+
+    that.doors = response.sorted;
+    that.doorsInv = response.door_inventory;
+    // set default zip value
+    that.inv_vis_zip = (that.inv_vis_zip === null
+                          && response.akamai_zip
+                          && response.akamai_zip.length > 4) ? response.akamai_zip.substring(0, 5) : that.inv_vis_zip;
+    if (that.doors.length > 0) {
+      that.zip_code = that.doors[0].ZIP_OR_POSTAL;
+    }
+    if (isSearchPanelActive) {
+      var args = {doors: that.doors};
+      this.renderSearchPanel(args);
+    }
+
+    that.renderStartPanelContent();
+  };
+
+
+  /*
+   * Handles failure response to doorsandskustatus RPC (called in model/doors_inventory.js).
+   * argument Object
+   * example {errors: [{key: 'err_invalid_zip'}]}
+   */
+  this.handleDoorsInvFail = function(args) {
+    if (args.errors && args.errors.length) {
+      that.renderMessages(args);
+    }
+  };
+
+  /*
+   * Handles event fired when tempaltes become available.
+   * Launches initial query to doorsandskustatus.
+   */
+  this.handleTemplatesInserted = function () {
+    this.renderStartPanel();
+    if (Drupal.settings.globals_variables.disable_inventory_visibility_on_pageload) {
+      this.renderStartPanelContent(); // Required to render the element that the user can click on to open the locator popup
+    } else {
+      // Do NOT run on page load. This will prevent locator.doorsandskustatus from running on every SPP page load.
+      this.queryDoors({
+        // zip: 10014, // change for testing initial query with test zip instead of header
+        radius: $(that.dom.$app).find('[data-default-spp-distance]').attr('data-default-spp-distance') || 50,
+        region_id: this.region_id
+      });
+    }
+  };
+
+  /*
+   * Inserts unbound start panel into DOM, pulls CMS data from the rendered element
+   */
+  this.renderStartPanel = function () {
+    var tmpl = that.renderTemplate('invis/start_panel');
+    this.dom.$app.append(tmpl);
+    this.dom.$startPanel = this.dom.$app.find(".js-invis-start-panel");
+    this.safetyStock = this.dom.$startPanel.data("safety-stock");
+    this.region_id = this.dom.$startPanel.data('region-id') || null;
+  }
+
+
+  /*
+   * Inserts start panel into DOM, pulls CMS data from the rendered element.
+   * binds data & events to UI
+   */
+  this.renderStartPanelContent = function () {
+    var panelData = {};
+    panelData.door = that.findBestDoor();
+    if (panelData.door) {
+      panelData.hasLocalDoors = 1;
+      if (panelData.door.skus_onhand) {
+        panelData.hasInventory = 1;
+        if (panelData.door.skus_onhand[that.skuId] && panelData.door.skus_onhand[that.skuId]['is_available']) {
+          panelData.hasAvailable = 1;
+        }
+      }
+    }
+    var tmpl = that.renderTemplate('invis/start_panel_content', panelData);
+    var $oldContent = this.dom.$startPanel.find(".js-invis-start-content");
+    if ($oldContent.length) $oldContent.remove();
+    this.dom.$startPanel.append(tmpl);
+
+    if (panelData.door) {
+      // wire up store name button
+      var fields = ['DOORNAME','ADDRESS','ADDRESS2','CITY','STATE_OR_PROVINCE','COUNTRY','ZIP_OR_POSTAL'];
+      var queryStr = ''
+      _.each( fields, function(f) {
+        queryStr += panelData.door[f] ? panelData.door[f] : '';
+
+      });
+      $('.js-link-open-store')
+          .attr('href', that.getGoogleMapsHref(panelData.door))
+          .attr('target', "store_map");
+    }
+
+    // buttons to open empty search panel
+    $('.js-link-open-finder', this.dom.$startPanel).on('click', function(e) {
+      e.preventDefault();
+      // If door/inventory loading is disabled on pageload, then we need to attempt to load it when the user
+      // clicks the link to open the finder and populate the data if found, this way the user will see results
+      // for their location without having to enter their zipcode.
+      if (Drupal.settings.globals_variables.disable_inventory_visibility_on_pageload) {
+        // NOTE: Overrides disable_inventory_visibility_on_pageload
+        if (Drupal.settings.globals_variables.enable_iv_store_locator) {
+          that.handleOpenFinderClick();
+        } else {
+          Model.DoorsInventory.loadDoorsOnly({
+            skus: window.skuId,
+            region_id: Drupal.settings.globals_variables.enable_iv_store_locator ? that.region_id : '',
+            callback: function(result) {
+              if (result.count > 0) {
+                that.handleDoorsInvResp(result);
+                that.handleOpenResultsClick();
+              } else {
+                that.handleOpenFinderClick();
+                if (Drupal.settings.globals_variables.enable_iv_store_locator) {
+                  that.handleOpenFinderClickStore(result);
+                }
+              }
+            }
+          });
+        }
+      } else {
+        that.handleOpenFinderClick();
+      }
+      e.preventDefault();
+    });
+
+    // button to open search panel with results
+    $('.js-link-open-results', this.dom.$startPanel).on('click', function(e) {
+      e.preventDefault();
+      that.handleOpenResultsClick();
+    });
+  };
+
+  /*
+   * Handles event fired when the main panel (the container for the search panel)
+   * is added to the DOM.
+   * arguments Object optional contains an array of door objects
+   * example { doors: [{DOOR_ID: 12345}]}
+   */
+  this.handleMainPanelRendered = function (args) {
+    this.renderSearchPanel(args);
+  };
+
+  /*
+   * Handles event fired when the google geocoder is used to determine lat and long.
+   */
+  this.handleLatLngComplete = function (args) {
+    // console.log(args);
+  };
+
+  /**
+   * tell Model to request doors & inventory
+   */
+  this.queryDoors = function (params) {
+    var args = {
+      skus : that.skuId,
+      safetyStock : that.safetyStock,
+      radius: 5,
+      region_id: that.region_id,
+      useHeader: 1
+    };
+
+    if (params) {
+      args = _.assign(args, params);
+    }
+    // // override all requests with 5
+    // args = _.assign(args, {
+    //   radius: 5
+    // });
+
+    if (site.prodStoreCheck && site.prodStoreCheck.storeTypes) {
+      args = _.assign(args, {
+        inv_store_types: site.prodStoreCheck.storeTypes
+      });
+    }
+
+    Model.DoorsInventory.load(args);
+  };
+
+  /**
+   * Fetch DOM nodes and store as jQuery objects
+   **/
+  this.getNodes = function () {
+    this.dom.$app = $('.js-invis-app-container');
+    this.dom.$closeLink = $('.js-close-link');
+  };
+
+  /**
+   * Get an Invis template
+   * returns: unprocessed template
+   **/
+  this.getTemplate = function (templateName) {
+    var tmpl = this.dom.$app.find("script.inline-template[path='" + templateName + "']").html();
+    return tmpl;
+  };
+
+  /**
+   * Get an Invis template and processes it with data
+   * returns: html (processed template)
+   **/
+  this.renderTemplate = function (templateName, data) {
+    var tmpl = that.getTemplate(templateName);
+    var rendered = data ? Mustache.render(tmpl, data) : tmpl;
+    return rendered;
+  };
+
+  /**
+   * Insert Invis templates into the DOM for fast retrieval
+   * returns: Set of unprocessed templates wrapped in script.inline-template tags
+   **/
+  this.initTemplates = function () {
+    if (site && site.templates && site.templates['product_store_check_layout_v1']) {
+      site.template.get({
+        name: 'product_store_check_layout_v1',
+        callback: function (html) {
+          // Need to filter out no visible container since mobile and pc templates are used together.
+          that.dom.$app.html(html);
+          $(document).trigger('invis:templates:inserted');
+        }
+      });
+    }
+  };
+
+  this.handleOpenResultsClick = function () {
+    this.renderMainPanel({doors: that.doors});
+  };
+
+  this.handleOverlayOpened = function() {
+  };
+
+  this.handleOverlayClosed = function() {
+  };
+
+  this.handleOpenFinderClick = function () {
+    this.renderMainPanel({doors: that.doors});
+  };
+
+
+  this.handleOpenFinderClickStore = function(res) {
+    this.renderMainPanel(res);
+  };
+  /*
+   * Renders main panel, which is effectively an unbound search panel.
+   * It puts the search panel into an overlay.
+   */
+  this.renderMainPanel = function (args) {
+    var doors = (args && args.doors) ? args.doors : [];
+    var panelHtml = that.renderTemplate('invis/search_panel', {sku: this.inv_product, });
+    // $('body').append( panelHtml );
+    if (Drupal.settings.globals_variables.enable_iv_store_locator) {
+      panelHtml = that.renderTemplate('invis/search_panel', {sku: this.inv_product, store: 1});
+    }
+    var onCompleteFn = function() {
+      $(document).trigger('invis:mainPanel:rendered', args)
+    };
+    var onClosedFn = function() {
+      $(document).trigger('invis:mainPanel:closed', args)
+    };
+    that.dom.$searchPanel = $('.js-invis-search-container');
+    this.openOverlay({
+      content: panelHtml,
+      onComplete: onCompleteFn,
+      onClosed: onClosedFn
+    });
+    if (!that.isDesktop()) {
+      if(that.dom.$searchPanel && that.dom.$searchPanel.length > 0) {
+        that.dom.$searchPanel.remove();
+      }
+      // this.dom.$startPanel.append(panelHtml);
+      onCompleteFn();
+    }
+
+    that.dom.$searchPanel = $(".js-invis-search-container");
+    // $searchPanel.removeClass("hidden");
+    // this.openOverlay($searchPanel);
+  };
+
+  /*
+   * After search panel is insterted into DOM, wires up
+   * data & events for the components.
+   */
+  this.renderSearchPanel = function (args) {
+    this.bindLocationSearchForm();
+    $(".js-invis-results").remove();
+    if (args) {
+      if (args.doors && args.doors.length) { // render door results
+        that.renderResults(args.doors);
+        that.initMap(args.doors);
+      } else { // search form was submitted
+        that.renderMessages({errors:[{key: 'err_no_results'}]});
+      }
+    } else { // no args, treat it as initial view
+        $(".js-invis-input-zip").val("");
+    }
+
+    $('.js-close-link').on('click', function(e) {
+      e.preventDefault();
+      $(document).trigger('invis:searchPanel:closed');
+    });
+
+    $(document).trigger('invis:searchPanel:rendered');
+  };
+
+  /*
+   * Binds events to search form.
+   */
+  this.bindLocationSearchForm = function () {
+    var $submit = $(".js-invis-search-submit");
+    var $zip = $(".js-invis-input-zip");
+    var $loadingIcon = $('.js-loading', '.js-invis-search-container');
+    // set default zip from akamai
+    if($zip.val() === null || $zip.val() === ''){
+      var akamaizip = that.inv_vis_zip || '';
+      if (Drupal.settings.globals_variables.enable_prod_store_check_zipcode) {
+        $zip.val(that.zip_code);
+      } else if (akamaizip.indexOf('+', 3) > 0) { // canada postal code with + symbol fix
+        $('.js-invis-input-zip').val('');
+      } else {
+        $zip.val(akamaizip);
+      }
+    };
+    var $radius = $(".js-invis-select-radius");
+    var defaultDistance = $radius.attr('data-default-distance') || 20;
+    // set default option
+    $radius.find('option[value='+defaultDistance+']').attr('selected', 'selected');
+    var skuId = $(".js-invis-sku-container").data("sku-id").replace('SKU','');
+    $submit.off('click').on('click', function (e) {
+      $loadingIcon.removeClass('hidden');
+      var zip = $zip.val();
+      var radius = $radius.val();
+      if (Drupal.settings.globals_variables.enable_iv_store_locator) {
+        if (zip) {
+          that.enableStore(zip, radius);
+        } else {
+          that.errors = [];
+          that.errors.push({ key: 'err_missing_zip' });
+          $(document).trigger('DoorsInventory:query:failure', {
+            errors: that.errors
+          });
+        }
+      } else {
+        that.queryDoors({
+          skus: skuId,
+          zip: zip,
+          radius: radius,
+          safetyStock: that.safetyStock,
+          useHeader: 0
+        });
+      }
+    });
+    $zip.once().on('keyup', function(e) {
+      var zip = $zip.val();
+      var radius = $radius.val();
+      if (e.keyCode === 13) {
+        if (Drupal.settings.globals_variables.enable_iv_store_locator) {
+          that.enableStore(zip, radius);
+        } else {
+          that.queryDoors ({
+            skus: skuId,
+            zip: zip,
+            radius: radius,
+            safetyStock: that.safetyStock,
+            useHeader: 0
+          });
+        }
+      }
+    });
+    $zip.keydown(function(e) {
+      if (e.keyCode === 13 && !e.shiftKey) {
+        // Prevent default behavior. To disable newline in $zip
+        e.preventDefault();
+      }
+    });
+    $('.js-invis-form-geo-container', this.dom.$searchPanel).once().on('click', function(e) {
+      e.preventDefault();
+      $loadingIcon.removeClass('hidden');
+      $zip.val('');
+      Model.DoorsInventory.loadDoorsOnly({
+        skus: window.skuId,
+        region_id: that.region_id,
+        callback: function(result) {
+          if (!result.count) {
+            that.errors = [];
+            that.errors.push({ key: 'err_no_results' });
+            $(document).trigger('DoorsInventory:query:failure', {
+              errors: that.errors
+            });
+          }
+        }
+      });
+    });
+  };
+
+  this.enableStore = function(zip, radius) {
+    var geocoder = new google.maps.Geocoder();
+    var country = Drupal.settings.globals_variables.country_value;
+    var region;
+    geocoder.geocode({
+      'address': zip,
+      'componentRestrictions': {
+        'country': country
+      }
+    }, function(results, status) {
+      if (status === google.maps.GeocoderStatus.OK) {
+        region = results[0].geometry.location;
+        var latitude = region.lat();
+        var longitude = region.lng();
+        that.queryDoors({
+          skus: skuId,
+          zip: zip,
+          latitude: latitude,
+          longitude: longitude,
+          radius: radius,
+          safetyStock: that.safetyStock,
+          useHeader: 0
+        });
+      } else {
+        that.errors = [];
+        that.errors.push({ key: 'err_invalid_zip' });
+        $(document).trigger('DoorsInventory:query:failure', {
+          errors: that.errors
+        });
+      }
+    });
+  };
+
+  /*
+   * Handles event called after search panel is rendered.
+   * Launches initial query to doorsandskustatus.
+   */
+  this.handleSearchPanelRendered = function () {
+    $(this).colorbox.resize();
+    $(window).resize(function () {  /* Adding a window resize for Orientation changes for colorbox height and width  */
+        $(this).colorbox.resize();
+    });
+    /*
+    if (!this.isDesktop()) {
+      $(".js-invis-start-content").addClass('hidden');
+      $(".js-invis-search-container").removeClass("hidden");
+    }
+    */
+  };
+
+  /*
+   * Handles event called after search panel is closed.
+   */
+  this.handleSearchPanelClosed = function () {
+    /*
+    if (!this.isDesktop()) {
+      $(".js-invis-search-container").addClass("hidden");
+      $(".js-invis-start-content").removeClass('hidden');
+    }
+    */
+  };
+
+  /*
+   * Fetches template for search results container, renders & inserts into DOM
+   */
+  this.renderResults = function(args) {
+    var resultsHtml = that.renderTemplate('/invis/search/results');
+    $(".js-invis-search-container").append(resultsHtml);
+  };
+
+
+
+  this.renderMessages = function(args) {
+    var panelData = {};
+    _.each(args.errors, function(err) {
+      switch(err.key) {
+        case 'err_no_results':
+          panelData.hasNoResults = 1;
+          break;
+        case 'err_invalid_zip':
+          panelData.invalidZip = 1;
+          break;
+        case 'err_missing_zip':
+          panelData.missingZip = 1;
+          break;
+        default:
+          break;
+      }
+    });
+    var msgsHtml = that.renderTemplate('/invis/search/messages', panelData);
+    var $oldResults = that.dom.$searchPanel.find(".js-invis-results");
+    var $invisContainer = that.dom.$searchPanel.find('.js-invis-form-container');
+    var $invisFormContainer = Drupal.settings.globals_variables.enable_iv_store_locator ? $invisContainer : that.dom.$searchPanel;
+    if ($oldResults.length) $oldResults.remove();
+    $invisFormContainer.append(msgsHtml);
+    $(this).colorbox.resize();
+  };
+
+  this.openOverlay = function (args) {
+    var _content = args.content;
+    var _onComplete = args.onComplete;
+    var _onClosed = args.onClosed;
+    var overlayWidth = Drupal.settings.globals_variables.enable_iv_store_locator ? '80%' : '60%';
+    generic.overlay.launch({
+      content: _content,
+      includeBackground: true,
+      includeCloseLink: true,
+      initialHeight: 0,
+      maxHeight: '80%',
+      width: overlayWidth,
+      // onComplete : _onComplete,
+      onClosed : _onClosed,
+      onComplete : function() {
+        _onComplete();
+        $(this).colorbox.resize();
+      }
+    });
+  };
+
+  this.initMap = function() {
+    Model.MapApi.init('MapApi:init:complete');
+  };
+
+  this.getGoogleMapsHref = function (door) {
+    var fields = ['ADDRESS','ADDRESS2','CITY','STATE_OR_PROVINCE','COUNTRY','ZIP_OR_POSTAL'];
+    // adding a comma after door name to help Google parse query string into viable address
+    var queryStr = door['DOORNAME'] ? door['DOORNAME'] + ',' : '';
+    _.each( fields, function(f) {
+      queryStr += door[f] ? door[f] + ' ' : '';
+    });
+    return "http://maps.google.com/maps?q=" + encodeURIComponent(queryStr);
+  };
+
+  this.renderStores = function () {
+    if (!that.doors || !that.doors.length) return null;
+    var tableHtml = that.renderTemplate('/invis/search/doors_table');
+    $('.js-stores-container').html(tableHtml);
+    that.dom.$doorsTable = $('ul.js-results-list');
+
+    var bounds = new google.maps.LatLngBounds();
+    var safetyStock = this.safetyStock;
+    that.markers = [];
+    var doorPartnerHtml = '';
+    var doorLength = that.doors.length;
+    var partnerStoreType = '';
+    var doorPartnerLength = 0;
+    var doorLoop = 0;
+    if (Drupal.settings.globals_variables.enable_partner_count && doorLength && that.partnerCount) {
+      doorPartnerLength = doorLength - that.partnerCount;
+      partnerStoreType = that.partnerTypeValue;
+    }
+    _.each(that.doors, function(door, idx) {
+      door.idx = idx;
+      door.googleMapsHref = that.getGoogleMapsHref(door);
+      if (Drupal.settings.globals_variables.enable_partner_count) {
+        if (door['STORE_TYPE'] !== partnerStoreType) {
+          door.markerSrc = '/media/export/cms/store_location_pins/Stores_' + (doorLoop + 1) + '-01.svg';
+          doorLoop++;
+        } else if (door['STORE_TYPE'] === partnerStoreType) {
+          door.markerSrc = '/media/export/cms/store_location_pins/Stores_' + (doorPartnerLength + 1) + '-01.svg';
+          doorPartnerLength++;
+        }
+      } else {
+        door.markerSrc = '/media/export/cms/store_location_pins/Stores_' + (idx + 1) + '-01.svg';
+      }
+      door['hasInventory'] = 0;
+      door['hasAvailable'] = 0;
+      door['isCall'] = 0;
+      door['isCallAvail'] = 0;
+      door['statusClass'] = 'no-inventory';
+      if (Drupal.settings.globals_variables.enable_call_avail) {
+        door['isCallAvail'] = 1;
+      }
+      if (door.skus_onhand && door.skus_onhand[that.skuId]) {
+        var inv = door.skus_onhand[that.skuId];
+        door['hasInventory'] = 1;
+        door['statusClass'] = 'has-inventory';
+        if (inv['is_available']) {
+          door['statusClass'] = 'has-available';
+          door['hasAvailable'] = 1;
+        } else if (inv['is_call']) {
+          door['isCall'] = 1;
+          door['statusClass'] += ' call-for-availability';
+        }
+      }
+      var doorHtml = that.renderTemplate('/invis/search/door', door);
+      if (door['STORE_TYPE'] === partnerStoreType && doorHtml) {
+        doorPartnerHtml = doorPartnerHtml.concat(doorHtml);
+      } else {
+      // add store to results list
+        that.dom.$doorsTable.append(doorHtml);
+      }
+      // place marker on Google Map
+      if (that.map) {
+        var latLng = new google.maps.LatLng(door.LATITUDE, door.LONGITUDE);
+        bounds.extend(latLng);
+        var marker = new google.maps.Marker({
+          position: latLng,
+          map: that.map,
+          icon: {
+            url: door.markerSrc,
+            scaledSize: new google.maps.Size(31, 41),
+            origin: new google.maps.Point(0, 0),
+            anchor: new google.maps.Point(0, 41)
+          },
+          optimized: false,
+          index: idx,
+          title: '' + door.DOOR_ID
+        });
+        that.map.fitBounds(bounds);
+
+        marker.addListener('click', function (e) {
+          that.handleStoreClick(marker.index);
+        });
+
+        that.markers.push(marker);
+      }
+    }); // end _.each
+
+    if (doorPartnerHtml && Drupal.settings.globals_variables.enable_partner_count) {
+      that.dom.$doorsTable.append(doorPartnerHtml);
+    }
+
+    // bind event to doors list items
+    that.dom.$doorsTable.find(".js-door-list-item").on('click', function (e) {
+      var i = $(this).data('door-idx');
+      that.handleStoreClick(i);
+    });
+
+
+    var $resultsMask = that.dom.$searchPanel.find('.js-results-list-wrapper');
+    var resultsHeight = $('.js-results-list', $resultsMask).height(); // total height of all results
+    var maskHeight = $resultsMask.height(); // this is set once full height
+    var scrollAmount = Math.floor(maskHeight / 3);
+
+    $('.shade-picker__next', that.dom.$searchPanel).once().click(function() {
+      that.dom.$doorsTable.scrollTo(that.dom.$doorsTable.scrollTop() + 300 + 'px', 300);
+    });
+    $('.shade-picker__previous', that.dom.$searchPanel).once().click(function() {
+      that.dom.$doorsTable.scrollTo(that.dom.$doorsTable.scrollTop() - 300 + 'px', 300);
+    });
+    that.handleSearchPanelRendered();
+  };  // end renderStores
+
+  this.handleStoreClick = function (i) {
+    that.displayInfoWindow(i);
+    that.selectDoorInList(i);
+  };
+
+  this.displayInfoWindow = function (i) {
+    if (that.infoWindow) that.infoWindow.close();
+    var door = doors[i];
+    var marker = markers[i];
+    that.infoWindow = new google.maps.InfoWindow();
+    that.infoWindow.setContent('' + door.DOORNAME + ' ' + door.SUB_HEADING);
+    that.infoWindow.open(that.map, marker);
+    that.map.setCenter(marker.getPosition());
+    // infoWindow style overides...
+    google.maps.event.addListener(that.infoWindow, 'domready', function() {
+       var iwOuter = $('.gm-style-iw');
+       var iwBackground = iwOuter.prev();
+       // iwBackground.children(':nth-child(1)').attr('style', function(i,s){ return s + 'background-color: #000 !important;'});
+       iwBackground.children(':nth-child(3)').children('div').children('div').attr('style', function(i,s){ return s + 'background-color: #000 !important;'});
+       iwBackground.children(':nth-child(2)').css({'display' : 'none'});
+       iwBackground.children(':nth-child(4)').css({'display' : 'none'});
+       var iwCloseBtn = iwOuter.next();
+       iwCloseBtn.css({
+         opacity: '1',
+         color: '#FFFFFF',
+         top: '20px',
+         right: '15px'
+         })
+         .html('X');
+       iwCloseBtn.mouseout(function(){
+         $(this).css({opacity: '1'});
+       });
+    });
+  };
+
+  this.selectDoorInList = function (i) {
+    var $list = that.dom.$doorsTable;
+    $list.find("li").removeClass('selected');
+    $selectedLi = $list.find('li[data-door-idx=' + i + ']');
+    if ($selectedLi.length) {
+      $selectedLi.addClass('selected');
+      $list.animate({
+        scrollTop: $selectedLi.offset().top - $list.offset().top + $list.scrollTop()
+      });
+    }
+  };
+
+  this.renderMap = function () {
+    if (!that.doors || !that.doors.length) return null;
+
+    var zoomLevel = 5;
+    mapOptions = {
+      zoom: zoomLevel,
+      center: new google.maps.LatLng(that.doors[0]['LATITUDE'], that.doors[0]['LONGITUDE']),
+      mapTypeId: google.maps.MapTypeId.ROADMAP,
+      disableDefaultUI: false,
+      navigationControl: true,
+      mapTypeControl: false,
+      scaleControl: false
+    };
+    this.map = new google.maps.Map($(".js-map-container")[0], mapOptions);
+  }
+
+  /*
+   * Doors are returned from the model sorted by distance. This function
+   * searches through doors to find the closest door with available inventory.
+   * If none is found, look for a door with  any inevntory. If neither is
+   * found, return the closest door.
+   */
+  this.findBestDoor = function () {
+    var door = null;
+    door = _.find(that.doors, function (d) {
+      return d.skus_onhand
+          && d.skus_onhand[that.skuId]
+          && (d.skus_onhand[that.skuId]['is_available']);
+    });
+    if (!door) {
+      door = _.find(that.doors, function (d) {
+        return d.skus_onhand
+            && d.skus_onhand[that.skuId];
+      });
+    }
+    if (!door) {
+      door = that.doors[0];
+    }
+    return door;
+  };
+
+  /*
+   * returns boolean indicating whether current breakpoint is 102epx+
+   */
+  this.isDesktop = function () {
+    return (parseInt(Unison.fetch.now().width) >= 1023);
+  };
+
+  return that;
+
+})();

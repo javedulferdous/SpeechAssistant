@@ -1,0 +1,55 @@
+(function($, prodcat) {
+
+$(document).on('click', '.js-add-to-cart', function(e) {
+  e.preventDefault();
+  var $addBtn = $(this);
+  if ($addBtn.data('disabled')) {
+    return;
+  }
+  var skuBaseId = $addBtn.data('sku-base-id');
+  if (!skuBaseId || skuBaseId.length < 1) {
+    return;
+  }
+
+  // Account for adding multiple skus to bag
+  var args = {};
+  skuBaseId = String(skuBaseId);
+  if (skuBaseId.indexOf(',') >= 0) {
+    args.skuBaseId = skuBaseId.split(',');
+    if (skuBaseId.slice(-1) === ',') {
+      args.skuBaseId.pop();
+    }
+  } else {
+    args.skuBaseId = skuBaseId;
+  }
+
+  var quantity = $addBtn.data('qty');
+  if (!!quantity) {
+    args.quantity = quantity;
+  }
+
+  // Replenishment updates when sku is refillable and enable_replenishment=true in config. (currently applicable only when adding one item at a time)
+  if (_.isString(args.skuBaseId) && Drupal.settings.common && Drupal.settings.common.has_replenishment) {
+    var skuDataL2 = prodcat.data.getSku(args.skuBaseId);
+    try {
+      if (skuDataL2.REFILLABLE) {
+        var frequency = $addBtn.attr('data-replenishment');
+        if (!!frequency) {
+          args.REPLENISHMENT_FREQ = frequency;
+        } else {
+          args.REPLENISHMENT_FREQ = 0;
+        }
+        args.action = 'add';
+        args.itemType = 'replenishment';
+        args.add_to_cart = 1;
+      }
+    }
+    catch (e) {
+      return '';
+    }
+  }
+
+  prodcat.ui.addToCart(args);
+});
+
+})(jQuery, window.prodcat = window.prodcat || {});

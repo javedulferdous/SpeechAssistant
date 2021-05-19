@@ -1,0 +1,191 @@
+(function($, site, settings) {
+
+var site = site || {};
+site.onLoadRpc = site.onLoadRpc || {};
+site.onLoadRpc.requests = site.onLoadRpc.requests || [];
+
+/**
+ * Custom event handlers
+ */
+
+$(document).on('mp_config:success', function(e, config) {
+  if (!_.isUndefined(config) && !_.isNull(config)) {
+    $('[data-mp-country-id], [data-mp-language-id]').trigger('mp_config:update', [config]);
+
+    if (!_.isNaN(parseInt(config.country_id))) {
+      $('input[name="COUNTRY_ID"]').val(config.country_id);
+    }
+
+    if (!_.isNaN(parseInt(config.language_id))) {
+      $('input[name="LANGUAGE_ID"]').val(config.language_id);
+    }
+  }
+});
+
+$(document).on('mp_config:failure', function(e, config) {
+  console.log('An error has occured while retrieving the motionpoint config');
+});
+
+$('input[data-mp-country-id]').on('mp_config:update', function(e, config) {
+  if (_.isUndefined(config) || _.isNull(config)) {
+    return;
+  }
+
+  if (_.isUndefined(config.country_id)) {
+    return;
+  }
+
+  if (!_.isNaN(parseInt(config.country_id))) {
+    $(this).val(config.country_id);
+  }
+});
+
+$('input[data-mp-language-id]').on('mp_config:update', function(e, config) {
+  if (_.isUndefined(config) || _.isNull(config)) {
+    return;
+  }
+
+  if (_.isUndefined(config.language_id)) {
+    return;
+  }
+
+  if (!_.isNaN(parseInt(config.language_id))) {
+    $(this).val(config.language_id);
+  }
+});
+
+
+/**
+ * Motion point language toggle links
+ */
+
+Drupal.behaviors.mpTranslate = {
+  attach: function(context) {
+    window.MP = {
+      Version: '1.0.23',
+      Domains: {'es':'es.maccosmetics.com', 'fr':'fr.maccosmetics.ca'},
+      SrcLang: 'en',
+      UrlLang: 'mp_js_current_lang',
+      SrcUrl: decodeURIComponent('mp_js_orgin_url'),
+      init: function(){
+        if (MP.UrlLang.indexOf('p_js_')==1) {
+          MP.SrcUrl=window.top.document.location.href;
+          MP.UrlLang=MP.SrcLang;
+        }
+      },
+      getCookie: function(name){
+        var start=document.cookie.indexOf(name+'=');
+        if(start < 0) return null;
+        start=start+name.length+1;
+        var end=document.cookie.indexOf(';', start);
+        if(end < 0) end=document.cookie.length;
+        while (document.cookie.charAt(start)==' '){ start++; }
+        return decodeURIComponent(document.cookie.substring(start,end));
+      },
+      setCookie: function(name,value,path,domain){
+        var cookie=name+'='+encodeURIComponent(value);
+        if(path)cookie+='; path='+path;
+        if(domain)cookie+='; domain='+domain;
+        var now=new Date();
+        now.setTime(now.getTime()+1000*60*60*24*365);
+        cookie+='; expires='+now.toUTCString();
+        document.cookie=cookie;
+      },
+      switchLanguage: function(lang){
+        var script;
+        if (lang!=MP.SrcLang){
+          script=document.createElement('SCRIPT');
+          script.src=location.protocol+'//'+MP.Domains[lang]+'/'+MP.SrcLang+lang+'/?1023749632;'+encodeURIComponent(MP.SrcUrl);
+          document.body.appendChild(script);
+        } else if(lang==MP.SrcLang && MP.UrlLang!=MP.SrcLang){
+          script=document.createElement('SCRIPT');
+          script.src=location.protocol+'//'+MP.Domains[MP.UrlLang]+'/'+MP.SrcLang+MP.UrlLang+'/?1023749634;'+encodeURIComponent(location.href);
+          document.body.appendChild(script);
+        }
+        return false;
+      },
+      switchToLang: function(url) {
+        window.top.location.href=url;
+      }
+    };
+
+    $('.js-switch-lang-link', context).on('click', function(event) {
+      event.preventDefault();
+      var lang = $(this).attr('data-mp-lang');
+
+      MP.SrcUrl=decodeURIComponent('mp_js_orgin_url');
+      MP.UrlLang = lang !== 'en' ? 'mp_js_current_lang' : MP.getCookie('MP_LANG');
+      MP.init();
+      MP.switchLanguage(MP.UrlLang==lang?'en':lang);
+    });
+  }
+};
+
+
+/**
+ * Initialize
+ */
+
+var mp_config = $.cookie('MP_CONFIG');
+var mp_defaults = site.onLoadRpc.defaults && site.onLoadRpc.defaults.motion_point;
+
+// We've already cookied the config, so let's use it.
+// Otherwise, we'll run a frontend rpc request to get it.
+if (!_.isEmpty(mp_config) && (mp_config !== 'null')) {
+
+  // Since we're storing the data as json, we want to de-json'ify it
+  var parsed_config = $.parseJSON(mp_config);
+  // set the language ID from the settings.perlgem.pg_reqs values
+  if(_.isUndefined(settings.language_id) && settings.perlgem.pg_reqs) {
+
+    var res = settings.perlgem.pg_reqs.split(/[&=]/);
+    $.each(res, function(index, value){
+      if(value == 'language_id') {
+        var newIndex = index + 1;
+        settings.language_id = res[newIndex];
+      }
+    });
+  }
+
+  // Compare language id's between the cookie and Drupal.settings
+  // If they're different, then we're on an MP-translated site, therefore
+  // we'll update the elements accordingly
+  if (!_.isUndefined(parsed_config.language_id) && !_.isUndefined(settings.language_id)) {
+
+    // Make sure we're comparing integers
+    var pcLId = parseInt(parsed_config.language_id),
+        dsLId = parseInt(settings.language_id);
+
+    if (pcLId != dsLId) {
+      $(document).trigger('mp_config:success', [parsed_config]);
+    }
+  }
+}
+else if ( mp_defaults ) {
+
+  $.cookie('MP_CONFIG', JSON.stringify(mp_defaults));
+  $(document).trigger('mp_config:success', [mp_defaults]);
+
+} else {
+
+  // Add the query onto everything else
+  site.onLoadRpc.requests.push({
+    method    : 'site.getMPConfig',
+    params    : [{}],
+    onSuccess : function(r) {
+      if (!_.isUndefined(r.result) && !_.isUndefined(r.result.value)) {
+        var val = r.result.value;
+        $.cookie('MP_CONFIG', JSON.stringify(val));
+        $(document).trigger('mp_config:success', [val]);
+      }
+      else {
+        $(document).trigger('mp_config:failure', []);
+      }
+    },
+    onFailure : function() {
+      $(document).trigger('mp_config:failure', []);
+    }
+  });
+}
+
+})(jQuery, window.site || {}, Drupal.settings || {});

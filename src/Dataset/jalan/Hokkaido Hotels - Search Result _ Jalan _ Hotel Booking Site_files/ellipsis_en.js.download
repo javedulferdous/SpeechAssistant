@@ -1,0 +1,30 @@
+var JALAN = JALAN || {};
+JALAN.PARTS = {};
+JALAN.PARTS.ELLIPSIS = function(target,num){
+		this.$target = $(target);
+		this.cutFigure = num;
+		this.init();
+};
+
+JALAN.PARTS.ELLIPSIS.prototype = {
+	init : function(){
+		this.bindEvent();
+	},
+	bindEvent : function(){
+		var myself = this;
+		var afterText = '...';
+		this.$target.each(function(){
+			var textLength = $(this).text().length;
+			var textTrim = $(this).text().substr(0,(myself.cutFigure));
+			if(myself.cutFigure < textLength){
+				$(this).html(textTrim + afterText).css({visible:'visible'});
+			}else if(myself.cutFigure >= textLength){
+				$(this).css({visible:'visible'});
+			}
+		});
+	}
+}
+
+$(function(){
+	new JALAN.PARTS.ELLIPSIS('.jsc-ellipsis-target',120);
+});

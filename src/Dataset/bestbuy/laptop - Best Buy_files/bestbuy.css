@@ -1,0 +1,103 @@
+﻿.defaultCta:after {
+    content: 'See Details';
+}
+
+html, body {margin:0; padding:0;}            
+.container, .container * {-moz-box-sizing: content-box; -webkit-box-sizing: content-box; box-sizing: content-box;}
+.container {
+    background-color: white;
+    line-height: 1em;
+    font-family: Arial, Helvetica, "Nimbus Sans L", "Liberation Sans", FreeSans, sans-serif;
+    font-size:13px;
+    display:block;
+    text-decoration: none;
+    cursor: default;
+    -webkit-font-smoothing: antialiased;
+    position: relative;
+    overflow:hidden;
+    background-clip: padding-box;
+    border:1px solid #ccc;
+}
+
+.clearfix:before,
+.clearfix:after {content: " "; display: inline;}
+.clearfix:after {clear: both;}
+.clearfix {*zoom: 1;}
+.hide {display: none;}
+a {text-decoration: none; display:block;}
+a img {border:none;}
+
+.prodGroup {padding:8px; cursor: pointer; cursor: hand;  cursor: pointer; cursor:hand;  position: relative;}
+
+.prodGroup:hover .prodTitle {text-decoration: underline;}
+.hook-img-holder {overflow: hidden; background:#fff; text-align:center;}
+.hook-img-holder img {display:inline-block; vertical-align:middle; border:none;}
+
+.prodTitle {color: #003b64; line-height:18px;  height:36px; font-size:12px; overflow: hidden;font-weight: bold;}
+.prodPrice {color: #003865; font-size: 18px; font-weight: bold; line-height: 18px; margin: 8px 0 0;}
+.comparePrice { display: none; }
+.prodAction {
+    clear: both; 
+    float:right; 
+    text-decoration: none;
+    vertical-align: middle;
+    text-align: center;
+    font-weight: bold;
+    color:white;
+    margin: 0;
+    font-size: 12px;
+    padding: 6px 11px 5px 11px;
+    height: 14px;
+    border-radius: 4px;
+    -webkit-background-clip: padding-box;
+    -moz-background-clip: padding-box;
+    -ms-background-clip: padding-box;
+    background-clip: padding-box;
+    background-color: #005ea6;
+}
+
+.prod2 .three {display:none;} 
+
+.s160x600  {width:158px; height:598px;}
+.s160x600 .hook-img-holder {margin:0 0 8px 0;}
+.s160x600 .hook-img-holder img {height:auto; max-height:175px;}
+.s160x600 .prodAction {margin:4px 4px 0 0; float:none; position: absolute; left:0; bottom:-35px;}
+.s160x600 .meta {position: relative;}
+
+.s160x600.prod2 .prodGroup {height:283px;}
+.s160x600.prod2 .hook-img-holder img {width:auto; max-width:140px; height:auto; max-height:210px;}
+
+.s160x600.prod3 .prodGroup {height:184px;}
+.s160x600.prod3 .hook-img-holder img {width:auto; max-width:140px; height:auto; max-height:111px;}
+.s160x600.prod3 .prodAction {display: none; float: none; bottom: -1px; left: 70px; height: 14px; padding: 3px 6px; }
+
+.s300x250  {width:298px; height:248px;}
+.s300x250 .prodGroup {float:left; width: 288px;}
+.s300x250 .meta {float:left; width:194px; padding:0 16px;}
+.s300x250 .prodAction {margin:5px -4px 0 0;}
+
+.s300x250.prod2 .prodGroup {height:100px; padding: 16px 16px 4px;}
+.s300x250.prod2 .hook-img-holder {float:left; width:85px;}
+.s300x250.prod2 .hook-img-holder img {width:auto; max-width:85px; height:auto; max-height:106px;}
+.s300x250.prod2 .meta {float:left; width:164px; padding:0 16px;}
+.s300x250.prod2 .prodAction {float: none; position: absolute; left: 126px; top: 76px;}
+
+.s300x250.prod3 .hook-img-holder {float:left; width:65px;}
+.s300x250.prod3 .hook-img-holder img {width:auto; max-width:65px; height:auto; max-height:65px;}
+.s300x250.prod3 .prodAction { margin: 2px 0 0; }
+
+.s728x90 {width:726px; height:88px;}
+.s728x90 .hook-img-holder {float:left;}
+.s728x90 .prodTitle {margin-top:-2px;}
+.s728x90 .prodAction {float:right;}
+.s728x90 .prodPrice {margin-top:8px;}
+
+.s728x90.prod2 .prodGroup {float:left; width:347px;}
+.s728x90.prod2 .meta {float:left; width:210px; padding:0 16px;}
+.s728x90.prod2 .hook-img-holder img {width:auto; max-width:91px; height:auto; max-height:70px;}
+.s728x90.prod2 .prodAction {margin:5px 0 0 0; }
+
+.s728x90.prod3 .prodGroup {float:left; width:226px;}
+.s728x90.prod3 .meta {float:left; width:138px; padding:0 16px;}
+.s728x90.prod3 .hook-img-holder img {width:auto; max-width:70px; height:auto; max-height:70px;}
+.s728x90.prod3 .prodAction {margin: 2px 0 -2px 0; padding: 2px 8px; float: none; width: 80px;}

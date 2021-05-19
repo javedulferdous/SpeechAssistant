@@ -1,0 +1,241 @@
+var yswBronto;
+var yswBrontoTracker = {
+	url : 'http://www.domain.com',
+	yahooid : 'testid',
+	baseURL : '',
+	brontoTags : '',
+	cookieLen : 3500,
+	brontoParms : {},
+	tagForms : function() {
+		var allForms = document.getElementsByTagName("form");
+		for(var formLoop=0;formLoop<allForms.length;formLoop++) {
+			var formDomain = allForms[formLoop].action;
+			if (yswBrontoTracker.isCheckoutURL(formDomain)) {
+				//if its not the current domain
+				//loop through all domains to tag
+				allForms[formLoop].action = yswBrontoTracker.tagUrl(formDomain);
+			}
+		}
+	},
+	extractDomain : function() {
+		var domainParts = document.domain.split('.');
+		//find & remove protocol (http, ftp, etc.) and get domain
+		domain = '.' + domainParts[domainParts.length - 2] + '.' + domainParts[domainParts.length - 1];
+		if (domain == '.yahoo.net') {
+			domain = ".store.yahoo.net";
+		}
+		return domain;
+	},
+	setCookie : function(name,value,days,domain,path) {
+		if (days) {
+			if (days == 0) {
+				var expires = "";
+			} else {
+				var date = new Date();
+				date.setTime(date.getTime()+(days*24*60*60*1000));
+				var expires = "; expires="+date.toGMTString();
+			}
+		}
+		else var expires = "";
+		if (domain) {
+			var cdomain = "; domain=" + domain;
+		} else {
+			var cdomain = "";
+		}
+		if (path) {
+			var cpath = "; path=" + path;
+		} else {
+			var cpath = "; path=/";
+		}
+		document.cookie = name+"="+value+expires+cdomain+cpath;
+	},
+	getCookie : function (name) {
+		var nameEQ = name + "=";
+		var ca = document.cookie.split(';');
+		for(var i=0;i < ca.length;i++) {
+			var c = ca[i];
+			while (c.charAt(0)==' ') c = c.substring(1,c.length);
+			if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length,c.length);
+		}
+		return null;
+	},
+	gettidCookie : function () {
+		var ca = document.cookie.split(';');
+		for(var i=0;i < ca.length;i++) {
+			var c = ca[i];
+			while (c.charAt(0)==' ') c = c.substring(1,c.length);
+			if (c.indexOf('tid_') == 0) return c;
+		}
+		return null;
+	},
+	tagLinks : function() {
+		var allLinks = document.getElementsByTagName("a");
+		for(var tagLoop=0;tagLoop<allLinks.length;tagLoop++) {
+			var tagDomain = allLinks[tagLoop].href;
+			if (yswBrontoTracker.isCheckoutURL(tagDomain)) {
+				//if its not the current domain
+				//loop through all domains to tag
+				allLinks[tagLoop].href = yswBrontoTracker.tagUrl(tagDomain);
+			}
+		}
+	},
+	getParms : function() {
+		var parmString = window.location.hash.substring(1);
+		var parmsFound = false;
+		if (parmString != "") {
+			var parms = parmString.split('&');
+			for (var parmLoop=0; parmLoop<parms.length; parmLoop++) {
+				if (parms[parmLoop].indexOf('yswBtid=') == 0 || parms[parmLoop].indexOf('yswBtidv=') == 0 || parms[parmLoop].indexOf('yswBtrid=') == 0 || parms[parmLoop].indexOf('yswBtrem=') == 0) {
+					parmsFound = true;
+					var parmInfo = parms[parmLoop].split('=');
+					yswBrontoTracker.brontoParms[parmInfo[0]] = parms[parmLoop].substring(parmInfo[0].length + 1);
+				}
+			}
+			if (parmsFound) {
+				if (yswBrontoTracker.isCheckout()) {
+					var cookieFolder = "/" + yswBrontoTracker.yahooid + "/";
+				} else {
+					var cookieFolder = null;
+				}
+				if (yswBrontoTracker.brontoParms['yswBtid'] !== undefined && yswBrontoTracker.brontoParms['yswBtidv'] !== undefined) {
+					yswBrontoTracker.setCookie('tid_' + yswBrontoTracker.brontoParms['yswBtid'], yswBrontoTracker.brontoParms['yswBtidv'], 1, yswBrontoTracker.baseURL, cookieFolder);
+				}
+				if (yswBrontoTracker.brontoParms['yswBtrid'] !== undefined) {
+					yswBrontoTracker.setCookie('__btr_id', yswBrontoTracker.brontoParms['yswBtrid'], 1, yswBrontoTracker.baseURL, cookieFolder);
+				}
+				if (yswBrontoTracker.brontoParms['yswBtrem'] !== undefined) {
+					yswBrontoTracker.setCookie('__btr_em', yswBrontoTracker.brontoParms['yswBtrem'], 1, yswBrontoTracker.baseURL, cookieFolder);
+				}
+			}
+		} else {
+			//read from Cookies
+			var yswBtrid = yswBrontoTracker.getCookie('__btr_id');
+			if (yswBtrid) {
+				yswBrontoTracker.brontoParms['yswBtrid'] = yswBtrid;
+			}
+			var yswBtrem = yswBrontoTracker.getCookie('__btr_em');
+			if (yswBtrem) {
+				yswBrontoTracker.brontoParms['yswBtrem'] = yswBtrem;
+			}
+			var tidCookie = yswBrontoTracker.gettidCookie();
+			if (tidCookie) {
+				tidParts = tidCookie.split('=');
+				yswBrontoTracker.brontoParms['yswBtidv'] = tidParts[1];
+				yswBrontoTracker.brontoParms['yswBtid'] = tidParts[0].substring(4);
+			}
+		}
+		var tags = '';
+		if (yswBrontoTracker.brontoParms['yswBtrid']) {
+			tags += '&yswBtrid=' + yswBrontoTracker.brontoParms['yswBtrid'];
+		}
+		if (yswBrontoTracker.brontoParms['yswBtrem']) {
+			tags += '&yswBtrem=' + yswBrontoTracker.brontoParms['yswBtrem'];
+		}
+		if (yswBrontoTracker.brontoParms['yswBtidv']) {
+			tags += '&yswBtidv=' + yswBrontoTracker.brontoParms['yswBtidv'];
+		}
+		if (yswBrontoTracker.brontoParms['yswBtid']) {
+			tags += '&yswBtid=' + yswBrontoTracker.brontoParms['yswBtid'];
+		}
+	    if (tags != '') {
+			yswBrontoTracker.brontoTags = tags.substring(1);
+		}
+	},
+	tagUrl : function(url) {
+		var urlParts = url.split('#');
+		var finalURL = urlParts[0];
+		if (yswBrontoTracker.brontoTags.length > 0) {
+			if (urlParts.length > 1) {
+				finalURL = finalURL + '#' + urlParts[1] + '&' + yswBrontoTracker.brontoTags;
+			} else {
+				finalURL = finalURL + '#' + yswBrontoTracker.brontoTags;
+			}
+		}
+		return finalURL;
+	},
+	isCheckout : function() {
+		return (document.domain.indexOf("ure.sportsunlimitedinc.com") > -1);
+	},
+	isCheckoutURL : function(url) {
+		return (url.indexOf("ure.sportsunlimitedinc.com") > -1);
+	},
+	go: function() {
+		yswBrontoTracker.baseURL = yswBrontoTracker.extractDomain();
+		if (yswBrontoTracker.isCheckout()) {
+			yswBronto  = {};
+			if (typeof orderDiscount == "undefined") {
+				var orderDiscount = 0;
+			}
+			if (typeof window.orderNum == "undefined") {
+				window.orderNum = null;
+			}
+			yswBronto = {
+			   "customerCartId": null,
+			   "grandTotal": orderTotal * 1,
+			   "subtotal": orderSubTotal * 1,
+			   "discountAmount": orderDiscount,
+			   "url": 'http://secure.sportsunlimitedinc.com/' + yswBrontoTracker.yahooid + '/cgi-bin/wg-order?' + yswBrontoTracker.yahooid,
+			   "currency": "USD",
+			   "taxAmount": orderTax * 1,
+			   "orderId" : window.orderNum,
+			   "lineItems": []
+			}
+			if (items.length > 0) {
+				var itemCount = items.length;
+				for (var itemLoop=0; itemLoop < itemCount; itemLoop++) {
+					var itemObj = {
+					   "other": null,
+					   "imageUrl": ((typeof itemImages == "undefined") ? null : 'http://cdn-sportsunlimitedinc.scdn2.secure.raxcdn.com/mod_productImagesDownload/images/' + ids[itemLoop] + '_mainProductImage_Medium.jpg'),
+					   "unitPrice": price[itemLoop] * 1,
+					   "sku": codes[itemLoop],
+					   "category": null,
+					   "description": null,
+					   "productUrl": $(".ys_itemInfo a")[itemLoop].href,
+					   "name": items[itemLoop],
+					   "quantity": qtys[itemLoop] * 1,
+					   "salePrice": 0,
+					   "totalPrice": price[itemLoop] * qtys[itemLoop],
+					   "id": ids[itemLoop],
+					}
+					yswBronto.lineItems.push(itemObj);
+				}
+			}
+			if (window.location.protocol == "http:") {
+				var passData = JSON.stringify(yswBronto);
+				var toPass = passData;
+				var nameParam = '';
+				for (var cookieNum = 1;toPass.length > 0;cookieNum++) {
+					var endChunk = toPass.indexOf(',"',yswBrontoTracker.cookieLen);
+					if (endChunk == -1) {
+						endChunk = 9999;
+					}
+					nameParam += 'yswBR' + cookieNum + '=' + encodeURIComponent(toPass.substring(0,endChunk)) + '&';
+					toPass = toPass.substring(endChunk);
+				}
+				nameParam = 'yswBR=' + (cookieNum - 1) + '&' + nameParam;
+				var iframe = document.createElement('iframe');
+				iframe.style.display = "none";
+				iframe.src = yswBronto.url + '/' + 'yswcart.html';
+				iframe.name = nameParam;
+				document.body.appendChild(iframe);
+			}
+		} else {
+			//read the cookies and reconstitute
+			var newData = '';
+			var cookieCount = yswBrontoTracker.getCookie('yswBR') * 1;
+			if (cookieCount && cookieCount > 0) {
+				for (var cookieNum = 1;yswBrontoTracker.getCookie('yswBR' + cookieNum);cookieNum++) {
+					if (cookieNum <= cookieCount) {
+						newData += yswBrontoTracker.getCookie('yswBR' + cookieNum);
+					} else {
+						yswBrontoTracker.setCookie('yswBR' + cookieNum, "", -1, yswBrontoTracker.baseURL);
+					}
+				}
+				yswBronto = JSON.parse(newData);
+			}
+		}
+		yswBrontoTracker.getParms(); //gets parms and creates cookies if needed
+		yswBrontoTracker.tagForms();
+		yswBrontoTracker.tagLinks();
+	}
+}

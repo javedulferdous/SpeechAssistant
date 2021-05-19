@@ -1,0 +1,17 @@
+var lpIntegration = function(jQuery) {
+  $('<div>', {
+    id: 'product-page-livechat-hitarea'
+  }).append( $('<div>', {
+    id: Drupal.settings.lp.pc_div
+  })).appendTo('.site-container:first');
+};
+
+Drupal.behaviors.lpIntegration = {
+  attach: function(context) {
+    lpIntegration($);
+    $('#zero-results').on("click", ".js-btn_livechat", function(event) {
+      event.preventDefault();
+      $('.product-page-livechat-hitarea-mask').trigger('click');
+    });
+  }
+};

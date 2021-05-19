@@ -1,0 +1,134 @@
+
+	function getAllAttributes(pageName, sSearchOrCat) {
+		if ($('#narrowResLinks')) {
+			$('#narrowResLinks').html("<table><tr><td width='100%' align='center' style='padding-top:50px;padding-bottom:10px'><img src='https://img.powerecommerce.com/pec/spinners/loading.gif' /></td></tr></table>");
+			$.ajax({
+				type: "POST",
+				url: "/ajaxFuncs.asp",
+				data: "action=getAllAttributes&pageName=" + encodeURIComponent(pageName) + "&sSearchOrCat=" + encodeURIComponent(sSearchOrCat),
+				success: function (content) {
+					$('#allAttributes').html(content);
+					getNarrowResultsLinks(pageName);
+				}
+			})
+		}
+	}
+
+	function getNarrowResultsLinks(pageName) { 
+		var postData = "";
+		var attrSelected = "||";
+		var manufSelected = ",";
+		var categorySelected = ",";
+		var condSelected = ",";	
+		var attrID;
+		var allAttrPairs = "";
+		if (document.getElementById("allAttrPairs")) {
+			allAttrPairs = document.getElementById("allAttrPairs").value;
+			var allAttrPairsArr = allAttrPairs.toString().split("||");
+			
+			for (i = 0; i < allAttrPairsArr.length; i++) {
+				attrID = allAttrPairsArr[i].split("-sep-")[2];
+				postData = postData + "&a" + attrID + "=" + encodeURIComponent(document.getElementById("prodIDs::" + attrID).value);
+				if ((document.getElementById("chbNarrowRes::" + attrID)) && (document.getElementById("chbNarrowRes::" + attrID).checked)) {
+					attrSelected = attrSelected + allAttrPairsArr[i] + "||";
+				}
+			}
+		}
+        var allManufs = document.getElementById("allManufs").value;
+        if (allManufs != '') {
+            var allManufsArr = allManufs.toString().split(",");
+            for (i = 0; i < allManufsArr.length; i++) {
+                postData = postData + "&manuf" + allManufsArr[i] + "=" + encodeURIComponent(document.getElementById("manuf" + allManufsArr[i]).value);
+                postData = postData + "&manufName" + allManufsArr[i] + "=" + encodeURIComponent(document.getElementById("manufName" + allManufsArr[i]).value);
+                if ((document.getElementById("chbNarrowResM::" + allManufsArr[i])) && (document.getElementById("chbNarrowResM::" + allManufsArr[i]).checked)) {
+                    manufSelected = manufSelected + allManufsArr[i] + ",";
+                }
+            }
+        }
+        var allCategories = document.getElementById("allCategories").value;
+        if (allCategories != '') {
+            var allCategoriesArr = allCategories.toString().split(",");
+            for (i = 0; i < allCategoriesArr.length; i++) {
+                postData = postData + "&cat" + allCategoriesArr[i] + "=" + encodeURIComponent(document.getElementById("cat" + allCategoriesArr[i]).value);
+                postData = postData + "&catName" + allCategoriesArr[i] + "=" + encodeURIComponent(document.getElementById("catName" + allCategoriesArr[i]).value);
+                if ((document.getElementById("chbNarrowResCat::" + allCategoriesArr[i])) && (document.getElementById("chbNarrowResCat::" + allCategoriesArr[i]).checked)) {
+                    categorySelected = categorySelected + allCategoriesArr[i] + ",";
+                }
+            }
+        }
+        var allConditions = document.getElementById("allConditions").value;
+        if (allConditions != '') {
+            var allConditionsArr = allConditions.toString().split(",");
+            for (i = 0; i < allConditionsArr.length; i++) {
+                postData = postData + "&cond" + allConditionsArr[i] + "=" + encodeURIComponent(document.getElementById("cond" + allConditionsArr[i]).value);
+                postData = postData + "&condName" + allConditionsArr[i] + "=" + encodeURIComponent(document.getElementById("condName" + allConditionsArr[i]).value);
+                if ((document.getElementById("chbNarrowResC::" + allConditionsArr[i])) && (document.getElementById("chbNarrowResC::" + allConditionsArr[i]).checked)) {
+                    condSelected = condSelected + allConditionsArr[i] + ",";
+                }
+            }
+        }
+		for (i = 0; i <= 4; i++) {
+			if (document.getElementById("price" + i)) {
+				postData = postData + "&range" + i + "=" +  encodeURIComponent(document.getElementById("price" + i).value);
+			}
+		}
+		postData = postData + "&condSelected=" + encodeURIComponent(condSelected);
+		postData = postData + "&minPrice=" +  encodeURIComponent(document.getElementById("minPrice").value);
+		postData = postData + "&maxPrice=" + encodeURIComponent(document.getElementById("maxPrice").value);
+		var priceRangeSelected = "";
+		for (i = 0; i <= 7; i++) {
+			if ((document.getElementById("chbNarrowResP::" + i)) && (document.getElementById("chbNarrowResP::" + i).checked)) {
+				priceRangeSelected = i;
+				break;
+			}
+		}
+		postData = postData + "&priceRangeSelected=" + encodeURIComponent(priceRangeSelected);
+		postData = postData + "&manufSelected=" + encodeURIComponent(manufSelected);
+		postData = postData + "&categorySelected=" + encodeURIComponent(categorySelected);
+		postData = postData + "&totalCount=" + encodeURIComponent(document.getElementById("totalCount").value);
+		if (parseInt(document.getElementById("totalCount").value) > 0) {
+		    $('#narrowResLinks').html("<table><tr><td width='100%' align='center' style='padding-top:10px;padding-bottom:10px'><img src='https://img.powerecommerce.com/pec/spinners/loading.gif' /></td></tr></table>");
+		    $.ajax({
+		        type: "POST",
+		        url: "/ajaxFuncs.asp",
+		        data: "action=getNarrowResultsLinks&pageName=" + encodeURIComponent(pageName) + "&allAttrPairs=" + encodeURIComponent(allAttrPairs) + "&attrSelected=" + encodeURIComponent(attrSelected) + "&allManufs=" + encodeURIComponent(allManufs) + "&allCategories=" + encodeURIComponent(allCategories) + "&allConditions=" + encodeURIComponent(allConditions) + postData,
+		        success: function (content) {
+		            $('#narrowResLinks').html(content);
+		        }
+		    })
+		} else {
+		    $('#narrowResLinks').html("");
+		}
+	}
+
+	function showAllGroupLinks(groupID) {
+		var i = 10;
+		var linkObj = document.getElementById("group" + groupID + i);
+		while (linkObj) {
+			linkObj.style.visibility = "visible";
+			linkObj.style.display = "block";
+			i = i + 1;
+			linkObj = document.getElementById("group" + groupID + i);
+		}
+		document.getElementById("showAll" + groupID).style.visibility = "hidden";
+		document.getElementById("showAll" + groupID).style.display = "none";
+		document.getElementById("showLess" + groupID).style.visibility = "visible";
+		document.getElementById("showLess" + groupID).style.display = "block";
+	}
+
+	function collapseGroupLinks(groupID) {
+		var i = 10;
+		var linkObj = document.getElementById("group" + groupID + i);
+		while (linkObj) {
+			if (!($("#group" + groupID + i).find('input').attr('checked'))) {
+				linkObj.style.visibility = "hidden";
+				linkObj.style.display = "none";
+			}
+			i = i + 1;
+			linkObj = document.getElementById("group" + groupID + i);
+		}
+		document.getElementById("showAll" + groupID).style.visibility = "visible";
+		document.getElementById("showAll" + groupID).style.display = "block";
+		document.getElementById("showLess" + groupID).style.visibility = "hidden";
+		document.getElementById("showLess" + groupID).style.display = "none";
+	}

@@ -1,0 +1,39 @@
+var site = site || {};
+var profileRequests = profileRequests || '';
+site.profile = site.profile || {};
+
+site.profile.products = function(data, products) {
+  if (!data || !products) {
+    return null;
+  };
+
+  var _common = new site.profile.common;
+
+  var _product = {
+    data : {},
+    init : function(data, products) {
+      if ( !Drupal.MAC.hasPersonalization()
+           || !data 
+           || !products
+         ) {
+        return null;
+      };
+      this.data = _common.data.product(data, products);
+      // Product method calls go here.
+      this.getSkuMatches();
+    },
+    getSkuMatches : function() {
+      if (jQuery.isEmptyObject(this.data)) {
+        return null;
+      };
+      var catData = (this.data.category && this.data.category[0]) ? this.data.category[0] : {};
+      if (catData.CATEGORY_NAME == 'Foundation') {
+        var products = this.data && this.data.products ? this.data.products : [];
+        _common.skuMatch.undertoneOrIntensity.set(products);
+      };
+    }
+  };
+
+  // Kick off the product profile method when initialized.
+  _product.init(data, products);  
+};

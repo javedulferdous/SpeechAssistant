@@ -1,0 +1,93 @@
+(function($) {
+  var turnRelativeToAbsolute = function(urlToFix) {
+    // If the first URL is a backslash, the URL is relative and Pinterest won't pull it. We need to make this a full URL.
+    if(urlToFix.substr(0,1) === '/') {
+        // Split the URL by backslashes
+        var urlArray = location.href.split( '/' );
+        // Find the web protocol i.e. http, https
+        var protocol = urlArray[0];
+        // We know there is always 2 backslashes before the website URL
+        // Put the protocol and the base url together
+        var websiteUrl = protocol + '//' + urlArray[2];
+        // Now add the base url to the relative image url to make it absolute
+        urlToFix = websiteUrl + urlToFix;
+    }
+    return urlToFix;
+  };
+  $(document).ready(function() {
+  // Add media to the pinterest URL
+    var $pinterestLink = $('.js-share--pinterest');
+    $pinterestLink.each(function() {
+      var $ogImage = $('meta[property="og:image"]');
+      var mediaURL = false;
+      if($ogImage.length) {
+          mediaURL = $ogImage.attr('content');
+      } else {
+          // Temp workaround
+          // If there's no open graph tag for the time being, find the first image and use that
+          mediaURL = $('.js-product-image').first().attr('src');
+      }
+      mediaURL = turnRelativeToAbsolute(mediaURL);
+      // Append this media to the openURL
+      var url = $pinterestLink.attr('href') + '&media=';
+      url += encodeURI(mediaURL);
+      $pinterestLink.attr('href', url);
+    });
+
+    $('.js-share--share-email').on('click', function(e) {
+      e.preventDefault();
+      // Trigger Social Share overlay template with Product ID as input
+      var data = {};
+      data.product_id = $(this).attr('data-productid');
+      $(document).trigger('product:social_share:overlay', data);
+    });
+  });
+
+  $(document).on('click', '.js-share', function(event) {
+    var width = 600;
+    var height = 350;
+    var openUrl = $(this).attr('href');
+    // Allow for borders.
+    var leftPosition = (window.screen.width / 2) - ((width / 2) + 10);
+    // Allow for title and status bars.
+    var topPosition = (window.screen.height / 2) - ((height / 2) + 50);
+    var windowFeatures = "status=no,height=" + height + ",width=" + width;
+    windowFeatures += ",resizable=yes,left=" + leftPosition + ",top=" + topPosition;
+    windowFeatures +=  ",screenX=" + leftPosition + ",screenY=" + topPosition;
+    windowFeatures += ",toolbar=no,menubar=no,scrollbars=no,location=no,directories=no";
+    // Specifically for the Quickshop on MPP, find and use the media URL for Pinterest sharing
+    if($(this).hasClass('js-share--pinterest') && $(this).parents('.js-quickshop-container').length) {
+      openUrl += '&media=' + turnRelativeToAbsolute($(this).parents('.js-quickshop-container').find('.js-gallery-img-large').attr('src'));
+    }
+
+    // Pinterest specific image in URL
+    window.open(openUrl,'sharer', windowFeatures);
+
+    event.preventDefault();
+  });
+
+})(jQuery);
+
+
+// Doesn't work
+// (function($) {
+
+//   $(document).on('click', '.js-share', function(event) {
+//     var width = 600;
+//     var height = 350;
+//     // Allow for borders.
+//     var leftPosition = (window.screen.width / 2) - ((width / 2) + 10);
+//     // Allow for title and status bars.
+//     var topPosition = (window.screen.height / 2) - ((height / 2) + 50);
+//     var windowFeatures = "status=no,height=" + height + ",width=" + width;
+//     windowFeatures += ",resizable=yes,left=" + leftPosition + ",top=" + topPosition;
+//     windowFeatures +=  ",screenX=" + leftPosition + ",screenY=" + topPosition;
+//     windowFeatures += ",toolbar=no,menubar=no,scrollbars=no,location=no,directories=no";
+
+//     window.open($(this).attr('href'),'sharer', windowFeatures);
+
+//     event.preventDefault();
+//   });
+
+// })(jQuery);
+

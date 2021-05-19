@@ -1,0 +1,1208 @@
+var requestHandler = '/HoseasonsSearchResultHandler.ashx';
+
+	// BUG WORKAROUND: on page load the region does not update #hdnRegionID
+	if (window.queryDict && queryDict.hasOwnProperty('region') && typeof(queryDict.region) !== 'undefined') {
+		$('#hdnRegionID').val(String(queryDict.region));
+	}
+
+var urlArray = {
+	'websiteid': $('#hdnWebsiteId').val(),
+	'resultperpage': $('#hdnResultsPerPage').val(),
+	'optioncount': $('#hdnOptionCount').val(),
+	'issupplier': $('#hdnIsSupplier').val(),
+	'regionID': $('#hdnRegionID').val(),
+	'isaccomList': $("#hdnIsaccom").val(),
+	'sortorder': $('#hdnSort').val(),
+	'platinumfeature': $('#hdnPlatinumPushFeatureName').val(),
+	'platinumorder': $("#hdnPlatinumPushFeatureValueOrder").val(),
+	'sitename': 'HSE',
+	'activeFilters': {},
+};
+
+if($('#hdnStartDate').length > 0){
+	if($('#hdnStartDate').val().length > 0){
+		urlArray['start'] = formatDate($('#hdnStartDate').val(),'/','-');
+	}
+}
+
+if($('#hdnAccomSiteCode').length > 0){
+	if($('#hdnAccomSiteCode').val().length > 0){
+		urlArray['accomsitecode'] = $('#hdnAccomSiteCode').val();
+	}
+}
+
+if($('#hdnAccomCode').length > 0){
+	if($('#hdnAccomCode').val().length > 0){
+		urlArray['accomcode'] = $('#hdnAccomCode').val();
+	}
+}
+
+if($('#hdnAdults').length > 0){
+	if($('#hdnAdults').val() > 0){
+		urlArray['adult'] = $('#hdnAdults').val();
+	}
+}
+
+if($('#hdnChildren').length > 0){
+	if($('#hdnChildren').val() > 0){
+		urlArray['child'] = $('#hdnChildren').val();
+	}
+}
+
+if($('#hdnInfants').length > 0){
+	if($('#hdnInfants').val() > 0){
+		urlArray['infant'] = $('#hdnInfants').val();
+	}
+}
+
+if($('#hdnDuration').length > 0){
+	if($('#hdnDuration').val() > 0){
+		urlArray['nights'] = $('#hdnDuration').val();
+	}
+}
+
+if($('#hdnPage').length > 0){
+	if($('#hdnPage').val() > 0){
+		urlArray.activeFilters['page'] = $('#hdnPage').val();
+	}
+}
+
+if($('#hdnPets').length > 0){
+	if($('#hdnPets').val() > 0){
+	   urlArray['pets'] = $('#hdnPets').val();
+	}
+}
+
+if($('#hdnRange').length > 0){
+	if($('#hdnRange').val() > -1){ // Include 0 for exact flexibility
+		urlArray['range'] = $('#hdnRange').val();
+	}
+} else {
+	if($('#hdnStartDate').length > 0){
+		if($('#hdnStartDate').val().length > 0){
+			urlArray['range'] = getParameterByName(window.location, 'range');
+		}
+	}
+}
+
+var allowMultiple = ['features'];
+var filterConfig = requestHandler + '?hdnSleepsFilterConfig=' + $("#hdnSleepsFilterConfig").val() + '&hdnAccomFilterConfig=' + $("#hdnAccomFilterConfig").val() + '&hdnBedroomFilterConfig=' + $("#hdnBedroomFilterConfig").val() + '&hdnRegionFilterConfig=' + $("#hdnRegionFilterConfig").val() + '&hdnPriceFilterConfig=' + $("#hdnPriceFilterConfig").val() + '&hdnFeatureFilterConfig=' + $("#hdnFeatureFilterConfig").val() + '&hdnRatingFilterConfig=' + $("#hdnRatingFilterConfig").val() + '&hdnFeatureFilterPopularFacetsConfig=' + $("#hdnFeatureFilterPopularFacetsConfig").val();
+var serviceSupplierConfig = requestHandler + '?hdnServiceSupplierConfig=' + $('#hdnServiceSupplierConfig').val();
+
+function formatDate(date,split,join){
+	return date.split(split).join(join);
+}
+
+function getParameterByName(url, name){
+	name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
+	var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
+	results = regex.exec(url);
+	return results === null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
+}
+
+function initSpecialistImages(){
+	var bodyClasses = document.getElementsByTagName('body')[0].classList; // var only needed for temporary condition
+	if (!bodyClasses.contains('boats--pd') && !bodyClasses.contains('boats')) { // if condition temporary until starboard logo is in STEP
+		var imgDefer = document.getElementsByClassName('load-image');
+		for (var i = 0; i < imgDefer.length; i++){
+			// get image from step helper
+			var sDataSrc = '/lodges/assets/' + imgDefer[i].parentNode.getElementsByClassName('logo-source')[0].innerHTML.trim();
+			if (sDataSrc !== '/lodges/assets/') { // Don't apply if there is no source image name
+				imgDefer[i].getElementsByTagName('img')[0].setAttribute('src', sDataSrc);
+			}
+		}
+	}
+}
+
+function initGallery(){
+	if ($(window).width() > 767) {
+			var threshold = 100,
+				$window = $(window),
+				windowHeight = $window.height(),
+				scrollTop = $window.scrollTop() + windowHeight + threshold;
+
+		initImages();
+			if (window.SRFooterScripts) {
+				if (SRFooterScripts.hasOwnProperty('initGallery')) {
+					SRFooterScripts.initGallery();
+				}
+			}
+			if (window.PDFooterScripts) {
+				PDFooterScripts.checkItems(windowHeight, scrollTop);
+			}
+	}
+}
+
+function initImages(){
+		// Only runs on Product pages
+	var imgDefer = document.getElementsByClassName('ProductImageURL');
+	for (var i = 0; i < imgDefer.length; i++) {
+		if (imgDefer[i].getAttribute('data-src') != '#[Container.ImageURL]') {
+			var elem = document.createElement("img");
+			elem.src = imgDefer[i].getAttribute('data-src');
+			elem.class = 'media__img';
+			elem.alt = '';
+			imgDefer[i].appendChild(elem);
+		}
+	}
+}
+
+function showLoader(){
+	var loader = $('#loadingSpinner').html();
+	$('body').addClass('loading').prepend(loader);
+	$('.loader').first().fadeIn('medium');
+}
+
+function hideLoader(){
+	$('.loader').first().fadeOut('medium', function(){
+		$('body').removeClass('loading');
+		$(this).remove();
+	});
+}
+
+function loadActiveFilters(){
+	$('.option-selected-true, .option-selected-True').each(function(){
+		var $this = $(this),
+			filter = $this.find('.filter-accommodation'),
+			params = filter.attr('data-params');
+		if (params) {
+			var	splitParams = params.split('='),
+				filterName = splitParams[0],
+				filterValue = splitParams[1].toLowerCase();
+			if(filterName !== 'region'){
+				if($.inArray(filterName,allowMultiple) > -1){
+					if(typeof urlArray.activeFilters[filterName] == 'undefined'){
+						urlArray.activeFilters[filterName] = [];
+					}
+					urlArray.activeFilters[filterName].push(filterValue);
+				} else {
+					urlArray.activeFilters[filterName] = filterValue;
+				}
+			} else {
+				parentRegionParams = params;
+			}
+		}
+	});
+}
+
+function loadAdestraRepeater() {
+	var oFrame = document.createElement("iframe"),
+		oRepeater = document.querySelector(".adestra-repeater.hide");
+		aoItems = document.querySelectorAll(".products.products--featuredfalse, .products.products--featuredtrue"),
+		oEntry = aoItems[aoItems.length / 2 < 1 ? 0 : Math.round(aoItems.length / 2)],
+		bIsMobile = document.documentElement.clientWidth < 500;
+
+	var lazyLoad = function() {
+		var oRect = oCloned.getBoundingClientRect();
+		if(oRect.top < window.innerHeight && oRect.bottom >= 0) {
+			oCloned.style.backgroundImage = sFileName;
+			window.removeEventListener("scroll", lazyLoad);
+		}
+	}
+
+	if(digitalData.search && oRepeater) {
+		var sFileName = "",
+			sProductName = digitalData.page.channel.toLowerCase(),
+			oCloned = oRepeater.cloneNode(true),
+			// Below variables are tailormade specific
+			todayIs = new Date(),
+			tmOfferEndDate = new Date('2020-02-29'),
+			isTailorMade  = false;
+
+		if(!GlobalJS.isNotLandal()) {
+			sFileName = "url(/assets/" + (bIsMobile ? "homepage-hero-mobile.jpg" : "landal-sign-up-banner.png") + ")";
+		} else {
+
+			if (urlArray.activeFilters.features){
+				isTailorMade  = urlArray.activeFilters.features.indexOf('10928') > -1;
+			}
+
+			if ((todayIs < tmOfferEndDate) && (isTailorMade)) {
+				//Do specific Tailormade changes - VRUK-5227
+				var tailorTerms = document.createElement("p"),
+					tailorLogo = document.createElement("img");
+				tailorTerms.innerHTML = '<a href="/tailor-made-terms-and-conditions" target="_blank">Terms and conditions</a> apply / Please see our privacy policy <a href="/security-and-privacy" target="_blank">here</a>';
+				tailorLogo.src = '/assets/tailorMade-whiteout-200px.png';
+				sFileName = 'url(/assets/tailorMadeAdestraSrRepeterDt.jpg)';
+				oCloned.classList.add('tailorMade');
+				oCloned.getElementsByClassName('sign-up-text')[0].innerText = 'Sign up to receive the best offers from The Tailor-Made Collection, exclusively from Hoseasons';
+				oCloned.append(tailorTerms);
+				oCloned.append(tailorLogo);
+			} else {
+				sProductName = sProductName.indexOf("holidayparks") > -1 ? "parks" : sProductName.indexOf("boat-holidays") > -1 ? "boats" : sProductName;
+				sFileName = sProductName === "cottages" ? "url(/cottages/assets/cottages-sign-up-banner.png)" : "url(lodges/assets/" + sProductName + "-sign-up-banner.png)"
+			}
+		}
+
+		// Clear out existing repeaters to prevent them still existing on popstate/ajax complete
+		MasterJS.forEach(document.querySelectorAll('.adestra-repeater:not(.hide)'), function(oItem) {
+			oItem.parentElement.removeChild(oItem);
+		});
+
+		// Lazy load repeater image for larger devices
+		if(!bIsMobile) {
+			lazyLoad();
+			window.addEventListener("scroll", lazyLoad);
+		}
+
+		// Add repeater to list of search results
+		aoItems.length < 2 ? document.getElementById("SupplierList").append(oCloned) : oEntry.parentElement.insertBefore(oCloned, oEntry);
+
+		// Build Adestra form
+		oFrame.id = "sr-frame";
+		oCloned.append(oFrame);
+
+		MasterJS.buildAdestraForm({
+			frameId: "sr-frame",
+			productName: isTailorMade ? "tailormade" : null,
+			classes: "reveal inline-names",
+			onSuccess: function() {
+				$(".adestra-repeater h2").fadeOut();
+			}
+		});
+
+		$(window).on("load", function() {
+			oCloned.classList.remove("hide");
+		});
+	}
+}
+
+//document.addEventListener("DOMContentLoaded", loadAdestraRepeater);
+
+function scrollToTop(){
+	if (document.documentElement.clientWidth > 480) {
+		var scrollTo = $('#resultcount--h2');
+		if (!$('#resultcount').is(':visible')){
+			var scrollTo = $('#sort-bar');
+		}
+		if(scrollTo.length > 0){
+			setTimeout(function(oEvent){
+				$('html,body').animate({
+					'scrollTop' : window.location.host.indexOf('landal') > -1 ? 0 : scrollTo.offset().top
+				},400);
+			}, 60);
+		}
+	}
+}
+
+function trackGA($this){
+	var name = $this.find('.filter-text').text(),
+		group = $this.closest('.form__field').find('.form__label').text(),
+		params = $this.attr('data-params'),
+		splitParams = params.split('='),
+		type = splitParams[0],
+		value = splitParams[1].toLowerCase(),
+		parent = $this.parent(),
+		isSelected = 'Selected';
+	if(!parent.hasClass('option-selected-false')){
+		isSelected = 'Deselected';
+	}
+	if($this.hasClass('filter-tag')){
+		var actualFilter = $('#MoreFilters .filter-accommodation[data-params="' + params + '"]').first();
+		trackGA(actualFilter);
+	} else {
+		if (ga) {
+			ga('send', 'event', 'Filter - ' + getBrandType(), 'Filter ' + isSelected, group + ' - ' + name);
+		}
+	}
+}
+
+function trackGASort($this) {
+	var sortVal = $this.val();
+	if (ga) {
+		ga('send', 'event', 'Sort - ' + getBrandType(), 'Sort Selected', sortVal);
+	}
+}
+
+function getBrandType() {
+	if (GlobalJS.isNotLandal()) {
+		return brandtype.charAt(0) + brandtype.slice(1).toLowerCase();
+	} else {
+		return false;
+	}
+}
+
+function filterAccomodation(params, href){
+	var paramList = params.split('&');
+	for (var i = paramList.length - 1; i >= 0; i--) {
+		var splitParams = paramList[i].split('='),
+		filterName = splitParams[0],
+		filterValue = splitParams[1].toLowerCase();
+	if($.inArray(filterName,allowMultiple) > -1){
+		if(typeof urlArray.activeFilters[filterName] !== 'undefined'){
+			if($.inArray(filterValue,urlArray.activeFilters[filterName]) > -1){
+				if(urlArray.activeFilters[filterName].length > 1){
+					urlArray.activeFilters[filterName].splice(urlArray.activeFilters[filterName].indexOf(filterValue),1);
+				} else {
+					delete urlArray.activeFilters[filterName];
+				}
+			} else {
+				urlArray.activeFilters[filterName].push(filterValue);
+			}
+		} else {
+			urlArray.activeFilters[filterName] = [];
+			urlArray.activeFilters[filterName].push(filterValue);
+		}
+	} else {
+		if (urlArray.activeFilters[filterName] == filterValue){
+			delete urlArray.activeFilters[filterName];
+		} else {
+			urlArray.activeFilters[filterName] = filterValue;
+		}
+	}
+	}
+	showLoader();
+	$.ajax({
+		'type'  : 'post',
+			'url'   : buildAjaxUrl(),
+		'data'  : {
+			'FilterConfigData': filterConfig,
+			'ServiceSupplierConfigData': serviceSupplierConfig,
+			'PricesFromMsg': $("#hdnPricesFromMsg").val(),
+			'PricesUptoMsg': $("#hdnPricesUptoMsg").val(),
+		},
+		'success': function(o){
+			var json = $.parseJSON(o);
+			savePageState(json, href);
+			updateFilters(json);
+			updateListings(json);
+			initImages();
+			updateStepAttributes(json);
+			updateSortOptions();
+			ListingsFeaturesHandler.loadFeatureIconAndText();
+			initSpecialistImages();
+			scrollToTop();
+		},
+		'error': function(o){
+			console.log(o);
+		},
+		'complete': function(){
+			//loadAdestraRepeater();
+			hideLoader();
+		},
+	});
+}
+
+function updateSortOptions(){
+	updateSingleSortOption('#sortRadios', 'option'); // desktop
+	updateSingleSortOption('#sortRadiosMobile', '.filter-accommodation'); // mobile
+}
+
+function updateSingleSortOption(sContainerSelector, sOptionSelector) {
+	var sort = $(sContainerSelector),
+		options = sort.find(sOptionSelector),
+		selected = sort.find('.option-selected-true');
+	selected.removeClass('option-selected-true').addClass('option-selected-false');
+	options.each(function(){
+		var $this = $(this),
+			parent = $this.parent(),
+			params = $this.attr('data-params'),
+			splitParams = params.split('='),
+			paramName = splitParams[0],
+			paramValue = splitParams[1],
+			updatedHref = getUpdatedHref(params);
+
+		if ($this.attr('href')) {
+			$this.attr('href', updatedHref);
+		}
+		if ($this.attr('data-url')) {
+			$this.attr('data-url', updatedHref);
+		}
+		if (urlArray.activeFilters[paramName] == paramValue){
+			parent.removeClass('option-selected-false').addClass('option-selected-true');
+		}
+	});
+}
+
+function updateFilters(json){
+	var amendedText = function(text) {
+		return getBrandType() === "Boats" ? text.replace("Bedroom", "Cabin") : text
+	}
+
+	$.each(json, function(key, data) {
+		if (key.indexOf('Filter') > -1) {
+			var filterData = $.parseJSON(data);
+			if (filterData !== null && filterData.FilterHeader.length > 0) {
+				var filterId = '#' + filterData.FilterHeader,
+					html = '',
+					filterCount = filterData.FilterProperties.length;
+				$.each(filterData.FilterProperties, function(i, filterProperties) {
+					var selectedClass = '',
+						filterParams = filterProperties.QueryStringParameters,
+						splitParams = filterParams.split('='),
+						filterName = splitParams[0],
+						filterValue = splitParams[1].toLowerCase();
+					if (urlArray.activeFilters[filterName] == filterValue || $.inArray(filterValue,urlArray.activeFilters[filterName]) > -1 || (filterName == 'region' && filterCount == 1 && typeof urlArray.activeFilters[filterName] !== 'undefined')) {
+						selectedClass = 'option-selected-true';
+					} else {
+						selectedClass = 'option-selected-false';
+					}
+					if(typeof parentRegionParams !== 'undefined' && filterName == 'region' && selectedClass == 'option-selected-true'){
+						filterParams = parentRegionParams;
+					}
+					var updatedHref = getUpdatedHref(filterParams);
+					html += '<li class="form__input form__input--custom form__input--simple ' + selectedClass + '"> <a href="' + updatedHref + '" class="filter-accommodation" data-params="' + filterParams + '"><span class="filter-text">' + amendedText(filterProperties.Name) + '</span> (' + filterProperties.Count + ')</a></li>';
+				});
+				$(filterId).find('ul').html(html);
+			}
+		}
+	});
+	loadCustomFilters();
+	filterTags();
+}
+
+function filterTags() {
+	$('.listing-filters').each(function(){
+		var $this = $(this),
+			optionGroup = $this.find('.option-list'),
+			filterTags = $this.find('.filter-tag-list'),
+			option = optionGroup.find('.option-selected-true'),
+			title = $this.find('.active-filters');
+		filterTags.empty();
+		if (option.length > 0) {
+			filterTags.show();
+			title.show();
+			option.each(function() {
+				var $this = $(this),
+					link = $this.find('a'),
+					optionText = $this.find('.filter-text').text(),
+					href = link.attr('href'),
+					params = link.attr('data-params'),
+					tag = filterTags.find('li a[data-params="' + params + '"]');
+				if(tag.length == 0){
+					filterTags.append('<li><a href="' + href + '" data-params="' + params + '" class="filter-tag filter-accommodation" title="' + optionText + '"><span class="filter-text">' + optionText + '</span></a></li>');
+				}
+			});
+		} else {
+			filterTags.hide();
+			title.hide();
+		}
+	});
+}
+
+function updateListings(json){
+	var supplierJson = $.parseJSON(json.SupplierResultSet),
+		serviceJson = $.parseJSON(json.ServiceResultSet),
+		html = '',
+		data = '';
+
+	if(supplierJson){
+		data = supplierJson.ItemTemplate;
+	} else {
+		data = serviceJson.ItemTemplate;
+	}
+	if (window.SRFooterScripts) {
+		if (SRFooterScripts.hasOwnProperty('updateResultCountText')) { // update resultcount--h2
+			SRFooterScripts.updateResultCountText(json);
+		}
+	}
+
+	// For each property in data object
+	$.each(data, function(i, listing){
+		var itemTemplate = $('#ItemTemplate').html();
+		 // For each property in listing
+		$.each(listing, function(name, value) {
+
+			var containerTag = '#[Container.' + name + ']';
+			itemTemplate = itemTemplate.split(containerTag).join(value);
+
+		});
+		html += itemTemplate;
+	});
+	$('#SupplierList,#servicelist').html(html);
+	initGallery();
+	var paginationJson = $.parseJSON(json.Pagination);
+	if (paginationJson) {
+		var pages = paginationJson.PaginationProperties,
+			html = '',
+			lastPageNumber = paginationJson.LastPageNumber,
+			currentPageNumber = getParameterByName(window.location.href, 'page') || '1',
+			numLink = parseInt(currentPageNumber),
+			nextLink;
+		$('#supplierlisttop').html('');
+		if (pages.length > 1) {
+			// show only if not first page of results
+			if (currentPageNumber !== '1' && currentPageNumber !== '') {
+				html += '<li class="pagination-button"><a rel="previous" href="' + getUpdatedHref('page=' + (numLink -1)) + '" class="pagination-link pagination-prev">Previous</a></li>';
+			}
+			$.each(pages,function(i, page){
+				var pageNumber = getParameterByName(page.Href, 'page'),
+					updatedHref = getUpdatedHref('page=' + pageNumber),
+					isActivePage = pageNumber === currentPageNumber ? true : false,
+					relStatus = 'prev';
+				if (pageNumber > numLink) {
+					relStatus = 'next';
+				} else if (pageNumber === numLink) {
+					relStatus = '';
+				}
+				html += '<li class="pagination-number"><a rel="' + relStatus + '" href="' + updatedHref + '" class="pagination-link ' + (isActivePage ? 'pagination-active' : '') + '">' + pageNumber +'</a></li>';
+				if (isActivePage) {
+					if (window.location.search.indexOf('page=1') < 0) {
+						nextLink = getUpdatedHref('page=' + (parseInt(pageNumber) + 1));
+					} else {
+						// fix for page 1 on filter pill activation/deactivation
+						nextLink = window.location.pathname + window.location.search.replace('page=1', 'page=2');
+					}
+				}
+			});
+			// show if not last page of results
+			if (lastPageNumber !== currentPageNumber) {
+				html += '<li class="pagination-button"><a rel="next" href="' + nextLink + '" class="pagination-link pagination-next">Next</a></li>';
+			}
+			$('#supplierlisttop').html(html);
+		}
+		if(data.length == 0 && urlArray.activeFilters['page'] > 1){
+			var firstPageLink = $('#supplierlisttop li:first-child a');
+			firstPageLink.trigger('click');
+		}
+	}
+	fixListingStyling();
+	checkForZeroFlexAndUpdateLinks();
+}
+
+function updateStepAttributes(json){
+	var stepAttributeData = $.parseJSON(json.StepData);
+	$.each(stepAttributeData, function(i, stepAttributeObj){
+		var code = stepAttributeObj.ServiceCode;
+		$.each(stepAttributeObj.StepAttributes, function(ii, stepAttribute){
+			var name = stepAttribute.StepAttributeName,
+				value = stepAttribute.StepAttributeValue;
+			$('.step-attribute[data-code="' + code + '"][data-name="' + name + '"]').html(value);
+		});
+	});
+}
+
+function attachCurrentQueryString(query,paramName,separator){
+	//Add existing query params
+	var queryParams = window.location.search;
+	if(queryParams.length > 0){
+		var queryStringParams = queryParams.replace('?','').split('&');
+		if(query.indexOf('?') > -1){
+			separator = '&';
+		}
+		$.each(queryStringParams,function(i,$this){
+			var queryStringInfo = $this.split('='),
+				queryStringTitle = queryStringInfo[0],
+				queryStringValue = queryStringInfo[1];
+
+			if(query.indexOf(queryStringTitle) == -1 && queryStringTitle !== paramName){
+				query = query + separator + queryStringTitle + '=' + queryStringValue;
+				separator = '&';
+			}
+
+		});
+	}
+	return query;
+}
+
+function getUpdatedHref(newParam){
+	var splitParam = newParam.split('='),
+		paramName = splitParam[0],
+		paramValue = splitParam[1].toLowerCase(),
+		query = window.location.pathname,
+		separator = '?',
+		filterCount = 0;
+
+	$.each(urlArray.activeFilters, function(filterName, filterValue){
+		if(filterName !== paramName){
+			// Force page 1 when selecting/deselecting filter
+			if(filterName === 'page'){
+				filterValue = '1';
+			}
+			query += separator + filterName + '=' + filterValue;
+			separator = '&';
+			filterCount++;
+		}
+	});
+
+	if(filterCount == 0){
+		separator = '?';
+	} else {
+		separator = '&';
+	}
+
+	if(urlArray.activeFilters[paramName] !== paramValue){
+		if($.inArray(paramName, allowMultiple) > -1){
+			var paramString = paramValue;
+			if(typeof urlArray.activeFilters[paramName] !== 'undefined'){
+				if($.inArray(paramValue,urlArray.activeFilters[paramName]) > -1){
+					if(urlArray.activeFilters[paramName].length == 1){
+						return attachCurrentQueryString(query,paramName,separator);
+					}
+					paramString = '';
+				}
+				for(i=0; i < urlArray.activeFilters[paramName].length; i++){
+					if(urlArray.activeFilters[paramName][i] !== paramValue){
+						if(paramString.length > 0){
+							paramString = paramString + ',' + urlArray.activeFilters[paramName][i];
+						} else {
+							paramString += urlArray.activeFilters[paramName][i];
+						}
+					}
+				}
+			}
+			query = query + separator + paramName + '=' + paramString;
+		} else {
+			query = query + separator + paramName + '=' + paramValue;
+		}
+	}
+
+	return attachCurrentQueryString(query,paramName,separator);
+}
+
+function getStepAttributeAjaxUrl(){
+	var nameArray = [],
+		nameString = '';
+	$('.step-attribute').each(function(){
+		var $this = $(this),
+			name = $this.attr('data-name');
+		if ($.inArray(name, nameArray) == -1){
+			nameArray.push(name);
+		}
+	});
+	$.each(nameArray, function(i, name) {
+		nameString += name + ',';
+	});
+	var formattedString = nameString.substring(0, nameString.length - 1);
+	return formattedString;
+}
+
+function buildAjaxUrl(){
+	var url = '/HoseasonsSearchResultHandler.ashx?method=HOSEASONS-SEARCH-RESULT';
+
+	$.each(urlArray, function(name, value){
+		if (typeof value == 'object'){
+			$.each(value, function(name, value){
+				url += '&' + name + '=' + value;
+			});
+		} else {
+			url += '&' + name + '=' + value;
+		}
+	});
+	url += '&hdnAttributeName=' + getStepAttributeAjaxUrl();
+	return url;
+}
+
+function fixCodeIssues(){
+	$('#region-filter ul li a').each(function(){
+		var $this = $(this),
+			params = $this.attr('data-params'),
+			path = getUpdatedHref(params);
+		$this.attr('href',path);
+	});
+	$('.option-selected-False').addClass('option-selected-false').removeClass('option-selected-False');
+	$('.option-selected-True').addClass('option-selected-true').removeClass('option-selected-True');
+	checkForZeroFlexAndUpdateLinks();
+}
+
+function savePageState(json, href, replace){
+	if (history.pushState){
+		var historyJson = {
+			'data': json,
+			'activeFilters': urlArray
+		};
+		if(replace){
+			window.history.replaceState(historyJson, '', href);
+		} else {
+			window.history.pushState(historyJson, '', href);
+		}
+	}
+}
+
+function loadCustomFilters(){
+	var customFilters = $('#custom-filter'),
+		filters = customFilters.attr('data-filters'),
+		list = customFilters.find('.option-list');
+	if(filters){
+		filters = filters.split(',');
+		list.empty();
+		var filterCount = 0;
+		$.each(filters,function(i,filter){
+			var findFilter = $('.filter-grid .option-list:not(".custom-list") li a[data-params="' + filter + '"]').parent();
+			if(findFilter.length > 0){
+				var clone = findFilter.clone();
+				clone.find('a').addClass('custom-filter');
+				list.append(clone);
+				filterCount++;
+			}
+		});
+		if(filterCount > 0){
+			customFilters.css('display','inline-block');
+		}
+	}
+}
+
+function loadRegionFilter(json){
+	var regionJson = $.parseJSON(json.FilterRegion);
+	if(regionJson){
+		if(regionJson.FilterProperties[0]){
+			var currentRegion = regionJson.FilterProperties[0].QueryStringParameters,
+				splitRegion = currentRegion.split('=');
+			if($('#region-filter .option-selected-true').length > 0){
+				urlArray.activeFilters.region = splitRegion[1];
+			}
+		}
+	}
+}
+
+function fixListingStyling(){
+	//City Breaks Listings
+	$(".city .listing__features ul").each(function() {
+		$(this).addClass('list list--checked');
+	});
+	//Eu Parks Was/now
+	$(".euro .listing__actions__price").each(function(){
+		if($(this).find('em').html() == "-") {
+			$(this).parent('.listing__actions').hide();
+		}
+	});
+}
+
+function checkForZeroFlexAndUpdateLinks() {
+	// Fix bug where 0 flexibility is lost when clicking through to the product page
+	var sBrand = GlobalJS.getBrand();
+	if (sBrand === "lodges" || sBrand === "holiday parks") {
+
+		if (urlArray.range) {
+			if (String(urlArray.range) === '0') {
+
+				var oaListings = document.querySelectorAll('#SupplierList .listing');
+				if (oaListings) {
+					for (var i = 0; i < oaListings.length; i++) {
+						var oTextLink = oaListings[i].querySelector('.listing__info > a');
+						if (oTextLink) {
+							oTextLink.href = oTextLink.href.replace('&start', '&range=0&start');
+						}
+						var oButtonLink = oaListings[i].querySelector('.listing__features > .listing__actions > .listing__actions__btns > a');
+						if (oButtonLink) {
+							oButtonLink.href = oButtonLink.href.replace('&start', '&range=0&start');
+						}
+					}
+				}
+			}
+		}
+	}
+}
+
+function createMapLink(){
+		var oaMapLinks = document.getElementsByClassName('map-results-link-btn');
+		if(oaMapLinks.length > 0){
+			var sBrand,
+				sMapUrl = window.location.pathname + window.location.search;
+
+		if (window.location.href.indexOf('travelagents') > -1) {
+					sBrand = window.location.pathname.split('/')[2];
+		}else if (window.location.href.indexOf('partners') > -1) {
+				sBrand = window.location.pathname.split('/')[2];
+		} else {
+				sBrand = window.location.pathname.split('/')[1];
+		}
+
+			sMapUrl = sMapUrl.replace(sBrand, sBrand+'/map');
+			for (var i = 0; i < oaMapLinks.length; i++) {
+				oaMapLinks[i].setAttribute('href', sMapUrl);
+			}
+	}
+}
+$(document).on('click', 'li a.filter-accommodation', function(){
+	// Is a quick filter pill, set the href before use (filterAccomodation sets the hrefs of the regular filters)
+	if (this.classList.contains('quick-filter')) {
+		setQuickFilterHref(this);
+	}
+	var $this = $(this),
+		href = $this.attr('href'),
+		params = $this.attr('data-params');
+	if (GlobalJS.isNotLandal()) {
+		trackGA($this);
+	}
+	filterAccomodation(params, href);
+	return false;
+});
+function setQuickFilterHref(oAnchor) {
+	// get the current url
+	var sCurrentURLPathname = window.location.pathname,
+		sCurrentURLQueryString = window.location.search,
+		sDataParams = oAnchor.getAttribute('data-params'),
+		sDataName = null,
+		sDataValue = null,
+		bIsFeature = (sDataParams.indexOf('features') > -1) ? true : false,
+		bIsPage = (sCurrentURLQueryString.indexOf('page') > -1) ? true : false;
+
+	if (typeof(sCurrentURLPathname) === 'undefined' || !sCurrentURLPathname) { return false; }
+
+	// sense check the query string
+	if (typeof(window.location.search) === 'undefined' || !window.location.search) {
+		// create a features or pricerange property
+		sCurrentURLQueryString = '?' + sDataParams;
+	} else {
+		sCurrentURLQueryString = window.location.search;
+
+		var saDataParams = sDataParams.split('=');
+		sDataName = saDataParams[0];
+		sDataValue = saDataParams[1];
+
+		if (bIsFeature) {
+			// if sCurrentURLQueryString does not contain a features property, create it
+			if (sCurrentURLQueryString.indexOf('features=') === -1) {
+				// create a features property and add the value of sDataValue to the features property
+				sCurrentURLQueryString += '&features=' + sDataValue;
+			} else {
+				// there is already a features property in the query string
+				// if sCurrentURLQueryString does not contain the value of sDataValue
+				var saQueryList = sCurrentURLQueryString.split('&'),
+					iFeaturesIndex = saQueryList.findIndex(function(element) {
+						return element.indexOf('features=') > -1;
+					}),
+					sFeatures = saQueryList[iFeaturesIndex];
+
+				if (sCurrentURLQueryString.indexOf(sDataValue) === -1) {
+					// add the value of sDataValue to the the features property
+					if (sFeatures === 'features=') {
+						saQueryList[iFeaturesIndex] = sFeatures += sDataValue;
+					} else {
+						saQueryList[iFeaturesIndex] = sFeatures += ',' + sDataValue;
+					}
+				} else {
+					// if sCurrentURLQueryString already contains the value of sDataValue in the features property
+					// remove the value of sDataValue from the features property
+					var saFeatureObject = saQueryList[iFeaturesIndex].split('='),
+						saFeatureProperties = saFeatureObject[1].split(',');
+					saFeatureProperties.splice(saFeatureProperties.indexOf(sDataValue), 1);
+					if (saFeatureProperties.length > 0) {
+						// some features remain, add those back into saQueryList[iFeaturesIndex]
+						saQueryList[iFeaturesIndex] = 'features=' + saFeatureProperties.toString();
+					} else {
+						// no features remain, remove the features property entirely
+						saQueryList.splice(iFeaturesIndex, 1);
+					}
+				}
+				sCurrentURLQueryString = saQueryList.join('&');
+			}
+		} else {
+			// replace any existing properties with the same name as this one
+			if (sCurrentURLQueryString.indexOf(sDataName + '=') === -1) {
+				sCurrentURLQueryString += '&' + sDataName + '=' + sDataValue;
+			} else {
+				// there is already a query with this name
+				var saQueryList = sCurrentURLQueryString.split('&'),
+					iQueryIndex = saQueryList.findIndex(function(element) {
+						return element.indexOf(sDataName + '=') > -1;
+					});
+				if (saQueryList[iQueryIndex].indexOf(sDataValue) > -1) {
+					// remove if it's the same value as sDataValue
+					saQueryList.splice(iQueryIndex, 1);
+				} else {
+					//overwrite with the new one
+					saQueryList[iQueryIndex] = sDataParams;
+				}
+				sCurrentURLQueryString = saQueryList.join('&');
+			}
+		}
+
+		if (bIsPage) {
+			// make sure page=1 is applied for quickfilter pills
+			var currentPage = getParameterByName(window.location.search, 'page');
+			sCurrentURLQueryString = sCurrentURLQueryString.replace('page=' + currentPage, 'page=1');
+		}
+	}
+	if (sCurrentURLQueryString.indexOf('?') < 0) {
+		// add ? if one is not on query string
+		sCurrentURLQueryString = '?' + sCurrentURLQueryString;
+	}
+	oAnchor.setAttribute('href', sCurrentURLPathname + sCurrentURLQueryString);
+}
+$(document).on('click','.pagination-link',function(){
+	var $this = $(this),
+		href = $this.attr('href');
+	if(href.indexOf('page=') > -1){
+		var hrefParams = href.split('?')[1].split('&');
+		var pageNumber = '';
+		$.each(hrefParams,function(i,param){
+			var paramInfo = param.split('=');
+			if(paramInfo[0] == 'page'){
+				pageNumber = paramInfo[1];
+			}
+		});
+		var params = 'page=' + pageNumber;
+		filterAccomodation(params, href);
+	}
+	return false;
+});
+
+function fixIPadSpecificFiltersClickHandlingBug() {
+	// this fixes an iPad specific bug where the user has to click a filter twice in order to causes a page reload or ajax request
+	if (navigator.userAgent.match(/iPad/i) != null) { // is iPad
+		var oSideBar = document.getElementsByClassName('side-bar')[0];
+		if (oSideBar) {
+			oSideBar.addEventListener('touchstart', function(){}, true);
+		}
+	}
+}
+$(document).ready(function(){
+	fixIPadSpecificFiltersClickHandlingBug();
+	filterTags();
+	loadActiveFilters();
+	fixCodeIssues();
+	ListingsFeaturesHandler.loadAccomPageFeatureIconAndText();
+	ListingsFeaturesHandler.loadFeatureIconAndText();
+	initSpecialistImages();
+	loadCustomFilters();
+	initImages();
+	createMapLink();
+	// if (GlobalJS.isNotLandal()) {
+	// 	ga('create', 'UA-263700-59', 'auto', { 'allowLinker': true });
+	// 	ga('require', 'displayfeatures');
+	// 	trackFeatured();
+	// }
+	$.ajax({
+		'type': 'post',
+		'url': buildAjaxUrl(),
+		'data': {
+			'FilterConfigData': filterConfig,
+			'ServiceSupplierConfigData': serviceSupplierConfig,
+			'PricesFromMsg': $("#hdnPricesFromMsg").val(),
+			'PricesUptoMsg': $("#hdnPricesUptoMsg").val(),
+		},
+		'success': function(o){
+			savePageState($.parseJSON(o), window.location.href, replace = true);
+		},
+		'error': function(o){
+			console.log(o);
+		},
+	});
+	// get url params for first filter option
+	var defaultFilterUrl = getUpdatedHref('sortorder=12');
+	var sortOptions = document.getElementById('sortRadios');
+	if (sortOptions !== null) {
+		sortOptions.children[0].setAttribute('data-url', defaultFilterUrl);
+	}
+	// set selected sort if exists on pageload
+	if (window.location.href.indexOf('sortorder') > -1) {
+		var sortValue = getParameterByName(window.location.href, 'sortorder');
+		$('option[data-params="sortorder=' + sortValue + '"]').attr('selected', 'selected');
+	}
+	// setting links for prev next pagination links
+	var currentPage = getParameterByName(window.location.href, 'page'),
+		numPage = parseInt(currentPage),
+		aoPaginationNumbers = document.getElementsByClassName('pagination-number'),
+		oPaginationNumberLink;
+	if (currentPage === "") {
+		numPage = 1;
+	}
+	// update next prev page links
+	var nextLink = getUpdatedHref('page=' + (numPage + 1)),
+		prevLink = getUpdatedHref('page=' + (numPage - 1));
+	$('.pagination-prev').attr('href', prevLink);
+	$('.pagination-next').attr('href', nextLink);
+
+	// add rel and prev rel links to numbers on pageload
+	for (var i = 0; i < aoPaginationNumbers.length; i++) {
+		oPaginationNumberLink = aoPaginationNumbers[i].getElementsByClassName('pagination-link')[0];
+		if (parseInt(oPaginationNumberLink.innerHTML) > numPage) {
+			oPaginationNumberLink.setAttribute('rel', 'next');
+		} else if (parseInt(oPaginationNumberLink.innerHTML) < numPage) {
+			oPaginationNumberLink.setAttribute('rel', 'prev');
+		}
+	}
+
+});
+
+window.addEventListener('popstate', function(e) {
+	initGallery();
+	$('.listing__image').removeClass('loaded');
+
+	var state = e.state;
+	if(state){
+		var json = state.data,
+			savedUrlArray = e.state.activeFilters;
+		urlArray = savedUrlArray;
+		updateFilters(json);
+		updateListings(json);
+		initImages();
+		updateStepAttributes(json);
+		updateSortOptions();
+		ListingsFeaturesHandler.loadFeatureIconAndText();
+		initSpecialistImages();
+		if (document.location.href.indexOf('boat-holidays') > -1) {
+			showStarboard();
+		}
+		//loadAdestraRepeater();
+	}
+});
+
+// sort filter dropdown functionality
+$('#sortRadios').on('change', function(){
+	var $this = $(this);
+	var selectedOption = $this.find(':selected');
+	var dataParams = selectedOption.attr('data-params');
+	var dataUrl = selectedOption.attr('data-url');
+	filterAccomodation(dataParams, dataUrl);
+	trackGASort($this);
+});
+/*  ---------------------------------------------  Features Icons  --------------------------------------------- */
+var ListingsFeaturesHandler = function() {
+
+	// Public
+	function fnLoadFeatureIconAndText() {
+
+		// ONLY SHOW FOR SITE PAGE
+		// TEMP: turn off feature icon handling for pages
+		// If is the search results page, return null
+		if (document.getElementById('body_searchresults')) {return null}
+		// If it is the accomodation page, return null
+		//if (document.querySelector('.accommodation-page')) {return null}
+		// TEMP: turn off feature icon handling for pages
+
+		var oaFeatures = document.querySelectorAll('.features'),
+			saAllFeaturesArray = [],
+			oFeature = null;
+
+		for (var i = 0; i < oaFeatures.length; i++) {
+			// create an array from the features string, trimming all items within the array in the process
+			oFeature = oaFeatures[i];
+			saAllFeaturesArray = oFeature.innerHTML.toLowerCase().split(',').map(function(sFeature){return sFeature.trim()});
+
+			for (var j = 0; j < saAllFeaturesArray.length; j++) {
+				switch(saAllFeaturesArray[j]) {
+					// Hot tub
+					case "private hot tub" :
+					case "hot tubs" :
+						createFeatureIcon(oFeature.parentNode.parentNode, 'features-icons-private-hot-tub', 'Hot Tub');
+					break;
+					// Pet friendly
+					case "pet friendly" :
+					case "pet friendly boats" :
+					case "pets - no charge" :
+						createFeatureIcon(oFeature.parentNode.parentNode, 'features-icons-pet-friendly', 'Pet Friendly');
+					break;
+					// Wheelchair
+					case "wheelchair access" :
+					case "wheelchair adapted" :
+						createFeatureIcon(oFeature.parentNode.parentNode, 'features-icons-wheelchair-access', 'Wheelchair<br>Access');
+					break;
+					// Woodburner
+					case 'woodburner' :
+						createFeatureIcon(oFeature.parentNode.parentNode, 'features-icons-woodburner', 'Woodburner');
+					break;
+					// Scope to support additional features
+				}
+			}
+		}
+	};
+
+	function fnLoadAccomPageFeatureIconAndText() {
+
+		// TEMP: turn off feature icon handling for accomodation pages
+		return null;
+		// TEMP: turn off feature icon handling for accomodation pages
+
+		// If not the accomodation page, return null
+		if (!document.querySelector('.accommodation-page')) {return null}
+
+		var saAllFeaturesArray = document.querySelector('.features-icons').innerHTML.toLowerCase().split(',').map(function(sFeature){return sFeature.trim()}),
+		oParent = document.getElementById('accom--essentials');
+
+		if (!$(".features-icons-private-hot-tub").length) {
+			var oFeatureIcon;
+			for (var i = 0; i < saAllFeaturesArray.length; i++) {
+
+				switch(saAllFeaturesArray[i]) {
+					// Hot tub
+					case "private hot tub" :
+					case "hot tubs" :
+						createFeatureIcon(oParent, 'features-icons-private-hot-tub', 'Hot Tub', true);
+					break;
+					// Pet friendly
+					case "pet friendly" :
+					case "pet friendly boats" :
+					case "pets - no charge" :
+						createFeatureIcon(oParent, 'features-icons-pet-friendly', 'Pet Friendly', true);
+					break;
+					// Wheelchair
+					case "wheelchair access" :
+					case "wheelchair adapted" :
+						createFeatureIcon(oParent, 'features-icons-wheelchair-access', 'Wheelchair Access', true);
+					break;
+					// Scope to support additional features
+				}
+			}
+		}
+	}
+
+	// Private
+	function createFeatureIcon(oParent, sIconClassName, sLabel, bAccomodationPage) {
+		// do not add duplicate features
+		if (oParent.querySelector(String('.' + sIconClassName))) { return null; }
+
+		if (typeof(bAccomodationPage) === 'undefined') { bAccomodationPage = null; }
+		var oFeatureIcon = document.createElement('li');
+		oFeatureIcon.className = !bAccomodationPage ? 'fi listing__actions__profile ' + sIconClassName : 'fi ' + sIconClassName;
+		oFeatureIcon.innerHTML = !bAccomodationPage ? '<div class="features-icons"></div><em>' + sLabel + '</em>' : '<span>' + sLabel + '</span>';
+		oParent.appendChild(oFeatureIcon);
+	}
+
+	return {
+		loadFeatureIconAndText: fnLoadFeatureIconAndText,
+		loadAccomPageFeatureIconAndText: fnLoadAccomPageFeatureIconAndText
+	}
+}();
+
+function trackFeatured() {
+	document.addEventListener('click', function (e) {
+		var getClosest = function(elem, selector) {
+
+			// Element.matches() polyfill
+			if (!Element.prototype.matches) {
+				Element.prototype.matches =
+				Element.prototype.matchesSelector ||
+				Element.prototype.mozMatchesSelector ||
+				Element.prototype.msMatchesSelector ||
+				Element.prototype.oMatchesSelector ||
+				Element.prototype.webkitMatchesSelector ||
+				function(s) {
+					var matches = (this.document || this.ownerDocument).querySelectorAll(s),
+						i = matches.length;
+					while (--i >= 0 && matches.item(i) !== this) {}
+					return i > -1;
+				};
+			}
+
+			// Get the closest matching element
+			for ( ; elem && elem !== document; elem = elem.parentNode ) {
+				if ( elem.matches( selector ) ) return elem;
+			}
+			return null;
+
+		};
+
+		var featured = getClosest(e.target,'.products--featuredtrue');
+
+		if (featured) {
+			e.preventDefault();
+			if (!$(e.target).hasClass("slick-arrow") && !$(e.target).hasClass("slick-slide-loaded") && !$(e.target).hasClass("sr-sale-text")) {
+				if (featured.getElementsByClassName('reevoo-box').length > 0){
+					var anchor = featured.getElementsByTagName("a")[1];
+				} else {
+					var anchor = featured.getElementsByTagName("a")[0];
+				}
+				var url = anchor.getAttribute('href');
+				var code = (brandtype == 'COTTAGES') ? featured.querySelectorAll(".step-attribute")[1].getAttribute('data-code') : featured.querySelectorAll(".step-attribute")[0].getAttribute('data-code');
+				setTimeout(openProperty(url), 1000);
+				var propertyClicked = false;
+
+				function openProperty(url) {
+					if (!propertyClicked) {
+						propertyClicked = true;
+						window.location.href = url;
+					}
+				}
+
+				if (GlobalJS.isNotLandal()) {
+					ga('send', 'event', 'Search Results Featured', brandtype, code, {
+						hitCallback: openProperty(url)
+					});
+				}
+			}
+		}
+	}, false);
+}

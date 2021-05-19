@@ -1,0 +1,5220 @@
+/**
+ * Check safari private browsing. Even though, fallback to old Session storage works, any JS error will cause onReady to get skipped and not build header.
+ * Since CQ5 is actually trying to write to localStorage directly and throwing JS errors, we will always fail.
+ * @ignore
+ */
+
+if (/safari/.test(navigator.userAgent.toLowerCase())) {
+	try {
+		localStorage.test = 2;
+		localStorage.test = null;
+	}
+	catch (e) {
+		alert('Private Browsing is currently turned on. For full site functionality, please open a new window with Private Browsing turned off.');
+	}
+}
+
+/*
+ * Dummy callback for the JSONP load of the gnf-related JSONP calls
+ * @ignore
+ */
+gnfCallback = $.noop;
+
+
+/**
+ * Global shc functions
+ * @singleton
+ */
+shc = $.extend(window.shc, {
+	/**
+	 * Global debug flag
+	 * @property {Boolean} debug
+	 * @member shc
+	 */
+	debug: $.query && $.query.get('debug').toLowerCase() === 'true',
+
+	/**
+	 * Global IRP flag - always true
+	 * @property {Boolean} IRP
+	 * @member shc
+	 * @deprecated - Always true, should not be referenced in code
+	 */
+	IRP: true
+});
+
+/**
+ * Simple widgets to contain discrete features.
+ * @singleton
+ */
+ shcWidgets = $.extend(window.shcWidgets, {
+	/**
+	 * Events used by UHF.<br />Note these must always be wired to the document, not window or other DOM element.
+	 *
+	 *		Examples
+	 *		//send the event and pass some data
+	 *		$(document).trigger(shcWidgets.EVENTS.signalDataReady, {id: shc.getPageType(), data: window.bt});
+	 *		//listen for an event
+	 *		$(document).one(shcWidgets.EVENTS.dataSYWR, function() {
+	 *			custInfoParmsRaw = buildCustInfoParms();
+	 *			afterCustInfo();
+     *		});
+	 *
+	 * @enum {String} shcWidgets.EVENTS
+	 * @member shcWidgets
+	 */
+	EVENTS: {
+		/** @property */ openWidget: 'shcW.openWidget' ,
+		/** @property */ closeWidget: 'shcW.closeWidget',
+		/** @property */ dataSYWR: 'shcW.dataSYWR',
+		/** @property */ gnfLoaded: 'shcW.gnfLoaded',
+		/** @property */ cartUpdated: 'shcW.cartUpdated',
+		/** @property */ zipcodeUpdated: 'shcW.zipcodeUpdated',
+		/** @property */ storeUpdated: 'shcW.storeUpdated',
+		/** @property */ couponsUpdated: 'shcW.couponsUpdated',
+		/** @property */ signalDataReady: 'shcW.signalDataReady',
+		/** @property */ chatDataReady: 'shcW.chatDataReady',
+		/** @property */ dataReady: 'shwc.dataReady',
+		/** @property */ memberMessaging: 'shcW.memberMessagingReady',
+		/** @property */ adaMenuReady: 'shcW.adaMenuReady',
+		/** @property */ navFlyoutLoaded: 'shcW.navFlyoutLoaded',
+		/** @property */ bannerTopRight: 'shcW.bannerTopRightUpdate',
+		/** @property */ abUpdated: 'shcW.abUpdated'
+	},
+	/**
+	 * Events used by UHF. This is to replace the need for EVENTS and isReady
+	 *	see https://api.jquery.com/category/deferred-object/
+	 *		Examples can be done in eather order 
+	 *		//send the event and pass some data
+	 *		shcWidgets.DEFERRED.mainMenuJasonData.resolve({'any data you want'});
+	 *		//set what to do when first part is done 
+	 *		shcWidgets.DEFERRED.mainMenuJasonData.done(function(a) {
+	 *			//do somthing
+	 			console.log(a);
+	 *		});
+	 *
+	 * @enum {String} shcWidgets.DEFERRED
+	 * @member shcWidgets
+	 */
+	DEFERRED: {
+		/** @property */ mainMenuJasonData: $.Deferred(),
+		/** @property */ skinnyMenuBottomJasonData: $.Deferred()
+	},
+
+	/**
+	 * Map storeId to Profile upid - passed to services to identify the current store
+	 * @enum {String} shcWidgets.USR_SITEID
+	 * @member shcWidgets
+	 */
+	USR_SITEID: {
+		/** @property */ '10153': '3',
+		/** @property */ '10151': '4',
+		/** @property */ '10154': '5',
+		/** @property */ '10155': '6',
+		/** @property */ '10165': '22'  //searsPR
+	}
+});
+
+/**
+ * Simple widgets to keep track if events have already been fired
+ * @singleton
+ */
+shc = $.extend(window.shc, {
+	isReady: {
+		signalData: false,
+		chatData: false,
+		memberMessaging: false,
+		adaMenu: false,
+		navFlyoutLoaded: false
+	}
+});
+$(document).one(shcWidgets.EVENTS.signalDataReady, function() {
+	shc.isReady.signalData = true;
+}).one(shcWidgets.EVENTS.chatDataReady, function() {
+	shc.isReady.chatData = true;
+}).one(shcWidgets.EVENTS.memberMessaging, function() {
+	shc.isReady.memberMessaging = true;
+}).one(shcWidgets.EVENTS.adaMenuReady, function() {
+	shc.isReady.adaMenu = true;
+}).one(shcWidgets.EVENTS.navFlyoutLoaded, function() {
+	shc.isReady.navFlyoutLoaded = true;
+});
+
+//these globals are still in gnf_stub.  In theory, we should be safe loading here - there should be nothing calling these before GNF load or outside of a GNF event handler
+/**
+ * @member Global
+ * Read the Akamai values from the c_i cookie.  This is obsolete in IRP. c_i cookie does not exist.
+ * @returns {Object} Returns dummy values (guest)
+ */
+function getAkamaiCookie() {
+	var cookie = {
+		uN: '',		//userName
+		cI: '0',	//items
+		cA: '0',	//amount
+		sP: '',		//sywr points
+		sA: '',		//sywr amount
+		eStat: '',	//email status
+		cbOpt: 'N',	//email club
+		ccA: 'false'//ccAfinity
+	};
+
+	return cookie;
+}
+
+/**
+ * @member Global
+ * Update the Akamai values in the c_i cookie.  This is obsolete in IPR and c_i cookie no longer exists
+ * @returns {void}
+ */
+setAkamaiCookie = $.noop;
+
+/**
+ * @member Global
+ * Get the SYWR personalization cookie data.  Obsolete in IRP. c_i cookie no longer exists
+ * @returns dummy object
+ */
+function getSYWRPersonalization() {
+	var obj = {
+		nL: '',
+		sY: '',
+		sywrNo: '',
+		isMbr: 'false',
+		TnC: '',
+		svStat: '',
+		svType: '',
+		vip: '',
+		ei: 'N',
+		pe: '',
+		ped: '',
+		sN: '',
+		avtr: '',
+		svAmt:'',
+		enNo: ''
+	};
+
+	return obj;
+}
+
+//TODO: this is just for other legacy code that still calls this
+callSywrClick = $.noop;
+
+/**
+ * A simple controller object to manage widget communication.
+ * @singleton
+ */
+shcWidgets.Controller = (function() {
+	/*
+	 * Global actions for a 'open widget' event'
+	 */
+	var openWidget = function(e, data) {
+		if (shc.debug) {
+			console.log('widget opened: ' + data.id);
+		}
+	};
+	/*
+	 * Global actions for a 'close widget' event'
+	 */
+	var closeWidget = function(e, data) {
+		if (shc.debug) {
+			console.log('widget closed: ' + data.id);
+		}
+	};
+
+	/*
+	 * Global actions for a 'SYWR data' event'
+	 */
+	var dataSYWR = function(e, data) {
+		if (shc.debug) {
+			console.log('SYWR data load: ' + data.id);
+		}
+	};
+
+	//Wire global handlers for the events
+	$(document).on({
+		'shcW.openWidget': openWidget,
+		'shcW.closeWidget': closeWidget,
+		'shcW.dataSYWR': dataSYWR
+	});
+}());
+
+/**
+ * A simple Factory object to create new widget instances.
+ * @singleton
+ */
+shcWidgets.Factory = (function() {
+	//cache of created widgets instances
+	//currently only single instances are supported.
+	types = {};
+
+	return {
+		/**
+		 * Create a new instance.
+		 * @param {String} type the widget to be created.
+		 * @param {String} name an alias for the instance. Can be the same as type. However if you create multiple instances of the
+		 * same type, they must have different names.
+		 * @param {Object} config a object containing name/value pairs to pass to instance constructor.
+		 * @return {Object} the newly created instance or an existing one if found.
+		 */
+		create: function(type, name, config) {
+			var wgt = null;
+
+			if (!name) {
+				name = type;
+			}
+
+			if (shcWidgets[type]) {
+				if (!types[name]) {
+					wgt = new shcWidgets[type](config || {});
+					types[name] = wgt;
+				}
+				else {
+					console.log(String.format('Controller: widget {0} has already been created', name));
+					wgt = types[name];
+				}
+			}
+			else {
+				console.log(String.format('Controller: widget {0} does not exist', name));
+			}
+			return wgt;
+		},
+
+		/**
+		 * Destroy a widget instance
+		 * @param {String} name the name of the instance to destroy
+		 * @return void
+		 */
+		destroy: function(name) {
+			if (types[name]) {
+				if (types[name].destroy) {
+					types[name].destroy();
+				}
+				types[name] = null;
+			}
+		},
+
+		/**
+		 * Get a ref to a widget by name.
+		 * @param {String} name the name of the widget used when calling create.
+		 * @return {Object} the requested instance or null if not found.
+		 */
+		get: function(name) {
+			return types[name] || null;
+		}
+	};
+}());
+/**
+ * Handle all functionality related to retrieving customer information.
+ * @singleton
+ *
+ *		//example
+ *		shcWidgets.Factory.create('customerInfo').init();
+ */
+
+shcWidgets.customerInfo = function() {
+	var LOG_ID = 'shcWidgets.customerInfo',
+		user, dfd,
+
+	/**
+	 * Check whether member data is current.
+	 * @member shcWidgets.customerInfo
+	 * @method isDataCurrent
+	 * @private
+	 * @returns {Boolean}
+	 */
+	isDataCurrent = function() {
+		var lastUpdate;
+
+		//Guests don't have SYWR info - nothing to refresh
+		if (!user.userName || !shc.features.SYWR.refresh) {
+			return true;  // don't do intermittent updates, assume that what's in the cookie is current
+		}
+
+		lastUpdate = Session.get('lastUpdateSYWR');
+		if (!lastUpdate) {
+			return false; // never set a value - go get it
+		}
+
+		// check whether last update is within refresh timeframe
+		return +lastUpdate + (shc.features.SYWR.refresh * 60*1000) > Date.now();
+	},
+
+	/**
+	 * Common functions
+	 * @member shcWidgets.customerInfo
+	 * @method doCommon
+	 * @private
+	 * @returns {Boolean}
+	 */
+	doCommon = function() {
+		var name, raid = shc.getRAInfo();
+
+		user = $.extend(user, {
+			sessionID: raid.jSessionID,
+			globalID: raid.globalID,
+			memberID: raid.globalID, // still up in the air wrt use of this for TEC
+			associate: user.associate || false,
+			pgtToken: $.readUpdateMergeCookie('s_sso', 3) || ''
+		});
+
+		name = user.userName || '';
+		//create a version of the user name for display in header
+		if (!!name) {
+			//Make it name reasonable size for display.
+			if (name.length > 10) {
+				name = name.substring(0, 10);
+				name = (name.indexOf('@') >= 0 ? name.split('@')[0] : name) + '...';
+			}
+		}
+		user.displayName = name;
+
+		//Partially logged in user will have a userName, but the s_sso cookie will be 'N'.  This only happens in the case
+		//where a user is logged in, closes the browser, and re-opens before the server session expires.
+		user.partialLogin = !!user.userName && $.readUpdateMergeCookie('s_sso', 1) === 's_r';
+	},
+
+	/**
+	 * Common functions
+	 * @member shcWidgets.customerInfo
+	 * @method doIRP
+	 * @private
+	 * @returns {Boolean}
+	 */
+	doIRP = function() {
+		user =	$.extend(user, {
+			userName: user.userName || '',
+			isGuest: !!user.userName ? false: true,
+			isSYWR: !!user.sywrNo,
+			sywrNo: user.sywrNo || '',
+			encryptedSywrNo: (!!user.encryptedSywrNo && user.encryptedSywrNo !== 'undefined') ? encodeURIComponent(user.encryptedSywrNo) : '',
+			sywrPoints: user.points || 0,
+			sywrAmount: user.pointsDollar || 0,
+			expiringPoints: user.expiringPoints || 0,
+			expiringPointsDate: user.expiringPointsDate || null,
+			//warning only displayed if there are expiring points and we haven't shown the warning yet
+			expiringPointsWarn: user.expiringPointsWarn === undefined && user.expiryPoints > 0,
+			spendingYear: user.spendingYear || 0,
+			vipLevel: user.vipLevel || (!!user.sywrNo ? 'R' :''), //SYWR tier defaults to 'R'
+			nextLevel: user.nextLevel || 0,   //dollars to get to next level
+			isAkamaiZipSniff: user.isAkamaiZipSniff || false
+		});
+
+		doCommon();
+
+		if (Session.get('Guest') === 'MiniCartCalled') {
+			//no reason to call this on every page
+			return;
+		}
+
+		//In IRP this really isn't guest-specific; the only way to get cart count the first time is to make the call - it's not passed back in a cookie.
+		//Once an ATC event happens, it will update value in cust_info cookie
+		$.ajax({
+			url: shc.URLs.miniCartCount,
+			dataType: 'json',
+			success: function(res) {
+				var cnt = !!res && !!res.response && res.response.responseCode === '0000' ? res.response.count : 0;
+				$(document).trigger(shcWidgets.EVENTS.cartUpdated, {data: {cartQuantity: cnt || 0}});
+					Session.set('Guest', 'MiniCartCalled');
+			},
+			error: function() {
+				$(document).trigger(shcWidgets.EVENTS.cartUpdated, {data: {cartQuantity: 0}});
+				Session.set('Guest', null);
+			}
+		});
+	},
+
+	/**
+	 * Start building the Profile.
+	 * @member shcWidgets.customerInfo
+	 * @method buildProfile
+	 * @private
+	 * @returns {Boolean}
+	 */
+	buildProfile = function() {
+		//On first page view, the cookie will not exist, so we call Profile service to build it.
+		//On login, Profile will wipe the cookie and this will execute again to get new info because login does a page load.
+		//Note the cookie is built by the web tier, not client code.
+
+		user = $.readUpdateJsonCookie('cust_info', 'customerinfo');
+
+		if (user && isDataCurrent()) {
+			//build the object from whatever is currently in the cookie
+			doIRP();
+			dfd.resolve();
+		}
+		else {
+			Session.set('Guest', null); //will force a call to CRSP to get cart count
+
+			$.ajax({
+				url: '/universalprofile/customerinfo',
+				success: function(res) {
+					//the AJAX response header creates the cookie
+					user = $.readUpdateJsonCookie('cust_info', 'customerinfo');
+					if (user) {
+						if (shc.features.SYWR.refresh) {
+							//save it as a session var so that we force a reset for things like partial login
+							Session.set('lastUpdateSYWR', Date.now(), true);
+						}
+					}
+					else {
+						//In somce cases the cookie is not getting created. Create a dummy object so rest of process continues.
+						//Don't set the Session var so that we can make the call again on a reload
+						console.log(LOG_ID + ': call to /customerInfo suceeeded, but cookie not created');
+						user = {};
+					}
+					doIRP();
+
+					if (shc.features.SYWR.refresh) {
+						//save it as a session var so that we force a reset for things like partial login
+						Session.set('lastUpdateSYWR', Date.now(), true);
+					}
+					dfd.resolve();
+				},
+				error: function(xhr, status, text) {
+					console.log(LOG_ID + ': call to create customerinfo failed, creating dummy cookie. Status=' + status + ' Error=' + text);
+
+					//create a dummy cookie - this is really a fatal error on IRP server
+					$.cookie('cust_info',
+						String.format('{"{0}": {1}}', 'customerinfo', JSON.stringify({"userName":""})), {path: '/'});
+
+					user = $.readUpdateJsonCookie('cust_info', 'customerinfo');
+					doCommon();
+					dfd.resolve();
+				}
+			});
+		}
+	};
+
+	return {
+		/**
+		 * Create the customerInfo widget
+		 * @member shcWidgets.customerInfo
+		 * @returns void
+		 */
+		init: function() {
+			if (shc.debug) {
+				console.log('init ' + LOG_ID);
+			}
+
+			dfd = $.Deferred();
+			dfd.done(function() {
+				//tell anybody listening that Profile data is loaded
+				$(document).trigger(shcWidgets.EVENTS.dataSYWR, {
+					id: 'customerInfo'
+				});
+			});
+
+			if (shc.features.profileDisabled) {
+				//If we disable profile, treat everybody as a guest
+				user = {userName: ''};
+				doCommon();
+
+				dfd.resolve();
+			}
+			else {
+				buildProfile();
+			}
+
+			return dfd.promise();
+		},
+
+		/**
+		 * Get a ref to the customerInfo object
+		 * @member shcWidgets.customerInfo
+		 * @returns {Object} the customerInfo object
+		 */
+		get: function() {
+			return user;
+		},
+
+		/**
+		 * Update the customerInfo cookie with new values.  Currently only handles SYWR#.
+		 * @member shcWidgets.customerInfo
+		 * @param {Object} custInfo the customerInfo object
+		 * @returns {Object} the customerInfo object
+		 */
+		set: function(custInfo) {
+			var sywr;
+
+			//This should never happen, but seeing some issues where cartcount is trying to update before customerInfo is built-
+			//might be a side effect of private browsing.
+			if (!user) {
+				return ({userName:''});
+			}
+
+			sywr = user.encryptedSywrNo || '';
+			user = $.extend(user, custInfo);
+			user.encryptedSywrNo = sywr; //sywr# is never updateable; safeguard incase code does something dumb.
+
+			//Clone the user object and write the decoded encrypted sywr# back to the cookie.
+			//This is done to avoid possibly double encoding of the value when creating the object next time around.
+			//Note that if code writes directly to the cookie, this could still break.
+			var ci = $.extend({}, user);
+			ci.encryptedSywrNo = decodeURIComponent(sywr);
+			$.readUpdateJsonCookie('cust_info', 'customerinfo', JSON.stringify(ci), {path: '/'});
+
+			return user;
+		}
+	};
+};
+/**
+ * Main driver for starting to build header.
+ *
+ *		//example
+ *		shcWidgets.Factory.create('header', 'header', {storeName: shc.chronStoreName}).init()
+ *
+ * @singleton
+ * @param {Object} config widget configuration
+ * @param {String} [config.prefix="gnf_"] value prepended for DOM creation
+ * @param {String} [config.id="header"] currently not used
+ * @param {String} [config.ns="header"] value prepended for for event wiring e.g. click.header
+ * @param {String} [config.storeName="sears-us"] determines which Chronometer segments will be retrieved
+ */
+
+shcWidgets.header = function(config) {
+	var LOG_ID = 'shcWidgets.header',
+		hdr,
+		hdrNavCfg = {
+			interval: 300,
+			timeOutIn: null,
+			timeOutOut: null,
+			open: null,
+			curtain: null,
+			screenWidth: 0,//set in spacingMainNav
+			alignCenter: 0,//set in spacingMainNav
+			resizeTimer: null
+		},
+		cfg = $.extend({}, {
+			prefix: 'gnf_',
+			id: 'header',
+			ns: 'header',
+			storeName: 'sears-us'
+		}, config),
+		mainNavItems;
+
+	/**
+	 * @private
+	 */
+	var removeClick = function(e) {
+		e.preventDefault();
+	};
+
+	/**
+	 * @private
+	 */
+	var spacingMainNav = function () {
+		/*run first time only: geta main navigation and orders it so that low priority items are at the end of the list */
+		var intialSetParamiters = function () {
+			mainNavItems = [];
+			//add class no-padding to get accurate width then remove it 
+			$('#gnf_dept_tree_nav li.gnf_nav_depth1_item').addClass('no-padding').each(function (i, e) {
+				var _this = $(e),
+					dropClass = _this.children('span').attr('class') || '',//get drop items class name
+					_thisLink = _this.find('.gnf_tree_junction').first();
+				mainNavItems[i] = {
+					el: _this,
+					linkEl: _thisLink,
+					width: _thisLink[0].getBoundingClientRect().right - _thisLink[0].getBoundingClientRect().left, //using javaScript because jquery rounds
+					position: i
+				};
+				if (dropClass.indexOf('gnf-drop') > -1) {
+					mainNavItems[i].dropNumber = dropClass.match(/gnf-drop-(\d+$)/)[1];//finds number in class
+				}
+			}).removeClass('no-padding');
+			//sort by dropNumber all non dropNumber are given 10
+			mainNavItems.sort(function (a, b) {
+				return (b.dropNumber || 10) - (a.dropNumber || 10);
+			});
+		};
+		if (!mainNavItems) { // if this has not been initeated before get the basic paramiters
+			intialSetParamiters();
+			if (mainNavItems[0].width < 0) {// if the first paramiter is essentuly empty send to end of js stack and run again
+				setInterval(function () {
+					intialSetParamiters();
+					spacingMainNav();
+				}, 0);
+				return false;
+			}
+		}
+		var itemWidthTotal = 0,
+			navItemsSides = (mainNavItems.length * 2 - 2), //double it so it is split between left and right, then remove far left side as its fixed at 20, and remove far right fixed at 20
+			totalEmptySpace = $('#gnf_dept_tree_nav').width() - 41, //subtracts 40 padding from total space, 1 to prevent rounding up error
+			usableEmptySpace = totalEmptySpace,
+			paddingForEachSide,
+			paddingExtra,
+			paddingAssign = function () {
+				if (paddingExtra) {
+					//adds one extra pixel to a side if there is extra padding due to rounding errors
+					paddingExtra--;
+					return paddingForEachSide +1;
+				}
+				return paddingForEachSide;
+			},
+			itemsFit = true;
+		//finds total width of topnav items
+		$.each(mainNavItems, function (i, e) {;
+			e.el.show();
+			var minPadding = 20;// old mainNavItems.padding minimum padding on both sides of item 
+			//make sure all menu items fit in header otherwise hide
+			if (itemsFit && (e.width + itemWidthTotal + minPadding) < usableEmptySpace) {
+				itemWidthTotal += e.width;
+				if (i) { //skips first items minimum padding because first and last sides are already counted
+					usableEmptySpace -= minPadding; //subtracts minimum padding for sides
+				}
+			} else {
+				e.el.hide();
+				itemsFit = false;
+				navItemsSides -= 2; //Remove items sides from being counted
+				if (shc.debug) {
+					console.log('topNav: "' + e.el.find('.gnf_tree_junction').text() + '" hidden not enough space');
+				}
+			}
+		});
+		itemWidthTotal = Math.ceil(itemWidthTotal);//round up for chrome
+		//find the padding for each side
+		paddingForEachSide = Math.floor((totalEmptySpace - itemWidthTotal) / navItemsSides);
+		//Calculates  extra spacing from rounding discards
+		paddingExtra = totalEmptySpace - ((paddingForEachSide * navItemsSides) + itemWidthTotal);
+
+		//adds padding to middle items
+		$.each(mainNavItems, function (i, e) {
+			if (e.position === 0) {//adds padding to first item
+				e.linkEl.css('padding-right', paddingAssign);
+			} else if (e.position === (mainNavItems.length - 1)) {//adds padding to last item
+				e.linkEl.css('padding-left', paddingAssign);
+			} else {
+				e.linkEl.css({
+					'padding-left': paddingAssign,
+					'padding-right': paddingAssign
+				});
+			}
+		});
+		//set width variables for curtain
+		hdrNavCfg.screenWidth = $('#navigation').width();
+		hdrNavCfg.alignCenter = ((hdrNavCfg.screenWidth - 980) / 2);
+	};
+
+	/**
+	 * @private
+	 */
+	var loadExtraFile = function(filePath) {
+		//if local environment get local file 
+		if (location.hostname === "localhost") {
+			FED.Util.addJsFile('/javascripts/' + filePath + '.js');
+			return;
+		}
+
+		//can't do this in window.load b/c PDP is so hosed that sometimes it never fires
+
+		//Find the base script tag so we can strip the date piece for additional file requests
+		if (!shc.URLs.chronTimeStamp) {
+			var attr = $('script[src^="' + shc.URLs.chronometer + '"]').attr('src');
+			if (!attr) {
+				//something seriously wrong if the script tag can't be located
+				if (shc.debug) {
+					console.log('GNF-skinnyPhoneHeader file load failed.');
+				}
+				return;
+			}
+			attr = attr.replace(shc.URLs.chronometer, '').replace(shc.URLs.chronAssets, '');
+			shc.URLs.chronTimeStamp = attr.substr(0, attr.indexOf('/gnf/')); //get the build stamp from path e.g. 2016-08-10_12-22-40
+		}
+
+		FED.Util.addJsFile(shc.URLs.chronometer + shc.URLs.chronAssets + shc.URLs.chronTimeStamp + filePath + '-min.js');
+	};
+	/**
+	 * @private
+	 */
+	var skinnyHeaderPhone = function() {
+		//trigger event so everything is closed if nav isn't already open 
+		if (shc.features.clientDeviceExperience ==='Mobile') {
+			return false;
+		} else {
+			$(document).trigger(shcWidgets.EVENTS.openWidget, {id: 'Switch to Skinny Phone Header'});
+		}
+		shc.features.clientDeviceExperience = 'Mobile';
+		//hide old navigation
+		$('#gnf_header').addClass('skinny skinny-phone');
+		//check if already on page
+		if ($('#navigationSkinny').length > 0) {
+			return false;
+		}
+		//load seperate js file for skinny phone header
+		loadExtraFile('/gnf/skinnyHeaderMenu');
+	};
+	/**
+	 * @private
+	 */
+	var skinnyHeader = function() {
+		//trigger event so everything is closed if nav isn't already open 
+		if (shc.features.clientDeviceExperience === 'Tablet') {
+			return false;
+		} else {
+			$(document).trigger(shcWidgets.EVENTS.openWidget, {id: 'Switch to Skinny Header'});
+		}
+		shc.features.clientDeviceExperience = 'Tablet';
+		//hide old navigation
+		$('#gnf_header').removeClass('skinny-phone').addClass('skinny');
+		//check if already on page
+		if ($('#navigationSkinny').length > 0) {
+			return false;
+		}
+		//load seperate js file for skinny header
+		loadExtraFile('/gnf/skinnyHeaderMenu');
+	};
+	/**
+	 * @private
+	 */
+	var normalWidthHeader = function() {
+		if (shc.features.clientDeviceExperience ==='Desktop') {
+			spacingMainNav();
+			return false;
+		}
+		shc.features.clientDeviceExperience = 'Desktop';
+
+		$('#gnf_header').removeClass('skinny skinny-phone');
+		spacingMainNav();
+		
+		if (shcWidgets.Factory.get('topNavDropdown')) {
+			return false;
+		}
+
+		//html already rendered by IRP
+		if (shc.features.splitNav) {
+			splitLoad();
+		} else {
+			postLoad();
+		}
+
+		//create new html structure for desktop width header
+		shcWidgets.Factory.create('adaMenu', 'topNavDropdown', {
+			name: 'topNavDropdown',
+			target: $('#gnf_01_tree_nav ul.gnf_nav_depth2_list').parent()
+		}).init();
+
+		/* focus state for kmart rebrand; needs to wrap input and button, so js is needed */
+		$('#hdrv3 #keyword').on('focus', function() {
+		    $('#hdrv3 #search').addClass('focused');
+		}).on('blur', function() {
+		    $('#hdrv3 #search').removeClass('focused');
+		});
+
+		//To improve page load, the images in the flyouts can be lazyloaded.  On first mouseover, push the image path into the src attribute to make it load
+		hdr.find('nav.lazyload').one('mouseenter focusin touchstart', $.proxy(imageLazyLoad, this, hdr));
+
+	};
+
+	/**
+	 * Handle stuff after the header html is present, whether from ESI or manually loaded.
+	 * @member shcWidgets.header
+	 * @private
+	 */
+	var postLoad = function() {
+
+		//wiring to show/hide the v3 horizontal nav
+		shcWidgets.Factory.create('adaMenu', 'mainHorizontalNav', {
+			name: 'mainHorizontalNav',
+			target: $('#navigation').find('ul.gnf_nav_depth2_list').parent(),
+			onOpen: function(el) {
+				var elLeft = el.position().left,
+					elWidth = el.outerWidth(),
+					addCurtain = function() {
+						$('#hdrv3').css('zIndex', 7001);
+						hdrNavCfg.curtain = FED.Util.curtain({zIndex:7000, cls:'shcCurtain gnf_menuCurtain'}).show();
+						//close when curtain is clicked
+						hdrNavCfg.curtain.on('click', shcWidgets.Factory.get('mainHorizontalNav').close);
+					};
+				addCurtain();
+
+				el.find('.gnf_nav_depth2_list').css('left', function() {
+					if (hdrNavCfg.screenWidth < 981){// align left on skinny screens
+						return 0;
+					} else if (elLeft < hdrNavCfg.alignCenter) {// if item is on left of screen align to item
+						return elLeft;
+					} else if ((hdrNavCfg.alignCenter + 980 - elWidth) < elLeft) {// if item is on right of screen align to item
+						return (elLeft + elWidth - 980);
+					} else {// if item is in center align center
+						return hdrNavCfg.alignCenter;
+					}
+				});
+				//add click from main nav bar for A/B test until flyout closes for TOF-956
+				if (shc.abTest && shc.abTest.header === 1) {
+					 $('#navigation li.gnf_nav_depth1_item > span > a').off('click', shc.removeClickGlobalTemp);
+				}
+			},
+			onClose: function(el) {
+				//remove Curtain
+				$('#hdrv3').css('zIndex', '');
+				!!hdrNavCfg.curtain && hdrNavCfg.curtain.remove();
+				//remove click from main nav bar for A/B test until flyout opens for TOF-956
+				if (shc.abTest && shc.abTest.header === 1) {
+					 $('#navigation li.gnf_nav_depth1_item > span > a').on('click', shc.removeClickGlobalTemp);
+				}
+			}
+		}).init();
+
+		/* create new html structure for desktop width header
+		$('#gnf_dept_tree_item_1').addClass('gnf-nav-active');$('#hdrv3').css('z-index', 100); for testing*/
+		$('#navigation .gnf-main-links').each(function() {
+			var tempHtml = '<li class="column column-1"><ul>',
+				_this = $(this),
+				columOn = 0,
+				newColHtml = function() {
+					columOn++;
+					if (columOn > 1) {
+						return String.format('</ul></li><li class="column column-{0}"><ul>', columOn);
+					}
+					return '';
+				};
+
+			_this.find('.gnf_nav_depth3_item').each(function() {
+				var _this2 = $(this),
+					noOfNewCol = _this2.find('.gnf-dept-col-new').length,
+					firstItemNew = _this2.children().first().hasClass('gnf-dept-col-new');
+
+				if ((noOfNewCol === 1 && !firstItemNew) || noOfNewCol > 1) {// has new somewhere but not as first item or more then one
+					var _ulList = _this2.children('ul');
+					tempHtml += String.format('{0}<li id="{1}" class="{2}">{3}<ul id="{4}" class="{5}">',
+						firstItemNew ? newColHtml() : '', //0
+						_this2.attr('id'), //1 id
+						_this2.attr('class'), //2 class
+						_this2.children().first()[0].outerHTML, //3
+						_ulList.attr('id'), // 4
+						_ulList.attr('class') //5
+					);
+					
+					_this2.find('.gnf_nav_depth4_item').each(function() {
+						var _this3 = $(this);
+						if (_this3.find('.gnf-dept-col-new').length > 0) {
+							tempHtml += String.format('</ul></li>{0}<li class="gnf_nav_depth3_item headless-list"><ul class="gnf_nav_depth4_list">{1}',
+								newColHtml(), //0
+								_this3[0].outerHTML //1
+							);
+						} else {
+							tempHtml += _this3[0].outerHTML;
+						}
+					});
+					tempHtml += '</ul></li>';
+				} else {//just add everything to preveious col
+					if (noOfNewCol === 1) {
+						tempHtml += newColHtml();
+					}
+					tempHtml += _this2[0].outerHTML;// add everything to col
+				}
+			});
+
+			//rewrite html to new col format
+			_this.html(String.format('{0}</ul></li>',
+					tempHtml //0
+				)).addClass(String.format('gnf-main-col-{0}',
+					columOn //0
+				));
+		});
+
+		//build brand bar in more from footer
+		$('#gnf_nav_more > ul.gnf_nav_depth2_list').append('<li id="more-brands">'+$('#gnf_footer .footer-middle-top').html()+'</li>');
+		$('#more-brands a').attr('href', function(i, val){
+			return val.replace(/intcmp\=(.*)_/g, "intcmp=xsitemoremenu_");
+		});
+
+		// if a main nav link is a span make it tab indexable for keyboard navigation 
+		hdr.find('span.gnf_tree_junction').attr('tabindex', '0');
+
+		//remove 'onlyKiosk' in the flyout. then remove any empty divs caused by this
+		if (shc.isKiosk) {
+			$('#navigation .gnf_nav_depth3_item > span.noKiosk').parent().remove();
+		} else {
+			$('#navigation .gnf_nav_depth3_item > span.onlyKiosk').parent().remove();
+		}
+
+		// populate default attributes when not specified
+		hdr.find('a:not([data-trk])').attr('data-trk','Y');
+		hdr.find('a:not([rev])').attr('rev','om');
+
+		$(document).on(shcWidgets.EVENTS.zipcodeUpdated, function(e, data) {
+			//don't get into infinite loop when header is what triggered orginal update event
+			if (data.id !== 'header') {
+				$.cookie('zipCode', data.zipcode); /*, TODO: should we force to elminate problesm with subpages {path:'/', domain: FED.Util.getRootDomain()} */
+				var donotSetStore = !!data.donotSetStore ? data.donotSetStore : false;
+				MyLocation.getZipCodeFromDB(data.zipcode, '', '', donotSetStore); //let the SPURefactorHeader code do any other related process
+			}
+		});
+		$(document).on(shcWidgets.EVENTS.storeUpdated, function(e, data) {
+			if(!!data.unitNo && !!data.storeName){
+				MyLocation.updateStoreInfo(data.unitNo, data.storeName, data.city);
+			}
+		});
+	};
+	/**
+	 * Determines which header to display 
+	 * @member shcWidgets.header
+	 * @private
+	 */
+	 var headerToDisplay = function () {
+		var tabletSizeBreakpoint = 980,// must be more than normal screen min width
+			phoneSizeBreakpoint = 600,// must be less then tabletSizeBreakpoint
+			gnf_header = $('#gnf_header');
+		//store origanal html for use on skinny header if needed
+		if (shc.features.headerResponsive && (gnf_header.width() < tabletSizeBreakpoint || (window.innerHeight > window.innerWidth && (window.innerWidth / screen.width) > 1.1))) {
+			menuJasonLoad();
+			if (shc.features.headerResponsive === 'full' && gnf_header.width() < phoneSizeBreakpoint) {
+				skinnyHeaderPhone();
+			} else {
+				skinnyHeader();
+			}
+		} else {
+			if (shcWidgets.adaMenu) {
+				normalWidthHeader();
+			} else {
+				$(document).one(shcWidgets.EVENTS.adaMenuReady, normalWidthHeader);
+			}
+		}
+	};
+	/**
+	 * Handle stuff before all the header html is present
+	 * @member shcWidgets.header
+	 * @private
+	 */
+	var preLoad = function() {
+		//wiring for v4 nav items
+		headerToDisplay();
+		$(window).on('resize orientationchange', headerToDisplay);
+
+		//ADA skip nav in environments that do not support anchor links like cart
+		$('#skipToContent').on('click', function(e) {
+			$('#shcEndNavigation').focus();
+		});
+	};
+
+	/**
+	 * @private
+	 */
+	var delayedLoad = function(dfd) {// TODO this may no longer be needed
+		if (!(shc.URLs && shc.URLs.chronometer)) { // this is for if shc.URLs did not load
+			var tempshcURLschronometer = "//chrono.shld.net/";
+			if (location.hostname.indexOf('pilot') > -1) {
+				tempshcURLschronometer = "//chronometervip.stress.ch3.s.com/";
+			} else if (location.hostname.indexOf('qa') > -1) {
+				tempshcURLschronometer = "//chronometervip.qa.ch3.s.com/";
+			}
+			shc.URLs = $.extend(shc.URLs, {
+				chronometer: tempshcURLschronometer
+			});
+		}
+		$.ajax({
+			url: String.format(shc.URLs.chronometer + shc.URLs.chronData + '{0}-hdrv3.html', cfg.storeName),
+			dataType: 'html',
+			crossDomain: true,
+			cache: true,
+			success: function(res) {
+				//HACK: rip the mbox out of the inserted html because it comes in after pageload and will kill the page
+				//New non-WCS Profile pages are the only ones loading GNF via this fallback code
+				res = trim(res).replace(/<script src=\"(.{0,21})\/staticassets\/versions\/shc\/js\/mbox_at\.js(.*)\"><\/script>/, '');
+				console.log(hdr);
+				hdr.html(res);
+				preLoad();
+				if (dfd) {
+					dfd.resolve();
+				}
+			},
+			error: function(xhr, status, error) {
+				if (shc.debug) {
+					console.log('GNF - header failed: status=' + xhr.statusText + ', msg=' + status);
+				}
+				if (dfd) {
+					dfd.reject();
+				}
+			}
+		});
+	};
+
+	/**
+	 * Load the 2nd level nav html (v3-newer) and append to the navbar.
+	 * @private
+	 */
+	var splitLoad = function() {
+		//TODO: replace with jason data call
+		$.ajax({
+			//request as '.html' so browser caches the response
+			url: String.format(shc.URLs.chronometer + shc.URLs.chronData + '{0}-hdr-flyouts.html', cfg.storeName),
+			data: {'v': $('#gnf_dept_tree_nav').attr('data-menu-version') || '1'}, //chron updates this attr when new version of menu is saved - breaks cache
+			dataType: 'html',
+			crossDomain: true,
+			success: function(res) {
+				if (!!res) {
+					//loop thru all the first level navs and add the content to matching elements in the DOM
+					$(res).find('li.gnf_nav_depth1_item').each(function(i, el) {
+						var node = $(el).children('ul'),
+						target = $('#' + $(el).attr('id'));
+
+						//target is a Level1 nav element, but it's possible it was removed by the space calculation.
+						if (target.length) {
+							target.append(node.prop('outerHTML'));  //push the entire <UL>..</UL> into the parent LI
+							target.children('ul').attr('data-node', i); //testing only
+						}
+					});
+				}
+				//now that all the HTML is loaded, go back and do wiring/re-alignment
+				postLoad();
+				$(document).trigger(shcWidgets.EVENTS.navFlyoutLoaded, {id:'header'});
+			},
+			error: function(xhr, status, error) {
+				console.log(String.format('GNF - header failed: status={0}, msg={1}', xhr.statusText, status));
+			}
+		});
+	};
+
+	/**
+	 * Load the json menu to use for mobile widths
+	 * @private with public data
+	 */
+	var menuJasonLoad = function() {
+		if (shcWidgets.DEFERRED.mainMenuJasonData.state() === "resolved") {
+			return false;
+		}
+		$.ajax({
+			//request as json
+			url: String.format(shc.URLs.chronometer + shc.URLs.chronData + '{0}-hdr-flyouts.js', cfg.storeName),
+			data: {'v': $('#gnf_dept_tree_nav').attr('data-menu-version') || '1'}, //chron updates this attr when new version of menu is saved - breaks cache
+			dataType: 'jsonp',
+			crossDomain: true,
+			success: function(res) {
+				shcWidgets.DEFERRED.mainMenuJasonData.resolve(res);
+			},
+			error: function(xhr, status, error) {
+				shcWidgets.DEFERRED.mainMenuJasonData.reject([xhr, status, error]);
+				console.log(String.format('GNF - mobile header data failed: status={0}, msg={1}', xhr.statusText, status));
+			}
+		});
+	};
+
+	/**
+	 * Update all the images that were setup to lazy load
+	 * @private
+	 */
+	var imageLazyLoad = function(target) {
+		target.find('li img[data-src]').each(function(j, img) {
+			var src;
+			img = $(img);
+			src = img.attr('data-src');
+			//make it https
+			src = src.startsWith('http:') ? src.replace('http:', 'https:') :
+				src.startsWith('//') ? src.replace('//', 'https://') : src;
+
+			img.attr('src', src).removeAttr('data-src');
+		});
+	};
+
+	return {
+		/**
+		 * Create the header widget
+		 * @member shcWidgets.header
+		 */
+		init: function() {
+			var html, id = cfg.prefix + 'header',
+				dfd = $.Deferred();
+
+			if (shc.debug) {
+				console.log('init ' + LOG_ID);
+			}
+
+			hdr = $('#' + id);
+			if (!hdr.length) {
+				hdr = $(String.format('<div id="{0}" />', id)).appendTo('body');
+			}
+
+			//If IRP doesn't render the html, load it manually from Chronometer
+			html = trim(hdr.html());
+			if (html.indexOf('#GNF_HEADER#') >= 0 || !html.length) {
+				console.log('GNF - falling back to non-IRP load of header');
+				delayedLoad(dfd);
+			}
+			else {
+				preLoad();
+				dfd.resolve();
+			}
+			return dfd.promise();
+		},
+
+		/**
+		 * Recalculate the navbar spacing when items are added or removed.
+		 */
+		reflowNav:function() {
+			headerToDisplay();
+		}
+	};
+};
+/**
+ * Widget to build the profile section of header - userName & flyout.
+ */
+
+shcWidgets.profile = function(config) {
+	var ACTION = {
+			login: 'LOGIN',
+			logout: 'LOGOUT',
+			register: 'REG',
+			join: 'JOIN',
+			verify: 'VERIFY',
+			membership: 'MEMBERSHIP',
+			directToSite: 'DTSUSERLOGIN'
+		},
+		LOG_ID = 'shcWidgets.profile',
+		trigEl,
+		timer1=0, timer2=0,
+		flyout,
+		isLoggedIn = false,
+		user,
+		freeShippingSlideshowTimer,
+		cfg = $.extend({}, {
+				prefix: '',
+				id: 'profile',
+				cls: 'hFlyout',
+				ns: 'profile'
+			}, config),
+		sywr;
+
+	var buildUser = function() {
+		if (shc.features.international) {
+			//No sign in/join links for Intl - no Profile support
+			buildIntl();
+			return;
+		}
+
+		var html, 
+			topOptions = $('#topOptions'),
+			pointsDisplay = '';
+
+		shc.URLs.guestOrders = 'https://' + location.hostname + '/universalprofile/myorderstatus?upid=' + shc.siteId + '#/checkorderstatus';
+
+		if (typeof user.pointsDollar !== 'undefined') {
+			var splitPrice = function(s) {
+				var n = s.toString().split('.');
+				//Add commmas to the non-decimal part
+				n[0] = n[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+
+				return n;
+			};
+			var pointsToShow = user.pointsDollar ? user.pointsDollar.toFixed(2) : 0,
+				pointsToShowArr = [];
+			if (pointsToShow > 0) {
+				var pointsArr = splitPrice(pointsToShow);
+				if (pointsArr[0].indexOf(',') > 0) {//if over 1000 show k 
+					pointsToShowArr[0] = pointsArr[0].slice(0, -4);
+					pointsToShowArr[1] = 'k';
+				} else if (pointsArr[1] == 0) {//if whole doller dont show cents
+					pointsToShowArr[0] = pointsArr[0];
+					pointsToShowArr[1] = '';
+				} else if (user.pointsDollar >= 100) {//if over 100 dont show cents
+					pointsToShowArr[0] = pointsArr[0];
+					pointsToShowArr[1] = '';
+				} else {
+					pointsToShowArr[0] = pointsArr[0];
+					pointsToShowArr[1] = pointsArr[1];
+				}
+			}
+			pointsDisplay = String.format('<span class="gnf-hdr-points-circle" data-trk="Header > Profile">$<span class="gnf-hdr-points-circle-doller">{1}</span>{2}</span>',
+					'',//0 gnf-hdr-vipLevel-  user.vipLevel
+					pointsToShowArr.length > 0 ? pointsToShowArr[0] : 0,//1
+					pointsToShowArr.length > 0 ? pointsToShowArr[1] : ''//2
+				);
+		}
+
+		html = String.format('<li class="myProfile"><ul role="menubar" class="dropmenu">'+
+					'<li role="menuitem" class="gnf_nav_depth1_item gnf-has-dropdown{3}">' +
+					'<button id="yourAccount" data-trk="{1}" tabindex="0"><span class="mm-notification-number"></span> <span class="gnf_nav_profileBtnText">{0} <span class="gnf_nav_profileBtnSubText">Your Points</span></span>{4}</button>' +
+					'{2}</li></li>',
+				isLoggedIn ? 'Hi ' + user.displayName : 'Sign In',//0
+				'Header > Profile',//1
+				buildFlyout(),//2 dropdown content here
+				pointsDisplay ? ' points' : '',//3
+				pointsDisplay//4
+			);
+
+		html += '</ul>';
+
+		//Wipe this element b/c in the case of a new user, CAS timing issues can cause this to be called twice and end up with dup elements.
+		topOptions.html(html);
+
+		//SYWMax Users get different banner.
+		var freeShippingSlideshow = function() {
+			var freeShippingSlide = function(slideInfo) {
+					slideInfo = $.extend({}, {
+							url: '/en_us/dap/free-shipping.html?pOfferID=706945l',
+							dataTrk: 'FreeShip',
+							bldMsg: '',
+							msg: ''
+						}, slideInfo);
+					return String.format('<a href="{0}" data-trk="{1}"><span class="font-Open-Sans-Semibold">{2}</span> <span>{3}</span></a>',
+						slideInfo.url,
+						slideInfo.dataTrk,
+						slideInfo.bldMsg,
+						slideInfo.msg);
+				},
+				_free_shipping_slide = $('#free_shipping_slide'),
+				startTimer = function() {
+					if (freeShippingSlideshowTimer) {
+						return false;
+					}
+					freeShippingSlideshowTimer = setInterval(function() {
+						_free_shipping_slide.find('a:first')
+							.fadeOut(500, function() {
+								$(this)
+									.next()
+									.fadeIn(500)
+									.end()
+									.appendTo(_free_shipping_slide);
+							});
+					}, 6000);
+				},
+				slidesHtml = '';
+
+			if (!headerRotatingBannerTopRight) {
+				return false;
+			}
+			$.each(headerRotatingBannerTopRight, function(key, val) {
+				slidesHtml += freeShippingSlide(val);
+			});
+
+			// remove any actions if this was set up before
+			_free_shipping_slide.off();
+			
+			// add messages to slideshow
+			_free_shipping_slide.html(slidesHtml);
+
+			//hide all but first message
+			_free_shipping_slide.find('a:gt(0)').hide();
+			startTimer();
+			//mouse controls for stopping slideshow
+			_free_shipping_slide.on('mouseenter', function(){
+				clearTimeout(freeShippingSlideshowTimer);
+				freeShippingSlideshowTimer = null;
+			}).on('mouseleave', function(){
+				startTimer();
+			});
+			_free_shipping_slide.find('a').on('focus', function(){
+				clearTimeout(freeShippingSlideshowTimer);
+				freeShippingSlideshowTimer = null;
+			}).on('focusout', function(){
+				startTimer();
+			});
+		};
+		if (typeof headerRotatingBannerTopRight !== 'undefined') {
+			freeShippingSlideshow();
+		} else {
+			$(document).one(shcWidgets.EVENTS.bannerTopRight, freeShippingSlideshow);
+		}
+
+		$('#bottomOptions').remove();
+
+		flyout = $('#subnavDD_myProfile');
+		flyout.find('li').addClass('gnf_nav_depth2_item').attr('role', 'menuitem');
+
+		//Add a class so we can show/hide stuff for guest vs loggedIn
+		$('#profileArea, #gnf_footer').addClass(isLoggedIn ? 'loggedIn' : 'guest');
+		//Add a class so we can show/hide stuff for SYW
+		$('#gnf_footer').addClass(user.isSYWR? 'syw-user' : '');
+
+		//Some URLs change based on guest vs member. Replace guest url with member url from data-al-href
+		if (isLoggedIn) {
+			$('#gnf_header, #gnf_footer').find('a[data-alt-href]').each(function() {
+				var el = $(this), alt = el.attr('data-alt-href');
+				if (!!alt) {
+					el.attr('href', alt);
+				}
+			});
+		}
+	};
+
+	/**
+	 * Build the CountryChooser/flag in header for International users
+	 * @private
+	 */
+	var buildIntl = function() {
+		//No sign in/join links for Intl - no Profile support
+		$('.myProfile').remove();
+
+		//Add the 'Change country' stuff in header for international mode.
+		$('#topOptions').append(String.format(
+			'<li class="changeYourCountry"><span id="IntlHdrLink">' +
+			'<a id="changeCountry" href="#" title="Change country and currency" data-trk="ChangeCountry" rel="external nofollow">' +
+			'<img id="intFlag" src="{0}shared/images/flags/{1}.gif" alt="{1}" />' +
+			'<span>&nbsp;Change Country</span></a></span></li>', shc.imagePath, shc.features.international.countryCode));
+
+		$('#IntlHdrLink').on('click.' + cfg.ns, function(e) {
+			e.preventDefault();
+			countryChooserPopup();  //needs to be anon b/c this is in priceTranslation.js file not yet loaded
+		});
+
+		$('#profileArea').addClass('intl');
+	};
+	/**
+	 * Build parts of flyout seperate to use in mobile and desktop
+	 * @private
+	 */
+	var buildMemberMessagingHTML = function(idMod) {
+		var tempId = idMod || '';
+		return String.format('<li id="gnf-l2{4}" class="gnf-messaging-container">' +
+			'<button role="button" {1} class="notifications-trigger{2}" data-trk="Notifications"><span class="mm-notification-number"></span> Notifications{0}</button>' +
+			'{3}</li>', 
+			user && user.isGuest ?' <span class="not-logged-in">Sign in for updates</span>' : '',//0
+			user && user.isGuest ?'data-action="login"' : 'data-layer-id="gnf-l2-notifications' + tempId + '" aria-expanded="false" aria-haspopup="true"',//1
+			user && user.isGuest ?'':' dont-close',//2
+			user && user.isGuest ? '':'<div id="gnf-l2-notifications' + tempId + '" class="dropdown" role="dialog" tabindex="0"></div>', //3
+			idMod || '' //4
+			);
+	},
+	buildSignInHTML = function(dataTrk) {
+		var html = '',
+			endhtml = '',
+			sywPitch = function(title, btnType, actionType) {
+				return String.format('<li class="has-background-secondary gnf_nav_depth2_item under-buttons">' +
+					'<h4 class="font-color-brand-{4}">{0}</h4> <div>Earn points, get exclusive coupons & save money with Shop Your Way! ' +
+					'<a href="{5}" data-trk="{3}member learn more">learn more</a></div></li>' +
+					'<li class="gnf-profile-joinForFree has-buttons has-background-secondary"><button class="{1}" data-action="{2}" data-trk="{3}Join for free">Join for free</button></li>',
+						title,//0
+						btnType, //1
+						actionType, //2
+						dataTrk, //3
+						shc.storeName, //4
+						//Treat KmartPR differently b/c the vanity url can't distinguish US vs PR URL on the same domain
+						shc.features.kmartPR ? '/en_pr/dap/shop-your-way.html' : '/shopyourway' //5
+					);
+			};
+		if (user) {
+			if (user.isGuest && user.isSYWR) {
+				//?? 110.23 - Condition: "Pending Verify"
+				html += '<li class="has-buttons-center gnf-main-signin-area"><button data-action="directToSite" data-trk="' + dataTrk + 'Verify Membership">Verify Membership</button></li>';
+			} else if (user.isGuest) {
+				//110.10
+				html += '<li class="has-buttons-center gnf-main-signin-area"><button data-action="login" data-trk="' + dataTrk + 'Sign-in" class="button-primary">Sign-in for Member Perks</button></li>';
+				endhtml += sywPitch('Not a member yet?', 'button-secondary', 'register');
+			} else if (user.partialLogin) {
+				//110.21 - Condition: Partial Logged In removed for UHF-713
+			} else if (isLoggedIn && !user.isSYWR) {
+				//110.22 - Condition: Non-member Logged In
+				html += sywPitch('Members get more', 'button-primary', 'join');
+			}
+		}
+		return [html, endhtml];
+	},
+	buildFlyoutLinksHTML = function(dataTrk) {
+		var html = '',
+			your = user.isGuest? '' : 'Your ';
+
+		html +=	String.format('<li class="gnf-profile-first-base-link"><a data-trk="{0}{1}" href="{2}">{1}</a></li>', dataTrk, your + 'Orders', shc.URLs.orderCenter);
+
+		html += String.format('<li><a id="myXProfile" data-trk="{0}{1}" href="{2}">{1}</a></li>', dataTrk, your + 'Account', shc.URLs.profile);
+
+		if (shc.URLs.recommendations) {
+			html += String.format('<li><a data-trk="{0}{1}" href="{2}">{1}</a></li>', dataTrk, 'Redeem My Points', shc.URLs.recommendations);
+		}
+
+		html +=	String.format('<li><a data-trk="{0}{1}" href="{2}">{1}</a></li>', dataTrk, your + 'Shop Your Way Points', shc.URLs.profile);
+
+		if (shc.URLs.dealCenter) {
+			html += String.format('<li><a data-trk="{0}{1}" href="{2}">{1}</a></li>', dataTrk, your + 'Clipped Coupons', shc.URLs.dealCenter);
+		}
+		if (shc.URLs.layawayPmt) {
+			html += String.format('<li><a data-trk="{0}{1}" href="{2}">{1}</a></li>', dataTrk, your + 'Layaway', shc.URLs.layawayPmt);
+		}
+
+		if (shc.URLs.manageAccount) {
+			html += String.format('<li><a data-trk="{0}{1}" href="{2}">{1}</a></li>', dataTrk, your + 'Preferred Store', shc.URLs.manageAccount);
+		}
+
+		if (isLoggedIn && shc.URLs.linkCreditCard) {
+			html += String.format('<li><a data-trk="{0}{1}" href="{2}" data-login="0">{1}</a></li>', dataTrk, 'Link a Credit Card & Earn Points', shc.URLs.linkCreditCard);
+		}
+		if (shc.URLs.paySearsCard) {
+			html += String.format('<li><a data-trk="{0}{1}" href="{2}" data-login="0">{1}</a></li>', dataTrk, 'Pay '+ your + 'Sears Card Bill', shc.URLs.paySearsCard);
+		}
+
+		if (shc.URLs.giftCards) {
+			html += String.format('<li><a data-trk="{0}{1}" href="{2}" data-login="0">{1}</a></li>', dataTrk, 'Check a Gift Card Balance', shc.URLs.giftCards);
+		}
+
+		if (isLoggedIn && shc.URLs.listCenter) {
+			html += String.format('<li><a data-trk="{0}{1}" href="{2}">{1}</a></li>', dataTrk, your + 'Lists', shc.URLs.listCenter);
+		}
+
+		//TODO: will need to address for intl too - should probably move to shc.URLs
+		html += String.format('<li{3}><a data-trk="{0}{1}" href="{2}" data-login="0">{1}</a></li>',
+			dataTrk,
+			'Get Help',
+			'/en_' + (shc.storeName.indexOf('pr') > 0 ? 'pr' : 'us') + '/customer-service.html',
+			isLoggedIn ? '': ' class="gnf-profile-last-base-link"');
+
+		if (isLoggedIn) {
+			html += String.format('<li class="logOutMsg gnf-profile-last-base-link"><a data-trk="{0}{1}" href="javascript:void(0);">{1}</a></li>', dataTrk, 'Logout');
+		}
+		return html;
+	};
+
+	var buildFlyout = function() {
+		var dataTrk = 'Header > ';
+
+		//this code can execute multiple times depending on the state of the user - remove old elements
+		$('#subnavDD_myProfile').remove();
+	
+		return String.format('<ul role="menu" id="subnavDD_myProfile" class="{0} gnf_nav_depth2_list">{2}{3}{4}{1}</ul>',
+				cfg.cls + (isLoggedIn ? '' : ' guest'),//0
+				buildSignInHTML(dataTrk)[1], //1
+				buildMemberMessagingHTML(), //2
+				buildSignInHTML(dataTrk)[0], //3
+				buildFlyoutLinksHTML(dataTrk) //4
+			);
+	};
+	/**
+	 * Builds the flyout for mobile menu 
+	 * @private
+	 */
+	var buildMenuProfile = function(target) {
+		var dataTrk = '';
+		sywStartUp();
+		target.html(String.format('<ul><li><ul>{0}{1}{3}{4}</ul></li><li class="gnf-mobile-departments"><ul>{2}</ul></li></ul>',
+				buildSignInHTML(dataTrk)[0],//0 sign in 
+				buildMemberMessagingHTML('-mobile'), //1 member messaging
+				buildFlyoutLinksHTML(dataTrk),//2
+				'',//3 zip code
+				sywr ? sywr.buildSYWpoints(user) : '<li class="gnf-mobile-spacer"></li>'//4 SYW points
+			));
+		if (sywr) {
+			sywr.buildSYWoffers(target);
+		}
+	};
+
+	var doAction = function(type, url, formName, email) {
+		if (!cfg) {
+			return false;
+		}
+		if (url === '#') {
+			url = location.href;
+		}
+		url = trim(url);
+
+		switch (type) {
+			case ACTION.login:
+			case ACTION.register:
+				//Kill session vars so a new user doesn't get stale data if they clear only the cookies and don't logout.
+				//This is really an edge case from QA testing.
+				//We don't kill the entire Session b/c that would force another hit to Chronometer for the GNF assets
+				Session.set('SYWRCouponCount', null);
+				Session.set('Guest', null);
+				Session.set('lastUpdateSYWR', null);
+
+				openUSRModal(url || location.href, type, 'Header', false, '', '', shc.casServerNameHttps, shcWidgets.USR_SITEID[shc.storeId]);
+				break;
+
+			case ACTION.logout:
+				//Kill session vars so a new user doesn't get stale data on login - this is really an edge case from QA testing.
+				Session.clear();
+				casLogout(); // let CAS/Profile deal with issues surrounding killing the cookies.
+				break;
+
+			case ACTION.join:
+			case ACTION.verify:
+				Session.set('Guest', null);
+				openUSRModal(url || location.href, 'ACT', 'Header', false, '', '', shc.casServerNameHttps, shcWidgets.USR_SITEID[shc.storeId]);
+				break;
+
+			case ACTION.membership:
+				Session.set('Guest', null);
+				openUSRModal(url || location.href, formName, 'Header', false, '', '', shc.casServerNameHttps, shcWidgets.USR_SITEID[shc.storeId]);
+				break;
+
+			case ACTION.directToSite:
+				openUSRModal(url || location.href, type, 'Header', false, email || '', '', shc.casServerNameHttps, shcWidgets.USR_SITEID[shc.storeId]);
+				break;
+
+			default:
+				return false;
+		}
+		return true;
+	};
+
+	/**
+	 * Hide the flyout
+	 * @private
+	 */
+	var hideFlyout = function() {
+		shcWidgets.Factory.get('accountDropdown').close();
+	};
+	
+	/**
+	 * Attach the click handling for mobile
+	 * @private
+	 */
+	var wireMobileElements = function(obj) {
+		//create widget for this menu functionality
+
+		//A guest user has to login, then get redirected to target url
+		if (!user || user.isGuest || user.partialLogin || !user.isSYWR) {
+			var wireProfileDropdown = function(e) {
+				var target = $(this);
+				if (target.attr('data-login') === '0') {
+					//link doesn't require login - let it redirect
+				} else {
+					//other links go thru login, except hdrC 'join'
+					e.preventDefault();
+					$(document).trigger(shcWidgets.EVENTS.openWidget, {id: 'login'});//to close all open dropdowns
+					var action = target.data('action');
+
+					setTimeout( function() {
+						doAction(ACTION[action || 'login'], target.attr('href'));
+					}, 0);
+				}
+			};
+
+			//"Your Account" dropdown sign in/up links
+			if (!isLoggedIn) {
+				obj.on('click.' + cfg.ns, 'a', wireProfileDropdown);
+				obj.on('click.' + cfg.ns, 'button', wireProfileDropdown);
+			} else {
+				obj.find('.has-buttons').on('click.' + cfg.ns, 'a, button', wireProfileDropdown);
+			}
+		}
+
+		obj.find('.logOutMsg').on('click.' + cfg.ns, function() {
+			doAction(ACTION.logout);
+		});
+	};
+
+	/**
+	 * Attach the click handling
+	 * @private
+	 */
+	var wireElements = function() {
+		//create widget for this menu functionality
+		var afterAdaMenuisReady = function() {
+			if (shcWidgets.Factory.get('accountDropdown')) {
+				shcWidgets.Factory.destroy('accountDropdown');
+			}
+			shcWidgets.Factory.create('adaMenu', 'accountDropdown', {
+					name: 'accountDropdown',
+					mainLinks: '#yourAccount',
+					events:'click',
+					target: $('#topOptions').find('li.gnf-has-dropdown')
+				}).init();
+		};
+		
+		if (shcWidgets.adaMenu) {
+			afterAdaMenuisReady();
+		} else {
+			$(document).one(shcWidgets.EVENTS.adaMenuReady, afterAdaMenuisReady);
+		}
+
+		//A guest user has to login, then get redirected to target url
+		if (!user || user.isGuest || user.partialLogin || !user.isSYWR) {
+			var wireProfileDropdown = function(e) {
+				if ($(e.target).attr('data-login') === '0') {
+					//link doesn't require login - let it redirect
+				}
+				else {
+					//other links go thru login, except hdrC 'join'
+					e.preventDefault();
+					hideFlyout();
+					var action = $(this).data('action');
+					doAction(ACTION[action || 'login'], $(e.target).attr('href'));
+				}
+			};
+
+			//"Your Account" dropdown sign in/up links
+			if (!isLoggedIn) {
+				flyout.find('.gnf_nav_depth2_item').not('.under-buttons').on('click.' + cfg.ns, 'a', wireProfileDropdown);
+				flyout.on('click.' + cfg.ns, 'button', wireProfileDropdown);
+			}
+			else {
+				flyout.find('.has-buttons').on('click.' + cfg.ns, 'a, button', wireProfileDropdown);
+			}
+		}
+
+		flyout.find('.logOutMsg').on('click.' + cfg.ns, function() {
+			doAction(ACTION.logout);
+		});
+	};
+	/**
+	 * Check SYW
+	 * @private
+	 */
+	 var sywStartUp = function(build) {
+	 	//SYWR and coupons don't apply to intl
+	 	if (sywr) {
+	 		if (build) {
+	 			sywr.init(user);
+	 		}
+	 		return true;
+	 	}
+		if (!user.isGuest && shc.features.SYWR.enabled) {
+			sywr = shcWidgets.Factory.get('shopYourWay');
+			if (!sywr) {
+				sywr = shcWidgets.Factory.create('shopYourWay');
+			}
+			if (build) {
+				sywr.init(user);
+			}
+		} else {
+			//Wipe the coupons for a guest user.  This isn't likely in prod, but for testing purposes, when you clear cookies and
+			//come back as a guest, you could have stale coupon data.
+			Session.set('SYWRCouponCount', null);
+		}
+	};
+
+	return {
+		init: function(config) {
+			if (shc.debug) {
+				console.log('init ' + LOG_ID);
+			}
+
+			trigEl = $('#' + cfg.id);
+
+			if (!trigEl.length) {
+				console.log(LOG_ID + ': no container found');
+				return;
+			}
+			user = config;
+
+			//ssoDisabled (SSO-Contingency) means treat everybody as guest and disallow login/register
+			isLoggedIn = !shc.features.ssoDisabled &&
+				!!user.userName && !shc.features.international;  //Intl user is never logged in
+
+			buildUser();
+
+			if (!shc.features.international) {
+				wireElements();
+				sywStartUp(true);
+			}
+		},
+
+		/**
+		 * Trigger a login action without going thru link.
+		 * @param {String} [url=location.href] the landing page after action completes, defaults to current page
+		 */
+		login: function(url) {
+			return doAction(ACTION.login, url);
+		},
+
+		/**
+		 * Trigger a logout action without going thru link.
+		 */
+		logout: function() {
+			return doAction(ACTION.logout);
+		},
+
+		/**
+		 * Trigger a register action without going thru link.
+		 * @param {String} [url=location.href] the landing page after action completes, defaults to current page
+		 */
+		register: function(url) {
+			return doAction(ACTION.register, url);
+		},
+
+		/**
+		 * Trigger a join action without going thru link.
+		 * @param {String} [url=location.href] the landing page after action completes, defaults to current page
+		 */
+		join: function(url) {
+			return doAction(ACTION.join, url);
+		},
+
+		/**
+		 * Trigger a verify action without going thru link. This applies to a new SYWR user who hasn't completed the process.
+		 * This is indicated by the presence of the 'SL' subkey in the 'c_i' cookie.
+		 * @param {String} [url=location.href] the landing page after action completes, defaults to current page
+		 */
+		verify: function(url) {
+			return doAction(ACTION.verify, url);
+		},
+
+		/**
+		 * Get the full userName
+		 * @returns {String} name
+		 */
+		getUserName: function() {
+			return user.userName;
+		},
+
+		/**
+		 * Get the userName truncated/formatted the way it's displayed in header
+		 * @returns {String} name
+		 */
+		getDisplayName: function() {
+			return user.displayName;
+		},
+
+		/**
+		 * Get the SYWR points for user
+		 * @returns {Number} points
+		 */
+		getSywrPoints: function() {
+			return user.sywrPoints;
+		},
+
+		/**
+		 * Get the SYWR dollars for user
+		 * @returns {Number} dollars
+		 */
+		getSywrAmount: function() {
+			return user.sywrAmount;
+		},
+
+		/**
+		 * Get the SYWR member type for user
+		 * @returns {String} type
+		 */
+		getSywrType: function() {
+			return user.sywrType;
+		},
+
+		/**
+		 * Determine if user is partially logged in
+		 * @obsolete can be read from partialLogin property of customerInfo
+		 * @returns {Boolean} true when partially logged in
+		 */
+		isPartialLogin: function() {return user && user.partialLogin;},
+
+		/**
+		 * Trigger alternate forms of USR Login modal based on requested formname.
+		 * @param {String} [url=location.href] the landing page after action completes, defaults to current page
+		 * @param {String} formName one the MEMBERSHIP constants for which form to display
+		 */
+		 newMember: function(url, formName) {
+			 return doAction(ACTION.membership, url, formName);
+		 },
+
+		/**
+		 * Trigger Create Password modal for DTS user flow
+		 * @param {String} [url=location.href] the landing page after action completes, defaults to current page
+		 * @param {String} email user email
+		 */
+		directToSite: function(url, email) {
+			return doAction(ACTION.directToSite, url, null, email);
+		},
+
+		/**
+		 * Builds Mobile Profile In Menu
+		 * @param {Object} jQuery target of where this should be loaded to
+		 */
+		buildMobile: function(target) {
+			buildMenuProfile(target);
+			wireMobileElements(target);
+			return;
+		}
+	};
+};
+
+shcWidgets.profile.prototype.MEMBERSHIP = {
+	sywLoginTrial90: 'SYWLOGINTRIAL90',
+	sywLoginTrial180: 'SYWLOGINTRIAL180',
+	enroll90Login: 'ENROLL90LOGIN',
+	enroll180Login: 'ENROLL180LOGIN',
+	enrollPaidLogin: 'ENROLLPAIDLOGIN'
+};
+
+/*
+ * Called on page load and then again after casSEO loads (first page view for a user only).
+ * This is still a slight hack as code gets centralized.
+ * @private
+ */
+function startProfile() {
+	var user = shcWidgets.Factory.get('customerInfo').get(),
+		profile = shcWidgets.Factory.get('profile');
+
+	//We can come thru this logic a 2nd time after CAS sees that user is already logged in.
+	//Don't re-create the profile widget in that case.
+	if (!profile) {
+		profile = shcWidgets.Factory.create('profile', 'profile', {
+			id: 'topOptions'
+		});
+	}
+
+	profile.init(user);
+}
+
+// Listen to SYWR event so that profile vars are set after customerInfo object is populated
+$(document).on(shcWidgets.EVENTS.dataSYWR, function() {
+	if (!shc.isProfileSet) {
+		setProfileVars();
+	}
+});
+
+function setProfileVars() {
+	if (typeof s === 'undefined' || typeof s.t !== 'function') {
+		// To handle customerInfo completion before loading s_code.js
+		setTimeout(setProfileVars, 300);
+	}
+	else {
+		var user = shcWidgets.Factory.get('customerInfo').get(),
+			items = [];
+
+		if (user && !!user.userName) {
+			s.eVar45 = user.partialLogin ? 'Partial' : 'Registered';
+			if (user.isSYWR) {
+				items.push('SYWR');
+			}
+			if (user.associate) {
+				items.push('Associateid');
+			}
+			s.eVar30 = items.length ? items.join('|') : 'NA';
+			s.prop9 = s.eVar1 = user.memberID;
+		}
+		else {
+			s.eVar45 = s.eVar30 = 'Anonymous';
+			s.prop9 = s.eVar1 = '1234567';
+		}
+
+		s.prop64 = Date.now();
+		s.eVar51 = $.cookie('aam_uuid') || '';
+
+		if (shc.isAEM) {
+			updateOmnitureValues();/* Global Tracking Vars for AEM 6 */
+		}
+
+		if (shc.isASAP || shc.isAEM) {
+			s.t();
+		}
+		shc.isProfileSet = true;
+	}
+}
+;
+/**
+ * Handle all the code related to SYWR in the header.  Ideally anything needed for SYWR should be in this widget to
+ * elminate duplication of effort.
+ */
+
+shcWidgets.shopYourWay = function(config) {
+	var LOG_ID = 'shcWidgets.shopYourWay',
+		user,
+		cfg = $.extend({}, {
+			id: 'shopYourWay'
+		}, config);
+
+	/**
+	 * Split a number to return dollars and cents and Reformat a number with commas and decimal point
+	 * @private
+	 */
+	var splitPrice = function(s) {
+		var n = s.toString().split('.');
+		//Add commmas to the non-decimal part
+		n[0] = n[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+
+		return n;
+	};
+	/**
+	 * Reformat date string to what they want
+	 * @private
+	 */
+	var reformatDate = function(date) {
+		var dateObj = new Date(date);
+
+		try {
+			return dateObj.toLocaleDateString("en-us",{year: "2-digit", month: "2-digit", day: "2-digit"});
+		} catch (e) {
+			/* this is in case the toLocaleDateString is not supported by the browser */
+			return date;
+		}
+	};
+
+	/**
+	 * Get Surprise Points offers from Member Messaging 
+	 * @private
+	REMOVED FOR REVERT TO OLD*/
+	 
+	var buildSurprisePoints = function(target) {
+		if (!target) {
+			return false;
+		}
+		var offerData = shcWidgets.Factory.get('memberMessaging').events.l2.data,
+			html = '',
+			total = 0,
+			noOffersMessage = '';
+
+		if (offerData) {
+			// find offer with templateId "8"
+			$.each(offerData, function(i, v) {
+				if (v.templateId === "8" && v.hasChildItems) {
+					// should only be one templated "8" stop after one
+					html += v.messageHtml;
+					if (v.raw && v.raw.surprisePointsWorth) {
+						total = v.raw.surprisePointsWorth;// value it should be a total 
+					}
+				}
+			});
+			if (total && total.indexOf('.') > -1) {
+				total = total.substring(0, total.indexOf('.'));
+			}
+			/*if (html ) { for the future after MM is integrated 
+				//build points offer breakdown
+				furtherMessaging = String.format('<ul><li class="gnf-back gnf-how-points-works gnf-block-area gnf-points-area">'+
+							'<button class="dont-close gnf-back-arrow">'+
+								'<span>Your FREECASH in Points Total</span>'+
+								'<span>${0}</span>'+
+							'</button>'+
+						'</li>'+
+						'<li>'+
+							'<h5>{1} &amp; can be redeemed at checkout.</h5>'+
+							'<details>'+
+								'<summary class="dont-close">learn more</summary>'+
+								'<div><div class="gnf-block-area">'+
+									'<h4>How to Redeem Points</h4>'+
+									'<p>On the Payment & Billing page, click the Redeem Points button as show below:</p>'+
+								'</div>'+
+								'<img src="//s7.sears.com/is/image/Sears/sears_paymentpage_2x" alt="visual representation of where to find Redeem Points on the Payment and Billing page"/></div>'+
+							'</details>'+
+						'</li>'+
+						'<li class="gnf-offers-list"><ul>{2}</ul></li></ul>',
+					'1', //0 dollars
+					offersMessage, //1
+					''//2
+				);
+			}*/
+			if (!html) {
+				noOffersMessage = '<ul>'+
+									'<li class="gnf-back gnf-how-offers-works">'+
+										'<button class="dont-close gnf-back-arrow">How FREECASH Works</button>'+
+									'</li>'+
+									'<li class="gnf-center">'+
+										'<img src="//s7.sears.com/is/image/Sears/201905_s_HowFREECASHWorks_Panel_Hero" alt="Life is better with points"/>'+
+									'</li>'+
+									'<li class="gnf-points-center-text">'+
+										'<p>FREECASH in Points are exclusive offers created just for you!</p>'+
+									'</li>'+
+									'<li>'+
+										'<h5>Get Rewards</h5>'+
+										'<p>If your order qualifies for an offer, we’ll show it in your cart. These offers are limited-time and expire between 1-14 days so check back often.</p> '+
+										'<p>You\'ll also get personalized coupons to suit your shopping tastes.</p>'+
+										'<p>Exclusions apply, please read the details for each offer.</p>'+
+									'</li>'+
+								'</ul>';
+			}
+
+			target.find('.gnf-points-area').after(String.format('<li class="gnf-block-area gnf-offers-area{4}">' +
+									'<button class="dont-close{1}">'+
+									'<span class="gnf-block-text">'+
+										'<span class="gnf-block-text-title">Your Offers</span>' +
+										'<ul>{2}</ul>{3}' +
+									'</span>' +
+									'<span class="gnf-block-dollar">'+
+										'<span>${0}</span>'+
+										'<span>FREECASH</span>'+
+										'<span>in points</span>'+
+									'</span>'+
+									'</button>{5}'+
+								 '</li>',
+								total, //0 points total
+								html ? ' has-L3' : '', //1 
+								html || '<li><div>Check back regularly for these limited time FREECASH in points offers.</div></li>',//2 offer mesage
+								html ? '' : '<span class="gnf-block-links"><span>Learn more</span></span>',//3
+								html ? '' :' gnf-has-dropdown',//4
+								noOffersMessage//5
+								 ));
+
+			if (html) {
+				var hasL3Offer = target.find('.gnf-offers-area > .has-L3');
+
+				hasL3Offer.off('click').on('click', {track: 'Offers', main: 'Header > Points'}, shcWidgets.Factory.get('memberMessaging').events.l2.openL3);
+			} else {
+				//logic to open
+				shcWidgets.Factory.destroy('profilePoints');
+				shcWidgets.Factory.create('adaMenuMobile', 'profilePoints', {
+					name: 'profilePoints',
+					target: $('#subnavDD_myProfile'),
+					mainLinks: '.gnf-has-dropdown > a, .gnf-has-dropdown > button',
+					defaultlinkClass: 'dont-menu'
+				}).init();
+			}
+		}
+	};
+
+	var buildFlyout = function(e) {
+		/*if (!user.sywrPoints) { // if user has syw points 
+			return '<li class="gnf-block-area gnf-nopoints-area"><h4>Shop Today &amp; Get Points</h4><p>Looks like you don\'t have any points today.<br/> Get CASHBACK in points on every<br/> purchase with Shop Your Way!</p></li>';
+		}*/
+		var pointsToShow = user.sywrAmount ? user.sywrAmount.toFixed(2) : 0;
+		if (pointsToShow > 0) {
+			var pointsArr = splitPrice(pointsToShow);
+			if (pointsArr[1] == 0 || pointsArr[0].indexOf(',') > 0) {//if over 1000 don't show cents or if whole doller dont show cents 
+				pointsToShow = pointsArr[0];
+			} else if (pointsArr[0] == 0) {//if only cents
+				pointsToShow = '.' + pointsArr[1];
+			} else {
+				pointsToShow = pointsArr.join(".");
+			}
+		}
+
+		var expiringPointsHtml = '',
+		 	newExpiringPointsHtml = '',
+			aboutPoints =  String.format('<li class="gnf-back gnf-how-points-works">'+
+							'<button class="dont-close gnf-back-arrow">How Points Works</button>'+
+						'</li>'+
+						'<li class="gnf-center">'+
+							'<img src="//s7.sears.com/is/image/Sears/201905_s_HowPointsWork_Panel_Hero" alt="Life is better with points"/>'+
+						'</li>'+
+						'<li class="gnf-points-center-text">'+
+							'<p>As a Shop Your Way member, you\'ll get points on purchases to save cash as you shop.</p>'+
+						'</li>'+
+						'<li>'+
+							'<h5>Shop</h5>'+
+							'<p>Get 1% CASHBACK in points on every $1 you spend. Points can be redeemed at Sears and Kmart, and expire 365 days from your purchase date.</p>'+
+						'</li>'+
+						'<li>'+
+							'<h5>Save</h5>'+
+							'<p>Spend your points &amp; save money on millions of items—including things like gas, groceries &amp; dining out.</p>'+
+						'</li>'+
+						'<li>'+
+							'<h5>Get Rewards</h5>'+
+							'<p>You\'ll get FREECASH in points—because we like you! You\'ll also get personalized coupons to suit your shopping tastes.</p>'+
+						'</li>'+
+						'<li class="gnf-points-shopping-elsewhere">'+
+							'<h5>Shopping Elsewhere?</h5>'+
+							'<p>Link your Visa or Mastercard &amp; get points of the many places you shop every day.</p>'+
+						'</li>'+
+						'<li class="gnf-center">'+
+							'<img alt="Logos pictured left to right: Burger King, Groupon, Starbucks Coffee, Hilton, Expedia, Ulta Beauty, Uber" src="//s7.sears.com/is/image/Sears/syw_partner_logos" height="42" width="316">'+
+						'</li>'+
+						'<li>'+
+							'<a href="{0}">Check Your Points Balance <br/> &amp; Points History</a>'+
+						'</li>',
+					shc.URLs.profile//0
+			);
+
+		if (user.expiringPointsDate && user.expiringPoints && user.expiringPoints > 9 && user.sywrPoints) { // if user has expiring points 
+			expiringPointsHtml = String.format('<p class="gnf-syw-expiring-points no-bottom-margin">${0} will expire on {1}</p>',
+				splitPrice((Math.floor(user.expiringPoints/10)/100).toFixed(2)).join('.'), //0 points in $
+				reformatDate(user.expiringPointsDate) //1 date
+			);
+			newExpiringPointsHtml = String.format('<span class="gnf-syw-expiring-points-new"><strong>Hurry!</strong> You have <span>${0}</span> in points expiring on <span>{1}</span></span>',
+				splitPrice((Math.floor(user.expiringPoints/10)/100).toFixed(2)).join('.'), //0 points in $
+				reformatDate(user.expiringPointsDate) //1 date
+			);
+		}
+		if (pointsToShow  > 0) {
+			aboutPoints = String.format('<li class="gnf-back gnf-how-points-works gnf-block-area gnf-block-area">'+
+							'<button class="dont-close gnf-back-arrow">'+
+								'<span>Your Points</span>'+
+								'<span>${0}</span>'+
+							'</button>'+
+						'</li>'+
+						'<li>'+
+							'<h5>You have ${0} in points to redeem today.</h5>'+
+							'{2}'+
+							'<details>'+
+								'<summary class="dont-close">exclusions apply</summary>'+
+								'<div><p>Shop Your Way points granted in this offer that are not redeemed on or before their expiration date will expire on that date at 11:59 PM CST. Use and redemption of Shop Your Way points are subject to full Shop Your Way Terms and Conditions that are available at <a href="https://www.shopyourway.com/terms">www.shopyourway.com/terms</a>. Points can be applied at checkout upon purchase of qualifying item(s) meeting any specified purchase requirements. Offer points not valid on closing stores. Limit one offer per transaction. Offer points cannot be used on Deals Flash Items, Food, Household Cleaning, Beauty and Health Care, Fragrances, Cosmetics, Office and School Supplies, Batteries, Party Supplies sold in the Greeting Card department, Books and Magazines, Pet Supplies, Prescriptions, Pharmacy, Alcohol, Tobacco, and items not sold by Sears or Kmart. Excludes Lands\' End&reg; merchandise, Sears Hometown, Outlet, Appliance Showroom and Hardware stores. Excludes mygofer.com, landsend.com and Lands\' End&reg; stores. Amount of Points awarded based on membership status and other factors. Offer points cannot be combined with coupons. If you have multiple eligible offers on an item or transaction, the most valuable offer will be automatically applied. Offers cannot be combined with other points offers or discounts unless otherwise stated. Purchase requirement calculated before taxes and after other discounts have been applied and must be made in a single transaction. Offer is not transferable.</p></div>'+
+							'</details>'+
+						'</li>'+
+						'<li>'+
+							'<h5>How To Redeem Points</h5>'+
+							'<p class="no-bottom-margin">Get 1% CASHBACK in points on every $1 you spend. Plus, get even more points</p>'+
+							'<details>'+
+								'<summary class="dont-close">learn more</summary>'+
+								'<div><div class="gnf-block-area">'+
+									'<h4>How to Redeem Points</h4>'+
+									'<p>On the Payment & Billing page, click the Redeem Points button as show below:</p>'+
+								'</div>'+
+								'<img src="//s7.sears.com/is/image/Sears/sears_paymentpage_2x" alt="visual representation of where to find Redeem Points on the Payment and Billing page"/></div>'+
+							'</details>'+
+						'</li>'+
+						'<li>'+
+							'<a href="{3}">Check Your Points Balance <br/> &amp; Points History</a>'+
+						'</li>',
+					pointsToShow, //0 dollars
+					'', //1
+					expiringPointsHtml,//2
+					shc.URLs.profile//3
+			);
+		}
+		return String.format('<li class="gnf-block-area gnf-points-area gnf-has-dropdown{8}">' +
+									'<button class="dont-close gnf-points-area-button">'+
+									'<span class="gnf-block-text">'+
+										'<span class="gnf-block-text-title">Your Points</span>' +
+										'<span>{4}</span>{2}' +
+										'<span class="gnf-block-links">{6}</span>'+
+									'</span>' +
+									'<span class="gnf-block-dollar">'+
+										'<span>${0}</span>'+
+										'<span>in points</span>'+
+									'</span>'+
+									'</button>{7}'+
+									'<ul>{5}</ul>'+
+								 '</li>',
+				pointsToShow, //0 dollars
+				'', //1 
+				'',//2
+				shc.URLs.profile,//3 
+				newExpiringPointsHtml? newExpiringPointsHtml : (user.sywrPoints ? 'Redeem your points today!' : 'Looks like you don\'t have any points. Start shopping to <strong>get CASHBACK in points</strong> on every purchase.'),//4
+				aboutPoints, //5
+				user.sywrPoints ? '' : '<span>Learn more</span>', //6
+				user.sywrPoints ? '<a href="' + shc.URLs.recommendations + '" class="button-secondary gnf-points-area-link dont-menu" data-trk="Header > Shop Eligible Items">Shop Eligible Items</a>' : '',//7
+				user.sywrPoints ? ' has-gnf-points-area-link' : ''//8
+			);
+	};
+	
+
+	return {
+		init: function(data) {
+			if (shc.debug) {
+				console.log('init ' + LOG_ID);
+			}
+			if (data) {
+				user = data;
+			}
+			else {
+				user = shcWidgets.Factory.get('customerInfo').get();
+			}
+			$('#subnavDD_myProfile .gnf-profile-first-base-link').before(buildFlyout);
+			
+			shcWidgets.Factory.create('adaMenuMobile', 'profilePoints', {
+				name: 'profilePoints',
+				target: $('#subnavDD_myProfile'),
+				mainLinks: '.gnf-has-dropdown > a, .gnf-has-dropdown > button',
+				defaultlinkClass: 'dont-menu'
+			}).init();
+			//when parent menu closes close this
+			$(document).on(shcWidgets.EVENTS.closeWidget, function(e, data) {
+				if (data.id === 'adaMenu_accountDropdown') {
+					shcWidgets.Factory.get('profilePoints').close();
+				}
+			});
+			$('#hdrv3').on("click", "summary", function() {
+				//close others when opening new one
+				$('#subnavDD_myProfile').find('summary').not($(this)).parent('details').removeAttr('open').removeClass('open');
+				$(this).parent('details').toggleClass('open');
+				
+			});
+
+			if (shc.isReady.memberMessaging) {
+				buildSurprisePoints($('#subnavDD_myProfile'));
+			} else {
+				$(document).one(shcWidgets.EVENTS.memberMessaging, function() {
+					buildSurprisePoints($('#subnavDD_myProfile'));
+				});
+			}
+			
+		},
+
+		/**
+		 * Builds SYW points
+		 * @param user data
+		 */
+		buildSYWpoints: function(data) {
+			if (data) {
+				user = data;
+			} else {
+				user = shcWidgets.Factory.get('customerInfo').get();
+			}
+			return buildFlyout();
+		},
+
+		/**
+		 * Builds SYW points offers, must run after buildSYWpoints
+		 * @param {Object} jQuery target of where this should be loaded to
+		 */
+		buildSYWoffers: function(target) {
+			if (shcWidgets.Factory.get('memberMessaging')) {
+				buildSurprisePoints(target);
+			} else {
+				$(document).one(shcWidgets.EVENTS.memberMessaging, function() {
+					buildSurprisePoints(target);
+				});
+			}
+		}
+	};
+};
+/**
+ * Build the minicart summary flyout or the new full minicart modal experience.
+ * All of this only applies to sears/kmart domestic sites
+*/
+
+shcWidgets.miniCart = function(config) {
+	var LOG_ID = 'shcWidgets.miniCart',
+		trigEl,
+		timer1=0, timer2=0, timer3=0,
+		cfg = $.extend({}, {
+			prefix: '',
+			id: 'miniCart',
+			cls: '',
+			ns: 'miniCart',
+			cartUrl: '',
+			cartItemsUrl: '',
+			showMiniCart: false
+		}, config);
+
+	//public interface
+	return {
+		init: function() {
+			if (shc.debug) {
+				console.log('init ' + LOG_ID);
+			}
+
+			trigEl = $('#' + cfg.id);
+			if (!trigEl.length) {
+				return;
+			}
+
+			//Build a link to the cart page
+			$(String.format('<a id="{0}lnkCart" class="{1}" href="{2}" data-trk="MiniCart">Cart <span class="cartItems" style="display:none"></span></a>',
+				cfg.prefix, cfg.cls, cfg.cartUrl))
+				.appendTo(trigEl);
+
+			this.wire();
+
+			var user = shcWidgets.Factory.get('customerInfo');
+			if (user) {
+				//TODO: think we have some issues in IRP enviroment with timing of creation of customerInfo object
+				user = user.get() || {};
+				this.updateDisplay(user.cartCount || 0);
+			}
+		},
+
+		wire: function() {
+			//Don't check for actual visibiliy here b/c the count update could be delayed - wait til event triggered
+			var me = this;
+
+			//Listen for an ATC event and update the header display
+			$(document).on(shcWidgets.EVENTS.cartUpdated, function(e, atcData) {
+				if (!!atcData && atcData.data) {
+					me.updateDisplay(atcData.data.cartQuantity || 0);
+					//Update the customerInfo object so we stay in sync on page turn without calling checkout
+					shcWidgets.Factory.get('customerInfo').set({cartCount: atcData.data.cartQuantity || 0});
+				}
+			});
+		},
+
+		/*
+		 * Update the display inside the cart button with number of items in cart.
+		 * @param {Number} itemCnt the number of items in the cart
+		 */
+		updateDisplay: function(itemCnt) {
+			itemCnt = !!itemCnt && itemCnt>0 ? itemCnt : 0;
+
+			$('#' + cfg.prefix + 'lnkCart .cartItems').html(itemCnt || '')[itemCnt ? 'show' : 'hide']();
+			$('#' + cfg.prefix + 'showCart')[itemCnt ? 'show' : 'hide'](); //hide the button for modal when cart is empty
+
+			//When the display is updated, we need to redo the AJAX call to update the items.  The only way
+			//that is triggered is if the flyout element is not in the DOM.
+			$('#miniCartDisplay').remove();
+		}
+	};
+};
+/**
+ * Build a ADA compliant menu with full keyboard accessibility to be used throughout the header 
+ */
+
+
+shcWidgets.adaMenu = function(config) {
+	var cfg = $.extend({}, {
+			name: 'undefined',
+			interval: 300,
+			timeOutIn: null,
+			timeOutOut: null,
+			touchTime: null,
+			touchAction: false,
+			open: null,
+			id: 'adaMenu_',
+			mainLinks: '.gnf_tree_junction',
+			events: 'mouseenter click mouseleave focusout touchstart touchmove touchend',
+			approvedClick: 'dont-close',
+			openClass: 'gnf-nav-active'
+		}, config),
+		LOG_ID = 'Header ADA Menu For '+ cfg.name +': ';
+
+	if (!(cfg.target && typeof cfg.target === "object")) {
+		if (shc.debug) {
+			console.error(LOG_ID + ' shcWidgets.adaMenu used incorrectly target not defined');
+		}
+		return false;
+	}
+
+	cfg.id += cfg.name;
+
+	var removeMenu = function(where) {
+		if (!cfg.open){
+			return true;
+		}
+		//console.log(where);
+		cfg.open.removeClass(cfg.openClass)
+			.find(cfg.mainLinks)
+			.attr('aria-expanded', 'false');
+		//callback 
+		if (typeof cfg.onClose === "function") {
+			cfg.onClose(cfg.open);
+		}
+		cfg.open = null;
+		$('html').off('click', clickOutsideADA);
+		$(document).trigger(shcWidgets.EVENTS.closeWidget, {id: cfg.id});
+	},
+	clickOutsideADA = function(e) {
+		// Clicking outside closes it
+		var _this = $(e.target);
+		// If a user clicks on the open item, don't close it
+		if (_this.closest(cfg.open).length) {
+			return;
+		}
+		// Remove menu
+		removeMenu('clickOutsideADA');
+	},
+	interaction = function(e) {
+		var el = $(e.currentTarget),
+			isOpen = el.hasClass(cfg.openClass),
+			addMenu = function() {
+				if (isOpen) {
+					return true;
+				}
+				removeMenu('addMenu');
+				el.addClass(cfg.openClass)
+					.find(cfg.mainLinks)
+					.attr('aria-expanded', 'true');
+				cfg.open = el;
+				//callback 
+				if (typeof cfg.onOpen === "function") {
+					cfg.onOpen(el);
+				}
+				//when user clicks off an open item close it
+				$('html').on('click', clickOutsideADA);
+				//trigger global event for widget opening 
+				$(document).trigger(shcWidgets.EVENTS.openWidget, {id: cfg.id});
+			},
+			clearTimeoutOut = function() {
+				clearTimeout(cfg.timeOutOut);
+				cfg.timeOutOut = null;
+			},
+			clearTimeoutIn = function() {
+				clearTimeout(cfg.timeOutIn);
+				cfg.timeOutIn = null;
+			};
+		switch(e.type){
+			case 'mouseleave':
+				clearTimeoutIn();
+				cfg.timeOutOut = setTimeout(removeMenu, cfg.interval);
+				break;
+			case 'focusout':
+				var hasTarget = e.relatedTarget? !el.has(e.relatedTarget).length : false;//if browser does not have e.relatedTarget just leave dropdown open
+				if (isOpen && hasTarget) {//check if child element has focus and this menu is still open
+					clearTimeoutIn();
+					removeMenu('focusout');
+				}
+				break;
+			case 'mouseenter':
+				clearTimeoutOut();
+				cfg.timeOutIn = setTimeout(addMenu, cfg.interval);
+				break;
+			case 'click':
+				if (cfg.touchAction && $(e.target).is($(cfg.mainLinks))) {//stop click from working if on touchscreen, does not work on windows touchscreen
+					e.preventDefault();
+					break;
+				}
+				if ($(e.target).is($(cfg.mainLinks)) || $(cfg.mainLinks).find(e.target).length > 0 ) {//check if top nav
+					clearTimeoutOut();
+					clearTimeoutIn();
+					if (isOpen) {
+						removeMenu('click');
+					} else {
+						addMenu();
+					}
+				} else if (!$(e.target).hasClass(cfg.approvedClick) && !$(e.target).parents().hasClass(cfg.approvedClick) ) {
+					removeMenu('click');
+				}
+				break;
+			case 'keydown':
+				var keyCode = e.keyCode || e.which;
+				if (keyCode === 13) {//ENTER
+					/*If a menu bar item has focus and the menu is not open, then: Enter opens the menu */
+					e.preventDefault();
+					if (isOpen) {
+						removeMenu('keydown');
+					} else {
+						clearTimeoutOut();
+						addMenu();
+					}
+				}
+				break;
+			case 'touchstart':
+				shc.isTouchScreen = true; //if this was not set to true yet make sure it is
+				cfg.touchAction = true;
+				cfg.touchTime = new Date();
+				clearTimeoutOut();
+				clearTimeoutIn();
+				cfg.timeOutIn = setTimeout(addMenu, cfg.interval);
+				break;
+			case 'touchmove':
+				clearTimeoutIn();
+				cfg.touchAction = false;
+				break;
+			case 'touchend':
+				clearTimeoutIn();
+				clearTimeoutOut();
+				if (cfg.touchAction && new Date() - cfg.touchTime < 1000) {
+					if ($(e.target).is($(cfg.mainLinks))) {//check if top nav
+						if (isOpen) {
+							removeMenu('touchend');// if open close on touchscreen 
+							setTimeout(clearTimeoutIn, 0); //clear because touch will cause focusIn event to fire when closing 
+						} else {
+							// remove click actions from top nav on touchscreen if closed
+							e.preventDefault();
+							addMenu();
+						}
+					}
+				}
+				break;
+			default:
+				if (shc.debug) {
+					console.log('error: '+LOG_ID+'has been called incorrectly using e.type: ' + e.type);
+				}
+				return false;
+		};
+	},
+	oldScreenWidth = window.innerWidth;
+
+	cfg.target.find(cfg.mainLinks).attr({
+			'aria-haspopup': 'true',
+			'aria-expanded': 'false'
+		}).on('keydown', function(e) {
+			e.currentTarget = $(this).closest(cfg.target);
+			interaction(e);
+		});
+	cfg.target.on(cfg.events, interaction);
+
+	//when any other widgets opens, close this
+	$(document).on(shcWidgets.EVENTS.openWidget, function(e, data) {
+		if (data.id !== cfg.id) {
+			removeMenu('event: ' + data);
+		}
+	});
+	//when window resizes on tablet to portrait close menu 
+	$(window).on('resize', function() {
+		if (shc.isTouchScreen && window.innerHeight > window.innerWidth && oldScreenWidth !== window.innerWidth) {
+			oldScreenWidth = window.innerWidth;
+			removeMenu('resize');
+		}
+	});
+	return {
+		init: function() {
+			if (shc.debug) {
+				console.log('init ' + LOG_ID);
+			}
+		},
+		act: interaction,
+		close: removeMenu
+	};
+};
+// alert that it is loaded 
+$(document).trigger(shcWidgets.EVENTS.adaMenuReady, {id: 'adaMenu'});
+
+shcWidgets.adaMenuMobile = function(config) {
+	var cfg = $.extend({}, {
+			name: 'undefined',
+			interval: 250,
+			id: 'adaMenuMobile_',
+			mainLinks: 'a, button',
+			backLinks: '.gnf-back > button',
+			openClass: 'gnf-nav-active',
+			subItem: 'ul'
+		}, config),
+		LOG_ID = 'Header ADA Menu For '+ cfg.name +': ';
+
+	if (!(cfg.target && typeof cfg.target === "object")) {
+		if (shc.debug) {
+			console.error(LOG_ID + ' shcWidgets.adaMenuMobile used incorrectly target not defined');
+		}
+		return false;
+	}
+
+	cfg.id += cfg.name;
+
+	var addMenu = function(e) {
+		var el = $(this);
+		if (cfg.defaultlinkClass && el.hasClass(cfg.defaultlinkClass)) {
+			return true;
+		}
+		e.preventDefault();
+		el.attr('aria-expanded', 'true')
+			.siblings(cfg.subItem)
+			.animate({"left":"0%"}, cfg.interval)//must start animation first to avoid odd bug 
+			.focus()
+			.parent()
+			.addClass(cfg.openClass);
+		$("html, body").animate({ scrollTop: 0 }, "slow");// scroll to top
+		if (typeof cfg.onOpen === "function") {
+			cfg.onOpen(el);
+		}
+	},
+	backMenu = function(e) {
+		e.preventDefault();
+		var el = $(this),
+			parentActive = el.parents('.'+cfg.openClass).first();
+		parentActive.children('a, button').attr('aria-expanded', 'false');
+		parentActive.children(cfg.subItem)
+			.animate({"left":"100%"}, cfg.interval, function() {
+					// Animation complete.
+					parentActive.removeClass(cfg.openClass).focus()
+				});
+		if (typeof cfg.onBack === "function") {
+			cfg.onBack(el);
+		}
+	},
+	removeAllMenu = function() {
+		if (cfg.target.hasClass(cfg.openClass)) {
+			cfg.target.removeClass(cfg.openClass)
+				.children('a, button')
+				.attr('aria-expanded', 'false')
+				.siblings(cfg.subItem)
+				.css('left', '');
+		}
+		if (cfg.target.find('.'+cfg.openClass).length > 0) {
+			cfg.target
+				.find('.'+cfg.openClass)
+				.removeClass(cfg.openClass)
+				.children('a, button')
+				.attr('aria-expanded', 'false')
+				.siblings(cfg.subItem)
+				.css('left', '');
+		}
+		if (typeof cfg.onClose === "function") {
+			cfg.onClose(cfg.openClass);
+		}
+		return true;// must be true so cart link can still activate ??? needed
+	},
+	removeBinding = function() {
+		cfg.target.off('click', cfg.mainLinks, addMenu);
+		cfg.target.off('click', cfg.backLinks, backMenu);
+	},
+	oldScreenWidth = window.innerWidth;
+
+	cfg.target.on('click', cfg.mainLinks, addMenu);
+	cfg.target.on('click', cfg.backLinks, backMenu);
+	return {
+		init: function() {
+			if (shc.debug) {
+				console.log('init ' + LOG_ID);
+			}
+		},
+		destroy:  function() {
+			if (shc.debug) {
+				console.log('destroy ' + LOG_ID);
+			}
+			removeBinding();
+		},
+		close: removeAllMenu
+	};
+};
+/**
+ * Main driver for starting to build footer.
+ *
+ *		//example
+ *		shcWidgets.Factory.create('header', 'header', {storeName: shc.chronStoreName}).init()
+ *
+ * @singleton
+ * @param {Object} config widget configuration
+ * @param {String} [config.prefix="gnf_"] value prepended for DOM creation
+ * @param {String} [config.id="footer"] currently not used
+ * @param {String} [config.ns="footer"] value prepended for for event wiring e.g. click.footer
+ */
+
+shcWidgets.footer = function(config) {
+	var LOG_ID = 'shcWidgets.footer',
+		footer,
+		me,
+		cfg = $.extend({}, {
+			prefix: 'gnf_',
+			id: 'footer',
+			ns: 'footer'
+		}, config);
+
+	/**
+	 * Handle functionality after the footer html is loaded.
+	 * @member shcWidgets.footer
+	 * @private
+	 */
+	var postLoad = function() {
+		var doScroll = function() {
+			$(window).off('scroll', doScroll);
+			me.showFooter(true);
+		};
+
+		//Several ways to get the footer to display based on loading time for page content and pages with 'short' content areas.
+		//Default is to show the footer immediately when widget loading is complete.
+		if (shc.footer) {
+			if (shc.footer.showOnScroll) {
+				$(window).on('scroll', doScroll);
+			}
+			else if (!shc.footer.showManual) {
+				//setting shc.footer.showManual=true implies client code on specific page will call
+				//shcWidgets.Factory.get('footer').showFooter(true)
+				me.showFooter();
+			}
+		}
+		else {
+			//page has not implemented any shc.footer property - use default show method
+			me.showFooter();
+		}
+
+		//New click tracking
+		$(document).on('click.gnf', 'a[data-trk], input[data-trk], button[data-trk]', shc.clickTracking);
+
+		//Populate default attributes when not specified
+		footer.attr('data-trk', 'Footer');
+		footer.find('a:not([data-trk])').attr('data-trk','Y');
+		footer.find('a:not([rev])').attr('rev','om');
+		footer.find('.OAS_wrap').show();
+
+		//Close a security hole for links that open in a new window.
+		//https://www.jitbit.com/alexblog/256-targetblank---the-most-underestimated-vulnerability-ever/
+		$('a[target="_blank"]').each(function() {
+			 var el = $(this), rel = el.attr('rel') || '';
+			 el.attr('rel', rel + ' noopener noreferrer');
+		});
+
+		//Dynamically replace metadata driven URLs. This is really only needed for QA, may shortcircuit in prod and hardcode URLs
+		var urls = shc.URLs;
+		$('#gnf_header, #gnf_footer').find('a').each(function() {
+			var el = $(this), href = el.attr('href');
+			if (!!href && href.startsWith('{')) {
+				href = href.replace('{profile}', urls.profile)
+					.replace('{orderCenter}', urls.orderCenter)
+					.replace('{searsCard}', urls.searsCard)
+					.replace('{paySearsCard}', urls.paySearsCard)
+					.replace('{listCenter}', urls.listCenter)
+					.replace('{returns}', urls.returns)
+					.replace('{manageAccount}', urls.manageAccount)
+					.replace('{layawayPmt}', urls.layawayPmt);
+
+				el.attr('href', href);
+			}
+		});
+
+		$(function() {
+			//if local environment get local file 
+			if (location.hostname === "localhost") {
+				FED.Util.requires({
+					baseUrl: '/javascripts/',
+					js: ['gnf/gnf_Deferred'],
+					css: []
+				});
+				return false;
+			}
+			var attr, tags, js=[], css=[];
+			if (!shc.URLs.chronTimeStamp) {
+				//can't do this in window.load b/c PDP is so hosed that sometimes it never fires
+
+				//Find the base script tags so we can strip the date piece for additional file requests
+				tags = $('script[src*="' + shc.URLs.chronometer + shc.URLs.chronAssets + '"]');
+				if (tags.length) {
+					attr = $(tags[0]).attr('src');
+				}
+				if (!tags.length || !attr) {
+				    //something seriously wrong if the script tag can't be located
+				    console.log('GNF-deferred file load failed.');
+				    return;
+				}
+				
+				//These URLs should be protocol neutral, but it seems sometimes the browser tacks on the http:/https:
+				//Also if another GNF JS file is appended, the order of tags isn't guaranteed - behavior differs across browsers
+				attr = attr.replace('http:', '').replace('https:', '');
+				attr = attr.replace(shc.URLs.chronometer, '').replace(shc.URLs.chronAssets, '');   // these 2 are protocol neutral
+				shc.URLs.chronTimeStamp = attr.substr(0, attr.indexOf('/gnf/')); //get the build stamp from path e.g. 2016-08-10_12-22-40
+			}
+
+			js.push('gnf/gnf_Deferred');
+
+			if (shc.features.addToCart) {
+				js.push('gnf/miniCartModal-min');
+				css.push('css/miniCartModal-min');
+			}
+
+			if (!shc.isSYWR && !!$.cookie('irp-preview')) {
+				js.push(shc.URLs.staticAssets + 'js/previewHeader');
+			}
+
+			FED.Util.requires({
+				baseUrl: shc.URLs.chronometer + shc.URLs.chronAssets + shc.URLs.chronTimeStamp + '/',
+				js: js,
+				css: css
+			});
+		});
+
+		// add click action to goto Top button
+		$('#gnf_footer .back-to-top').on('click', function(e) {
+			e.preventDefault();
+			$("html, body").animate({ scrollTop: 0 }, "slow");
+		});
+
+		//Handle tracking for the SOPHero. pushing down as far as possible so the aam_tnt cookie is available
+		if (shc.features.pheroType === 'ASAP') {
+			$(document).on(shcWidgets.EVENTS.memberMessaging, me.pHeroFirstSlide);
+		}
+
+		//Tell anybody else listening that gnf is done. Primarly used by WCS to trigger some hacks after this is done.
+		$(document).trigger(shcWidgets.EVENTS.gnfLoaded, {id: 'gnf_Builder'});
+
+		//Add the call to tell user to upgrade old browser
+		if (!shc.isBOT && !shc.skipUpgradeBrowser) {
+			$buoop = {text: 'You\'re seeing this message because we\'ve detected that you\'re using an outdated browser. Please upgrade to the latest version of ' +
+				'<a href="https://www.google.com/chrome/browser/">Chrome</a>, <a href="https://www.mozilla.org/en-US/firefox/new/">Firefox</a>,  ' +
+				'<a href="https://support.apple.com/downloads/safari">Safari</a>, or ' +
+				'<a href="https://www.microsoft.com/en-us/WindowsForBusiness/End-of-IE-support">Internet Explorer</a> for the optimal shopping experience. See you soon.'};
+			FED.Util.addJsFile('https://browser-update.org/update.min');
+		}
+	};
+
+	return {
+		/**
+		 * Build/load the footer html.  By default the footer will be inserted into the #gnf_footer element on the server side.
+		 * This will only make a Chronometer call if it detects that no content was inserted.  In that case, it will make a request only
+		 * when a scroll event is detected.
+		 * @member shcWidgets.footer
+		 * @param {String} storeName name to be used to retrieve footer html of the form /segments/{storeName}-footerv2
+		 * @returns void
+		 */
+		init: function(storeName) {
+			if (shc.debug) {
+				console.log('init ' + LOG_ID);
+			}
+
+			var id = cfg.prefix + 'footer',
+				html;
+
+			me = this;
+			footer = $('#' + id);
+			html = trim(footer.html());
+
+			if (!footer.length) {
+				footer = $(String.format('<div id="{0}" />', id)).appendTo('body');
+			}
+
+			//if the footer content was not added by IRP, try to add
+			if (!html.length || html.indexOf('#GNF_FOOTER#') >=0) {
+				//defer this till a scroll happens
+				$(window).one('scroll', function() {
+					console.log('GNF - falling back to manual load of footer');
+					$.ajax({
+						url: String.format(shc.URLs.chronometer + shc.URLs.chronData + '{0}-footerv2', storeName),
+						dataType: 'html',
+						crossDomain: true,
+						cache: true,
+						success: function(res) {
+							footer.html(res);
+							postLoad();
+						},
+						error: function() {
+							console.log('GNF - manual footer failed. Verify CORS config for this request. status=' + xhr.statusText + ', msg=' + status);
+						}
+					});
+				});
+			}
+			else {
+				postLoad();
+			}
+		},
+		/**
+		 * Show or hide the footer.  This can be used by client code when they need to defer the footer display until page content is built.
+		 * @member shcWidgets.footer
+		 * @param {Boolean} [val=true] pass false to hide the footer
+		 * @returns void
+		 */
+		showFooter: function(val) {
+			if (val === undefined) {
+				val = true;
+			}
+			footer[val ? 'show' : 'hide']();
+			//reflow header incase this adds/removes a scrollbar 
+			shcWidgets.Factory.get('header').reflowNav();
+		},
+
+               /**
+		 * Load the personalized hero data.
+		 * @member shcWidgets.footer
+		 * @returns void
+		 */
+		pHeroFirstSlide: function() {
+			var setPSlideIdCookie = function(segIds) {
+				var i, ids = segIds.split('~'),
+					aamtnt = $.cookie('aam_tnt'),
+					navSegIds = !!aamtnt ? aamtnt.split('~') : [];
+
+				for (i = 0; i < ids.length; i++) {
+					if (navSegIds.indexOf(ids[i]) !== -1) {
+						return ids[i];
+					}
+				}
+				return 'default';
+			};
+
+			var phfsid = $.cookie('phfsid'),
+				finalId = 'default', today, last,
+				holdout = (!!phfsid && phfsid.indexOf('|seg=') !== -1) ? phfsid.substr(phfsid.indexOf('|seg='), phfsid.length) : '';
+
+			if (!!holdout) {
+				$.cookie('phfsid', finalId + holdout, {path:'/'});
+				return;
+			}
+
+			today = new Date();
+			last = !!Session.get('segIds_date') ? new Date(Session.get('segIds_date')) : null;
+			segIds = '';
+
+			if (!!last && last.getYear() === today.getYear() && last.getMonth() === today.getMonth() && last.getDate() === today.getDate()) {
+				segIds = Session.get('segIds');
+			}
+			else {
+				Session.set('segIds', null);
+			}
+
+			if (!Session.get('segIds')) {
+				segIds = $.cookie('segIds');
+			}
+
+			if (!segIds) {
+				$.ajax({
+					url: '/en_us.personalizedsegments.json',
+					dataType: 'json'
+				})
+				.done(function(data) {
+					var dt, slideIds = !!data && !!data.slideIds ? data.slideIds : '';
+
+					if (slideIds) {
+						Session.set('segIds', slideIds);
+						Session.set('segIds_date', (new Date()).toString());
+
+						if (!Session.get('segIds')) {
+							dt = new Date();
+							dt.setTime(dt.getTime() + (1*1000*60*60*24)); //bump 1 day
+							$.cookie('segIds', slideIds, {expires: dt, path:'/'});
+						}
+						finalId = setPSlideIdCookie(slideIds);
+					}
+				});
+
+			}
+			else {
+				finalId = setPSlideIdCookie(segIds);
+			}
+
+			$.cookie('phfsid', finalId, {path:'/'});
+		}
+	};
+};
+
+shc = $.extend(window.shc, {
+	/**
+	 * @property {Boolean} isTouchScreen
+	 * @member shc
+	 * @readonly
+	 * True if the user is using a touchscreen enabled device
+	 */
+	isTouchScreen: 'ontouchstart' in document.documentElement,
+
+	/**
+	* @member shc
+	* Force a redirect to the domestic home page from anywhere. Reset IntnlShip/IntlCntGrp cookies to 'US'.
+	* @return {Boolean} false
+	*/
+	backToUS: function() {
+		if (shc.features.searsPR) {
+			location.href=location.protocol+'//'+location.host.replace('pr.', '.').replace('.pr', '');
+		} else {
+			$.cookie('IntnlShip', 'US|USD', {path:'/', domain: '.sears.com'});
+			$.cookie('IntlCntGrp', null, {path:'/', domain: '.sears.com'});
+			location.href = '/en_us.html';
+		}
+		return false;
+	},
+
+	/**
+	* @member shc
+	* Render an element with URLs to represent breadcrumbs.
+
+	//Example
+	shc.breadcrumb([{text:'foo', url:'//foo'},{text:'bar',url:'//bar'}])  // first is link, 2nd is text
+	shc.breadcrumb([{text:'foo', url:'//foo', pre:'blue&nbsp;'},{text:'bar',url:'//bar'}], {linkLast:true}) //both are links,first renders 'blue foo'
+
+	* @param {Object|Array} data object containing properties (or array of objects) to construct breadcrumb links.
+	* @param {String} [data.text] text of the crumb
+	* @param {String} [data.url] link underlying the crumb
+	* @param {String} [data.pre=''] optional text to include before the link, but part of the crumb
+	* @param {String} [data.post=''] optional text to include after the link, but part of the crumb. Not applied to text-only crumb
+	* @param {Object} options config object specifying additional rendering options.
+	* @param {Boolean} [options.flush=false] true to remove the breadcrumb element from DOM and rebuild with current data
+	* @param {Boolean} [options.linkLast=false] true to make the last crumb a link
+	* @return {void}
+	*/
+	breadcrumb: function(data, options) {
+		var el, i=0, len, item, breadcrumbList, seo=[];
+
+		var track = function(e) {
+			var target = $(e.target);
+
+			if (typeof s !== 'undefined') {
+				target = el.is('a') ? target.children('span') : target;
+				s.linkTrackVars = 'prop12,prop10,channel,prop1,prop2,prop3,prop19,prop27,prop28';
+				s.prop12 = 'Breadcrumb>' + target.html();
+				s.tl(true, 'o', s.prop12);
+			}
+		};
+
+		options = options || {};
+
+		if (data) {
+			el = $('#gnf_breadcrumb');
+			if (options.flush) {
+				//rebuild entire element
+				el.remove();
+				el = [];
+			}
+
+			if (!el.length) {
+				el = $('<div id="gnf_breadcrumb"><div><ul class="has-breadcrumbs">' +
+					'<li class="breadcrumb home"><a href="/">' +
+					'<span>Home</span>' +
+					'</a></li></ul></div></div>').appendTo('#gnf_header');
+				el.on('click', 'a', track);
+				seo.push({
+					"@type": "ListItem",
+					"position": 1,
+					"item": {"@id": location.origin, "name": 'Home'}
+				});
+			}
+
+			breadcrumbList = el.find('.has-breadcrumbs');
+
+			if ($.isArray(data)) {
+				for (i=0,len=data.length; i<len-(options.linkLast?0:1); i++) {
+					item = data[i];
+					breadcrumbList.append(String.format(
+						'<li class="breadcrumb"><span class="pre">{2}</span><a href="{1}"><span>{0}</span>' +
+						'</a><span class="post">{3}</span></li>',
+						item.text, item.url, item.pre || '', item.post || ''));
+
+					seo.push({
+						"@type": "ListItem",
+						"position": seo.length+1,
+						"item": {"@id": item.url, "name": item.text}
+					});
+				}
+
+				//Last link is text-only unless flag is set
+				if (!options.linkLast) {
+					// last entry is text-only, no URL
+					breadcrumbList.append(String.format(
+						'<li class="breadcrumb"><span>{0}</span></li>', data[i].text));
+
+					//SEO hack to force an entry for the non-link final node.
+					//'View All' is a special case to be ignored.
+					if (data[i].text !== 'View All') {
+						seo.push({
+						"@type": "ListItem",
+						"position": seo.length+1,
+						"item": {"@id": location.href, "name": data[i].text}
+					});
+					}
+				}
+				else {
+					//Fake an empty crumb to generate a trailing slash after last link
+					//This is done as <LI> instead of just adding a '/' to maintain the css-based styling
+					breadcrumbList.append('<li class="breadcrumb" />');
+				}
+			}
+			else {
+				breadcrumbList.append(String.format(
+					'<li class="breadcrumb"><span class="pre">{2}</span><a href="{1}"><span>{0}</span>' +
+					'</a><span class="post">{3}</span></li>',
+					data.text, data.url, data.pre || '', data.post || ''));
+
+				seo.push({
+					"@type": "ListItem",
+					"position": seo.length+1,
+					"item": {"@id": data.url, "name": data.text}
+				});
+			}
+
+			//Build a SCRIPT tag for SEO crawlers
+			if (seo.length) {
+				el.append('<script type="application/ld+json">{' +
+					'"@context": "http://schema.org",'+
+					'"@type": "BreadcrumbList",' +
+					'"itemListElement"' + ':' +  JSON.stringify(seo) +
+					'}</script>'
+				);
+			}
+		}
+	},
+
+	/**
+	 * @member shc
+	 * Omniture click tracking for GNF elements
+	 * @param {String|Object} e DOM event argument or an event name
+	 * @param {Object} data1 event data
+	 * @param {Object} [data2=null] optional additional data
+	 * @return {void}
+	 */
+	clickTracking: function(e, data1, data2) {
+		var parent, info, root, target, level1, chatParms, dataTrk, oldprop12Output = '';
+
+		if (!e || typeof omniF === 'undefined' || !omniF.trackClick) {
+			return;
+		}
+
+		if (typeof e === 'string') {
+			//simple non-click based tracking, any data can be passed as args after e
+			root = e;
+			//concat all the args after the target with '>'
+			info = arguments.length>1 ? Array.prototype.slice.call(arguments,1).join(' > ') : '';
+		}
+		else {
+			target = $(e.target);
+			info = dataTrk = target.attr('data-trk');
+
+			//No attr and it's not a link - try the parent for the case of <a><span>Click me</span></a>
+			if (!info && !target.is('a')) {
+				info = target.parent('a').length ? target.parent('a').attr('data-trk') : '';
+			}
+			if (!info || info === 'N') {
+				return;
+			}
+
+			if (info === 'Y') {
+				//'Y' is a default value to tell us to click track without having to code all the values in chronometer
+				info = target.text() || target.attr('alt'); //try alt text for images
+				//dont try and get root from this info - the link text could have a '>' in it
+			}
+			else {
+				if (info.indexOf('>') >=0) {
+					root = trim(info.split('>')[0]);
+					info = trim(info.replace(root, ''));  //strip the root off
+					info = info.startsWith('>') ? trim(info.substr(1)) : info;   //remove leading '> '
+				}
+			}
+
+			chatParms = target.attr('data-chat') || '';
+
+			if (!root) {
+				// no root specified in attr - see if the parent container has one
+				parent = target.parents('ul[data-trk], div[data-trk], footer[data-trk]');
+				if (parent.length) {
+					root = trim(parent.attr('data-trk').split('>')[0]) || 'Global';
+				}
+				else {
+					//no parent with an attribute to use as root, set default
+					root = 'Content';
+				}
+			}
+		}
+
+		switch (root) {
+			case 'Footer':
+				//Feedback is special case b/c the other properties are tracked in the call in O_LC_Utility
+				if (info.indexOf('Feedback') >=0) {
+					O_LC_Utility(root + ' > ' + info);
+				}
+				else {
+					oldprop12Output = root + ' > ' + info;
+				}
+				break;
+
+			case 'Global':
+				oldprop12Output = root + ' > ' + info;
+				break;
+
+			case 'Header':
+				if (dataTrk) {
+					oldprop12Output = dataTrk;
+					break;
+				}
+				level1 = target.parents('li.gnf_nav_depth1_item');
+				//is it a dropdown?
+				if (level1.length > -1 && level1.children('ul.gnf_nav_depth2_list').length > -1) {
+					//add level 1 text - could be a span or link
+					info = level1.children('span').children('a, span').text() + ' > ' + info;
+				}
+
+				oldprop12Output = root + ' > ' + info;
+				break;
+
+			case 'Menu':
+				level1 = $('#navigation nav.tree li.gnf_nav_depth1_item:hover').children('span').children('.gnf_tree_junction').text();
+				parent = target.parent();
+
+				if (parent.parent('li').hasClass('gnf_nav_depth1_item')) {
+					//clicked on level 1
+					info = root + ' > ' + level1;
+				}
+				else {
+					//clicked on flyout
+					info = root + ' > ' + level1;
+
+					//VisualNav img/text could be either of these 2
+					if (target.is('img')) {
+						info += ' > VisNav > ' + (target.attr('alt') || '');
+					}
+					else if (target.is('p') && target.siblings('img').length) {
+						info += ' > VisNav > ' + target.text();
+					}
+					else if (parent.hasClass('heading')) {
+						info += ' > ' + target.text(); //heading
+					}
+					/*else if (parent.hasClass('gnf-nav-title')) {
+						info += ' > Title > ' + target.text();  // treat this different from heading b/c both can have same text
+					}*/
+					else {
+						if (!!dataTrk && dataTrk !== 'Y') {
+							info += ' > ' + dataTrk; //alternate way to pass a value. Only really useful in the case of duplicate labels we want to track separately
+						}
+						else {
+							//non-heading link - add the header text and the link text
+							info += ' > ' +
+								/* ugly: need to find closest prior colhdr with class='heading'. Needs to work for
+								   columns with 1 or 2 'headings' */
+								(parent.parent().prevAll('li').children('span.heading:first').text() ||
+								parent.siblings('.heading:first').text() /* may not be valid anymore for v3 */) +
+								' > ' + target.text();
+						}
+					}
+				}
+
+				oldprop12Output = info;
+				break;
+
+			case 'MobileMenu':
+				var tempRoot = 'Menu',
+					trackPath = '',
+					parentsActive = target.parents('li.gnf-nav-active');
+
+				if (parentsActive.length > 1 || (parentsActive.length > 0 && !target.parent().hasClass('gnf-nav-active'))) {
+					var tempTrackPath = parentsActive.eq(-1).children('a, button').first().text(),
+						tempTrackPathOv = tempTrackPath;
+					if (tempTrackPath.indexOf('Shop All Departments') > -1) {
+						tempTrackPath = parentsActive.eq(-2).children('a, button').first().text();
+						if (!tempTrackPath) {
+							tempTrackPath = tempTrackPathOv;
+						}
+					}
+					trackPath = ' > ' + tempTrackPath;
+				}
+
+				if (!!dataTrk && dataTrk !== 'Y') {
+					trackPath += ' > ' + dataTrk; //alternate way to pass a value
+				}
+				else if (target.parent().hasClass('gnf-back') && target.text().indexOf('Back to') < 0 ) {
+					trackPath += ' > Back To ' + target.text();
+				}
+				else {
+					trackPath += ' > ' + target.text();
+				}
+
+				oldprop12Output = tempRoot + trackPath;
+				break;
+
+			default:
+				oldprop12Output = root + ' > ' + info;
+				break;
+		}
+
+		if (oldprop12Output) {
+			oldprop12Output = oldprop12Output
+								.replace(/>{2,}/g, ' > ')
+								.replace(/(>\s){2,}/g, '> ')
+								.replace(/>\s\s>\s/g, '> ')
+								.replace(/\n/g, '');
+			omniF.trackClick(oldprop12Output)
+		}
+
+		//New chat data send
+		if (shc.features.chat247) {
+			var val, arr = !!chatParms ? chatParms.split('~') : [];
+
+			if (!!arr[0]) {
+				val = arr[1];
+				//we can only put strings in the attribute, but need to pass booleans to chat
+				val = val === 'true' ? true :
+				      val === 'false' ? false : val;
+
+				if (FED.Util.isNumeric(val)) {
+					val = +val;  //send numeric data
+				}
+				shc.chat.send(shc.chat.SCOPE.page, arr[0], val || '', shc.chat.EVENT.click);
+			}
+		}
+
+		return;
+	},
+
+	/**
+	 * @member shc
+	 * Get the ra_id cookie info in object form.
+	 * <br />Note: new function to relace legacy global getRAInfo.
+	 * @return {Object} the parsed cookie info with default values if not present.
+	 */
+	getRAInfo: function() {
+		var raid = $.cookie('ra_id'), obj = {};
+
+		if (!raid) {
+			this.setRAInfo();  //force cookie creation for first time user
+		}
+
+		raid = ($.cookie('irp') || '').split('|');
+		//Pos 1,4,5 not used for anything clientside
+		obj = {jSessionID: raid[0], userType: raid[2], globalID: raid[3]};
+
+		return obj;
+	},
+
+	/**
+	 * @member shc
+	 * Update the ra_id cookie.  Create the cookie if doesn't exist (first time guest user only).
+	 * <br />Note: new function to replace legacy global updateRACookie, createRAInfo
+	 * @return {void}
+	 */
+	setRAInfo: function() {
+		var arr, val;
+
+		//we build the cookie for IRP, but nothing should be using it
+		arr = ($.cookie('irp') || '').split('|');
+		if (!arr[0]) {
+			console.log('setRAInfo() - irp cookie missing');
+		}
+
+		val = (arr[0] || ('xxx' + new Date().getTime())) + //SesssionID  -  2rd case is an error in IRP
+			'|' + (arr[2] || 'G') + /* guest if not set */
+			'|' + (arr[3] || '0'); /* globalId */
+			//positions 1,4-5 not used
+
+		$.cookie('ra_id', val, {
+			path: '/',
+			expires: 30,
+			domain: FED.Util.getRootDomain()
+		});
+	},
+
+	/**
+	 * @member shc
+	 * Return a string page type based on upon BODY id/class of current page.
+	 * @return {String} the pagetype or blank.
+	 */
+	getPageType: function() {
+		var pageId = $('body').attr('id'), pt = '';
+
+		switch (pageId) {
+			case 'search-page':
+				pt = $('body').hasClass('category-page') ? 'browse' : 'search';
+				break;
+			default:
+				pt = pageId; //cleaner to only handle exceptions and let most fall thru to here.
+				break;
+		}
+		return pt;
+	},
+
+	/**
+	 * @class shc.timer
+	 * Generic countdown timer creation. Allows occurrences of a timer in 1 or more DOM elements.
+	 * @returns {Object}
+	 */
+	timer: function() {
+		/**
+		 * @private
+		 * @param {Date} end javascript datetime when the timer ends
+		 * @return {Object} containing current values for total time, days, hours, minutes, seconds remaining
+		 */
+		var getTimeLeft = function(end) {
+		  var t = Date.parse(end) - Date.parse(new Date()),
+			seconds = Math.floor((t/1000) % 60),
+			minutes = Math.floor((t/1000 / 60) % 60),
+			hours = Math.floor((t/(1000 * 60 * 60)) % 24),
+			days = Math.floor(t/(1000 * 60 * 60 * 24));
+
+		  return {'total': t,'days': days, 'hours': hours, 'minutes': minutes,'seconds': seconds};
+		};
+
+		//public methods
+		return {
+			/**
+			 * Display a timer.<br />
+			 Assumes that DOM elements exist inside a parent container with classes 'days', 'hours', 'minutes', 'seconds'. All are not required, for example if you are displaying a counter that won't span days, you can omit the 'days' element from your parent container.
+
+		//Examples
+		<div id="clock1">
+		 <span>Deal Ends:</span>&nbsp;
+		 Days:<span class="days"></span>&nbsp;Hours:<span class="hours"></span>&nbsp;
+		 Min:<span class="minutes"></span>&nbsp;Sec:<span class="seconds"></span>
+		</div>
+
+		//1 day
+		shc.timer.start($('#clock1'), new Date(Date.parse(new Date()) + 1 * 24 * 60 * 60 * 1000));
+
+		//1 hour, display in 2 places, return timer instance so it can be killed manually
+		var myTimer = shc.timer.start($('#clock2, #clock3'), new Date(Date.parse(new Date()) + 1 * 60 * 60 * 1000));
+		...
+		if (killMe) {clearInterval(myTimer);}
+
+		//10 seconds, invoke a callback to modify the display when complete
+		shc.timer.start($('#clock4'), new Date(Date.parse(new Date()) +  10 * 1000), function(el) {
+			el.html(el.children('span:first').html() + '<span style="color:red;font-weight:bold;">Expired!!</span>');
+		});
+			 * @param {Object} clockEl jQuery selector where timer nodes will be displayed. Can be more than 1 element
+			 * @param {Date} end datetime instance indicating when timer will end. Only supports future time. No adjustment for timezone.
+			 * @param {Function} [onEnd=null] optional callback to invoke when timer expires. clockEl passed back as argument.
+			 * @return {Object} timer instance (from setInterval fn) can be used to prematurely end timer by passing it to clearInterval fn.
+			 */
+			start: function(clockEl, end, onEnd) {
+				var days = clockEl.children('.days'),
+					hours = clockEl.children('.hours'),
+					minutes = clockEl.children('.minutes'),
+					seconds = clockEl.children('.seconds'),
+					timer,
+					hasDays = days.length > 0;
+
+				var update = function() {
+					var t = getTimeLeft(end);
+
+					if (hasDays) {
+						days.html(t.days);
+						hours.html(('0' + t.hours).slice(-2));
+					} else {
+						hours.html(t.hours + 24 * t.days);
+					}
+					minutes.html(('0' + t.minutes).slice(-2));
+					seconds.html(('0' + t.seconds).slice(-2));
+
+					if (!t.total) {
+						clearInterval(timer);
+						if (typeof onEnd === 'function') {
+							onEnd(clockEl);
+						}
+					}
+				};
+
+				update();
+				timer = setInterval(update, 1000);
+				return timer;
+			},
+
+			/*
+			 * @param {Object} clockEl jQuery selector where timer nodes will be displayed. Can be more than 1 element
+			 * @param {Object} timer instance from a 'start' call to be stopped.
+			 * @param {Function} [onStop=null] optional callback to invoke when timer is stopped. clockEl passed back as argument.
+			 * @return {void}
+			 */
+			stop: function(clockEl, timer, onStop) {
+				if (timer) {
+					clearInterval(timer);
+					if (typeof onEnd === 'function') {
+						onEnd(clockEl);
+					}
+				}
+			}
+
+		};
+	}()
+});
+//end shc extensions
+
+
+$(function() {
+	//Start the process of building nav.
+	if (shc.debug) {
+		console.log('Starting gnf_Builder');
+	}
+
+	//should come from Chronometer - handling case where header is skipped to avoid additional checks throughout codebase
+	if (!shc.abTest) {
+		shc.abTest = {};
+	}
+
+	//this call is just to ensure that a first-time visitor has a cookie created
+	shc.getRAInfo();
+
+	if (shc && shc.features) {
+		if (shc.features.kmartPR) {
+			$('body').addClass('kmartPR');
+		}
+		else if (shc.features.searsPR) {
+			$('body').addClass('searsPR');
+		}
+	}
+
+	if (shc.isKiosk) {
+		$('body').addClass('kiosk');
+	}
+
+	var buildMisc = function() {
+		shcWidgets.Factory
+			.create('miniCart', 'miniCart', {
+				prefix: 'gnf_',
+				id: 'cartArea',
+				attr: 'rel="nofollow" data-trk="MiniCart"',
+				cartUrl: shc.URLs.addToCart,
+				cartItemsUrl: '',
+				/* minicart only for domestic sites*/
+				showMiniCart: !shc.features.disableHdrMiniCart && !(shc.features.international || shc.features.searsPR || shc.features.kmartPR)
+			})
+			.init();
+
+		//Add a curtain for autofill
+		//TODO: might want to make this generic so all header elements don't have to wire separately.
+		/*
+		$('#keyword').on('focus', function() {
+			$('#hdrv3').css({zIndex:7001});
+			FED.Util.curtain({zIndex:7000, cls:'shcCurtain gnf_menuCurtain'})
+				.show()
+				.on('click', function() {
+					$(this).remove();
+					$('#hdrv3').css({zIndex:''})
+				});
+		});
+		*/
+	};
+
+	/**
+	 *Handle footer stuff after snippet is loaded or do fallback if ESI doesn't happen.
+	 * @private
+	 */
+	var buildFooter = function() {
+		shcWidgets.Factory
+			.create('footer', 'footer', {prefix: 'gnf_', id:'gnf_footer'})
+			.init(shc.chronStoreName);
+	};
+
+	/**
+	 * Add any non-GNF js/css files (mainly WCS resources)
+	 * @private
+	 */
+	var addExternalResources = function() {
+		// To set the environment for profile
+		var js = [], css = [],
+			gnfVer = shc.versions ? shc.versions.scode || '01' : '01';
+
+		//Add the commmon files and then store-specific
+		//var creation in the refactorSPU stuff.
+		if ($.query.get('pack') === 'false') {
+			js.push('js/commonSPURefactorHeader',
+				'js/SPURefactorGeoLocator',	'js/jquery.shcModal', 'js/jquery.shcCenter',
+				'js/jquery.mousewheel.js', 'js/shcGlobalTracking', 'js/shcInlineValidation');
+		}
+		else {
+			js.push('js/shcHdrLocationCombine-min.js?v' + gnfVer, 'js/gnfDeferCombine-min.js?v' + gnfVer);
+		}
+
+		js.push(shc.casServerNameHttps + '/usr/' + shc.env + '/universalSignInCombined.js?v' + gnfVer);
+
+		if (shc.features.international || location.href.indexOf('CountryChooserView')>=0) {
+			//Add a file which loads all the other INTL junk
+			js.push((shc.asapAkamaiBasePath || '') + '/etc/designs/shc/global/base/js/international');
+		}
+
+		FED.Util.requires({
+			baseUrl: shc.URLs.staticAssets ,
+			js: js,
+			css: css
+		});
+	};
+
+	/**
+	 * When kiosk is detected, add any kiosk-specific js/css
+	 * @private
+	 */
+	var addKioskResources = function() {
+		/**
+		 * Add an html fragment containing LINK and SCRIPT tags to the HEAD
+		 * @private
+		 */
+		var addAssets = function(html) {
+			//Save the current global ajax cache settings.  Turn it off for this request otherwise jquery will add a cachebuster to script tags
+			//appended to the head.  Then reset the value.
+			var oldCache = $.ajaxSettings.cache;
+
+			$.ajaxSettings.cache = true;
+			$('head').append(html);
+			$.ajaxSettings.cache = oldCache;
+
+			return;
+		};
+
+		//Load the assets from Session if present, otherwise pull from Chronometer.
+		//Unlike base assets, we don't care about setting a 30 minute timelimit for cache.  Kiosk clears cache after every user,
+		//so we should never have stale assets.
+		var assets = Session.get('gnfAssets-kiosk'),
+			gnfCallbackKiosk = $.noop;  //dummy callback-sometimes seem to be crossing jsonp callbacks with generic gnfCallback - may just be in debugger
+
+		if (!assets) {
+			$.ajax({
+				url: shc.URLs.chronometer + 'includes.js',
+				data: {html:1, store:'kiosk'},
+				dataType: 'jsonp',
+				jsonpCallback: 'gnfCallbackKiosk',
+				cache: true,
+				success: function(res) {
+					if (res && res.output) {
+						addAssets(res.output);
+						Session.set('gnfAssets-kiosk', res.output);
+					}
+				},
+				error: function() {
+					console.log('Chronometer kiosk assets not loaded');
+				}
+			});
+		}
+		else {
+			addAssets(assets);
+		}
+	};
+
+	var wrapUp = function() {
+		startProfile();
+		buildMisc();
+		addExternalResources();
+		buildFooter();  //builds the footer and loads the deferred files
+
+		//All this does for now is add the Store2Home button/modal below the footer
+		if (shc.isKiosk) {
+			addKioskResources();
+		}
+
+		if (shc.debug) {
+			console.log('Ending gnf_Builder');
+		}
+	};
+
+	$.when(shcWidgets.Factory.create('header', 'header', {storeName: shc.chronStoreName}).init(),
+			shcWidgets.Factory.create('customerInfo').init())
+		.then(wrapUp)
+		.fail(function() {
+			console.log('GNF - header build failed');
+		});
+});
+!function(t) {
+	typeof define === 'function' && define.amd ? define(["jquery"], t) : t(jQuery);
+}(function(t) {
+	t.ui = t.ui || {};
+	var e = (t.ui.version = "1.12.0", 0),
+		i = Array.prototype.slice;
+	t.cleanData = function(e) {
+		return function(i) {
+			var s, n, o;
+			for (o = 0; null != (n = i[o]); o++) try {
+				s = t._data(n, "events"), s && s.remove && t(n).triggerHandler("remove");
+			} catch (a) {}
+			e(i);
+		};
+	}(t.cleanData), t.widget = function(e, i, s) {
+		var n, o, a, r = {},
+			l = e.split(".")[0];
+		e = e.split(".")[1];
+		var u = l + "-" + e;
+		return s || (s = i, i = t.Widget), t.isArray(s) && (s = t.extend.apply(null, [{}].concat(s))), t.expr[":"][u.toLowerCase()] = function(e) {
+			return !!t.data(e, u);
+		}, t[l] = t[l] || {}, n = t[l][e], o = t[l][e] = function(t, e) {
+			return this._createWidget ? void(arguments.length && this._createWidget(t, e)) : new o(t, e);
+		}, t.extend(o, n, {
+			version: s.version,
+			_proto: t.extend({}, s),
+			_childConstructors: []
+		}), a = new i, a.options = t.widget.extend({}, a.options), t.each(s, function(e, s) {
+			return t.isFunction(s) ? void(r[e] = function() {
+				function t() {
+					return i.prototype[e].apply(this, arguments);
+				}
+
+				function n(t) {
+					return i.prototype[e].apply(this, t);
+				}
+				return function() {
+					var e, i = this._super,
+						o = this._superApply;
+					return this._super = t, this._superApply = n, e = s.apply(this, arguments), this._super = i, this._superApply = o, e;
+				};
+			}()) : void(r[e] = s);
+		}), o.prototype = t.widget.extend(a, {
+			widgetEventPrefix: n ? a.widgetEventPrefix || e : e
+		}, r, {
+			constructor: o,
+			namespace: l,
+			widgetName: e,
+			widgetFullName: u
+		}), n ? (t.each(n._childConstructors, function(e, i) {
+			var s = i.prototype;
+			t.widget(s.namespace + "." + s.widgetName, o, i._proto);
+		}), delete n._childConstructors) : i._childConstructors.push(o), t.widget.bridge(e, o), o;
+	}, t.widget.extend = function(e) {
+		for (var s, n, o = i.call(arguments, 1), a = 0, r = o.length; r > a; a++)
+			for (s in o[a]) n = o[a][s], o[a].hasOwnProperty(s) && void 0 !== n && (t.isPlainObject(n) ? e[s] = t.isPlainObject(e[s]) ? t.widget.extend({}, e[s], n) : t.widget.extend({}, n) : e[s] = n);
+		return e;
+	}, t.widget.bridge = function(e, s) {
+		var n = s.prototype.widgetFullName || e;
+		t.fn[e] = function(o) {
+			var a = "string" == typeof o,
+				r = i.call(arguments, 1),
+				l = this;
+			return a ? this.each(function() {
+				var i, s = t.data(this, n);
+				return "instance" === o ? (l = s, !1) : s ? t.isFunction(s[o]) && "_" !== o.charAt(0) ? (i = s[o].apply(s, r), i !== s && void 0 !== i ? (l = i && i.jquery ? l.pushStack(i.get()) : i, !1) : void 0) : t.error("no such method '" + o + "' for " + e + " widget instance") : t.error("cannot call methods on " + e + " prior to initialization; attempted to call method '" + o + "'");
+			}) : (r.length && (o = t.widget.extend.apply(null, [o].concat(r))), this.each(function() {
+				var e = t.data(this, n);
+				e ? (e.option(o || {}), e._init && e._init()) : t.data(this, n, new s(o, this));
+			})), l;
+		};
+	}, t.Widget = function() {}, t.Widget._childConstructors = [], t.Widget.prototype = {
+		widgetName: "widget",
+		widgetEventPrefix: "",
+		defaultElement: "<div>",
+		options: {
+			classes: {},
+			disabled: !1,
+			create: null
+		},
+		_createWidget: function(i, s) {
+			s = t(s || this.defaultElement || this)[0], this.element = t(s), this.uuid = e++, this.eventNamespace = "." + this.widgetName + this.uuid, this.bindings = t(), this.hoverable = t(), this.focusable = t(), this.classesElementLookup = {}, s !== this && (t.data(s, this.widgetFullName, this), this._on(!0, this.element, {
+				remove: function(t) {
+					t.target === s && this.destroy();
+				}
+			}), this.document = t(s.style ? s.ownerDocument : s.document || s), this.window = t(this.document[0].defaultView || this.document[0].parentWindow)), this.options = t.widget.extend({}, this.options, this._getCreateOptions(), i), this._create(), this.options.disabled && this._setOptionDisabled(this.options.disabled), this._trigger("create", null, this._getCreateEventData()), this._init();
+		},
+		_getCreateOptions: function() {
+			return {};
+		},
+		_getCreateEventData: t.noop,
+		_create: t.noop,
+		_init: t.noop,
+		destroy: function() {
+			var e = this;
+			this._destroy(), t.each(this.classesElementLookup, function(t, i) {
+				e._removeClass(i, t);
+			}), this.element.off(this.eventNamespace).removeData(this.widgetFullName), this.widget().off(this.eventNamespace).removeAttr("aria-disabled"), this.bindings.off(this.eventNamespace);
+		},
+		_destroy: t.noop,
+		widget: function() {
+			return this.element;
+		},
+		option: function(e, i) {
+			var s, n, o, a = e;
+			if (0 === arguments.length) return t.widget.extend({}, this.options);
+			if ("string" == typeof e)
+				if (a = {}, s = e.split("."), e = s.shift(), s.length) {
+					for (n = a[e] = t.widget.extend({}, this.options[e]), o = 0; o < s.length - 1; o++) n[s[o]] = n[s[o]] || {}, n = n[s[o]];
+					if (e = s.pop(), 1 === arguments.length) return void 0 === n[e] ? null : n[e];
+					n[e] = i;
+				} else {
+					if (1 === arguments.length) return void 0 === this.options[e] ? null : this.options[e];
+					a[e] = i;
+				}
+			return this._setOptions(a), this;
+		},
+		_setOptions: function(t) {
+			var e;
+			for (e in t) this._setOption(e, t[e]);
+			return this;
+		},
+		_setOption: function(t, e) {
+			return "classes" === t && this._setOptionClasses(e), this.options[t] = e, "disabled" === t && this._setOptionDisabled(e), this;
+		},
+		_setOptionClasses: function(e) {
+			var i, s, n;
+			for (i in e) n = this.classesElementLookup[i], e[i] !== this.options.classes[i] && n && n.length && (s = t(n.get()), this._removeClass(n, i), s.addClass(this._classes({
+				element: s,
+				keys: i,
+				classes: e,
+				add: !0
+			})));
+		},
+		_setOptionDisabled: function(t) {
+			this._toggleClass(this.widget(), this.widgetFullName + "-disabled", null, !!t), t && (this._removeClass(this.hoverable, null, "ui-state-hover"), this._removeClass(this.focusable, null, "ui-state-focus"));
+		},
+		enable: function() {
+			return this._setOptions({
+				disabled: !1
+			});
+		},
+		disable: function() {
+			return this._setOptions({
+				disabled: !0
+			});
+		},
+		_classes: function(e) {
+			function i(i, o) {
+				var a, r;
+				for (r = 0; r < i.length; r++) a = n.classesElementLookup[i[r]] || t(), a = t(e.add ? t.unique(a.get().concat(e.element.get())) : a.not(e.element).get()), n.classesElementLookup[i[r]] = a, s.push(i[r]), o && e.classes[i[r]] && s.push(e.classes[i[r]]);
+			}
+			var s = [],
+				n = this;
+			return e = t.extend({
+				element: this.element,
+				classes: this.options.classes || {}
+			}, e), e.keys && i(e.keys.match(/\S+/g) || [], !0), e.extra && i(e.extra.match(/\S+/g) || []), s.join(" ");
+		},
+		_removeClass: function(t, e, i) {
+			return this._toggleClass(t, e, i, !1);
+		},
+		_addClass: function(t, e, i) {
+			return this._toggleClass(t, e, i, !0);
+		},
+		_toggleClass: function(t, e, i, s) {
+			s = "boolean" == typeof s ? s : i;
+			var n = "string" == typeof t || null === t,
+				o = {
+					extra: n ? e : i,
+					keys: n ? t : e,
+					element: n ? this.element : t,
+					add: s
+				};
+			return o.element.toggleClass(this._classes(o), s), this;
+		},
+		_on: function(e, i, s) {
+			var n, o = this;
+			"boolean" != typeof e && (s = i, i = e, e = !1), s ? (i = n = t(i), this.bindings = this.bindings.add(i)) : (s = i, i = this.element, n = this.widget()), t.each(s, function(s, a) {
+				function r() {
+					return e || o.options.disabled !== !0 && !t(this).hasClass("ui-state-disabled") ? ("string" == typeof a ? o[a] : a).apply(o, arguments) : void 0;
+				}
+				"string" != typeof a && (r.guid = a.guid = a.guid || r.guid || t.guid++);
+				var l = s.match(/^([\w:-]*)\s*(.*)$/),
+					u = l[1] + o.eventNamespace,
+					h = l[2];
+				h ? n.on(u, h, r) : i.on(u, r);
+			});
+		},
+		_off: function(e, i) {
+			i = (i || "").split(" ").join(this.eventNamespace + " ") + this.eventNamespace, e.off(i).off(i), this.bindings = t(this.bindings.not(e).get()), this.focusable = t(this.focusable.not(e).get()), this.hoverable = t(this.hoverable.not(e).get());
+		},
+		_delay: function(t, e) {
+			function i() {
+				return ("string" == typeof t ? s[t] : t).apply(s, arguments);
+			}
+			var s = this;
+			return setTimeout(i, e || 0);
+		},
+		_hoverable: function(e) {
+			this.hoverable = this.hoverable.add(e), this._on(e, {
+				mouseenter: function(e) {
+					this._addClass(t(e.currentTarget), null, "ui-state-hover");
+				},
+				mouseleave: function(e) {
+					this._removeClass(t(e.currentTarget), null, "ui-state-hover");
+				}
+			});
+		},
+		_focusable: function(e) {
+			this.focusable = this.focusable.add(e), this._on(e, {
+				focusin: function(e) {
+					this._addClass(t(e.currentTarget), null, "ui-state-focus");
+				},
+				focusout: function(e) {
+					this._removeClass(t(e.currentTarget), null, "ui-state-focus");
+				}
+			});
+		},
+		_trigger: function(e, i, s) {
+			var n, o, a = this.options[e];
+			if (s = s || {}, i = t.Event(i), i.type = (e === this.widgetEventPrefix ? e : this.widgetEventPrefix + e).toLowerCase(), i.target = this.element[0], o = i.originalEvent)
+				for (n in o) n in i || (i[n] = o[n]);
+			return this.element.trigger(i, s), !(t.isFunction(a) && a.apply(this.element[0], [i].concat(s)) === !1 || i.isDefaultPrevented());
+		}
+	}, t.each({
+		show: "fadeIn",
+		hide: "fadeOut"
+	}, function(e, i) {
+		t.Widget.prototype["_" + e] = function(s, n, o) {
+			typeof n === 'string' && (n = {
+				effect: n
+			});
+			var a, r = n ? n === !0 || "number" == typeof n ? i : n.effect || i : e;
+			n = n || {}, "number" == typeof n && (n = {
+				duration: n
+			}), a = !t.isEmptyObject(n), n.complete = o, n.delay && s.delay(n.delay), a && t.effects && t.effects.effect[r] ? s[e](n) : r !== e && s[r] ? s[r](n.duration, n.easing, o) : s.queue(function(i) {
+				t(this)[e](), o && o.call(s[0]), i();
+			});
+		};
+	});
+	t.widget;
+	! function() {
+		function e(t, x, i) {
+			return [parseFloat(t[0]) * (f.test(t[0]) ? x / 100 : 1), parseFloat(t[1]) * (f.test(t[1]) ? i / 100 : 1)];
+		}
+
+		function i(e, x) {
+			return parseInt(t.css(e, x), 10) || 0;
+		}
+
+		function s(e) {
+			var i = e[0];
+			return 9 === i.nodeType ? {
+				width: e.width(),
+				height: e.height(),
+				offset: {
+					top: 0,
+					left: 0
+				}
+			} : t.isWindow(i) ? {
+				width: e.width(),
+				height: e.height(),
+				offset: {
+					top: e.scrollTop(),
+					left: e.scrollLeft()
+				}
+			} : i.preventDefault ? {
+				width: 0,
+				height: 0,
+				offset: {
+					top: i.pageY,
+					left: i.pageX
+				}
+			} : {
+				width: e.outerWidth(),
+				height: e.outerHeight(),
+				offset: e.offset()
+			};
+		}
+		var n, o, a = Math.max,
+			r = Math.abs,
+			l = Math.round,
+			u = /left|center|right/,
+			h = /top|center|bottom/,
+			c = /[\+\-]\d+(\.[\d]+)?%?/,
+			d = /^\w+/,
+			f = /%$/,
+			m = t.fn.position;
+		o = function() {
+			var e = t("<div>").css("position", "absolute").appendTo("body").offset({
+					top: 1.5,
+					left: 1.5
+				}),
+				i = 1.5 === e.offset().top;
+			return e.remove(), o = function() {
+				return i;
+			}, i;
+		}, t.position = {
+			scrollbarWidth: function() {
+				if (void 0 !== n) return n;
+				var e, i, s = t("<div style='display:block;position:absolute;width:50px;height:50px;overflow:hidden;'><div style='height:100px;width:auto;'></div></div>"),
+					o = s.children()[0];
+				return t("body").append(s), e = o.offsetWidth, s.css("overflow", "scroll"), i = o.offsetWidth, e === i && (i = s[0].clientWidth), s.remove(), n = e - i;
+			},
+			getScrollInfo: function(e) {
+				var i = e.isWindow || e.isDocument ? "" : e.element.css("overflow-x"),
+					s = e.isWindow || e.isDocument ? "" : e.element.css("overflow-y"),
+					n = "scroll" === i || "auto" === i && e.width < e.element[0].scrollWidth,
+					o = "scroll" === s || "auto" === s && e.height < e.element[0].scrollHeight;
+				return {
+					width: o ? t.position.scrollbarWidth() : 0,
+					height: n ? t.position.scrollbarWidth() : 0
+				};
+			},
+			getWithinInfo: function(e) {
+				var i = t(e || window),
+					s = t.isWindow(i[0]),
+					n = !!i[0] && 9 === i[0].nodeType,
+					o = !s && !n;
+				return {
+					element: i,
+					isWindow: s,
+					isDocument: n,
+					offset: o ? t(e).offset() : {
+						left: 0,
+						top: 0
+					},
+					scrollLeft: i.scrollLeft(),
+					scrollTop: i.scrollTop(),
+					width: i.outerWidth(),
+					height: i.outerHeight()
+				};
+			}
+		}, t.fn.position = function(n) {
+			if (!n || !n.of) return m.apply(this, arguments);
+			n = t.extend({}, n);
+			var f, p, v, g, _, y, b = t(n.of),
+				w = t.position.getWithinInfo(n.within),
+				x = t.position.getScrollInfo(w),
+				C = (n.collision || "flip").split(" "),
+				E = {};
+			return y = s(b), b[0].preventDefault && (n.at = "left top"), p = y.width, v = y.height, g = y.offset, _ = t.extend({}, g), t.each(["my", "at"], function() {
+				var t, e, i = (n[this] || "").split(" ");
+				1 === i.length && (i = u.test(i[0]) ? i.concat(["center"]) : h.test(i[0]) ? ["center"].concat(i) : ["center", "center"]), i[0] = u.test(i[0]) ? i[0] : "center", i[1] = h.test(i[1]) ? i[1] : "center", t = c.exec(i[0]), e = c.exec(i[1]), E[this] = [t ? t[0] : 0, e ? e[0] : 0], n[this] = [d.exec(i[0])[0], d.exec(i[1])[0]];
+			}), 1 === C.length && (C[1] = C[0]), "right" === n.at[0] ? _.left += p : "center" === n.at[0] && (_.left += p / 2), "bottom" === n.at[1] ? _.top += v : "center" === n.at[1] && (_.top += v / 2), f = e(E.at, p, v), _.left += f[0], _.top += f[1], this.each(function() {
+				var s, u, h = t(this),
+					c = h.outerWidth(),
+					d = h.outerHeight(),
+					m = i(this, "marginLeft"),
+					y = i(this, "marginTop"),
+					k = c + m + i(this, "marginRight") + x.width,
+					T = d + y + i(this, "marginBottom") + x.height,
+					W = t.extend({}, _),
+					A = e(E.my, h.outerWidth(), h.outerHeight());
+				"right" === n.my[0] ? W.left -= c : "center" === n.my[0] && (W.left -= c / 2), "bottom" === n.my[1] ? W.top -= d : "center" === n.my[1] && (W.top -= d / 2), W.left += A[0], W.top += A[1], o() || (W.left = l(W.left), W.top = l(W.top)), s = {
+					marginLeft: m,
+					marginTop: y
+				}, t.each(["left", "top"], function(e, i) {
+					t.ui.position[C[e]] && t.ui.position[C[e]][i](W, {
+						targetWidth: p,
+						targetHeight: v,
+						elemWidth: c,
+						elemHeight: d,
+						collisionPosition: s,
+						collisionWidth: k,
+						collisionHeight: T,
+						offset: [f[0] + A[0], f[1] + A[1]],
+						my: n.my,
+						at: n.at,
+						within: w,
+						elem: h
+					});
+				}), n.using && (u = function(t) {
+					var e = g.left - W.left,
+						i = e + p - c,
+						s = g.top - W.top,
+						o = s + v - d,
+						l = {
+							target: {
+								element: b,
+								left: g.left,
+								top: g.top,
+								width: p,
+								height: v
+							},
+							element: {
+								element: h,
+								left: W.left,
+								top: W.top,
+								width: c,
+								height: d
+							},
+							horizontal: 0 > i ? "left" : e > 0 ? "right" : "center",
+							vertical: 0 > o ? "top" : s > 0 ? "bottom" : "middle"
+						};
+					c > p && r(e + i) < p && (l.horizontal = "center"), d > v && r(s + o) < v && (l.vertical = "middle"), a(r(e), r(i)) > a(r(s), r(o)) ? l.important = "horizontal" : l.important = "vertical", n.using.call(this, t, l);
+				}), h.offset(t.extend(W, {
+					using: u
+				}));
+			});
+		}, t.ui.position = {
+			fit: {
+				left: function(t, e) {
+					var i, s = e.within,
+						n = s.isWindow ? s.scrollLeft : s.offset.left,
+						o = s.width,
+						r = t.left - e.collisionPosition.marginLeft,
+						l = n - r,
+						u = r + e.collisionWidth - o - n;
+					e.collisionWidth > o ? l > 0 && 0 >= u ? (i = t.left + l + e.collisionWidth - o - n, t.left += l - i) : u > 0 && 0 >= l ? t.left = n : l > u ? t.left = n + o - e.collisionWidth : t.left = n : l > 0 ? t.left += l : u > 0 ? t.left -= u : t.left = a(t.left - r, t.left);
+				},
+				top: function(t, e) {
+					var i, s = e.within,
+						n = s.isWindow ? s.scrollTop : s.offset.top,
+						o = e.within.height,
+						r = t.top - e.collisionPosition.marginTop,
+						l = n - r,
+						u = r + e.collisionHeight - o - n;
+					e.collisionHeight > o ? l > 0 && 0 >= u ? (i = t.top + l + e.collisionHeight - o - n, t.top += l - i) : u > 0 && 0 >= l ? t.top = n : l > u ? t.top = n + o - e.collisionHeight : t.top = n : l > 0 ? t.top += l : u > 0 ? t.top -= u : t.top = a(t.top - r, t.top);
+				}
+			},
+			flip: {
+				left: function(t, e) {
+					var i, s, n = e.within,
+						o = n.offset.left + n.scrollLeft,
+						a = n.width,
+						l = n.isWindow ? n.scrollLeft : n.offset.left,
+						u = t.left - e.collisionPosition.marginLeft,
+						h = u - l,
+						c = u + e.collisionWidth - a - l,
+						d = "left" === e.my[0] ? -e.elemWidth : "right" === e.my[0] ? e.elemWidth : 0,
+						f = "left" === e.at[0] ? e.targetWidth : "right" === e.at[0] ? -e.targetWidth : 0,
+						m = -2 * e.offset[0];
+					0 > h ? (i = t.left + d + f + m + e.collisionWidth - a - o, (0 > i || i < r(h)) && (t.left += d + f + m)) : c > 0 && (s = t.left - e.collisionPosition.marginLeft + d + f + m - l, (s > 0 || r(s) < c) && (t.left += d + f + m));
+				},
+				top: function(t, e) {
+					var i, s, n = e.within,
+						o = n.offset.top + n.scrollTop,
+						a = n.height,
+						l = n.isWindow ? n.scrollTop : n.offset.top,
+						u = t.top - e.collisionPosition.marginTop,
+						h = u - l,
+						c = u + e.collisionHeight - a - l,
+						d = "top" === e.my[1],
+						f = d ? -e.elemHeight : "bottom" === e.my[1] ? e.elemHeight : 0,
+						m = "top" === e.at[1] ? e.targetHeight : "bottom" === e.at[1] ? -e.targetHeight : 0,
+						p = -2 * e.offset[1];
+					0 > h ? (s = t.top + f + m + p + e.collisionHeight - a - o, (0 > s || s < r(h)) && (t.top += f + m + p)) : c > 0 && (i = t.top - e.collisionPosition.marginTop + f + m + p - l, (i > 0 || r(i) < c) && (t.top += f + m + p));
+				}
+			},
+			flipfit: {
+				left: function() {
+					t.ui.position.flip.left.apply(this, arguments), t.ui.position.fit.left.apply(this, arguments);
+				},
+				top: function() {
+					t.ui.position.flip.top.apply(this, arguments), t.ui.position.fit.top.apply(this, arguments);
+				}
+			}
+		};
+	}();
+	t.ui.position, t.ui.keyCode = {
+		BACKSPACE: 8,
+		COMMA: 188,
+		DELETE: 46,
+		DOWN: 40,
+		END: 35,
+		ENTER: 13,
+		ESCAPE: 27,
+		HOME: 36,
+		LEFT: 37,
+		PAGE_DOWN: 34,
+		PAGE_UP: 33,
+		PERIOD: 190,
+		RIGHT: 39,
+		SPACE: 32,
+		TAB: 9,
+		UP: 38
+	}, t.fn.extend({
+		uniqueId: function() {
+			var t = 0;
+			return function() {
+				return this.each(function() {
+					this.id || (this.id = 'ui-id-' + (++t));
+				});
+			};
+		}(),
+		removeUniqueId: function() {
+			return this.each(function() {
+				/^ui-id-\d+$/.test(this.id) && t(this).removeAttr("id");
+			});
+		}
+	}), t.ui.safeActiveElement = function(t) {
+		var e;
+		try {
+			e = t.activeElement;
+		} catch (i) {
+			e = t.body;
+		}
+		return e || (e = t.body), e.nodeName || (e = t.body), e;
+	}, t.widget("ui.menu", {
+		version: "1.12.0",
+		defaultElement: "<ul>",
+		delay: 300,
+		options: {
+			icons: {
+				submenu: "ui-icon-caret-1-e"
+			},
+			items: "> *",
+			menus: "ul",
+			position: {
+				my: "left top",
+				at: "right top"
+			},
+			role: "menu",
+			blur: null,
+			focus: null,
+			select: null
+		},
+		_create: function() {
+			this.activeMenu = this.element, this.mouseHandled = !1, this.element.uniqueId().attr({
+				role: this.options.role,
+				tabIndex: 0
+			}), this._addClass("ui-menu", "ui-widget ui-widget-content"), this._on({
+				"mousedown .ui-menu-item": function(t) {
+					t.preventDefault();
+				},
+				"click .ui-menu-item": function(e) {
+					var i = t(e.target),
+						s = t(t.ui.safeActiveElement(this.document[0]));
+					!this.mouseHandled && i.not(".ui-state-disabled").length && (this.select(e), e.isPropagationStopped() || (this.mouseHandled = !0), i.has(".ui-menu").length ? this.expand(e) : !this.element.is(":focus") && s.closest(".ui-menu").length && (this.element.trigger("focus", [!0]), this.active && 1 === this.active.parents(".ui-menu").length && clearTimeout(this.timer)));
+				},
+				"mouseenter .ui-menu-item": function(e) {
+					if (!this.previousFilter) {
+						var i = t(e.target).closest(".ui-menu-item"),
+							s = t(e.currentTarget);
+						i[0] === s[0] && (this._removeClass(s.siblings().children(".ui-state-active"), null, "ui-state-active"), this.focus(e, s));
+					}
+				},
+				mouseleave: "collapseAll",
+				"mouseleave .ui-menu": "collapseAll",
+				focus: function(t, e) {
+					var i = this.active || this.element.find(this.options.items).eq(0);
+					e || this.focus(t, i);
+				},
+				blur: function(e) {
+					this._delay(function() {
+						var i = !t.contains(this.element[0], t.ui.safeActiveElement(this.document[0]));
+						i && this.collapseAll(e);
+					});
+				},
+				keydown: "_keydown"
+			}), this.refresh(), this._on(this.document, {
+				click: function(t) {
+					this._closeOnDocumentClick(t) && this.collapseAll(t), this.mouseHandled = !1;
+				}
+			});
+		},
+		_destroy: function() {
+			var e = this.element.find(".ui-menu-item").removeAttr("role aria-disabled"),
+				i = e.children(".ui-menu-item-wrapper").removeUniqueId().removeAttr("tabIndex role aria-haspopup");
+			this.element.removeAttr("aria-activedescendant").find(".ui-menu").addBack().removeAttr("role aria-labelledby aria-expanded aria-hidden aria-disabled tabIndex").removeUniqueId().show(), i.children().each(function() {
+				var e = t(this);
+				e.data("ui-menu-submenu-caret") && e.remove();
+			});
+		},
+		_keydown: function(e) {
+			var i, s, n, o, a = !0;
+			switch (e.keyCode) {
+				case t.ui.keyCode.PAGE_UP:
+					this.previousPage(e);
+					break;
+				case t.ui.keyCode.PAGE_DOWN:
+					this.nextPage(e);
+					break;
+				case t.ui.keyCode.HOME:
+					this._move("first", "first", e);
+					break;
+				case t.ui.keyCode.END:
+					this._move("last", "last", e);
+					break;
+				case t.ui.keyCode.UP:
+					this.previous(e);
+					break;
+				case t.ui.keyCode.DOWN:
+					this.next(e);
+					break;
+				case t.ui.keyCode.LEFT:
+					this.collapse(e);
+					break;
+				case t.ui.keyCode.RIGHT:
+					this.active && !this.active.is(".ui-state-disabled") && this.expand(e);
+					break;
+				case t.ui.keyCode.ENTER:
+				case t.ui.keyCode.SPACE:
+					this._activate(e);
+					break;
+				case t.ui.keyCode.ESCAPE:
+					this.collapse(e);
+					break;
+				default:
+					a = !1, s = this.previousFilter || "", n = String.fromCharCode(e.keyCode), o = !1, clearTimeout(this.filterTimer), n === s ? o = !0 : n = s + n, i = this._filterMenuItems(n), i = o && -1 !== i.index(this.active.next()) ? this.active.nextAll(".ui-menu-item") : i, i.length || (n = String.fromCharCode(e.keyCode), i = this._filterMenuItems(n)), i.length ? (this.focus(e, i), this.previousFilter = n, this.filterTimer = this._delay(function() {
+						delete this.previousFilter;
+					}, 1e3)) : delete this.previousFilter;
+			}
+			a && e.preventDefault();
+		},
+		_activate: function(t) {
+			this.active && !this.active.is(".ui-state-disabled") && (this.active.children("[aria-haspopup='true']").length ? this.expand(t) : this.select(t));
+		},
+		refresh: function() {
+			var e, i, s, n, o, a = this,
+				r = this.options.icons.submenu,
+				l = this.element.find(this.options.menus);
+			this._toggleClass("ui-menu-icons", null, !!this.element.find(".ui-icon").length), s = l.filter(":not(.ui-menu)").hide().attr({
+				role: this.options.role,
+				"aria-hidden": "true",
+				"aria-expanded": "false"
+			}).each(function() {
+				var e = t(this),
+					i = e.prev(),
+					s = t("<span>").data("ui-menu-submenu-caret", !0);
+				a._addClass(s, "ui-menu-icon", "ui-icon " + r), i.attr("aria-haspopup", "true").prepend(s), e.attr("aria-labelledby", i.attr("id"));
+			}), this._addClass(s, "ui-menu", "ui-widget ui-widget-content ui-front"), e = l.add(this.element), i = e.find(this.options.items), i.not(".ui-menu-item").each(function() {
+				var e = t(this);
+				a._isDivider(e) && a._addClass(e, "ui-menu-divider", "ui-widget-content");
+			}), n = i.not(".ui-menu-item, .ui-menu-divider"), o = n.children().not(".ui-menu").uniqueId().attr({
+				tabIndex: -1,
+				role: this._itemRole()
+			}), this._addClass(n, "ui-menu-item")._addClass(o, "ui-menu-item-wrapper"), i.filter(".ui-state-disabled").attr("aria-disabled", "true"), this.active && !t.contains(this.element[0], this.active[0]) && this.blur();
+		},
+		_itemRole: function() {
+			return {
+				menu: "menuitem",
+				listbox: "option"
+			}[this.options.role];
+		},
+		_setOption: function(t, e) {
+			if ("icons" === t) {
+				var i = this.element.find(".ui-menu-icon");
+				this._removeClass(i, null, this.options.icons.submenu)._addClass(i, null, e.submenu);
+			}
+			this._super(t, e);
+		},
+		_setOptionDisabled: function(t) {
+			this._super(t), this.element.attr("aria-disabled", String(t)), this._toggleClass(null, "ui-state-disabled", !!t);
+		},
+		focus: function(t, e) {
+			var i, s;
+			this.blur(t, t && "focus" === t.type), this._scrollIntoView(e), this.active = e.first(), s = this.active.children(".ui-menu-item-wrapper"), this._addClass(this.active, null, "ui-state-active"), this.options.role && this.element.attr("aria-activedescendant", this.active.attr("id")), this._addClass(this.active, null, "ui-state-active"), t && "keydown" === t.type ? this._close() : this.timer = this._delay(function() {
+				this._close();
+			}, this.delay), i = e.children(".ui-menu"), i.length && t && /^mouse/.test(t.type) && this._startOpening(i), this.activeMenu = e.parent(), this._trigger("focus", t, {
+				item: e
+			});
+		},
+		_scrollIntoView: function(e) {
+			var i, s, n, o, a, r;
+			this._hasScroll() && (i = parseFloat(t.css(this.activeMenu[0], "borderTopWidth")) || 0, s = parseFloat(t.css(this.activeMenu[0], "paddingTop")) || 0, n = e.offset().top - this.activeMenu.offset().top - i - s, o = this.activeMenu.scrollTop(), a = this.activeMenu.height(), r = e.outerHeight(), 0 > n ? this.activeMenu.scrollTop(o + n) : n + r > a && this.activeMenu.scrollTop(o + n - a + r));
+		},
+		blur: function(t, e) {
+			e || clearTimeout(this.timer), this.active && (this._removeClass(this.active, null, "ui-state-active"), this._trigger("blur", t, {
+				item: this.active
+			}), this.active = null);
+		},
+		_startOpening: function(t) {
+			clearTimeout(this.timer), "true" === t.attr("aria-hidden") && (this.timer = this._delay(function() {
+				this._close(), this._open(t);
+			}, this.delay));
+		},
+		_open: function(e) {
+			var i = t.extend({
+				of: this.active
+			}, this.options.position);
+			clearTimeout(this.timer), this.element.find(".ui-menu").not(e.parents(".ui-menu")).hide().attr("aria-hidden", "true"), e.show().removeAttr("aria-hidden").attr("aria-expanded", "true").position(i);
+		},
+		collapseAll: function(e, i) {
+			clearTimeout(this.timer), this.timer = this._delay(function() {
+				var s = i ? this.element : t(e && e.target).closest(this.element.find(".ui-menu"));
+				s.length || (s = this.element), this._close(s), this.blur(e), this._removeClass(s.find(".ui-state-active"), null, "ui-state-active"), this.activeMenu = s;
+			}, this.delay);
+		},
+		_close: function(t) {
+			t || (t = this.active ? this.active.parent() : this.element), t.find(".ui-menu").hide().attr("aria-hidden", "true").attr("aria-expanded", "false");
+		},
+		_closeOnDocumentClick: function(e) {
+			return !t(e.target).closest(".ui-menu").length;
+		},
+		_isDivider: function(t) {
+			return !/[^\-\u2014\u2013\s]/.test(t.text());
+		},
+		collapse: function(t) {
+			var e = this.active && this.active.parent().closest(".ui-menu-item", this.element);
+			e && e.length && (this._close(), this.focus(t, e));
+		},
+		expand: function(t) {
+			var e = this.active && this.active.children(".ui-menu ").find(this.options.items).first();
+			e && e.length && (this._open(e.parent()), this._delay(function() {
+				this.focus(t, e);
+			}));
+		},
+		next: function(t) {
+			this._move("next", "first", t);
+		},
+		previous: function(t) {
+			this._move("prev", "last", t);
+		},
+		isFirstItem: function() {
+			return this.active && !this.active.prevAll(".ui-menu-item").length;
+		},
+		isLastItem: function() {
+			return this.active && !this.active.nextAll(".ui-menu-item").length;
+		},
+		_move: function(t, e, i) {
+			var s;
+			this.active && (s = "first" === t || "last" === t ? this.active["first" === t ? "prevAll" : "nextAll"](".ui-menu-item").eq(-1) : this.active[t + "All"](".ui-menu-item").eq(0)), s && s.length && this.active || (s = this.activeMenu.find(this.options.items)[e]()), this.focus(i, s);
+		},
+		nextPage: function(e) {
+			var i, s, n;
+			return this.active ? void(this.isLastItem() || (this._hasScroll() ? (s = this.active.offset().top, n = this.element.height(), this.active.nextAll(".ui-menu-item").each(function() {
+				return i = t(this), i.offset().top - s - n < 0;
+			}), this.focus(e, i)) : this.focus(e, this.activeMenu.find(this.options.items)[this.active ? "last" : "first"]()))) : void this.next(e);
+		},
+		previousPage: function(e) {
+			var i, s, n;
+			return this.active ? void(this.isFirstItem() || (this._hasScroll() ? (s = this.active.offset().top, n = this.element.height(), this.active.prevAll(".ui-menu-item").each(function() {
+				return i = t(this), i.offset().top - s + n > 0;
+			}), this.focus(e, i)) : this.focus(e, this.activeMenu.find(this.options.items).first()))) : void this.next(e);
+		},
+		_hasScroll: function() {
+			return this.element.outerHeight() < this.element.prop("scrollHeight");
+		},
+		select: function(e) {
+			this.active = this.active || t(e.target).closest(".ui-menu-item");
+			var i = {
+				item: this.active
+			};
+			this.active.has(".ui-menu").length || this.collapseAll(e, !0), this._trigger("select", e, i);
+		},
+		_filterMenuItems: function(e) {
+			var i = e.replace(/[\-\[\]{}()*+?.,\\\^$|#\s]/g, "\\$&"),
+				s = new RegExp("^" + i, "i");
+			return this.activeMenu.find(this.options.items).filter(".ui-menu-item").filter(function() {
+				return s.test(t.trim(t(this).children(".ui-menu-item-wrapper").text()));
+			});
+		}
+	});
+	t.widget("ui.autocomplete", {
+		version: "1.12.0",
+		defaultElement: "<input>",
+		options: {
+			appendTo: null,
+			autoFocus: !1,
+			delay: 300,
+			minLength: 1,
+			position: {
+				my: "left top",
+				at: "left bottom",
+				collision: "none"
+			},
+			source: null,
+			change: null,
+			close: null,
+			focus: null,
+			open: null,
+			response: null,
+			search: null,
+			select: null
+		},
+		requestIndex: 0,
+		pending: 0,
+		_create: function() {
+			var e, i, s, n = this.element[0].nodeName.toLowerCase(),
+				o = "textarea" === n,
+				a = "input" === n;
+			this.isMultiLine = o || !a && this._isContentEditable(this.element), this.valueMethod = this.element[o || a ? "val" : "text"], this.isNewMenu = !0, this._addClass("ui-autocomplete-input"), this.element.attr("autocomplete", "off"), this._on(this.element, {
+				keydown: function(n) {
+					if (this.element.prop("readOnly")) return e = !0, s = !0, void(i = !0);
+					e = !1, s = !1, i = !1;
+					var o = t.ui.keyCode;
+					switch (n.keyCode) {
+						case o.PAGE_UP:
+							e = !0, this._move("previousPage", n);
+							break;
+						case o.PAGE_DOWN:
+							e = !0, this._move("nextPage", n);
+							break;
+						case o.UP:
+							e = !0, this._keyEvent("previous", n);
+							break;
+						case o.DOWN:
+							e = !0, this._keyEvent("next", n);
+							break;
+						case o.ENTER:
+							this.menu.active && (e = !0, n.preventDefault(), this.menu.select(n));
+							break;
+						case o.TAB:
+							this.menu.active && this.menu.select(n);
+							break;
+						case o.ESCAPE:
+							this.menu.element.is(":visible") && (this.isMultiLine || this._value(this.term), this.close(n), n.preventDefault());
+							break;
+						default:
+							i = !0, this._searchTimeout(n);
+					}
+				},
+				keypress: function(s) {
+					if (e) return e = !1, void((!this.isMultiLine || this.menu.element.is(":visible")) && s.preventDefault());
+					if (!i) {
+						var n = t.ui.keyCode;
+						switch (s.keyCode) {
+							case n.PAGE_UP:
+								this._move("previousPage", s);
+								break;
+							case n.PAGE_DOWN:
+								this._move("nextPage", s);
+								break;
+							case n.UP:
+								this._keyEvent("previous", s);
+								break;
+							case n.DOWN:
+								this._keyEvent("next", s);
+						}
+					}
+				},
+				input: function(t) {
+					return s ? (s = !1, void t.preventDefault()) : void this._searchTimeout(t);
+				},
+				focus: function() {
+					this.selectedItem = null, this.previous = this._value();
+				},
+				blur: function(t) {
+					return this.cancelBlur ? void delete this.cancelBlur : (clearTimeout(this.searching), this.close(t), void this._change(t));
+				}
+			}), this._initSource(), this.menu = t("<ul>").appendTo(this._appendTo()).menu({
+				role: null
+			}).hide().menu("instance"), this._addClass(this.menu.element, "ui-autocomplete", "ui-front"), this._on(this.menu.element, {
+				mousedown: function(e) {
+					e.preventDefault(), this.cancelBlur = !0, this._delay(function() {
+						delete this.cancelBlur, this.element[0] !== t.ui.safeActiveElement(this.document[0]) && this.element.trigger("focus");
+					});
+				},
+				menufocus: function(e, i) {
+					var s, n;
+					return this.isNewMenu && (this.isNewMenu = !1, e.originalEvent && /^mouse/.test(e.originalEvent.type)) ? (this.menu.blur(), void this.document.one("mousemove", function() {
+						t(e.target).trigger(e.originalEvent);
+					})) : (n = i.item.data("ui-autocomplete-item"), !1 !== this._trigger("focus", e, {
+						item: n
+					}) && e.originalEvent && /^key/.test(e.originalEvent.type) && this._value(n.value), s = i.item.attr("aria-label") || n.value, void(s && t.trim(s).length && (this.liveRegion.children().hide(), t("<div>").text(s).appendTo(this.liveRegion))));
+				},
+				menuselect: function(e, i) {
+					var s = i.item.data("ui-autocomplete-item"),
+						n = this.previous;
+					this.element[0] !== t.ui.safeActiveElement(this.document[0]) && (this.element.trigger("focus"), this.previous = n, this._delay(function() {
+						this.previous = n, this.selectedItem = s;
+					})), !1 !== this._trigger("select", e, {
+						item: s
+					}) && this._value(s.value), this.term = this._value(), this.close(e), this.selectedItem = s;
+				}
+			}), this.liveRegion = t("<div>", {
+				role: "status",
+				"aria-live": "assertive",
+				"aria-relevant": "additions"
+			}).appendTo(this.document[0].body), this._addClass(this.liveRegion, null, "ui-helper-hidden-accessible"), this._on(this.window, {
+				beforeunload: function() {
+					this.element.removeAttr("autocomplete");
+				}
+			});
+		},
+		_destroy: function() {
+			clearTimeout(this.searching), this.element.removeAttr("autocomplete"), this.menu.element.remove(), this.liveRegion.remove();
+		},
+		_setOption: function(t, e) {
+			this._super(t, e), "source" === t && this._initSource(), "appendTo" === t && this.menu.element.appendTo(this._appendTo()), "disabled" === t && e && this.xhr && this.xhr.abort();
+		},
+		_isEventTargetInWidget: function(e) {
+			var i = this.menu.element[0];
+			return e.target === this.element[0] || e.target === i || t.contains(i, e.target);
+		},
+		_closeOnClickOutside: function(t) {
+			this._isEventTargetInWidget(t) || this.close();
+		},
+		_appendTo: function() {
+			var e = this.options.appendTo;
+			return e && (e = e.jquery || e.nodeType ? t(e) : this.document.find(e).eq(0)), e && e[0] || (e = this.element.closest(".ui-front, dialog")), e.length || (e = this.document[0].body), e;
+		},
+		_initSource: function() {
+			var e, i, s = this;
+			t.isArray(this.options.source) ? (e = this.options.source, this.source = function(i, s) {
+				s(t.ui.autocomplete.filter(e, i.term));
+			}) : "string" == typeof this.options.source ? (i = this.options.source, this.source = function(e, n) {
+				s.xhr && s.xhr.abort(), s.xhr = t.ajax({
+					url: i,
+					data: e,
+					dataType: "json",
+					success: function(t) {
+						n(t);
+					},
+					error: function() {
+						n([]);
+					}
+				});
+			}) : this.source = this.options.source;
+		},
+		_searchTimeout: function(t) {
+			clearTimeout(this.searching), this.searching = this._delay(function() {
+				var e = this.term === this._value(),
+					i = this.menu.element.is(":visible"),
+					s = t.altKey || t.ctrlKey || t.metaKey || t.shiftKey;
+				(!e || e && !i && !s) && (this.selectedItem = null, this.search(null, t));
+			}, this.options.delay);
+		},
+		search: function(t, e) {
+			return t = null != t ? t : this._value(), this.term = this._value(), t.length < this.options.minLength ? this.close(e) : this._trigger("search", e) !== !1 ? this._search(t) : void 0;
+		},
+		_search: function(t) {
+			this.pending++, this._addClass("ui-autocomplete-loading"), this.cancelSearch = !1, this.source({
+				term: t
+			}, this._response());
+		},
+		_response: function() {
+			var e = ++this.requestIndex;
+			return t.proxy(function(t) {
+				e === this.requestIndex && this.__response(t), this.pending--, this.pending || this._removeClass("ui-autocomplete-loading");
+			}, this);
+		},
+		__response: function(t) {
+			t && (t = this._normalize(t)), this._trigger("response", null, {
+				content: t
+			}), !this.options.disabled && t && t.length && !this.cancelSearch ? (this._suggest(t), this._trigger("open")) : this._close();
+		},
+		close: function(t) {
+			this.cancelSearch = !0, this._close(t);
+		},
+		_close: function(t) {
+			this._off(this.document, "mousedown"), this.menu.element.is(":visible") && (this.menu.element.hide(), this.menu.blur(), this.isNewMenu = !0, this._trigger("close", t));
+		},
+		_change: function(t) {
+			this.previous !== this._value() && this._trigger("change", t, {
+				item: this.selectedItem
+			});
+		},
+		_normalize: function(e) {
+			return e.length && e[0].label && e[0].value ? e : t.map(e, function(e) {
+				return "string" == typeof e ? {
+					label: e,
+					value: e
+				} : t.extend({}, e, {
+					label: e.label || e.value,
+					value: e.value || e.label
+				});
+			});
+		},
+		_suggest: function(e) {
+			var i = this.menu.element.empty();
+			this._renderMenu(i, e), this.isNewMenu = !0, this.menu.refresh(), i.show(), this._resizeMenu(), i.position(t.extend({
+				of: this.element
+			}, this.options.position)), this.options.autoFocus && this.menu.next(), this._on(this.document, {
+				mousedown: "_closeOnClickOutside"
+			});
+		},
+		_resizeMenu: function() {
+			var t = this.menu.element;
+			t.outerWidth(Math.max(t.width("").outerWidth() + 1, this.element.outerWidth()));
+		},
+		_renderMenu: function(e, i) {
+			var s = this;
+			t.each(i, function(t, i) {
+				s._renderItemData(e, i);
+			});
+		},
+		_renderItemData: function(t, e) {
+			return this._renderItem(t, e).data("ui-autocomplete-item", e);
+		},
+		_renderItem: function(e, i) {
+			return t("<li>").append(t("<div>").text(i.label)).appendTo(e);
+		},
+		_move: function(t, e) {
+			return this.menu.element.is(":visible") ? this.menu.isFirstItem() && /^previous/.test(t) || this.menu.isLastItem() && /^next/.test(t) ? (this.isMultiLine || this._value(this.term), void this.menu.blur()) : void this.menu[t](e) : void this.search(null, e);
+		},
+		widget: function() {
+			return this.menu.element;
+		},
+		_value: function() {
+			return this.valueMethod.apply(this.element, arguments);
+		},
+		_keyEvent: function(t, e) {
+			(!this.isMultiLine || this.menu.element.is(":visible")) && (this._move(t, e), e.preventDefault());
+		},
+		_isContentEditable: function(t) {
+			if (!t.length) return !1;
+			var e = t.prop("contentEditable");
+			return "inherit" === e ? this._isContentEditable(t.parent()) : "true" === e;
+		}
+	}), t.extend(t.ui.autocomplete, {
+		escapeRegex: function(t) {
+			return t.replace(/[\-\[\]{}()*+?.,\\\^$|#\s]/g, "\\$&");
+		},
+		filter: function(e, i) {
+			var s = new RegExp(t.ui.autocomplete.escapeRegex(i), "i");
+			return t.grep(e, function(t) {
+				return s.test(t.label || t.value || t);
+			});
+		}
+	}), t.widget("ui.autocomplete", t.ui.autocomplete, {
+		options: {
+			messages: {
+				noResults: "No search results.",
+				results: function(t) {
+					return t + (t > 1 ? " results are" : " result is") + " available, use up and down arrow keys to navigate.";
+				}
+			}
+		},
+		__response: function(e) {
+			var i;
+			this._superApply(arguments), this.options.disabled || this.cancelSearch || (i = e && e.length ? this.options.messages.results(e.length) : this.options.messages.noResults, this.liveRegion.children().hide(), t("<div>").text(i).appendTo(this.liveRegion));
+		}
+	});
+	t.ui.autocomplete;
+});
+
+var cbSuggestions = $.noop;  //dummy callback for JSONP
+$(function() {
+	var noResultsMsg = 'Just click enter when you are ready',
+		currentDomain = location.protocol + '//' + location.hostname;
+
+	//for local use comment below 2 lines.
+	var keyword = Session.get('keyword') || '';
+	Session.set('keyword','');
+	$('#keyword').val(keyword);
+
+	/**
+	 * Track the Search selection.  This gets fired every time a user action causes a selection - button click; dropdownselection; Enter key
+	 * @private
+	 * @param {String} val user entered input
+	 * @param {String} action user actdion - Enter/Click/Selected index
+	 * @param {String} [selected=null] the text if value picked from SELECT
+	 */
+
+	function updateOmniture(val, action, selected) {
+		if (typeof s === 'undefined' || !s) {
+			return false;
+		}
+		var data = '';
+
+		s.events = '';
+		s.linkTrackVars = 'channel,prop1,prop2,prop3,prop11,prop27,prop28,prop56,eVar56,eVar4,eVar83,list2';
+		s.prop11 = s.eVar4 = (!!selected ? selected : val);
+		s.prop56 = s.eVar56 = action;
+		s.eVar83 = val;
+
+		//Pass the autofill data in Session. Note that if user hits Enter before the API returns data, the list is empty
+		if (!!autoFillComponent.data) {
+			$(autoFillComponent.data).each(function(i, item) {
+				data += String.format('{0}:{1}|@|', i+1, item.k);
+			});
+			Session.set('impressionTracking', data, true);
+		}
+
+		s.tl(true, 'o', 'Search', null, 'navigate');
+		
+		//TOF-3002 - new GroupBy tracking for 3rd party call, only when a dropdown value is selected
+		//TODO: dummy value in first arg to be changed when groupBy starts sending API key
+		if (typeof shc.sendToGroupBy === 'function' && !!selected) {
+			shc.sendToGroupBy('e30a4611-64b0-49a1-ad56-ab8fa2ffcc10', !!selected);
+			// adobe.target.trackEvent({ "mbox": "search_dropdown_tracking_mbox" });
+		}
+	}
+	
+	// To encode the special characters
+	function encode(s) {
+		s = encodeURIComponent(s);
+		return s.replaceAll('.', '%2E').replaceAll('-', '%2D').replaceAll('*', '%2A').replaceAll('_', '%5F'); // ECOM-264604
+	}
+	// To encode the search key word
+	function encodeSearchKeyWord(s) {
+		s = s.replaceAll('%', '%25');
+		return encode(s).replaceAll('%3F', '%253F').replaceAll('%2B', '%252B'); //ECOM-285820 and ECOM-297657
+	}
+
+	/**
+	 * Convert the input to lowercase, replace & with AND.
+	 * trim any spaces in the input e.g. vanity fair will be trimmed to vanityfair
+	 * Add stearn to replace stearns so that it can match with the brand map.
+	 *  Autofill suggestions suggest 'stearn and foster' instead of 'stearns and foster'  hence the pattern never matches.
+	 * @param s - input from Autofill suggestions and the Brand Map
+	 * @returns {string}
+	 */
+	var formatInput = function(s) {
+		//convert the input to lower case and remove the spaces
+		return s.toLowerCase().replace(/&/g, ' and ').replace(/stearn /g, 'stearns ').replace(/ /g, '');
+	};
+
+	function doSearch(keyword, levels) {
+		//add value to search history 
+		var searchHistory = shcWidgets.Factory.get('searchHistory');
+		if (searchHistory) {
+			searchHistory.add(keyword);
+		}
+		var parms;
+		keyword = encodeSearchKeyWord(keyword);
+		if (!!levels) {
+			if (levels === 'All Departments') {
+                levels = encodeSearchKeyWord("All Verticals") + "&catPrediction=0&redirect=0&searchBy=keyword";
+			} else {
+                levels = encodeSearchKeyWord(levels) + "&redirect=0&disabledDiscoveryFlow=true&searchBy=keyword";
+			}
+		   parms = keyword + '?levels=' + levels;
+		} else {
+			parms = keyword;
+		}
+		//for local use replace all $('#keyword') with $('#keyword')
+		setTimeout(function() {
+			//for local use comment below line.
+			Session.set('keyword', $('#keyword').val());
+			window.location = '/search=' + parms; //attempt to fix omniture issue - UHF-932
+		}, 200);
+	}
+
+	function getBrandOverviewObject(siteName) {
+		var brandOverview = [];
+		if (siteName === 'kmart') {
+			brandOverview = [
+				{'brandName': 'Farberware ' ,'link': '/en_us/dap/farberware-brand-showcase.html'},
+				{'brandName': 'Aqua Chem' ,'link': '/en_us/dap/aqua-chem.html'}
+			];
+		} else if (siteName === 'sears') {
+			brandOverview = [
+				{'brandName': 'Bosch' ,'link': '/en_us/dap/bosch.html'},
+				{'brandName': 'Kitchen Aid' ,'link': '/en_us/dap/kitchenaid.html'},
+				{'brandName': 'Maytag' ,'link': '/en_us/dap/maytag-brand-showcase.html'},
+				{'brandName': 'LG Laundry' ,'link': '/content/shc/sears/en_us/dap/lg_laundry.html'},
+				{'brandName': 'Frigidaire' ,'link': '/en_us/dap/frigidaire-appliances.html'},
+				{'brandName': 'Calphalon' ,'link': '/en_us/dap/calphalon-brand-showcase-B.html'},
+				{'brandName': 'Rachel Ray' ,'link': '/content/shc/sears/en_us/dap/Rachael_Ray.html'},
+				{'brandName': 'Serta' ,'link': '/en_us/dap/serta-mattresses.html'},
+				{'brandName': 'Sealy' ,'link': '/en_us/dap/sealy.html'},
+				{'brandName': 'Tempur Pedic' ,'link': '/en_us/dap/tempur-pedic.html'},
+				{'brandName': 'Stearns & Foster' ,'link': '/en_us/dap/stearns-and-foster.html'},
+				{'brandName': 'Hanes' ,'link': '/en_us/dap/Hanes.html'},
+				{'brandName': 'Vanity Fair' ,'link': '/en_us/dap/vanity-fair-brand-showcase.html'},
+				{'brandName': 'Michelin' ,'link': '/en_us/dap/MichelinTires.html'},
+				{'brandName': 'Whirlpool' ,'link': '/en_us/dap/whirlpool.html'}
+			];
+		}
+		return brandOverview;
+	}
+	// Method to determine the current autofill site
+	var getAutofillSite = function() {
+		var host = location.hostname,
+			result;
+		if (host.match('kmart')) {
+			if (host.match('m.kmart')) {
+				result = host.startsWith('m.kmart.com') ? 'mkmart' : 'kmart';
+			} else {
+				result = 'kmart';
+			}
+		} else if (host.match('mygofer')) {
+			result = 'mygofer';
+		} else if (host.match('searspr') || host.match('sears.com.pr')) {
+			result = 'searspr';
+		} else if (host.match('m.sears')) {
+			result = host.startsWith('m.sears.com') ? 'msears' : 'sears';
+		} else { //This is for local testing
+			result = window.location.href.indexOf('kmart') !== -1 ? 'kmart' : 'sears';
+		}
+		return result;
+	};
+	//AutofillComponent class start
+	var AutofillComponent = function(serviceUrl, colorHighlight) {
+		this.term = "";
+		this.vtSize=0;
+		this.turnOffCategory = window.shc ? shc.features.autofillCategoryOff : true;
+		this.foundCategory = false;
+		this.serviceUrl = serviceUrl;
+		this.datalist = [];
+        this.categories = [];
+		this.spellcorrectedWords = [];
+		this.color = colorHighlight;
+		this.siteName = getAutofillSite();
+		this.brandOverviewObject = getBrandOverviewObject(getAutofillSite());
+	};
+	//AutofillComponent function to get suggestions dynamically using ajax call to autofill service
+	AutofillComponent.prototype.getSuggestions = function(keyword) {
+		// test code for TOF-3691 remove if 2019
+		var apiData = {
+				q: keyword,
+				site: autoFillComponent.siteName
+			};
+		if (shc.abTest.goupByAutofill) {
+			apiData['expt-info'] = shc.abTest.goupByAutofill;
+
+			if (!sessionStorage.getItem("abTestGoupByAutofillTrackingCall")) {
+				sessionStorage.abTestGoupByAutofillTrackingCall = true;
+				// adobe.target.trackEvent( { "mbox": "searchbox_tracking_mbox" });
+			}
+		}
+		// END test code for TOF-3691 remove if 2019
+		return $.ajax({
+			url: this.serviceUrl,
+			dataType: 'jsonp',
+			cache: true,
+			jsonpCallback: 'cbSuggestions',
+			data: apiData
+		});
+	};
+	//AutofillComponent function to formatSuggestions as per the site
+	AutofillComponent.prototype.formatSuggestions = function(data) {
+		var recommendationsCount = 0,
+			brandOverviewtoAdd = null,
+			s, temp,
+			showBrandOverview = null,
+			suggestion, jsonSuggestion,
+			omnitureIndexValue = "Autofill > Selected > Category > POS";
+
+		autoFillComponent.spellcorrectedWords = [];
+		if (!$.isEmptyObject(data)) {
+			if (!!data.items && data.items !== null) {
+                autoFillComponent.addCategories(data);
+                $.each(data.items, function(keyindex, keywords) {
+					var s, temp;
+                    if (!!keywords.sc && !!keywords.k && keywords.sc.length) {
+                        for (s = 0; s < keywords.sc.length; s++) {
+                            temp = keywords.k.split(' ');
+                            if ($.inArray(temp[keywords.sc[s]], autoFillComponent.spellcorrectedWords) == -1) {
+                                autoFillComponent.spellcorrectedWords.push(temp[keywords.sc[s]]);
+                            }
+                        }
+                    }
+                    if (!!keywords.k) {
+						suggestion = keywords.k;
+						if (!autoFillComponent.turnOffCategory && autoFillComponent.vtSize > 1 && keyindex < 1) {
+							for (s = 0; s < autoFillComponent.vtSize; s++) {
+								jsonSuggestion = {
+									k: suggestion.toLowerCase(),
+									label: suggestion.toLowerCase(),
+									category: autoFillComponent.categories[s],
+									omniturelabel: autoFillComponent.term.toLowerCase() + " in " + autoFillComponent.categories[s],
+									omnitureIndex: omnitureIndexValue + (recommendationsCount + 1)
+								};
+								autoFillComponent.datalist.push(jsonSuggestion);
+								recommendationsCount++;
+							}
+						} else {
+							omnitureIndexValue = "Autofill > Selected > Item > POS";
+							showBrandOverview = populateBrandOverview(keywords.k.toLowerCase());
+							if (!brandOverviewtoAdd && !!showBrandOverview) {
+								brandOverviewtoAdd = showBrandOverview;
+							}
+							if (!!showBrandOverview) {
+								omnitureIndexValue = "Autofill > Selected > Brand > POS";
+							}
+							jsonSuggestion = {
+								label: suggestion.toLowerCase(),
+								omniturelabel: suggestion.toLowerCase(),
+								omnitureIndex: omnitureIndexValue + (recommendationsCount + 1)
+							};
+							autoFillComponent.datalist.push(jsonSuggestion);
+							recommendationsCount++;
+						}
+                    }
+                    if (recommendationsCount > 9 || (!autoFillComponent.vtSize && data.items.length === recommendationsCount) ||
+                        (autoFillComponent.vtSize > 1 && ((data.items.length + 2) === recommendationsCount)) ||
+                        (autoFillComponent.vtSize === 1 && ((data.items.length + 1) === recommendationsCount))) {
+                        if (!brandOverviewtoAdd) {
+                            brandOverviewtoAdd = populateBrandOverview(autoFillComponent.term);
+                        }
+                        if (!!brandOverviewtoAdd) {
+                            jsonSuggestion = {
+                                label: brandOverviewtoAdd.brandName + " Brand Overview",
+                                brandurl: currentDomain + brandOverviewtoAdd.link,
+                                omniturelabel: brandOverviewtoAdd.brandName + " Brand Overview",
+                                omnitureIndex: "Autofill > Selected > Brand > POS" + (recommendationsCount + 1)
+                            };
+                            autoFillComponent.datalist.push(jsonSuggestion);
+                        }
+                        return false;
+					}
+				});
+			}
+			data = {};
+		} else {
+			autoFillComponent.datalist.push({
+				label: noResultsMsg
+			});
+		}
+	};
+    //This is for adding categories to suggestions
+    AutofillComponent.prototype.addCategories = function(data) {
+            if (!!data.items && !!data.items[0].vt && !autoFillComponent.turnOffCategory) {
+                autoFillComponent.categories = data.items[0].vt;
+                autoFillComponent.categories.unshift("All Departments");
+                autoFillComponent.vtSize = data.items[0].vt.length;
+            }
+        };
+	//create autofill object
+	var	serviceURL = (window.shc && !!shc.URLs.autofill) ? shc.URLs.autofill : (currentDomain + '/autofill/search?'),
+		autoFillComponent = new AutofillComponent(serviceURL, getAutofillSite() === 'kmart' ? 'color:#cc1414' : 'color:#005ccc');
+
+	// for AB test change api url when shcWidgets.EVENTS.abUpdated fires remove 2019
+	$(document).on(shcWidgets.EVENTS.abUpdated, function(e, data) {
+		if (data.id === 'autocomplete') {
+			autoFillComponent.serviceUrl = (window.shc && !!shc.URLs.autofill) ? shc.URLs.autofill : (currentDomain + '/autofill/search?');
+			if (shc.abTest.goupByAutofill) {
+				s.eVar117 = shc.abTest.goupByAutofill + " > Autofill";
+			}
+		}
+	});
+
+	/**
+	 * To match brands with the input terms
+	 */
+	var populateBrandOverview = function(term) {
+		var temp = term.split(' '),
+			i, s, brand,
+			boo = autoFillComponent.brandOverviewObject,
+			len = boo.length,
+			fmtTerm = formatInput(term);
+
+		for (i = 0; i < len; i++) {
+			brand = boo[i];
+			if (!!fmtTerm.match(formatInput(brand.brandName))) {
+				return boo[i];
+			}
+		}
+		//no point in doing this again if single word failed above
+		if (temp.length > 1) {
+			for (s = 0; s < temp.length; s++) {
+				fmtTerm = formatInput(temp[s]);
+				for (i = 0; i < len; i++) {
+					brand = boo[i];
+					if (!!fmtTerm.match(formatInput(brand.brandName))) {
+						return boo[i];
+					}
+				}
+			}
+		}
+		return null;
+	};
+
+	//Brand overview component end
+	//JQuery autocomplete component
+    $('#keyword').autocomplete({
+		//delay: 0,
+		source: function(request, response) {
+			autoFillComponent.term = request.term.toLowerCase().trim();
+			autoFillComponent.datalist = [];
+			autoFillComponent.foundCategory = "";
+			var keyword = autoFillComponent.term,
+				reg = new RegExp("\\d+([/])\\d+","gi"),
+				fractionToken;
+
+			while (fractionToken = reg.exec(keyword)) {
+				keyword = keyword.replace(fractionToken[0], fractionToken[0].replaceAll('/','by'));
+			}
+
+			if (keyword !== "") {
+				autoFillComponent.getSuggestions(keyword)
+				.done(function(data) {
+					autoFillComponent.formatSuggestions(data);
+					response(autoFillComponent.datalist);
+					autoFillComponent.datalist = [];
+					autoFillComponent.data = data.items || [];  //save to send to omniture
+				})
+				.fail(function(jqXHR, exception) {
+					var msg = '';
+					if (jqXHR.status == 0) {
+						msg = 'Not connected. Verify Network.';
+					} else if (jqXHR.status == 404) {
+						msg = 'Requested page not found. [404]';
+					} else if (jqXHR.status == 500) {
+						msg = 'Internal Server Error [500].';
+					} else if (exception === 'parsererror') {
+						msg = 'Requested JSON parse failed.';
+					} else if (exception === 'timeout') {
+						msg = 'Time out error.';
+					} else if (exception === 'abort') {
+						msg = 'Ajax request aborted.';
+					} else {
+						msg = 'Uncaught Error.' + jqXHR.responseText;
+					}
+					console.log(msg);
+					autoFillComponent.formatSuggestions({});
+					response(autoFillComponent.datalist);
+					autoFillComponent.datalist = [];
+					autoFillComponent.data = [];
+				});
+			} else {
+				response(autoFillComponent.datalist);
+			}
+		},
+		open: function() {
+            $("#ui-id-1").width($('#keyword').innerWidth());
+			$('.ui-autocomplete').off('menufocus');
+			$(document).trigger(shcWidgets.EVENTS.openWidget, {id: 'autocomplete'});
+		},
+		focus: function(e, ui) {
+			e.preventDefault();
+			if (ui.item.label !== noResultsMsg) {
+				this.value = ui.item.label;
+			} else {
+				this.value = autoFillComponent.term;
+			}
+		},
+		select: function(e, ui) {
+			var kw = $(this);
+
+			e.preventDefault();
+			updateOmniture(kw.val(), ui.item.omnitureIndex.replaceAll(' > ', '>'), ui.item.omniturelabel);
+			if (!!ui.item.brandurl) {
+				setTimeout(function() {
+					window.location = ui.item.brandurl;
+				}, 200);
+				return false;
+			}
+			else {
+				kw.val(ui.item.value);
+			}
+			
+			if (ui.item.label !== noResultsMsg) {
+				doSearch(kw.val(), ui.item.category || '');
+			} else {
+                kw.val(autoFillComponent.term);
+			}
+		}
+	}).keypress(function(e) {
+		var val = $('#keyword').val();
+
+		if (e.keyCode === 13) {
+			e.preventDefault();
+			if (val === '' || val === noResultsMsg) {
+				$('#keyword').val(autoFillComponent.term);
+				return false;
+			}
+			updateOmniture(val, 'Autofill>EnterKey');
+			doSearch(val, '');
+			$(this).autocomplete('close');
+		}
+	}).data("ui-autocomplete")._renderItem = function(ul, item) {
+		var srchTerm = $.trim($('#keyword').val().replace(/[-[\]{}()*+?.,\\^$|#]/g, "\\$&")).split(/\s+/);
+		if (autoFillComponent.spellcorrectedWords.length) {
+			srchTerm = srchTerm.concat(autoFillComponent.spellcorrectedWords);
+		}
+		srchTerm = srchTerm.map(function(el) {
+			if (el && el.length === 1 && "\"#$%&'()*+-./;<=>?@\]^_`|{}~,".indexOf(el) !== -1) {
+				switch (true) {
+					case (el === "!"):
+						el = "\\x21";
+						break;
+					case (el === "\""):
+						el = "\\x22";
+						break;
+					case (el === "#"):
+						el = "\\x23";
+						break;
+					case (el === "$"):
+						el = "\\x24";
+						break;
+					case (el === "%"):
+						el = "\\x25";
+						break;
+					case (el === "&"):
+						el = "\\x26";
+						break;
+					case (el === "'"):
+						el = "\\x27";
+						break;
+					case (el === "("):
+						el = "\\x28";
+						break;
+					case (el === ")"):
+						el = "\\x29";
+						break;
+					case (el === "*"):
+						el = "\\x2A";
+						break;
+					case (el === "+"):
+						el = "\\x2B";
+						break;
+					case (el === ","):
+						el = "\\x2C";
+						break;
+					case (el === "-"):
+						el = "\\x2D";
+						break;
+					case (el === "."):
+						el = "\\x2E";
+						break;
+					case (el === "/"):
+						el = "\\x2F";
+						break;
+					case (el === ":"):
+						el = "\\x3A";
+						break;
+					case (el === ";"):
+						el = "\\x3B";
+						break;
+					case (el === "<"):
+						el = "\\x3C";
+						break;
+					case (el === "="):
+						el = "\\x3D";
+						break;
+					case (el === ">"):
+						el = "\\x3E";
+						break;
+					case (el === "?"):
+						el = "\\x3F";
+						break;
+					case (el === "@"):
+						el = "\\x40";
+						break;
+					case (el === "\\"):
+						el = "\\x5C";
+						break;
+					case (el === "]"):
+						el = "\\x5D";
+						break;
+					case (el === "^"):
+						el = "\\x5E";
+						break;
+					case (el === "_"):
+						el = "\\x5F";
+						break;
+					case (el === "`"):
+						el = "\\x60";
+						break;
+					case (el === "~"):
+						el = "\\x7E";
+						break;
+					case (el === "|"):
+						el = "\\x7C";
+						break;
+					case (el === "}"):
+						el = "\\x7D";
+						break;
+					case (el === "{"):
+						el = "\\x7B";
+						break;
+				}
+			} else if (el) {
+				el = '\\b' + el;
+			}
+			return el;
+		});
+
+		srchTerm = srchTerm.join('|');
+		var re = new RegExp('(' + srchTerm + ')', 'ig'),
+			t = '';
+		if (!!item.category && !autoFillComponent.turnOffCategory) {
+			t = item.label.replace(re, "<span style='color:#666;font-weight:400;'>$&</span>") + " in <span style='" + autoFillComponent.color + "'>" + item.category + "</span>";
+			autoFillComponent.foundCategory = "yes";
+		} else if (!!item.brandurl) {
+			t = "<span style='" + autoFillComponent.color + "'>" + item.label + "</span>";
+			if (autoFillComponent.foundCategory == "yes") {
+				autoFillComponent.foundCategory = "no";
+			}
+		} else {
+			t = item.label.replace(re, "<span style='color:#666;font-weight:400;'>$&</span>");
+			if (autoFillComponent.foundCategory == "yes") {
+				autoFillComponent.foundCategory = "no";
+			}
+		}
+		var listItem = $('<li></li>')
+			.data('ui-autocomplete-item', item)
+			.append('<div>' + t + '</div>')
+			.appendTo(ul);
+		if (autoFillComponent.foundCategory == 'no') {
+			listItem.addClass('separator');
+			autoFillComponent.foundCategory = '';
+		}
+		if (item.label.indexOf(noResultsMsg) !== -1) {
+			listItem.addClass('no-items');
+		}
+		return listItem;
+	};
+
+
+
+
+
+
+/////////// add close for mobile width only
+	var closeSearchSkinny = function(e) {
+		e && e.preventDefault();
+		$('#gnf_header').addClass('activeSearchClose');
+		setTimeout(function() {
+			$('#gnf_header').removeClass('activeSearch activeSearchClose');
+		}, 450);
+	};
+	////////// close event
+	$('#srchFrm .KeySearch').on('click','.close', closeSearchSkinny);
+	$(document).on(shcWidgets.EVENTS.openWidget, function(e, data) {
+		if (!(data.id === 'Search Expand' || data.id === 'autocomplete')) {
+			closeSearchSkinny();
+		}
+	});
+/////////// search
+	$('#goBtn').on('click',function(e) {
+		e.preventDefault();
+		var val = $('#keyword').val();
+		if (shc.features.clientDeviceExperience === 'Mobile' && !$('#gnf_header').hasClass('activeSearch')) {
+			$('#gnf_header').addClass('activeSearch');
+			$(document).trigger(shcWidgets.EVENTS.openWidget, {id: 'Search Expand'});
+			return false;
+		}
+		//Do nothing if no term entered
+		if (!val || val === noResultsMsg) {
+			$('#keyword').val(autoFillComponent.term);
+			return false;
+		}
+		updateOmniture(val, 'Autofill>ButtonClick');
+		doSearch(val, '');
+	});
+
+
+
+
+
+
+	setTimeout(function() {
+		$('#keyword').autocomplete('widget').on('mouseleave', function() {
+			$('#keyword').autocomplete('close');
+		});
+	}, 200);
+	$(document).on(shcWidgets.EVENTS.openWidget, function(e, data) {
+		if (data.id !== 'autocomplete') {
+			$('#keyword').autocomplete('close');
+		}
+	});
+});
+
+
+
+
+
+
+
+
+
+

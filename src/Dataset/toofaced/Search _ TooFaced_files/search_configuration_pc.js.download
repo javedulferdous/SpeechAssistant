@@ -1,0 +1,287 @@
+/*
+  Endeca configuration for the search page endeca instance.
+
+  Format:
+
+  site.endeca.instances[instanceName].configuration = jQuery.extend( true, {}, site.endeca.configuration, {
+    // general settings
+    followRedirects: true, //specified whether or not keyword redirects should be followed
+
+    contentzones: {
+      Configure content zones for displaying supplemental objects returned from the any queries:
+
+      'Zone Name in Endeca Pipeline': {
+        node: dom element to insert the results into
+        template: template to use to display individual results
+        counter: true|false //optional, determines if these results are included in the total count and total content count
+        solo: true|false //optional, determins if these results can be displayed by themselves without any product results
+      }
+
+      Any data returned from a content query should have a zone of 'crawlData'
+
+      Example:
+
+      'ContentZone': {
+        'node': jQuery('#content-results'),
+        'template': '/templates/endeca/content/result.tmpl',
+        'counted': true,
+        'solo': true
+      }
+    },
+
+    nodes: {
+      Miscellaneous dom elements used in the instance's control class.
+      These nodes can be referenced in the control class with this.nodes[nodeName]
+      as declared in the below array. So the loading node below would be this.nodes['loading'].
+
+      loading: jQuery('#loading')
+    },
+
+    mixins: {
+      Mixins are essentially extra functionality that we can 'mixin' to the class heirarchy of
+      the result, results, and resultsgroup classes. Mixins are automatically set for classes under the
+      following conditions:
+      1. Through the generation of custom classes in site.endeca.control.
+      2. Through the generation of custom results classes in site.endeca.resultsgroup.
+      3. Through the generation of custom result classes in site.endeca.results.
+
+      You can set defaults for each of the different endeca dom classes by setting a mixinKey of 'result', 'results'
+      and 'resultsgroup' respectively. These will be used for all subclasses of that type unless there is a mixinKey
+      entered for that specific subclass:
+
+      'result': site.endeca.mixins.links.address,
+      'results': site.endeca.mixins.accordion,
+      'resultsgroup': site.endeca.mixins.accordion,
+
+      'results.products':  [site.endeca.mixins.summary, site.endeca.mixins.accordion],
+      'results.contentzone': [site.endeca.mixins.summary, site.endeca.mixins.accordion]
+
+    },
+
+    queries: {
+
+      Define queries used by this instance's control class. Any args that you want to pass to the
+      corresponding query class should be declared below.
+
+      The instantiated classes will be accessible though this.query[queryName]
+
+      product: {
+        recordFilters: ['discontinued', 'activeSkus', 'products']
+      }
+    },
+
+    results: {
+      Define the sets of endeca results that this instance's control class will be processing.
+      Each element in the results object will generate a custom sub class in the control base class
+      that will be instaniated using the parameters specified.
+
+      'resultsName': {
+        baseClass: 'site.endeca.results', // Required. Represents the base class that the custom class will inherit from
+        childClass: 'site.endeca.results.products',  // Optional. Represents the child object that will inherity from the base class.
+                              // If not specified, site.endeca.results[resultsName] will be used as a child Class
+                              // If site.endeca.results[resultsName] does not exist, a custom class will be generated based off of the baseClass and the mixins.
+        mixinKey: 'results.products',    // Optional. Represents the mixinKey used when created the custom class.
+                        // If not specified, a default mixinKey will be used:
+                        //  childClass.replace(/site\.endeca\./) ||
+                          baseClass.replace(/site\.endeca\./) + resultsName ||
+                          baseClass.replace(/site\.endeca\./)
+        instanceArgs: {
+          // Specify any arguments that need to be passed to this class during instantiation.
+          // For example, the parentNode will need to be passed in here.
+          resultsArgs: {
+            // For instances of resultsgroup, you can pass in args that will be passed into the results instances that
+            // will be created
+          }
+        },
+
+        configuration: {
+          // Specify any class specific configuration variables here
+          // maximumShades would be an example for the results.products class.
+        }
+      }
+
+      The instantiated classes will be accessible through this.results[resultName]
+
+      Example:
+
+      products: {
+        baseClass: 'site.endeca.results',
+        instanceArgs: {
+          parentNode: jQuery('#product-results')
+        },
+        configuration: {
+          maxmimumShades: 4,
+          summaryTemplatePath: '/templates/endeca/products/summary.tmpl'
+        }
+      }
+    }
+
+  });
+
+*/
+
+var site = site || {};
+site.endeca = site.endeca || {};
+site.endeca.instances = site.endeca.instances || {};
+site.endeca.instances.search = site.endeca.instances.search || {};
+
+jQuery(document).ready(function() {
+  site.endeca.instances.search.configuration = jQuery.extend(true, {}, site.endeca.configuration, {
+    followRedirects: true,
+
+    contentzones: {
+      'Top Banner': {
+        'node': jQuery('.js-search-wrapper__banner'),
+        'counted': false,
+        'solo': false
+      },
+      'Bottom Banner': {
+        'node': jQuery('.js-search-wrapper__bottom_banner'),
+        'counted': false,
+        'solo': false
+      },
+      'Related Content': {
+        'node': jQuery('.js-results__content'),
+        'counted': true,
+        'solo': true
+      }
+    },
+
+    noResultsContentZone: {
+      'Zero Search Results': {
+        'node': jQuery('.js-search-wrapper__no_results'),
+        'counted': false,
+        'solo': true
+      }
+    },
+
+    nodes: {
+      loading: jQuery('.js-end-results .js-end-loading'),
+      resultsContainer: jQuery('.js-end-results-container')
+    },
+
+    mixins: {
+      'result': site.endeca.mixins.links.address,
+      'results.products': site.endeca.mixins.summary,
+      'results.refinements': site.endeca.mixins.accordion,
+      'results.contentzone': site.endeca.mixins.summary,
+      'resultsgroup.refinements': site.endeca.mixins.accordion,
+      'resultsgroup.breadcrumbs': site.endeca.mixins.links.address
+    },
+
+    queries: {
+      product: {
+        recordsPerPage: 10000,
+        recordFilters: ['discontinued', 'activeSkus', 'products']
+      }
+    },
+
+    results: {
+      products: {
+        baseClass: 'site.endeca.results',
+        instanceArgs: {
+          parentNode: jQuery('.js-end-product-results'),
+          containerTemplatePath: '/templates/endeca/products/container.tmpl'
+        },
+        configuration: {
+          maxmimumShades: 4,
+          summaryTemplatePath: '/templates/endeca/products/summary.tmpl'
+        }
+      },
+
+      // JGA - we can remove the following sets
+      refinements: {
+        baseClass: 'site.endeca.resultsgroup',
+        instanceArgs: {
+          parentNode: jQuery('.js-end-dimensions')
+        },
+        configuration: {
+          refinementTemplates: {
+            'shade': '/templates/endeca/refinements/link-shade.tmpl'
+          }
+        }
+      },
+
+      content: {
+        baseClass: 'site.endeca.resultsgroup',
+        childClass: 'site.endeca.resultsgroup.contentzones'
+      },
+
+      breadcrumbs: {
+        baseClass: 'site.endeca.resultsgroup',
+        instanceArgs: {
+          parentNode: jQuery('.js-end-results-breadcrumbs'),
+          resultsArgs: {
+            templatePath: '/templates/endeca/breadcrumbs/link.tmpl',
+            containerTemplatePath: '/templates/endeca/breadcrumbs/container.tmpl'
+          }
+        },
+        configuration: {
+          breadcrumbTemplates: {
+            'shade': '/templates/endeca/breadcrumbs/link-shade.tmpl'
+          }
+        }
+      },
+
+      summary: {
+        baseClass: 'site.endeca.result',
+        instanceArgs: {
+          parentNode: jQuery('.js-end-summary')
+        },
+        configuration: {
+          templatePaths: {
+            results: '/templates/endeca/summary/results.tmpl'
+          }
+        }
+      },
+
+      bestsellers: {
+        baseClass: 'site.endeca.results',
+        instanceArgs: {
+          parentNode: jQuery('.js-end-bestseller-results'),
+          templatePath: '/templates/endeca/products/result.tmpl',
+          containerTemplatePath: '/templates/endeca/products/container.tmpl'
+        },
+        configuration: {
+          queryArgs: {
+            recordsPerPage: 30,
+            searchTerm: 'CAT23789',
+            searchKey: 'p_ALL_CAT_IDS',
+            sortKey: 'p_DISPLAY_ORDER',
+            searchMode: 'matchany'
+          }
+        }
+      },
+
+      recentsearches: {
+        baseClass: 'site.endeca.results',
+        instanceArgs: {
+          parentNode: jQuery('.js-end-recent-searches')
+        },
+        configuration: {
+          maximumRecentSearches: 5
+        }
+      },
+
+      sorting: {
+        baseClass: 'site.endeca.results',
+        instanceArgs: {
+          parentNode: jQuery('.js-end-product-sort')//,
+          //containerTemplatePath: '/templates/endeca/sort/container.tmpl'
+        }
+      },
+
+      pagination: {
+        baseClass: 'site.endeca.resultsgroup',
+        configuration: {
+          noScroll: 1,
+          viewAllLink: true,
+          nextPageLink: true,
+          previousPageLink: true
+        }
+      }
+    }
+  });
+
+  new site.endeca.instances.search.control(site.endeca.instances.search.configuration);
+});

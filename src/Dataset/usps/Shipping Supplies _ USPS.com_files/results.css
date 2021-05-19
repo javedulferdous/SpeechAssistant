@@ -1,0 +1,2612 @@
+/*results.css*/
+.result-grid {
+    border: 2px solid #FFFFFF;
+}
+div#global-footer--wrap {
+    clear: both;
+}
+
+ul.result-pagination {
+    text-align: right;
+    float: right;
+    width: 100%;
+}
+ul.result-pagination li:not(.mobile-navigation-text) {
+	text-align:center;
+}
+
+.result-bar-contents {
+	position:relative;
+	width:100%;
+}
+
+
+.result-page-stamps-holder {
+    max-width: 270px;
+    width: 100%;
+    height: 420px;
+    float: left;
+    display: block;
+    margin-right: 0;
+    margin-bottom: 100px;
+    margin-left: 30px;
+    box-sizing:border-box;
+}
+
+  
+.result-page-image-holder {
+      position: relative;
+      /* width:270px; */
+      height:270px;
+      opacity:1;
+}
+  .result-page-image-holder img {
+	vertical-align: top;
+	display:block;
+	margin-top:0;
+}
+
+.result-short-desc {
+    width: 220px;
+    margin-top: 36px;
+    color: #333366;
+    font-family: "HelveticaNeueW02-75Bold", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 16px;
+    line-height: 28px;
+    float: left;
+}
+  
+  
+  .result-product-text {
+    font-family: "HelveticaNeueW02-55Roma", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    color: #595959;
+    font-size: 16px;
+}
+
+  
+  .result-filter-by {	
+		font-family: "HelveticaNeueW02-75Bold", "Helvetica Neue", Helvetica, Arial, sans-serif;
+		font-size:20px;
+		color:#595959;
+		padding-left:0px;
+		text-align:left;
+		margin-left: 0px;
+	}
+  
+  .global-info-icon{
+	  width:20px;
+	  height:20px;
+	  vertical-align:bottom;
+	  
+  }
+  
+ .global-info-icon:hover{
+    opacity: .5;
+	cursor: default;
+ }
+  
+ .result-product-content:hover{
+  opacity: .5;
+  background:#ffffff;
+}
+
+
+.result-content-image{
+	width:270px;
+	height:225px;
+	position:relative;
+	margin-bottom:30px;
+	
+}
+.product-text-holder{
+	margin-top:30px;
+	margin-bottom:100px;
+	width:200px;
+	
+}
+
+.result-content-image img{
+	position: absolute;
+        bottom: 0;
+}
+.product-quickview{
+	position:fixed;
+	font-family: "HelveticaNeueW02-075Bold", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-weight: Bold;
+	color:#333366;
+	height: 30px;
+    position: absolute;
+    margin-top: -160px;
+    margin-left: 41px;
+    padding: 0px 5px;
+    width: 140px;
+    background: #ffffff;
+    opacity:0;
+    border: solid 1px #333366;
+    padding-left: 40px;
+	padding-top: 10px;
+    font-size: 18px;
+	border-radius:3px;
+    
+}
+
+
+.result-product-content{
+	width: 270px;
+	height:270px;
+	padding-left:20px;
+	display: inline;
+	float: left;
+	position: relative;
+	border-width: 0 1px;
+	margin-bottom:200px;
+}
+
+.result-content_image {
+    line-height: 0;
+	width:270px;
+	height:270px;
+	position: relative;
+	margin-left:30px;
+}
+
+
+a {
+    text-decoration: inherit;
+    font-style: inherit;
+    color: inherit;
+    cursor: pointer;
+}
+a img {
+    border: none;
+}
+
+
+.result-page-image-holder:hover .product-quickview{
+    opacity:1;
+    background:#ffffff;
+    margin-bottom: 0;
+}
+
+.result-page-image-holder:hover .result-product-img{
+  opacity: .60;
+}
+
+.result-page-image-holder:hover .new-product-icon-holder{
+  opacity: .60;
+}
+
+.new-product-icon-holder img {
+  vertical-align:top;
+}
+
+
+.result-page-image-holder .new-product-icon-holder {
+	 background: url("https://www.usps.com/store/images/new-icon.png") no-repeat 0 0;
+     position: absolute;
+     top: 0px;
+     left: 0px;
+     z-index: 1;
+	 height: 45px;
+     width: 45px;
+}
+
+
+.result-bar ul
+{
+    margin: 0;
+    padding: 0;
+}
+
+.result-bar ul li
+{
+    list-style-type: none;
+    display: inline;
+}
+
+.result-select-box {
+    width: 215px;
+    height: 44px;
+    font-size: 16px;
+    border: 1px solid #333366;
+    margin-top: 22px;
+    padding-left: 20px;
+    padding-right: 40px;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    background: transparent url(https://www.usps.com/store/images/br_down.png) no-repeat;
+    background-position: 95% 14px;
+    background-color: #ffffff;
+    font-family: "HelveticaNeueW02-55Roma", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    border-radius: 3px;
+    color: #595959;
+    text-overflow: ellipsis;
+    overflow: hidden !important;
+    white-space: nowrap;
+}
+
+input[type=checkbox] {
+	
+	display:none;
+	
+}
+input[type=checkbox] + label:before {
+	
+	 background-color:#ffffff;
+	 border:1px solid #999999;
+	 content:"";
+	 display:inline-block;
+	 font-size:16px;
+	 height:20px;
+	 width:20px;
+	 line-height:16px;
+	 text-align:left;
+	 color:#000000;
+	 font-family:"Helvetica Neue Roman";
+	 position: absolute;
+	 left:-25px;
+	 top:0px;
+	 color:#595959;
+	
+}
+
+input[type=checkbox]:checked + label:before {
+    content: "\2714";
+    padding-left: 3px;
+    box-sizing: border-box;
+    padding-top: 2px;
+}
+
+.checkbox-commemeratives{
+	 background-color:red;
+}
+
+.result-bar{height:83px;width:100%;background:#f7f7f7;}
+  
+.result-bar div{
+	  color:#333366;
+	  font-family: "HelveticaNeueW02-75Bold", "Helvetica Neue", Helvetica, Arial, sans-serif;
+	  float: left;
+	  white-space: nowrap;
+	  vertical-align:middle;
+}
+
+  
+  
+  .result-text-stamps{
+	  color:#333366;
+	  font-size: 30px;
+	  padding: 28px 20px 28px 0;
+	  margin-left: 0;
+	  text-align:left;
+	  font-family: "HelveticaNeueW02-75Bold", "Helvetica Neue", Helvetica, Arial, sans-serif;
+	  display: inline-block;
+	 }
+  
+  
+  
+  .result-text-results{
+	font-size: 18px;
+	padding: 33px 0px 33px 0;
+	font-family: "HelveticaNeueW02-75Bold", "Helvetica Neue", Helvetica, Arial, sans-serif;
+	/* display: inline-block; */
+	/* position: relative; */
+	float: right;
+	white-space: nowrap;
+	}
+  
+  .result-text-sort-by{
+	font-size: 18px;
+	font-family: "HelveticaNeueW02-75Bold", "Helvetica Neue", Helvetica, Arial, sans-serif;
+	padding: 33px 00px 33px 0;
+	float: right;
+	/* position: absolute; */
+	/* right: 183px; */
+	/* top: 0; */
+	display: inline-block;
+	width: 75px;
+	}
+  
+  
+ 
+  #issueDate{
+	  
+	  height:20px;
+	  width:60px;
+	 
+  }
+  
+.result-checkbox-filter-by-holder {
+    display: inline-block;
+    width: 27%;
+    float: left;
+    padding-left:0px;
+    margin-top: 28px;
+    margin-right: 0;
+    margin-bottom: 50px;
+    box-sizing: border-box;
+} 
+
+.result-checkbox-filter-by-holder p label {
+    font-size: 16px;
+	margin-left: 25px;
+    display: block;
+    position: relative;
+    margin: 15px 15px 0px 20px;
+    vertical-align: middle;
+    padding-top: 0px;
+    padding-left: 9px;
+}
+
+.result-color-container {
+	width:37px; 
+	height:37px; 
+	display: inline-block; 
+	margin:1px;
+}
+
+
+.result-facid-holder {
+	margin:30px 0 0 10px;
+
+}
+
+.result-facid-type {  	
+	font-family: "HelveticaNeueW02-75Bold", "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-size:20px;
+	color:#000000;
+	text-align:left;
+	margin-left: -5px;
+  }
+
+ .result-facid-type img { 
+	margin-left: 10px;
+ }
+
+ .result-facid-holder-grid-color  {
+	margin: 30px 0 0 -10px;
+	max-width: 250px;
+	}
+ 
+  .result-facid-holder-grid-color .result-facid-type {
+	margin-left: 5px;
+ }
+ 
+.result-page-wrapper{
+	width: 100%;
+    margin: auto;
+	display:block;
+	}
+
+
+.result-stamp-wrapper{
+  display: inline-block;
+  width: 78%;
+  float: right;
+}
+
+    
+ .results-per-page{
+	width: 100%;
+	display: block;
+	float: left;
+	margin-bottom: 30px;
+ 
+}
+
+	
+ .results-per-page-text {
+ 	color:#333366; 
+ 	font-size: 16px; 
+	font-family: "HelveticaNeueW02-75Bold", "Helvetica Neue", Helvetica, Arial, sans-serif;
+} 
+   
+
+   
+ .result-per-view-holder{
+	display: inline-block;
+	height: 50px;
+	color:#333366;
+	padding-top: 0px;
+}
+	
+
+
+.result-pagination-holder{
+	display: inline-block;
+    float: right; 
+    color:#333366;
+    /* margin-left: 16%; */
+}
+.result-pagination li {
+    font-size: 15px;
+    font-weight: bold;
+    color: #333366;
+    display: inline-block;
+    height: 30px;
+    line-height: 30px;
+	text-align:center;
+    width: 30px;
+    transition: background-color .5s, border-radius .5s;
+}
+
+
+.result-pagination li.active {
+    color: #FFF;
+    border-radius: 50%;
+    background-color: #333366;
+}
+
+.result-pagination li a, .result-pagination li a:hover {
+    text-decoration: none;
+}
+
+.result-pagination li:hover:not(.active) {
+    border-radius: 50%;
+    background-color: #DDD;
+}
+
+ 
+.result-page-quick-view{
+   background: rgba(0,0,0,0.5);
+   color: white;
+   cursor: pointer;
+   position: absolute; 
+   top: 100px; 
+   left: 0; 
+   width:160px;
+   background:#ffffff;
+   height:40px;
+   color: #333366;
+   font-size:18pt;
+   padding-left: 40px;
+   border:  solid 1px;
+   border-radius:3px;
+   display:none;
+ }
+
+
+
+ /* 2/3 sizing*/
+
+ .result-checkbox-filter-by-holder~.result-products-holder,.result-checkbox-filter-by-holder~.results-2-media-banner,.result-checkbox-filter-by-holder~.breadcrumb-cartridge,.result-checkbox-filter-by-holder~.two-thirds-product-spotlight-promotion,.result-checkbox-filter-by-holder~.two-thirds-cartridge,.result-checkbox-filter-by-holder~.cartridge-search-suggest,.result-checkbox-filter-by-holder~.cartridge-search-instead{
+	 height: auto;
+	 display: inline-block;
+	 width: 73%;
+	 float: left;
+	 margin-top: 20px;
+	 margin-left:0;
+	 box-sizing: border-box;
+	 /* overflow: hidden!important; */
+} 
+
+.result-products-holder,.results-2-media-banner,.breadcrumb-cartridge,.two-thirds-product-spotlight-promotion,.two-thirds-cartridge,.cartridge-search-suggest,.cartridge-search-instead{
+	/* margin-left: 10%; */
+}
+ .results-2-media-banner,.breadcrumb-cartridge,.two-thirds-product-spotlight-promotion,.two-thirds-cartridge {
+    margin-top: 50px;
+}
+
+.results-2-media-banner a img {
+    width: 100%;
+}
+   
+.result-per-page-box {
+	width: 100px;
+	height: 44px;
+	border: 1px solid #333366;
+	-webkit-appearance: none;
+	-moz-appearance: none;
+	appearance: none; 
+	background: transparent url("https://www.usps.com/store/images/br_down.png") no-repeat;
+	background-position: 65px 14px;
+	background-color:#ffffff;
+	padding-left: 20px;
+	border-radius: 3px;
+	font-family: "HelveticaNeueW02-55Roma", "Helvetica Neue", Helvetica, Arial, sans-serif;
+	color: #595959;
+	font-size: 16px;
+	margin-left:10px;
+} 
+
+select::-ms-expand {
+    display: none;
+}
+
+input[type=checkbox]:checked + label {
+     color: #333366;
+     /* font-family: "HelveticaNeueW02-75Bold", "Helvetica Neue", Helvetica, Arial, sans-serif; */
+     font-size: 16px;
+}
+
+
+.result-grid{
+	cursor: pointer;
+	margin:2px; 
+	width:33px;
+	height:33px;
+	display:inline-block;
+	border-radius:6px;
+	border: 1px solid #ffffff;	
+    border-color:black;
+	
+}
+
+.result-grid:hover, .result-grid.active{
+  border: 1px solid #595959;
+  border-radius:6px;
+  opacity:1;
+  border-color:black;
+}
+
+}
+
+
+#result-grid:hover {
+  border: 2px solid #595959;
+  border-color:black;
+}
+
+#result-grid-color-white:hover {
+  border: 2px solid #595959;
+  border-color:black;
+}
+
+
+.product-description{
+	
+	font-size:16px;
+	color:#333366;
+	 font-family: "HelveticaNeueW02-55Roma", "Helvetica Neue", Helvetica, Arial, sans-serif;
+	 font-weight:Bold;
+	
+	font-style:Normal;
+	text-align:left;
+}
+
+@media screen and (max-width: 1250px) {
+
+	.result-text-sort-by {
+		/* margin-left: 380px; */
+	}
+}
+
+@media screen and (max-width:1209px){
+
+		 
+		 .result-product-content{
+			 width:240px;
+		 }
+		 .result-text-sort-by {
+			 
+/* margin-left:300px; */
+			}
+		 .result-text-results{
+			 
+/* margin-left:100px; */
+			}
+		 
+	}
+			
+/* 2/3 sizing*/
+
+		
+
+	@media screen and (max-width:1100px) {
+	.result-per-page-box {
+		width: 70px;
+		background-position: 40px;
+		padding-left: 10px;
+	}
+}
+	@media screen and (max-width: 1055px) {
+		.result-pagination-holder {
+			float: right;
+		}
+	}
+ 
+			 @media screen and (max-width:1050px){
+				 
+
+				 .product-description{
+					 
+					 font-size:12px;
+					 width:90px;
+				 }
+			 }		
+		
+			   	      
+	
+
+  
+		   
+	@media screen and (max-width: 1051px) {
+		.result-pagination * { 
+			white-space:nowrap;
+		}
+
+	}
+	/* 2/3 sizing*/
+/*
+@media screen and (max-width: 959px) {
+ .result-checkbox-filter-by-holder~.result-products-holder,.result-checkbox-filter-by-holder~.results-2-media-banner,.result-checkbox-filter-by-holder~.breadcrumb-cartridge,.result-checkbox-filter-by-holder~.two-thirds-product-spotlight-promotion,.result-checkbox-filter-by-holder~.two-thirds-cartridge,.result-checkbox-filter-by-holder~.cartridge-search-suggest,.result-checkbox-filter-by-holder~.cartridge-search-instead{
+		 width: 80%;
+		 float:left;
+	}
+ .result-products-holder,.results-2-media-banner,.breadcrumb-cartridge,.two-thirds-product-spotlight-promotion,
+ .two-thirds-cartridge,.cartridge-search-suggest,.cartridge-search-instead, .result-bar-contents .cartridge-viewport {
+		 width: 90%;
+		 margin-left: 35px;
+		 float:left;
+	}
+
+	.result-products-holder {
+		width: 57%;
+		float: left;
+		margin-left: 60px;
+	 }
+	
+	.result-checkbox-filter-by-holder{
+		width: 35%;
+	}
+
+	.result-per-view-holder{
+		margin-left:0px;
+		float:left;					 
+	} 
+	.result-per-page-box {
+		width:60px;
+		background-position-x: 37px;
+	}
+}*/
+/* 2/3 sizing*//*
+@media screen and (max-width: 950px){
+	 .result-checkbox-filter-by-holder~.result-products-holder,
+	 .result-checkbox-filter-by-holder~.results-2-media-banner,
+	 .result-checkbox-filter-by-holder~.breadcrumb-cartridge,
+	 .result-checkbox-filter-by-holder~.two-thirds-product-spotlight-promotion,
+	 .result-checkbox-filter-by-holder~.two-thirds-cartridge,
+	 .result-checkbox-filter-by-holder~.cartridge-search-suggest,
+	 .result-checkbox-filter-by-holder~.cartridge-search-instead{
+		width: 45%;
+		margin-left: 10%;
+	}
+}
+@media only screen and (min-width: 959px) {
+	.button--primary+ .button--primary {
+		margin-left:10px;
+	}	
+}
+*/
+
+
+.results-product-info {
+	   /* width: 270px; */
+	   margin-top: 36px;
+	   float: left;
+	 }
+								
+								
+.results-product-desc {
+	color: #333366;
+	font-family: "HelveticaNeueW02-75Bold", "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-size: 20px;
+	line-height: 28px;
+	text-align: left;
+	  }
+
+	  
+.results-product-info:hover .results-product-desc {
+color: #999999;
+}	  
+
+.results-product-type{
+	font-family: "HelveticaNeueW02-55Roma", "Helvetica Neue", Helvetica, Arial, sans-serif;
+	color: #595959;
+	font-size: 16px;
+	line-height: 28px;
+	text-align: left;
+	}
+										
+.results-product-preview-price{							
+	font-family: "HelveticaNeueW02-55Roma", "Helvetica Neue", Helvetica, Arial, sans-serif;
+	color: #595959;
+	font-size: 16px;
+	line-height: 28px;					
+}
+.two-thirds-cartridge {
+	height: 45px;
+	margin-top: 30px;
+	padding-top: 20px;
+	padding-bottom: 20px;
+	color: #333366;
+	font-family: "HelveticaNeueW02-55Roma", "Helvetica Neue", Helvetica, Arial, sans-serif; 
+	font-size: 16px;  
+	line-height: 20px; 
+
+}
+.breadcrumb-cartridge {
+    /* margin-top: 30px; */
+    /* padding-top: 20px; */
+    /* padding-bottom: 20px; */
+    /* color: #333366; */
+    /* font-family: "HelveticaNeueW02-55Roma", "Helvetica Neue", Helvetica, Arial, sans-serif; */
+    /* font-size: 16px; */
+    /* display: inline-block; */
+    /* height: auto; */
+}
+.breadcrumb-cartridge span:after {
+    content: "";
+    display: inline-block;
+    background-size: 12px 14px;
+    background-image: url(https://www.usps.com/store/images/red-x.png);
+    background-repeat: no-repeat;
+    margin-left: 0px;
+    top: 2px;
+    position: relative;
+    left: 0;
+    margin-right: 5px;
+    height: 14px;
+    width: 12px;
+}
+.breadcrumb-cartridge span {
+}
+
+.two-thirds-product-spotlight-promotion {
+	/* margin-left: 48px; */
+	margin-top: 60px;
+	white-space: nowrap;
+}
+
+.two-thirds-product-spotlight-container {
+	display: inline-block;
+	float: left;
+	width: 23%;
+	    margin-right: 75px;
+}
+
+.two-thirds-product-spotlight-header {
+	font-family: "HelveticaNeueW02-75Bold", "Helvetica Neue", Helvetica, Arial, sans-serif;
+	color: #333366;
+	font-size: 30px;
+	margin-bottom: 16px;
+	width: 80%;
+	white-space: normal;
+}
+
+.two-thirds-product-spotlight-text {
+	font-family: "HelveticaNeueW02-55Roma", "Helvetica Neue", Helvetica, Arial, sans-serif;
+	color: #595959;
+	font-size:  14px;
+	margin-bottom: 16px;
+	width: 100%;
+	line-height: 19px;
+	white-space: normal;
+}
+
+
+
+.two-thirds-product-col {
+	display: inline-block;
+	width: 49%;
+	/* margin-left: 5%; */
+	white-space: nowrap;
+	float: left;
+}
+
+.two-thirds-spotlight-product {
+	width: 138px;
+	height:auto;
+	margin-right: 7%;
+	position: relative;
+	display: inline-block;
+	vertical-align: text-top;
+	white-space: normal;
+}
+.two-thirds-product-desc {
+    font-family: "HelveticaNeueW02-75Bold", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 14px;
+    margin-top: 10px;
+    margin-bottom: 0px;
+    line-height: 18px;
+}
+
+.two-thirds-product-preview-price {
+	font-family: "HelveticaNeueW02-55Roma", "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-size: 12px;
+	margin-top: 10px;
+	line-height: 18px;
+	color: #595959; 
+}
+.two-thirds-product-link {
+	text-decoration: none; 
+	cursor: pointer; 
+	color: #333366; 
+}
+
+
+
+.two-thirds-product-quickview{
+
+	position: fixed;
+    font-family: "HelveticaNeueW02-075Bold", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-weight: Bold;
+    color: #333366;
+    height: 25px;
+    position: absolute;
+    margin-top: -90px;
+    margin-left: 15px;
+    padding: 10px 0px 0px 10px;
+    width: 100px;
+    background: #ffffff;
+    opacity: 0;
+    border: solid 1px #333366;
+    font-size: 16px;
+    border-radius: 3px;
+	
+}
+
+
+
+
+.two-thirds-product-img:hover .two-thirds-product-quickview{
+    opacity:1;
+	background:#ffffff;
+}
+
+ .two-thirds-product-img:hover img
+{
+  opacity: .60;
+  background:#ffffff;
+}
+
+.two-thirds-spotlight-product {
+  position:relative;
+  opacity:1;
+
+}
+.two-thirds-product-info:hover .two-thirds-product-desc{
+  color:#999999;
+}
+/*
+@media only screen and (max-width:1100px) {
+
+	.two-thirds-product-col {
+		margin: 0 auto;
+		display: block;
+		width: 100%;
+		float: left;
+		margin-top: 60px;
+	}
+	.two-thirds-product-col * {
+		text-align:center;
+	}
+	.two-thirds-product-spotlight-container {
+		margin: 0 auto;
+		display:block;
+		width: 100%;
+
+		float: left;
+	}
+}
+
+*/
+
+.result-sort {
+    display: inline-block;
+    position: absolute;
+    right: 0;
+    top: 0px;
+}
+
+@media (min-width:1600px){
+	.store-navigation .cartridge-viewport {
+		max-width: 1500px;
+		margin:0 auto;
+	}
+	.result-bar-contents {
+		max-width:1500px;
+		margin:0 auto;
+	}
+}
+
+@media (max-width: 1599px) and (min-width:959px){
+	.result-sort {
+		margin-right:30px;
+	}
+	.result-checkbox-filter-by-holder {
+		padding-left:30px;
+		padding-right: 0;
+		width: 30%;
+	}
+
+	.store-navigation .cartridge-viewport {
+		width:100%;
+		padding-left:30px;
+		margin-left:0;
+	}
+	.store-search-form .search-wrapper {
+		margin-right: 0;
+	}
+	.result-bar-contents {
+	    padding: 0 30px;
+		box-sizing: border-box;
+		}
+		.horizontal-tabs-header h1 {
+			padding-left:30px;
+		}
+		.product-page-footer-holder .cartridge-viewport {
+			padding-left:30px;
+		}
+}
+/* Modal Testing */
+
+
+/* Main model - quickview */
+
+/* Removed as part of QVM MR
+.view-product {
+	display:none;
+}
+*/
+
+#simplemodal-data .view-product {
+	display:block;
+	background-color: white;
+	/* padding: 30px 17px; */
+}
+.simplemodal-wrap {
+	width:1015px;
+	
+}
+.view-product img.image-to-zoom {
+    width: 370px;
+    height: 370px;
+}
+.view-product .icon-zoom {
+    width: 70px;
+    height: 70px;
+}
+
+.view-product .product-images {
+	width:400px;
+	display: inline-block;
+}
+
+.view-product .product-content {
+    display: inline-block;
+    vertical-align: top;
+}
+
+.view-product .icon-zoom {
+    cursor: pointer;
+    display: inline-block;
+    height: 30px;
+    position: absolute;
+    right: 0;
+    width: 30px;
+}
+
+.view-product .title-head {
+    font-family: "HelveticaNeueW02-75Bold", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 28px;
+    color: #333366;
+    margin-bottom: 30px;
+    line-height: 32px;
+}
+ .view-product div.small-pct {
+  
+position: relative;
+  
+padding-left: 27px;
+}
+
+.view-product .small-pct .mySlides {
+    height: 62px;
+    width: 62px;
+    margin: 30px 10px;
+}
+.view-product h2.title-subhead {
+    font-size: 20px;
+    color: #333366;
+    position: relative;
+    display: block;
+    margin-bottom: 17px;
+    font-family: "HelveticaNeueW02-75Bold", "Helvetica Neue", Helvetica, Arial, sans-serif;
+	z-index:-1;
+}
+.view-product .available {
+    color: #218748;
+}
+.view-product .availability {
+    font-size: 20px;
+    font-weight: normal;
+    font-family: "HelveticaNeueW02-75Bold", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    margin-bottom: 24px;
+}
+.view-product .shoppingcart-label {
+    font-family: "HelveticaNeueW02-75Bold", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 16px;
+    color: #333366;
+    display: block;
+    margin-bottom: 17px;
+}
+
+
+.view-product .c-quantity {
+    margin-top: 32px;
+    /* width: 100%; */
+}
+.view-product .c-minmax {
+    width: 50%;
+    display: inline-block;
+    text-align: left;
+	padding-top: 0;
+	vertical-align: top;
+	padding-top:0;
+}
+
+
+.view-product input.cart-quantity {
+    box-sizing: border-box;
+    width: 45px;
+    display: inline-block;
+    vertical-align: top;
+    height: 30px;
+    margin-left: 10px;
+    text-align: center;
+	color:#595959;
+    border: 1px solid #333366;
+	font-size: 16px;
+}
+.view-product .price{
+  color:#595959;
+  text-decoration:none;
+  font-size:16px;
+  text-align:left;
+  line-height:24px;
+  font-family: Arial, "Helvetica Neue bold", Helvetica, sans-serif;
+}
+.view-product .c-price {
+    margin-top: 50px;
+    display: inline-block;
+    text-decoration:none;
+    width: 50%;
+}
+
+.shoppingcart-totalprice {
+font-size:20px;
+}
+
+.view-product .cart-cta {
+    display: inline-block;
+    margin-top: 40px;
+    float: right;
+}
+
+.button--primary {
+	border: 1px solid #333366;
+	text-align: center;
+	text-decoration: none;
+	color: #FFFFFF;
+	background-color:#333366;
+	border-radius: 3px;
+	padding: 10px 20px;
+	font-family: "HelveticaNeueW02-75Bold", "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-size: 16px;
+	display: inline-block;
+	margin: 0 auto;
+	box-sizing: border-box;
+	height: 42px;
+}
+.button--primary:hover {
+	background-color: #ededed;
+	border: 1px solid #ededed;
+	color: #333366;
+}
+
+.view-product h2.title-sku {
+    font-family: "HelveticaNeueW02-75Bold", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 16px;
+    color: #333366;
+    margin-bottom: 16px;
+}
+.view-product h2.title-sku.span {}
+
+.view-product h2.title-sku.span {
+    font-family: "HelveticaNeueW02-55Roma", "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+.view-product h2.title-sku span {
+    color: #333366;
+    font-family: "HelveticaNeueW02-55Roma", "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+.view-product .product-content div:not(.product-information) {
+}
+.view-product .product-information {
+    display: inline-block;
+    width: 93%;
+    margin-top: 0;
+}
+.view-product .info-cta {/* display: inline-block; *//* vertical-align: top; *//* margin-top: 62px; *//* width: 48%; *//* text-align: right; */}
+.view-product .Soda-image {
+    position: relative;
+}
+.button--green {
+    color: #FFFFFF;
+    background-color: #218748;
+    border: 1px solid #218748;
+}
+ .button--green:hover {
+    color: #333366;
+    background-color: #ededed;
+    border: 1px solid #ededed;
+}
+ .button--white {
+    color: #333366;
+    background-color: #FFFFFF;
+    border: 1px solid #333366;
+}
+.button--white:hover {
+    color: #333366;
+    background-color: #ededed;
+}
+.button--cart:hover:before{
+    background-image: url('https://www.usps.com/store/images/ps-carticon-hover.png');
+}
+.button--cart:before {
+    content: '';
+    background-image: url('https://www.usps.com/store/images/ps-carticon.png');
+    background-repeat: no-repeat;
+    background-size: 28px 21px;
+    width: 28px;
+    height: 21px;
+    display: inline-block;
+    padding-right: 5px;
+    position: relative;
+    vertical-align: top;
+}
+.view-product .c-minmax p {
+    font-size: 12px;
+    color: #595959;
+    margin-left: 0;
+	font-family: HelveticaNeueW02-55Roma, "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+.button--star:before {
+    content: '';
+    background-image: url('https://www.usps.com/store/images/ps-star.png');
+    background-repeat: no-repeat;
+	    background-repeat: no-repeat;
+    background-size: 18px 16px;
+    width: 18px;
+    height: 16px;
+    display: inherit;
+    padding-right: 5px;
+	vertical-align: top;
+}
+
+.modalCloseImg {
+	position: absolute;
+    display: inline-block;
+    height: 20px;
+    width: 20px;
+    background-image: url('https://www.usps.com/store/images/close_x.svg');
+    top: 30px;
+    right: 30px;
+}
+
+
+.modal-overlay {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    z-index: 1001;
+    display: none;
+    top: 0;
+    left: 0;
+    background-color: #595959;
+    opacity: .5;
+    z-index: 1;
+}
+
+/* Add to Cart Modal */
+
+.view-product #modal-product-cart,#modal-product-error {
+	display:none;
+}
+
+#modal-product-cart .product-action {
+	box-sizing: content-box;
+	display:block;
+}
+#modal-product-cart .product-action img {
+	width:270px;
+	height:270px;
+	display: inline-block;
+	margin-right: 78px;
+}
+#modal-product-cart .product-action h2 {
+	color: #333366;
+	margin-bottom:30px;
+	font-family: "HelveticaNeueW02-75Bold", "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-size: 20px;
+}
+
+#modal-product-cart .product-action p {
+	margin-bottom:13px;
+	font-size: 14px;
+	color: #595959;
+	line-height: 16px;
+}
+#modal-product-cart .product-action p span {
+    font-family: "HelveticaNeueW02-75Bold", "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+#modal-product-cart .product-action .btn-holder {
+    display:inline-block;
+    vertical-align: text-bottom;
+}
+#modal-product-cart .product-action .btn-holder a {
+	margin-bottom: 20px;
+	display:block;
+	vertical-align: top;
+}
+
+.cart-nav-img .btn-holder .button--primary{
+	margin:0px;
+}
+
+#modal-product-cart {
+    height: 440px !important;
+    width: 770px !important;
+    background-color: white;
+    padding: 60px 100px;
+    box-sizing: border-box;
+}
+#modal-product-cart .modalCloseImg {
+    float: right;
+    display: inline-block;
+    height: 20px;
+    width: 20px;
+    background-image: url(https://www.usps.com/store/images/close_x.svg);
+
+}
+.usps-modals {
+	display:none;
+}
+.qtip.info-tooltip {
+    color: #595959;
+    background-color: #FFFFFF;
+    border: 1px solid #333366;
+    font-size: 14px;
+    line-height: 16px;
+	border-radius: 3px;
+}
+
+a.btn-floatingtwo {
+    -webkit-transform: rotate(-90deg);
+    -moz-transform: rotate(-90deg);
+    -ms-transform: rotate(-90deg);
+    -o-transform: rotate(-90deg);
+    transform: rotate(-90deg);
+}
+a.btn-floatingone {
+    -webkit-transform: rotate(90deg);
+    -moz-transform: rotate(90deg);
+    -ms-transform: rotate(90deg);
+    -o-transform: rotate(90deg);
+    /* transform: rotate(90deg); */
+    position: absolute;
+    top: 60px;
+    left: 3px;
+}
+
+img.rng-ind.dec {
+    vertical-align: top;
+}
+
+img.rng-ind.inc {
+    vertical-align: top;
+    margin-left: 10px;
+}
+
+img.rng-ind.dec {
+    vertical-align: top;
+}
+
+img.rng-ind.inc {
+    vertical-align: top;
+    margin-left: 10px;
+}
+
+.btn-floatingtwo {
+    position: absolute;
+    top: 60px;
+    right: 50px;
+}
+
+.c-minmax .shoppingcart-label {
+    margin-bottom: 5px;
+}
+
+/* carousel */
+.product-details .small-pct .content {
+    background-position: 0 0;
+    margin: 0;
+    padding: 0;
+    position: absolute;
+    width: 1000px;
+    display: block;
+    top: 0;
+    left: 0;
+	-webkit-transition: left .5s;
+    transition: left .5s;
+}
+.product-details .small-pct {
+  width: 340px;
+  position: relative;
+  overflow: hidden;
+    height: 109px;
+}
+.content-view {
+    width: 300px;
+    overflow: hidden;
+    height: 95px;
+    position: absolute;
+    left: 26px;
+}
+
+.disabled {
+	opacity: 0;
+}
+.button--primary.button--green:hover {
+    color: #218748;
+    background-color: #ededed;
+    border: 1px solid #ededed;
+}
+
+#simplemodal-container .info-cta {
+    float: right;
+}
+
+.view-product .small-pct .content-view .content {
+    background-position: 0 0;
+    margin: 0;
+    padding: 0;
+    position: absolute;
+    width: 1000px;
+    display: block;
+    top: 0;
+    left: 0;
+    -webkit-transition: left .5s;
+    transition: left .5s;
+}
+
+
+
+#edit-return-address-model-dialog .btn-cta {
+    margin-bottom: 15px;
+    text-align: center;
+}
+
+#pfsl-terms-model-dialog .btn-cta {
+    margin-bottom: 15px;
+    text-align: center;
+}
+select#state.error-input {
+    border: 1px solid #e71921;
+}
+
+#return-address-model-dialog,#edit-return-address-model-dialog,#pfsl-terms-model-dialog {
+	display:none;
+}
+
+#simplemodal-container #return-address-model-dialog {
+	display:block;
+}
+
+.return-address-modal-body input {
+	border: 1px solid #333366;
+	border-radius: 3px;
+	font-size: 16px;
+	text-indent: 10px;
+}
+.return-address-modal-body span input {
+
+	height: 44px;
+	box-sizing: border-box;
+
+}
+.return-address-modal-body span.minor input {
+
+	height: 44px;
+	box-sizing: border;
+
+}
+.return-address-modal-body span.minor-m input {
+
+	height: 44px;
+	box-sizing: border;
+
+}
+
+
+
+
+}
+.return-address-modal-header {
+    
+	color:#595959;;
+	margin-bottom:30px;
+}
+
+
+label{display:inline-block;}
+
+
+	  
+#simplemodal-overlay {background-color:#031533;}
+
+
+.enter-return-header-text{
+  font-size:30px;
+  color:#333366;
+  font-family: "HelveticaNeueW02-75Bold", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  margin-top:05px;
+  margin-bottom:20px;
+  font-weight:bold;
+
+}
+
+.return-model-instruction-text{
+  font-family:"HelveticaNeueW02-55Roma","Helvetica Neue",Helvetica,Arial,sans-serif;
+  color:#595959;
+  font-size:18px;
+
+
+
+}
+.return-address-modal-body label{
+   font-family:"HelveticaNeueW02-55Roma","Helvetica Neue",Helvetica,Arial,sans-serif;
+  color:#595959;
+  font-size:12px;
+  line-height:14px;
+  margin-bottom: 10px;
+  display:block;
+
+}
+
+.error {
+  display:none;
+  color:#e71921;
+  font-size:12px;
+  font-family:"HelveticaNeueW02-55Roma","Helvetica Neue",Helvetica,Arial,sans-serif;
+  margin-top:10px;
+}
+#simplemodal-container #return-address-model-dialog,#simplemodal-container #edit-return-address-model-dialog, #simplemodal-container #pfsl-terms-model-dialog {
+	background-color: #FFFFFF;
+	padding: 1px 100px;
+}
+.rtnadr-name span:nth-of-type(1) {
+    float:left;
+    margin-right:20px;
+}
+.rtnadr-name span:nth-of-type(2) {
+    float:left;
+    margin-right:20px;
+    width:50px;
+}
+.rtnadr-name span:nth-of-type(2) input {
+    width:50px
+}
+.rtnadr-bus-name {
+    clear: both;
+    margin-top: 25px;
+    /* margin-bottom:25px; */
+    display:inline-block;
+}
+
+.rtnadr-bus-name input{
+    width:485px;
+}
+
+ #streetaddress {
+    width:300px;
+ }
+.minor-m,.minor {
+    float: left;
+}
+
+input#city {width: 495px;}
+
+span {}
+
+label.rtn-addr-label {
+    clear: left;
+}
+
+input#city {}
+
+.rtnadr-state-zip span:nth-of-type(1) {
+    float: left;
+	   margin-top: 25px;
+}
+
+input#state {
+    width: 295px;
+    margin-right: 20px;
+}
+.std-msg {
+    display: block;
+    clear: both;
+    padding: 30px 0;
+    position: relative;
+	font-family: "HelveticaNeueW02-55Roma","Helvetica Neue",Helvetica,Arial,sans-serif;;
+    color: #595959;
+    font-size: 16px;
+}
+.btn-cta {
+		display:block;
+	clear:both;
+}
+.rtnadr-addr span:nth-of-type(1) {
+    float:left;
+    margin-right:20px;
+    margin-top: 25px;
+    margin-bottom: 25px;
+}
+.rtnadr-addr span:nth-of-type(2) {
+    float:left;
+	    margin-top: 25px;
+}
+.rtnadr-addr span:nth-of-type(2) input {
+    width:175px;
+}
+
+input#zipcode {
+    width: 180px;
+}
+
+.return-model-instruction-text {
+	margin-top: 20px;
+	margin-bottom: 30px;
+}
+div#modal-product-error.active {
+    font-size: 18px;
+    color: #333366;
+    margin-bottom: 17px;
+    line-height: 1.5;
+}
+.rq-info {
+	font-size: 12px;
+	line-height: 14px;
+	color: #595959;
+	text-align: left;
+	font-family: "HelveticaNeueW02-55Roma","Helvetica Neue",Helvetica,Arial,sans-serif;
+	margin-top:20px;
+	margin-bottom:25px;
+}
+.return-address-modal-body {
+    width: 500px;
+    overflow: hidden;
+}
+
+#modal-product-error.simplemodal-data, #modal-prepaid-success.simplemodal-data {
+    background-color: #FFFFFF;
+}
+#simplemodal-container {
+    background-color: white;
+    padding: 50px 32px;
+    height: 575px !important;
+}
+.product-success {
+    padding: 0 0;
+}
+
+#modal-prepaid-success .product-success {
+    padding: 0 0;
+}
+#modal-prepaid-success .product-success h2,#modal-product-error .product-action h2 {
+    color: #333366;
+    margin-bottom: 30px;
+    font-family: "HelveticaNeueW02-75Bold", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 30px;
+	    margin-bottom: 30px;
+    margin-top: 30px;
+}
+
+#modal-prepaid-success .product-success p {
+    margin-bottom: 13px;
+    font-size: 14px;
+    color: #595959;
+    line-height: 16px;
+}
+
+#modal-prepaid-success  .product-success p span {
+    font-family: "HelveticaNeueW02-75Bold", "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+#modal-prepaid-success  .product-success h3 {
+    font-family: "HelveticaNeueW02-75Bold", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size:20px;
+    color:#333366;
+
+}
+#modal-prepaid-success  .product-success p{
+    font-size:18px;
+    color:#595959;
+    line-height:24px;
+    font-family: "HelveticaNeueW02-55Roma","Helvetica Neue",Helvetica,Arial,sans-serif;
+}
+
+#modal-prepaid-success .product-success p a {
+    font-family: "HelveticaNeueW02-75Bold", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    color: #333366;
+}
+
+#modal-prepaid-success .product-success p a {
+    font-family: "HelveticaNeueW02-75Bold", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    color: #333366;
+    margin-right:35px;
+}
+#modal-prepaid-success .product-success p a:after {
+    content: "";
+    display: inline-block;
+    height: 17px;
+    width: 20px;
+    background-image: url(https://www.usps.com/store/images/text-link-carat-red.svg);
+    background-repeat: no-repeat;
+    top: 2px;
+    position: relative;
+   }
+   
+   
+   
+#modal-prepaid-success .product-success .btn-holder {
+    display: inline-block;
+    vertical-align: text-bottom;
+	    float: right;
+}
+#modal-prepaid-success .product-success .btn-holder a {
+    margin-bottom: 20px;
+    display: block;
+    vertical-align: top;
+}
+#modal-prepaid-success .rtn-addr-suc {
+margin-bottom: 30px;
+
+}
+#simplemodal-container #modal-view-label {
+	display:block;
+}
+#modal-view-label .view-label img {
+	display: block;
+	margin: 0 auto;
+	height: 500px;
+}
+#modal-view-label .view-label .btn-holder a {
+	display: inline-block;
+	margin: 20px;
+}
+#modal-view-label .view-label .btn-holder {
+	margin-left: 20%;
+}
+
+.zoom-product img {
+	margin: 0 auto;
+	display:block;
+}
+input#address-search {
+    width: 267px;
+}
+
+input.error-input {
+
+    border: 1px solid #e71921;
+}
+
+.e-active {
+	display: block !important;
+}
+.error-state {
+	font-size: 12px;
+	color: #e71921;
+	font-family: "HelveticaNeueW02-55Roma","Helvetica Neue",Helvetica,Arial,sans-serif;
+	margin-top:5px;
+}
+
+
+.rtnadr-state-zip span:nth-of-type(2) label {
+    margin-top: 25px;
+}
+.city_input {
+	margin-top:25px;
+}
+
+#return-address-model-dialog.active,#edit-return-address-model-dialog.active,#modal-product-error.active,#pfsl-terms-model-dialog.active {
+    width: 500px;
+	display:block !important; 
+    left: 30%;
+}
+.view-product.active {
+    width: 815px;
+    display:block !important;
+	left:17%;
+    min-height: 450px;
+}
+.btn-cta {
+	margin-bottom: 15px;
+}
+.view-product {
+}
+.view-product .product-content {
+	width: 70%;
+	min-height: 500px;
+}
+#modal-product-cart.active{
+    width: 800px;
+	display:block !important; 
+	left: 20%;
+}
+
+#modal-zoom-product.active {
+    width: 600px;
+    display: block !important;
+    left: 24%;
+    height: 600px;
+}
+.icon-zoom {
+z-index: 500;
+}
+
+
+#modal-prepaid-success.active {
+    width: 500px;
+	display:block !important; 
+	left:30%;
+}
+.view-label.active {
+    width: 360px;
+	display:block !important; 
+	left: 30%;
+}
+.simplemodal-data {
+	padding: 20px 2px 0px 3px;
+    background-color: #FFFFFF;
+    z-index: 1000;
+    border-radius: 3px;
+    margin: 0 auto;
+    position: fixed;
+    top: 10%;
+    left: 22%;
+    z-index: 9999;
+}
+#modal-holder.active {
+    width: 100%;
+    height: 100%;
+    background-color: rgba(5,5,5,.5);
+    position: fixed;
+    z-index: 9999;
+	top:0;
+	left:0;
+    margin: 0 auto;
+}
+.close_modal {
+    background: url('https://www.usps.com/store/images/close_x.svg') no-repeat;
+    height: 25px;
+    width: 25px;
+    cursor: pointer;
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background-size: cover;
+}
+.info-cta {
+    float: right;
+}
+
+#modal-product-cart .product-action .btn-holder,#modal-prepaid-success .product-action .btn-holder {
+    display: inline-block;
+    vertical-align: text-bottom;
+    float: right;
+}
+
+.view-product .store-product-order {
+    width: 100%;
+}
+
+.view-product .s-quantity {
+    width: 100%;
+}
+.view-product div.small-pct {
+	width:100%;
+}
+select#state {
+    height: 44px;
+    border: 1px solid #333366;
+    border-radius: 3px;
+    box-sizing: border-box;
+    width: 295px;
+    margin-right: 20px;
+    text-indent: 10px;
+    -webkit-appearance:none;
+    -moz-appearance:none;
+    appearance:none;
+    cursor:pointer;
+    background: url('https://www.usps.com/store/images/dropdown_carat_blue.svg') no-repeat;
+    background-position: 95% 55%;
+    background-size: 25px 25px;
+}
+@media screen and (-webkit-min-device-pixel-ratio:0) {
+    select#state {padding-right:0px}
+}
+.view-label .btn-holder {
+    width: 100%;
+    text-align: center;
+	margin-top:15px;
+}
+
+.mult-error p {
+    font-size:  15px;
+    color: #e71921;
+    margin-top: 15px;
+}
+
+	.related-product-holder.double-product {
+		max-width: 400px;
+	}
+	.double-product .related-product-image-holder {
+		width: 400px;
+	}
+	.result-page-stamps-holder.double-product {
+		max-width: 545px;
+		width: 100%;
+	}
+	.double-product .result-page-image-holder img {
+		width: 545px;
+	}
+	.result-page-stamps-holder.double-product {
+		max-width: 545px;
+		width: 100%;
+	}
+.double-product .related-product-info {
+    width: 400px;
+}
+.double-product .result-page-image-holder {
+    width: 545px;
+}
+.double-product .results-product-info {
+    width: 545px;
+}
+	.double-product .result-page-image-holder img {
+		width: 545px;
+	}
+.read-more-state ~ .read-more-target * {
+	opacity: 0;
+    height: 0;
+    transition: height .25s ease;
+}
+.read-more-state:checked ~ .read-more-target * {
+    height:auto;
+    transition: height .25s ease;
+	opacity: 1;
+}
+
+.double-product .product-quickview {
+    left: 24%;
+    bottom: 45%;
+}
+.btn-floatingtwo img, .btn-floatingone img {
+	display:none;
+}
+.btn-floatingtwo, .btn-floatingone {
+	width: 16px !important;
+	height: 16px !important;
+	background-image: url('https://www.usps.com/store/images/br_down.png');
+	background-size: 16px;
+	background-position: 0 0;
+}
+.icon-zoom {
+    background-image: url('https://www.usps.com/store/images/zoom.png');
+    background-size: 30px;
+    background-position: 0 0;
+    width: 30px;
+    height: 30px;
+    position: absolute;
+    bottom: 0px;
+}
+
+a.Zoom_image {
+    position: relative;
+}
+.info-icon img {
+    display: none;
+}
+
+.info-icon {
+    background-image: url('https://www.usps.com/store/images/info-icon.png');
+    background-size: 20px;
+    background-position: 0 0;
+    width: 20px;
+    height: 20px;
+    display: inline-block;
+    margin-left: 10px;
+}
+
+.breadcrumb-arrow img {
+    display: none;
+}
+
+.breadcrumb-arrow {
+    background-image: url('https://www.usps.com/store/images/ps-breadcrumb-doublearrow.png');
+    background-size: 11px 12px;
+    background-position: 0 0;
+    width: 11px;
+    height: 12px;
+    margin-left: 10px;
+    margin-right: 10px;
+}
+
+.increase {
+    width: 22px;
+    height: 22px;
+    background-image: url(https://www.usps.com/store/images/ps-plus.png);
+    background-size: 20px;
+    background-position: 0 0;
+    display: inline-block;
+    margin-left: 10px;
+    background-repeat: no-repeat;
+}
+.decrease {
+	width: 22px;
+	height: 22px;
+    background-image: url(https://www.usps.com/store/images/ps-minus.png);
+    background-size: 20px;
+    background-position: 0 0;
+    display: inline-block;
+    position: relative;
+    top: 0;
+    background-repeat: no-repeat;
+}
+.simplemodal-data span.decrease, .simplemodal-data span.increase {
+    top: 0;
+    position: relative;
+}
+.c-minmax p {
+    padding-top: 0;
+}
+input.cart-quantity {
+   border-radius: 3px;
+   box-sizing: border-box;
+   width: 45px;
+   display: inline-block;
+   vertical-align:top;
+   height: 30px;
+   text-align: right;
+   color:#595959;
+   border: 1px solid #333366;
+   text-align:center;
+   margin-left: 10px;
+   margin-top: -5px;
+   font-size: 16px; 
+}
+
+.facet-toggle-holder {
+	position:relative;
+    left: -5px;
+}
+.facet-toggle-holder.less a:after {
+	transform: rotate(180deg);
+    -ms-transform: rotate(180deg); 
+    -webkit-transform: rotate(180deg);
+}
+.facet-toggle-holder a:after {
+    content: '';
+    width: 10px;
+	height:10px;
+    background-image: url('https://www.usps.com/store/images/dropdown_carat_blue.svg');
+	display:inline-block;
+	position:absolute;
+	bottom:4px;
+	background-repeat: no-repeat;
+	right:-18px;
+}
+
+a.facet-toggle {
+    font-size: 16px;
+    margin-left: 0;
+    display: inline-block;
+    position: relative;
+    margin: 30px 15px 0px 0px;
+    vertical-align: middle;
+    padding-top: 0px;
+    padding-left: 0;
+    border-bottom: 1px solid #333366;
+    max-width: 84px;
+    padding-bottom: 2px;
+}
+
+.breadcrumb-cartridge span {
+    margin: 10px;
+    background-color: #e9e9e9;
+    padding: 10px 10px;
+    border-radius: 3px;
+    cursor: pointer;
+    display: inline-block;
+    margin-left: 0;
+}
+.breadcrumb-cartridge {
+    margin-top: 30px;
+    padding-top: 20px;
+    padding-bottom: 20px;
+    color: #333366;
+    font-family: "HelveticaNeueW02-55Roma", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 16px;
+    display: block;
+    height: auto !important;
+}
+
+.result-pagination li:last-of-type {
+    transition: none;
+}
+.result-arrow {
+    background-image: url("https://www.usps.com/store/images/usps_l_nav_red_arrow.svg");
+    background-repeat:no-repeat;
+    display: inline-block;
+    text-indent: -99999px;
+}
+
+.result-pagination .red-next {
+    -ms-transform: rotate(-90deg); /* IE 9 */
+    -webkit-transform: rotate(-90deg); /* Chrome, Safari, Opera */
+     transform: rotate(-90deg); 
+}
+
+.result-pagination .red-prev {
+    -ms-transform: rotate(90deg); /* IE 9 */
+    -webkit-transform: rotate(90deg); /* Chrome, Safari, Opera */
+     transform: rotate(90deg); 
+}
+.result-pagination li:last-of-type {
+    transition: none;
+}
+.result-pagination li.result-arrow:hover {
+	opacity: .5;
+    border-radius: 0%;
+    background-color: #FFFFFF;
+}
+.result-pagination .result-arrow a {
+	display: block;
+	text-indent: -999999px;
+	overflow: hidden;
+}
+.result-pagination .result-arrow {
+    position: relative;
+    top: 8px;
+}
+@media only screen and (max-width: 962px) and (min-width:961px){
+.result-pagination {
+	float:right;
+	display:inline-block;
+}
+
+}
+
+@media only screen and (max-width: 960px){
+	.result-checkbox-filter-by-holder {
+		padding-left:30px;
+	}
+.result-bar {
+	padding-left:30px;
+	padding-right: 30px;
+	width: 100%;
+	box-sizing: border-box;
+}	.result-pagination li:not(.result-arrow) {
+		display:none;
+	}
+.store-header h1 {
+	padding-left:30px;
+}
+.horizontal-tabs-header h1 {
+    padding-left: 30px;
+}
+	.result-pagination li.mobile-page {
+		display:inline-block !important;
+		width:200px;
+		font-size: 18px;
+		margin-top:30px;
+		margin-bottom:50px;
+
+	}
+
+	.result-pagination li.mobile-page input {
+		width:40px;
+		height: 30px;
+		border: 1px solid #333366;
+		border-radius: 5px;
+		margin-left:10px;
+		margin-right:10px;
+		text-align: center;
+	}
+	.result-pagination li.mobile-page:hover{
+		border-radius: 0%;
+		background-color: #FFFFFF;
+		transition: none;
+	}
+	.result-pagination-holder {
+		float:left;
+		clear:both;
+	}
+}
+
+.store-search-form .search-wrapper {
+    border: 1px solid #333366;
+    box-sizing: border-box;
+    height: 40px;
+    display: inline-block;
+    border-radius: 5px;
+}
+input#store-search {
+    border: 0;
+    width: 250px;
+    text-indent: 10px;
+    display: inline-block;
+    height: 30px;
+    margin-top: 3px;
+	font-size:15px;
+}
+input.store-search-btn {
+    background-color: #333366;
+    color: white;
+    box-shadow: none;
+    padding: 0;
+    border: 0px;
+    height: 38px;
+    border-radius: 4px;
+    float: right;
+    width: 42px;
+    cursor: pointer;
+    background-image: url('https://www.usps.com/store/images/search-submit-white.png');
+    background-repeat: no-repeat;
+    background-size: 39px;
+    background-position: center center;
+	position:relative;
+	right:-1px;
+}
+input.store-search-btn:hover {
+    opacity: 0.8;
+    filter: alpha(opacity=80);
+}
+form.store-search-form {
+    float: right;
+    margin-right: 0;
+}
+input#store-search::placeholder {
+    color: #999999;
+}
+
+.hidden {
+	display: none;
+}
+.recently-viewed-product-holder.double-product {
+    max-width: 400px;
+}
+.double-product .recently-viewed-product-image-holder {
+    width: 400px;
+}
+
+.double-product .recently-viewed-product-info {
+    width: 400px;
+}
+.double-product .recently-viewed-product-quickview {
+    left: 24%;
+    bottom: 45%;
+}
+.full-width-promotion {
+    margin-top: 15px;
+	margin-bottom: 15px;
+	margin-left: 0px;
+    padding-right: 10px;
+	color: #333366;
+	font-size: 15px;
+	line-height:20px;
+	font-family: "HelveticaNeueW02-65Medi", "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+
+.cartridge-search-suggest .no-product, .cartridge-search-instead .no-product, .no-product {
+    padding:0;
+    margin:0;
+    clear:none;
+    line-height: 20px;
+    font-size: 16px;
+
+}
+.cartridge-search-suggest .no-product p,.cartridge-search-instead .no-product p {
+    padding-bottom:0;
+    margin-bottom:0;
+}
+.cartridge-search-suggest strong, strong, .cartridge-search-instead strong, b {
+	    font-family: "HelveticaNeueW02-75Bold", "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+.breadcrumb-cartridge span:first-of-type {
+}
+@media only screen and (max-width: 960px) {
+    .cartridge-search-suggest,.cartridge-search-instead{
+         margin-top:10px;
+         min-width: 11%;
+		 margin-bottom:10px;
+	     white-space: nowrap;
+    }
+.product-page-footer-holder .cartridge-viewport {
+    padding-left: 30px;
+}
+}
+
+@media only screen and (min-width: 961px) {
+.result-checkbox-filter-by-holder~.result-products-holder,.result-checkbox-filter-by-holder~.results-2-media-banner {
+    margin-left: 0;
+}
+    .cartridge-search-suggest,.cartridge-search-instead{
+		 margin-bottom:10px;
+		     white-space: nowrap;
+    }
+
+}
+
+@media only screen and (min-width: 1800px){
+    .result-page-wrapper .cartridge-viewport {
+        max-width: none; 
+    }
+}
+@media screen and (max-width: 950px) {
+	.two-thirds-product-spotlight-promotion {
+		margin-left: 0!important;
+	}
+}
+
+@media only screen and (max-width:959px){
+	.result-bar .cartridge-viewport {
+		margin-left:5%;
+	}
+	.two-thirds-product-spotlight-promotion {
+		margin-bottom: 60px;
+	}
+}
+
+@media only screen and (min-width:1600px){
+	.result-bar-contents {
+		float: none !important;
+		max-width: 1500px;
+	}
+
+	.result-page-wrapper {
+		max-width: 1500px;
+		float: none !important;
+	}
+}
+
+.result-page-wrapper:before {
+    content: '';
+    display:block;
+    margin-bottom:10px;
+}
+
+.no-results-found {
+    margin-bottom: 50px;
+}
+.btn-cta.center {
+    text-align: center;
+}
+
+.result-page-image-holder img{
+    width: 270px;
+    height: 270px;
+}
+
+.recently-viewed-product-img,.related-product-img {
+    height: 170px;
+    width: 170px;
+}
+
+.horizontal-record-spotlight-product .product-img .product-img-holder, .two-thirds-product-img .two-thirds-product-img-holder {
+    /* width: 138px; */
+    /* height: 138px; */
+    margin-bottom: 15px;
+}
+
+/*** Format Buttons ****/
+
+.format-btn {
+    background-color: #FFFFFF;
+    cursor: auto;
+    display: inline-block;
+    border: 2px solid #ededed;
+    padding: 5px;
+    border-style: solid;
+    color: #333366;
+    font-family: "HelveticaNeueW02-75Bold", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    width: 100px;
+    margin-bottom: 10px;
+    margin-left: 5px;
+    border-radius: 3px;
+    font-size: 20px;
+    vertical-align: top;
+    text-align: center;
+}
+
+.format-btn span {
+    display: block;
+    font-family: "HelveticaNeueW02-55Roma", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 13px;
+    vertical-align: middle;
+}
+.format-btn.active,.format-btn:hover  {
+    background-color: #ededed;
+    cursor: auto;
+    border-bottom-color: red;
+}
+
+.s-quantity {
+    margin-top: 18px;
+    overflow: hidden;
+    width: 400px;
+}
+
+.format-btn.discontinued, .s-quantity .format-btn.discontinued {
+    opacity: .5;
+    border: 2px solid red;
+    background-image: linear-gradient(to bottom right, transparent calc(50% - 1px), red, transparent calc(50% + 1px));
+    background: -moz-linear-gradient(to bottom right, transparent calc(50% - 1px), red, transparent calc(50% + 1px));
+    background: -ms-linear-gradient(to bottom right, transparent calc(50% - 1px), red, transparent calc(50% + 1px));
+    background: -o-linear-gradient(to bottom right, transparent calc(50% - 1px), red, transparent calc(50% + 1px));
+    background: linear-gradient(to bottom right, white 49%, red 50%,white 51%);
+}
+.s-quantity .format-btn.discontinued, .format-btn.discontinued:hover ,.format-btn.discontinued.active {
+    opacity: .5;
+    border:2px solid #E71921;
+    background-color: #FFFFFF;
+}
+
+/**** END FORMAT BUTTONS ***/
+
+
+@media only screen and (min-width: 1600px){
+    .view-product.simplemodal-data.active {
+        left: 30%
+    }
+}
+
+/** Sizing Fixes **/
+
+.product-information .info-cta {
+    margin-left: 20px;
+}
+/** END SIZING FIXES **/
+
+.results-product-preview-price p,.related-product-preview-price p,.recently-viewed-product-preview-price p,.two-thirds-product-preview-price p,.product-preview-price p {
+    display: block;
+    margin-right: 10px;
+}
+.results-product-preview-price span,.related-product-preview-price span,.recently-viewed-product-preview-price span,.two-thirds-product-preview-price span,.product-preview-price span {
+    color: #218748;
+    display: block;
+    font-family: "HelveticaNeueW02-75Bold", "Helvetica Neue", Helvetica, Arial, sans-serif; }
+	
+	
+
+	/* Sizing 2.0*/
+
+@media only screen and (min-width:1600px){
+	.cartridge-viewport {
+		max-width: 1500px !important;
+	}
+	.recently-viewed-product-wrapper .cartridge-viewport, .product-details .cartridge-viewport,.head-links .cartridge-viewport, .product-detail-tabs-wrapper .cartridge-viewport,.related-product-wrapper .cartridge-viewport {
+		margin:0 auto;
+	}
+	.result-page-wrapper {
+		max-width: 1500px;
+		margin:0 auto;
+	}
+}
+
+
+.no-product .button--primary {
+    margin-bottom: 30px;
+}
+
+i {
+    font-style: italic;
+}
+
+@media screen and (max-width: 1100px){
+	.view-product.active {
+		left: 10%;
+	}
+}
+	
+@media screen and (max-width: 1000px){
+	.view-product.active {
+		left: 6%;
+	}
+}
+
+@media screen and (max-width: 900px){
+	.view-product.active {
+		left: 0.3%;
+	}
+}
+
+@media only screen and (max-width:850px){
+	.product-quickview,.recently-viewed-product-quickview,.related-product-quickview,.homepage-product-quickview,.two-thirds-product-quickview {
+		display: none !important;
+	}
+}
+
+.results-return {
+    max-height: 0;
+    opacity: 0;
+    position: fixed;
+    bottom: 25px;
+    right: 0px;
+    -moz-transition: opacity 250ms ease;
+    -ms-transition: opacity 250ms ease;
+    -webkit-transition: opacity 250ms ease;
+    transition: opacity 250ms ease;
+
+}
+
+.results-return.active {
+    position: fixed;
+    bottom: 25px;
+    right: 0px;
+    z-index: 999;
+    opacity: 1;
+    max-height: 50px;
+    -moz-transition: opacity 250ms ease;
+    -ms-transition: opacity 250ms ease;
+    -webkit-transition: opacity 250ms ease;
+    transition: opacity 250ms ease;
+}
+.results-return a img {
+	display:block;
+}	
+
+
+@media (max-width: 1200px){
+    .result-page-stamps-holder:nth-of-type(odd) {
+        float: left;
+        margin-left: 30px;
+    }
+    .result-page-stamps-holder:nth-of-type(even) {
+        float: right;
+        margin-right: 50px;
+		margin-left:10px;
+    }
+	.results-2-media-banner.premium-banner-stamps{
+		/* margin-left:30px; */
+		/* width:80%; */
+		box-sizing:border-box;
+	}
+
+}
+.store-navigation-categories li:last-of-type{
+    padding-right:0;
+    
+}
+@media (max-width: 1500px) and (min-width: 1201px){
+    .result-products-holder .cartridge-viewport .result-page-stamps-holder:nth-child(3n+2) {
+        float: left;
+        margin-left: 30px;
+    }
+
+   .result-products-holder .cartridge-viewport .result-page-stamps-holder:nth-child(3n+3) {
+        float: left;
+        margin-left: 4%;
+    }
+    .result-products-holder .cartridge-viewport .result-page-stamps-holder:nth-child(3n+4) {
+        float: right;
+        margin-right: 30px;
+        margin-left: 0;
+       }
+	.result-checkbox-filter-by-holder~.result-products-holder, .result-checkbox-filter-by-holder~.results-2-media-banner, .result-checkbox-filter-by-holder~.breadcrumb-cartridge, .result-checkbox-filter-by-holder~.two-thirds-product-spotlight-promotion, .result-checkbox-filter-by-holder~.two-thirds-cartridge, .result-checkbox-filter-by-holder~.cartridge-search-suggest, .result-checkbox-filter-by-holder~.cartridge-search-instead {
+		width: 77%;
+	}
+	.result-checkbox-filter-by-holder {
+		width: 23%;
+	}
+}
+@media (max-width: 1200px) and (min-width: 1000px){
+	.result-checkbox-filter-by-holder~.result-products-holder, .result-checkbox-filter-by-holder~.results-2-media-banner, .result-checkbox-filter-by-holder~.breadcrumb-cartridge, .result-checkbox-filter-by-holder~.two-thirds-product-spotlight-promotion, .result-checkbox-filter-by-holder~.two-thirds-cartridge, .result-checkbox-filter-by-holder~.cartridge-search-suggest, .result-checkbox-filter-by-holder~.cartridge-search-instead {
+		width: 65%;
+	}
+	.result-checkbox-filter-by-holder {
+		width: 35%;
+	}
+}
+@media (max-width: 999px) and (min-width: 815px){
+	.result-checkbox-filter-by-holder~.result-products-holder, .result-checkbox-filter-by-holder~.results-2-media-banner, .result-checkbox-filter-by-holder~.breadcrumb-cartridge, .result-checkbox-filter-by-holder~.two-thirds-product-spotlight-promotion, .result-checkbox-filter-by-holder~.two-thirds-cartridge, .result-checkbox-filter-by-holder~.cartridge-search-suggest, .result-checkbox-filter-by-holder~.cartridge-search-instead {
+		width: 75%;
+	}
+	.result-checkbox-filter-by-holder {
+		width: 25%;
+	}
+}
+@media (max-width: 865px){
+	.result-page-stamps-holder:nth-of-type(even), .result-page-stamps-holder:nth-of-type(odd) {
+		width: 270px;
+		float:none;
+		margin:0 auto;
+	}
+}
+@media (min-width: 1300px) and (max-width:1500px){
+   .result-products-holder .cartridge-viewport .result-page-stamps-holder:nth-child(3n+3) {
+        margin-left: 12%;
+    }
+}
+
+@media (min-width: 1600px){
+    .search-endeca .cartridge-viewport {
+        max-width: 1500px;
+        margin: 0 auto;
+        position: relative;
+    }
+}
+
+@media (max-width: 1599px){
+    .search-endeca .cartridge-viewport {
+         padding-right: 30px;
+    }
+    .results-per-page {
+        padding-right:30px;
+        box-sizing:border-box
+    }
+    .recently-viewed-product-wrapper .cartridge-viewport, .product-details .cartridge-viewport,.head-links .cartridge-viewport, .product-detail-tabs-wrapper .cartridge-viewport,.related-product-wrapper .cartridge-viewport {
+		padding-left:30px;
+		padding-right: 30px;
+	}
+}
+
+@media only screen and (min-width: 959px) {
+	.button--primary + .button--primary {
+		margin-left: 10px;
+	}
+}
+
+@media (min-width: 1501px){
+	.result-checkbox-filter-by-holder {
+		width: 18%;
+	}
+	.result-checkbox-filter-by-holder~.result-products-holder, .result-checkbox-filter-by-holder~.results-2-media-banner, .result-checkbox-filter-by-holder~.breadcrumb-cartridge, .result-checkbox-filter-by-holder~.two-thirds-product-spotlight-promotion, .result-checkbox-filter-by-holder~.two-thirds-cartridge, .result-checkbox-filter-by-holder~.cartridge-search-suggest, .result-checkbox-filter-by-holder~.cartridge-search-instead {
+		width: 82%;
+	}
+	.result-page-stamps-holder {
+		margin-left:30px;
+	}
+}
+.checkmark {
+	cursor:pointer;
+    display:inline-block;
+    width: 22px;
+    height:0px;
+	margin-right: 3px;
+    margin-left: 17px;	
+    -ms-transform: rotate(45deg); /* IE 9 */
+    -webkit-transform: rotate(45deg); /* Chrome, Safari, Opera */
+    transform: rotate(45deg);
+}
+.checkmark_stem {
+    position: absolute;
+    width: 2px;
+    height: 24px;
+    background-color: #fff;
+    left: 20px;
+    top: 5px;
+}
+.checkmark_kick {
+    position: absolute;
+    width: 8px;
+    height: 2px;
+    background-color: #fff;
+    left: 13px;
+    top: 27px;
+}

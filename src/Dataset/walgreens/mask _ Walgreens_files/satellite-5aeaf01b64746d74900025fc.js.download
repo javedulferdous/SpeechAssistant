@@ -1,0 +1,8 @@
+_satellite.pushAsyncScript(function(event, target, $variables){
+  if(_satellite.getVar("Enable_DTM_CCPA") === "false") {  
+$('body').on('click', '.search-result-list-container .wag-compare-quickcmpbuttons>a, .wag-compare-drawer-box a:eq(1)', function(e){
+    window.location.href = '/search/productcomparison.jsp?reactjs=true';
+    return false;
+  });
+}
+});

@@ -1,0 +1,133 @@
+var site = site || {};
+site.myAccount = site.myAccount || {};
+
+(function ($) {
+    
+  $(document).ready(function(){
+ 
+    // dont bind to 'refillable' class since we want a popover.
+    site.myAccount.initAddToBag( $('.js-add-to-bag').not('.js-add-to-bag.refillable') );
+
+    site.myAccount.replenishmentInit();
+    
+    $('.product-item').not('.device-mobile .product-item').each( function() {
+
+      var $mas = $(this);
+
+      // check inventory status
+      //$(document).bind('inventory_status_stored', function(){
+      //  var undef;
+      //  var o_sku = $(document).data('SKU' + $('.add-to-bag', $mas).attr('data-skubaseid'));
+      //  if(!((o_sku !== undef) && ((o_sku.isOrderable == 1) || (o_sku.INVENTORY_STATUS == 3)))){
+      //    $('.js-add-to-bag', $mas).css('display', 'none');
+      //  }
+      //});
+
+      // attach replenishment if there
+      if($('#alter_replenishment', $mas).length > 0) {
+        $('#alter_replenishment', $mas).change(function(e){
+            
+          e.preventDefault();
+          $('.js-add-to-bag', $mas).attr('data-freq', $(e.target).val());
+        });
+      }
+
+    });
+
+  });
+
+  site.myAccount.replenishmentInit = function( ) {
+    /* this method does a few things
+     * #1 setup replenishment form behavior to add necessary values for add to bag
+     * #2 toggle the content inside the popup to show details
+     * #3 bind the reorder button to show the overlay to allow the user to add to cart
+     */
+      
+      // when the user chooses a frequency in the popup we want to make sure its added to bag like that
+      $('.alter_replenishment_form').each(function() {
+          $(this).change(function(e){
+            e.preventDefault();
+
+            var sku_base_id = $(this).find('input[name="SKU_BASE_ID"]').val();
+            $('.replenishment__product__add__SKU' + sku_base_id).find('.js-add-to-bag').attr('data-freq', $(e.target).val());
+        });
+      });
+
+      // we show copy to the user about replenishment service inside the content there is a link ('learn more') to show more details
+      $('.js-replenishment-content').click(function(){
+        // show or hide content when the user clicks the 'learn more' link
+        var replenishmentMoreContentNode = $('.replenishment-service__learn_more');
+        $(replenishmentMoreContentNode).toggle();
+        $.colorbox.resize();
+      });
+          
+      $('.js-add-to-bag.refillable').click(function(){
+        
+        // this is used to trigger an overlay close after add to bag is called
+        site.myAccount.overlayLaunched = 1;
+        
+        var html = $(this).parent().find('div.js-replenishment_popover').show();
+
+        // get the scroll bar position before the window opens so we can scroll back to that position after the popover is closed
+        var position = $("html,body").scrollTop();
+        var $activeElement = $(document.activeElement);
+
+        generic.overlay.launch({
+          href: html,
+          inline: true,
+          cssStyle : {
+            width: 480,
+            height: 'auto',
+            fixed:true,
+            onCleanup: function(){ 
+                html.hide(); 
+                $("html,body").scrollTop(position);
+                site.restrict_navigation(html);
+            },
+            onClosed: function() {
+              $activeElement.focus();
+            }
+          }
+        }); 
+      });
+  };
+  
+  /* The below code should probably be moved to a shared location. It currently handles addToBag for my_account_sku and my_account_product */
+  site.myAccount.initAddToBag = function( $addLinks ) {
+    $addLinks.unbind();
+    $addLinks.once().bind( "click", function(e) {
+      e.preventDefault();
+      var $addLink = $(this);
+      var progressNode = $(this).siblings('.add-progress');
+
+      if ( progressNode.length ) {
+        $addLink.hide();
+        progressNode.show();
+
+        $(document).one("addToCart.success addToCart.failure", function () {
+          progressNode.hide();
+          $addLink.show();
+        });
+      }
+
+      var freq = $addLink.attr("data-freq");
+      var args = {
+        skuBaseId: $addLink.attr("data-sku-base-id")
+      };
+      
+      if (typeof freq !== 'undefined' && freq !== false) {
+        args.REPLENISHMENT_FREQ = freq;
+        args.itemType= 'replenishment';
+        args.add_to_cart = 1;
+      }
+
+      prodcat.ui.addToCart(args);
+
+      // close the overlay if its been opened after add to bag is called
+      if (site.myAccount.overlayLaunched) {
+        generic.overlay.hide();
+      }
+    });
+  };
+
+})(jQuery);

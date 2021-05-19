@@ -1,0 +1,844 @@
+var iOAIconHolder='<div id="toolHolder_left" class="toolHolder_left"></div><div class="icons" id="ioaToolHolder"></div><div id="toolHolder_right" class="toolHolder_right"></div>';var first='<div class="ioaImages" id="faqimg"><a href="https://global.americanexpress.com/help?inav=iNUtlContact" class="ioaEnter" id="faqAnchor" title="" rel="tooltip" onmouseenter=showIOAToolTip("ioaFaqTooltip") onmouseleave=hideIOAToolTip("ioaFaqTooltip")></a><div id="ioaFaqTooltip" class="ioaTooltip"><div class="tipHeader"></div><div class="tipBody"><h3>Frequently Asked Questions</h3><p>Get answers instantly.</p></div><div class="tipFooter"></div></div></div>';var second='<div class="ioaImages" id="phoneimg"><a href="https://global.americanexpress.com/help?inav=iNUtlContact" class="ioaEnter" id="phoneAnchor" title="" rel="tooltip" onmouseenter=showIOAToolTip("ioaPhoneTooltip") onmouseleave=hideIOAToolTip("ioaPhoneTooltip")></a><div id="ioaPhoneTooltip" class="ioaTooltip"><div class="tipHeader"></div><div class="tipBody"><p class="pHover">Contact Us</p><p>Call, chat or write.</p></div><div class="tipFooter"></div></div></div>';var third='<div class="ioaImages" id="smimg"><a href="https://global.americanexpress.com/help?inav=iNUtlContact" class="ioaEnter" id="smAnchor" title="" rel="tooltip" onmouseenter=showIOAToolTip("ioaSMTooltip") onmouseleave=hideIOAToolTip("ioaSMTooltip")></a><div id="ioaSMTooltip" class="ioaTooltip"><div class="tipHeader"></div><div class="tipBody"><p class="pHover">Follow Us</p><p>Connect on social media.</p></div><div class="tipFooter"></div></div></div>';var iOAsearchBar='<div id="searchImg"><div id="iOASearchForm" name="Search"><div class="ioaSmallSearch_left"></div><fieldset><legend>Search US website</legend><label for="iOASearchInput">Search</label><input type="text" id="iOASearchInput" name="q" value="" title="Search" onkeyup="getOAsearch(event,this.value)" onfocus="getOAsearch(event,this.value)" /><span id="ioaPHText" class="ioaPHText"></span><button type="button" id="iOASearchBtn" value="" title="Search" onclick="clickSearchIcon()">Search</button></fieldset></div></div>';var ioaNewiNavSrchBtn='<div onmouseover=shownavTooltip("newNavSearchToolTip") onmouseout="hidenavTooltips()"><a href="#" class="ioaNavSrchBtn" title="Search" onclick="searchButtonClicked(event);"><span class="ioaSrchBtnIcon"></span></a></div>';var ioaNewiNavHelpBtn='<a href="https://global.americanexpress.com/help?inav=iNUtlContact" class="ioaNavHelpBtn" title="Help">Help</a>';var ioaNewiNavSearch='<div class="ioaNavHeaderTooltip" id="newNavSearchToolTip"><span id="searchTriangle" class="ioaNavTooltipTriangle"></span>Search</div><div class="ioaNavHeaderTooltip" id="newNavhelpToolTip"><span id="helpTriangle" class="ioaNavTooltipTriangle"></span>Help</div><div id="searchImg" class="ioaSrchBarText"><div id="iOASearchForm" name="Search" class="ioaSrchView"><div class="ioaInnerSrchHolder"><input type="text" id="iOASearchInput" name="q" value="" title="Search" autocomplete="off" onkeyup="getOAsearch(event,this.value)" onfocus="getOAsearch(event,this.value)" onkeydown="hidePlaceHolder()" onfocusout="showPlaceHolderAA()"><span id="ioaPHText" class="ioaPHText" onclick="foucsPHInput(event)">Search (eg: APR, Balance, Credit Limit, Offers)</span><div id="ioaNavSrchInputIcon"></div><a href="#" id="ioaNavSearchClear" onclick="sbClearButtonClicked();"></a><div id="ioaNavSrchInputLoader"></div></div><a href="#" class="ioaNavSrchCloseBtn" onclick="sbCloseButtonClicked();">Close</a></div></div>';var summerNavHTML='<div id="ioaToolHolder" class="icons " style="width: 286px;"><div id="searchImg"><div name="Search" id="iOASearchForm" class="" onclick=openSearchBox(this)><div id="ioaNewSrchLt" class="ioaNewSrchLt"></div><input type="text" title="Search" value="" name="q" id="iOASearchInput" autocomplete="off" onblur=summerNavInputBlur() onkeydown=hideSummerNavPlaceHolder()  onfocus=getQLinks(event,this.value) onkeyup=getQLinks(event,this.value)><span class="ioaPHText" id="ioaPHText" style="display: none;">Search</span><div id="ioaNewSrchRt" class="ioaNewSrchRt"></div></div><div class="ioaHelpLayer"><div title="Help" id="ioaHelpCol" class="ioaHelpCol" tabindex="0" onmouseover=showHelpPopUp() onmouseleave=hideHelpPopUp() onclick=toggleHelpPopup()>Help<span class="ioaDownArr"></span><div id="ioaHelpPopUp" class="ioaHelpPopUp" style="display: none;" onmouseover=showHelpPopUp() onmouseleave=hideHelpPopUp()><div id="faqimg" class="ioaImages"><a rel="tooltip" title="Frequently Asked Questions" id="faqAnchor" class="ioaEnter" href="https://global.americanexpress.com/help?inav=iNUtlContact" onmouseenter=showIOAToolTip("ioaFaqTooltip") onmouseleave=hideIOAToolTip("ioaFaqTooltip")><span id="faqAnchorText" class="faqAnchorText">Site FAQ</span></a></div><div id="phoneimg" class="ioaImages"><a rel="tooltip" title="Contact Us" id="phoneAnchor" class="ioaEnter" href="https://global.americanexpress.com/help?inav=iNUtlContact" onmouseenter=showIOAToolTip("ioaPhoneTooltip") onmouseleave=hideIOAToolTip("ioaPhoneTooltip")><span id="phoneAnchorText" class="phoneAnchorText">Contact Us</span></a></div><div id="smimg" class="ioaImages"><a rel="tooltip" title="Social Media" id="smAnchor" class="ioaEnter" href="https://global.americanexpress.com/help?inav=iNUtlContact" onmouseenter=showIOAToolTip("ioaSMTooltip") onmouseleave=hideIOAToolTip("ioaSMTooltip")><span id="smAnchorText" class="smAnchorText">Connect Socially</span></a></div></div></div></div></div></div>';var chatEligibleApps=["accountsummary","estmt","onlinepayment","accountprofile","credit-cards/benefits","rewards","ATWORK","OSPC","gmip","business-card-application","small-business","credit-card","acctserv","extra","atwork","ciw","gmip","cop","ResourceCenter","supplier-payments","atWork","iers","amexbta","resourcecenter","payve","myPA","mstr8t","startChat","ssearch.jsp","merchant","travel","amex-website","amex-qa","lending/enroll","statementimage","ofxdl","tasdsgn","creditscore","creditcenter","myca/cpwd","myca/glosss","centurion/cspa","marketingcorner","knowledgecenter","myca/gce","myca/oce","myca.americanexpress.com","personal-loans"];var targetScore="";var xhr;var overLayMaster=null;var faqMaster=null;var qLinksMaster=null;var parentImg=null;var SERVER_URL=null;var ONE_AMEX_SERVER_URL = null;var HOME_PAGE_SERVER_URL=null;var isTestPage=false;var searchBarHasFocus=false;var onlineTabLoaded=false;var AAVer="?vra1.0";var result_n=0;var frominPageFaqLink=false;if(typeof String.prototype.trim!=="function"){String.prototype.trim=function(){return this.replace(/^\s+|\s+$/g,"")}}if(!window.console){console={log:function(){}}}if(IOASSIST===null||typeof(IOASSIST)==="undefined"){var IOASSIST=new Object()}IOASSIST.ioaBox={appProduct:"",appCategory:"",inPageFaqLink:false,footerLinkClicked:false,ioaUserInput:false,ioaLAMstatus:true,ioaOmnOnChat:function(){if(document.getElementById("ioaLCBtn")!=null){document.getElementById("ioaLCBtn").addEventListener("click",function(f){if(f.preventDefault){f.preventDefault()}else{f.returnValue=false}})}var a="StartChat";var c=document.getElementById("ioaSelectedOption").innerHTML;if(c==="Membership Rewards"){return}var d=document.getElementById("ioaLMBtn");if(typeof d==="undefined"){return}if(typeof d.childNodes==="undefined"){return}var b=d.childNodes[0];if(b.className.indexOf("ioaDisabled")>-1){a="StartChat-noLAM"}else{a="StartChat-LAMAvailable"}if(typeof(omn_rmassistaction)==="function"){omn_rmassistaction("Click",a)}},ioaOmnOnLAM:function(){if(document.getElementById("ioaLMBtn")!=null){document.getElementById("ioaLMBtn").addEventListener("click",function(d){if(d.preventDefault){d.preventDefault()}else{d.returnValue=false}})}var a="";var c=document.getElementById("ioaLMBtn");if(typeof c==="undefined"){return}if(typeof c.childNodes==="undefined"){return}var b=c.childNodes[0];if(b.className.indexOf("ioaDisabled")>-1){a="LeaveMessage-noChat"}else{a="LeaveMessage-chatAvailable"}if(typeof(omn_rmassistaction)==="function"){omn_rmassistaction("Click",a)}},iOALayerFaqCall:function(e,a,d){var c=""+e;var b=""+a;c=c.replace(".",",");b=b.replace(".",",");IOASSIST.ioaBox.appProduct=c;IOASSIST.ioaBox.appCategory=b;IOASSIST.ioaBox.inPageFaqLink=true;IOASSIST.ioaBox.footerLinkClicked=true;openAA("faq",null);window.scroll(0,50);frominPageFaqLink=true},footerContactUS:function(a){window.location.href = 'https://global.americanexpress.com/help?inav=iNUtlContact';},ioaLMessage:function(a){if(a=="show"){IOASSIST.ioaBox.ioaLAMstatus=true}else{if(a=="hide"){IOASSIST.ioaBox.ioaLAMstatus=false}}IOASSIST.ioaBox.ioaSetLAMSection()},ioaLiveChat:function(a){if(a=="yes"){IOASSIST.ioaBox.ioaSetOnlineTab=true;IOASSIST.ioaBox.ioaUserInput=true}else{IOASSIST.ioaBox.ioaSetOnlineTab=true;IOASSIST.ioaBox.ioaUserInput=false}IOASSIST.ioaBox.ioaSetLAMSection()},ioaSetLAMSection:function(){if(IOASSIST.ioaBox.ioaLAMstatus){if(IOASSIST.ioaBox.ioaUserInput){document.getElementById("ioaLeaveMsg").querySelectorAll(".ioaLMHdr")[0].innerHTML="No Time to Chat?";document.getElementById("ioaLeaveMsg").querySelectorAll(".ioaLMTxt")[0].innerHTML="Drop us a message and we'll get back to you shortly."}else{document.getElementById("ioaLeaveMsg").querySelectorAll(".ioaLMHdr")[0].innerHTML="Live Chat Not Available, Leave Us a Message!";document.getElementById("ioaLeaveMsg").querySelectorAll(".ioaLMTxt")[0].innerHTML="Drop us a message and we'll get back to you shortly."}}else{if(IOASSIST.ioaBox.ioaUserInput){document.getElementById("ioaLeaveMsg").querySelectorAll(".ioaLMHdr")[0].innerHTML="We apologize for the inconvenience.";document.getElementById("ioaLeaveMsg").querySelectorAll(".ioaLMTxt")[0].innerHTML="Leave a Message is currently unavailable. Please feel free to Chat with one of our Customer Care Professionals."}else{document.getElementById("ioaLeaveMsg").querySelectorAll(".ioaLMHdr")[0].innerHTML="We apologize for the inconvenience.";document.getElementById("ioaLeaveMsg").querySelectorAll(".ioaLMTxt")[0].innerHTML="All of our Live Chat Customer Care Professionals are currently busy. If this is an urgent matter, you can contact us using the number on the back of your Card or please check Live Chat again shortly."}}},iOALayerSMCcall:function(d){var e;var b;e=document.createElement("script");e.type="text/javascript";e.async="true";e.src="https://icm.aexp-static.com/content/dam/search/ioa/js/iOAssistJS.js?vr=49.0";e.id="iOAJSId1";document.getElementsByTagName("head")[0].appendChild(e);setTimeout(function(){loadIOA("global")},5000);if(document.getElementById("aaOverlayContainer")!=null){var c=document.getElementById("aaOverlayContainer");c.innerHTML=""}if(document.getElementById("overLayMaster")==null){overLayMaster=document.createElement("div");setCSSProperties(overLayMaster);overLayMaster.setAttribute("id","overLayMaster");document.body.appendChild(overLayMaster);var a="<img id='aaloader' src='https://web.aexp-static.com/common/css/images/main-loader.gif?vra1.0' style='position:absolute; top:250px; left:650px;'>";document.getElementById("overLayMaster").innerHTML=a;overLayMaster.style.display="block"}else{var a="<img id='aaloader' src='https://web.aexp-static.com/common/css/images/main-loader.gif?vra1.0' style='position:absolute; top:250px; left:650px;'>";document.getElementById("overLayMaster").innerHTML=a;overLayMaster.style.display="block"}setTimeout(function(){IOASSIST.ioaBox.iOALayerSMCcall(d)},15000);setTimeout(function(){overLayMaster.style.display="none"},17000)},getTargetscore:function(url,guid){var xhr;if(!xhr)xhr=new XMLHttpRequest;else if(xhr.readyState!==0){xhr.abort();xhr=new XMLHttpRequest}xhr.open("GET",url,true);if(!xhr)return;xhr.onload=function(){var respData=xhr.responseText;if(isNaN(parseFloat(respData))){respData="-1"}targetScore=respData;if(respData=="-1")targetScore="";setCookie("tgt"+guid, targetScore, null, 240);};xhr.onerror=function(){console.log("cannot get tgtscore")};xhr.send()}};function loadIOA(a){paintIOAToolBar(); try{loadInlineChat();}catch(e){} if(isCoBrowseStarted()){loadCoBrowseScript()}checkOnline();addNewiNavPredLayerTouchHandler();addAAScrollerFunc()}function paintIOAToolBar(){try{var a=getiNavVersion();if(a==="old"){paintOldToolBar()}else{if(a==="new"){paintNewToolBar()}else{if(a==="hybrid"){paintHybridToolBar()}}}}catch(e){}}function getiNavVersion(){if(isTestPage){return document.getElementById("nav").value}var b=document.getElementById("iNavAmexAssistSearchButtonContainer");if(typeof b!=="undefined"&&b!=null){return"new"}var a=document.body;if(hasClassAA(a,"newNav")){return"hybrid"}return"old"}function hasClassAA(b,a){return(" "+b.className+" ").indexOf(" "+a+" ")>-1}function paintOldToolBar(){var a=document.getElementById("ioaTool");if(a!="undefined"&&a!=null){a.innerHTML=iOAIconHolder;appendChildNodes();controlIconDisplay()}}function paintHybridToolBar(){var a=document.getElementById("ioaTool");a.innerHTML=summerNavHTML;controlIconDisplay()}function appendChildNodes(){var a=document.getElementById("ioaToolHolder");a.innerHTML=second+third+iOAsearchBar}function controlIconDisplay(){if(!isFAQIconPresent()&&getiNavVersion()=="old"){hideFAQIcon()}else{if(!isFAQIconPresent()&&getiNavVersion()=="hybrid"){hideHybridFAQIcon()}}}function isFAQIconPresent(){var a="TRUE";if(typeof IOA!=="undefined"&&typeof IOA.globalRule!=="undefined"&&typeof IOA.globalRule.ioaFaq!=="undefined"){a=IOA.globalRule.ioaFaq}if((!frominPageFaqLink)&&a.indexOf("FALSE")!=-1){return false}return true}function hideFAQIcon(){document.getElementById("faqimg").style.display="none";document.getElementById("ioaToolHolder").style.width="254px"}function hideHybridFAQIcon(){document.getElementById("faqimg").style.display="none"}function paintNewToolBar(){document.body.className+=" newiNav";paintSearchButton();paintQuestionMarkButton()}function paintSearchButton(){var a=document.getElementById("iNavAmexAssistSearchButtonContainer");a.innerHTML=ioaNewiNavSrchBtn}function paintQuestionMarkButton(){var a=document.getElementById("iNavAmexAssistHelpButtonContainer");a.innerHTML=ioaNewiNavHelpBtn;document.getElementById("ioaTool").addEventListener("click",function(b){if(b.preventDefault){b.preventDefault()}else{b.returnValue=false}})}function searchButtonClicked(d){if(!d||d==null){d=window.event}if(d.preventDefault){d.preventDefault()}else{d.returnValue=false}var b=document.getElementById("searchImg");var c=document.getElementById("iNavSearchContainer");var a=document.getElementById("iNavMainContainer");if(typeof b==="undefined"||b==null){addSearchImg(c);b=document.getElementById("searchImg")}if(isSearchBarOpened(c,"ioaNewNavActive")){closeSearchBar(c,a)}else{openSearchBar(c,a)}}function addSearchImg(a){a.innerHTML=ioaNewiNavSearch;document.getElementById("ioaNavSearchClear").addEventListener("click",function(b){if(b.preventDefault){b.preventDefault()}else{b.returnValue=false}});document.getElementsByClassName("ioaNavSrchCloseBtn")[0].addEventListener("click",function(b){if(b.preventDefault){b.preventDefault()}else{b.returnValue=false}})}function isSearchBarOpened(b,a){return(" "+b.className+" ").indexOf(" "+a+" ")>-1}function closeSearchBar(b,a){if(typeof closeQLink==="function"){closeQLink()}addAnimation();b.className="";a.style.overflowY="hidden";if(a.className.indexOf("iNavNoDock")==-1){document.getElementById("iNavWrapper").className=""}document.getElementById("iOASearchInput").value=""}function addAnimation(){setTimeout(focusSrchInput,300)}function focusSrchInput(){searchBarHasFocus=true}function openSearchBar(b,a){addAnimation();b.className="ioaNewNavActive";a.style.overflowY="visible";if(a.className.indexOf("iNavNoDock")==-1){document.getElementById("iNavWrapper").className="iNavSearchActive"}document.getElementById("ioaNavSearchClear").style.display="none";document.getElementById("ioaNavSrchInputIcon").style.display="block";document.getElementById("iOASearchInput").focus();document.getElementById("ioaPHText").style.display="block";hidenavTooltips()}function sbCloseButtonClicked(){var a=document.getElementById("iNavMainContainer");var b=document.getElementById("iNavSearchContainer");closeSearchBar(b,a);document.getElementById("ioaNavSearchClear").style.display="none";document.getElementById("ioaNavSrchInputLoader").style.display="none";document.getElementById("ioaNavSrchInputIcon").style.display="block";document.getElementById("iOASearchInput").value="";hidenavTooltips()}function sbClearButtonClicked(){document.getElementById("iOASearchInput").value="";document.getElementById("ioaNavSearchClear").style.display="none";document.getElementById("ioaNavSrchInputIcon").style.display="block";if(typeof closeQLink==="function"){closeQLink()}}function ioascroll(){if(getiNavVersion()==="new"){var b=document.getElementById("searchImg");var c=document.getElementById("iNavSearchContainer");var a=document.getElementById("iNavMainContainer");if(typeof b==="undefined"||b==null){return}if(!isSearchBarOpened(c,"ioaNewNavActive")){return}var d=document.getElementById("newiOAPSDiv");if(typeof d!=="undefined"&&d!==null&&d.style.display=="block"){return}if(iOAcheckPhoneDesk()){if(document.activeElement.id!="iOASearchInput"){closeSearchBar(c,a)}}else{closeSearchBar(c,a)}}}
+function isSameAsPreviousResult(b) {
+    var e = document.getElementById("searchheader");
+    if (e == null || e == undefined) {
+        return false
+    }
+    var c = e.innerHTML.trim();
+    if (c.indexOf('"') == -1) {
+        return false
+    }g.target.className.split(" ")[0]
+    var d = c.indexOf('"') + 1;
+    var a = c.length - 1;
+    c = c.substring(d, a);
+    if (c.trim() == b.trim()) {
+        return true
+    }
+    return false
+}
+function aachatreadCookie(a){var nameEQ = a + "=";var ca = document.cookie.split(';');for(var i = 0; i < ca.length; i++){var c = ca[i];while (c.charAt(0) == ' ') c = c.substring(1, c.length);if (c.indexOf(nameEQ) === 0) return c.substring(nameEQ.length, c.length);}return null;};
+function hidePlaceHolder(){if(isSameAsPreviousResult(document.getElementById("iOASearchInput").value)){document.getElementById("ioaNavSrchInputLoader").style.display="none";document.getElementById("ioaNavSearchClear").style.display="block"}else{document.getElementById("ioaNavSearchClear").style.display="none"}document.getElementById("ioaPHText").style.display="none";document.getElementById("ioaNavSrchInputIcon").style.display="none"}function showPlaceHolderAA(){if(document.getElementById("iOASearchInput").value.length>0){return}document.getElementById("ioaPHText").style.display="block";document.getElementById("ioaNavSrchInputIcon").style.display="block";document.getElementById("ioaNavSrchInputLoader").style.display="none";document.getElementById("ioaNavSearchClear").style.display="none"}function loadInlineChat(){if(!chatCookieExists()&&!isChatEligibleApp()&&!onlineTabLoaded){return}if(wasInlineScriptLoaded()){return}var a;var b;if(loadlecode){ if(window.location.hostname == "slonline.americanexpress.com") { b="https://origin-pqgemapp.americanexpress.com/content/dam/chat/sl/static/chatFrame.css?"+glbver; a="https://origin-pqgemapp.americanexpress.com/content/dam/chat/sl/static/chatButtonBootStrap.js?"+glbver;} else { b="https://icm.aexp-static.com/content/dam/chat/prod/lechat/css/chatFrame.css?"+glbver; a="https://icm.aexp-static.com/content/dam/chat/prod/lechat/js/chatButtonBootStrap.js?"+glbver; } } else{b=getHomePageServerURL()+"api/axpi/ioa/chatdemo/css/chatFrame.css?vra8.0"; a=getHomePageServerURL()+"api/axpi/ioa/chatdemo/js/chatButtonBootStrap.js?vra81.0";}downLoadCSS(b);downLoadInlineJS(a);if((typeof $ === "undefined" && typeof $iN != "undefined")){$ = $iN;}else{var vernums = $.fn.jquery.split('.');if(parseInt(vernums[0])==1 && parseInt(vernums[1])<6 && typeof $iN != "undefined"){$ = $iN;}}}function wasInlineScriptLoaded(){var a=document.getElementsByTagName("script");for(var b=0;b<a.length;b++){if(a[b].src.indexOf("chatButtonBootStrap.js")>-1 || a[b].src.indexOf("chatButtonBootStrapBdaas.js")>-1){return true}}return false}function isChatEligibleApp(){var b=window.location.href;if(b.indexOf("request_type=LogonHandler")>-1){return false}for(var a=0;a<chatEligibleApps.length;a++){if(b.indexOf(chatEligibleApps[a])>-1){return true}}return false}function chatCookieExists(){if(getCookie_AA("lp_flg")!==""&&getCookie_AA("lp_flg").length>0){var a=getCookie_AA("lp_flg")+"";if(a==="true"){return true}}return false}function downLoadCSS(a){var c=document.getElementsByTagName("head").item(0);var b=document.createElement("link");b.type="text/css";b.href=a;b.async=true;b.rel="stylesheet";c.appendChild(b)}function downLoadInlineJS(a){var c=document.getElementsByTagName("head").item(0);var b=document.createElement("script");b.type="text/javascript";if(b.readyState){b.onreadystatechange=function(){if(b.readyState=="loaded"||b.readyState=="complete"){b.onreadystatechange=null;if(chatCookieExists()||((window.location.href.indexOf("travel")!=-1)&&window.location.href.indexOf("travel-offers")==-1&&window.location.href.indexOf("my-trips")==-1)||(window.location.href.indexOf("iseatz.com")!=-1)){if(window.location.href.indexOf("online-privacy-statement.html?linknav=us-amex-ser-livechat-interactivechat")==-1){lpChatOnPageLoad()}}}}}else{b.onload=function(){if(chatCookieExists()||((window.location.href.indexOf("travel")!=-1)&&window.location.href.indexOf("travel-offers")==-1&&window.location.href.indexOf("my-trips")==-1)||(window.location.href.indexOf("iseatz.com")!=-1)){if(window.location.href.indexOf("online-privacy-statement.html?linknav=us-amex-ser-livechat-interactivechat")==-1){lpChatOnPageLoad()}}}}b.async=true;b.src=a;c.appendChild(b)}function loadCoBrowseScript(){if(wasCoBrowseLoaded()){return}var b=document.getElementsByTagName("head").item(0);var a=document.createElement("script");a.type="text/javascript";a.async=true;a.src="https://icm.aexp-static.com/content/dam/chat/prod/livelook/launcher.js?vr=4.0";b.appendChild(a)}function isCoBrowseStarted(){if(getCookie_AA("ll_flag")!==""&&getCookie_AA("ll_flag").length>0){var a=getCookie_AA("ll_flag")+"";if(a==="true"){return true}}return false}function wasCoBrowseLoaded(){var a=document.getElementsByTagName("script");for(var b=0;b<a.length;b++){if(a[b].src.indexOf("livelook/launcher.js")>-1){return true}}return false}function adjustOverLayMasterZIndex(){if(typeof IOA!=="undefined"&&typeof IOA.globalRule!=="undefined"&&typeof IOA.globalRule.pagezindex!=="undefined"){overLayMaster.style.zIndex=parseInt(IOA.globalRule.pagezindex)+100}else{overLayMaster.style.zIndex="10000"}}function openAA(c,f){if(f!=null){if(f.preventDefault){f.preventDefault()}else{f.returnValue=false}}if(typeof onloadlpTestPopulation != "undefined"){if(typeof lpTestPopulation != "undefined"){onloadlpTestPopulation = lpTestPopulation.toUpperCase();}}var b=false;if(window.location.href.indexOf("us/credit-cards/benefits/view-all")!=-1){if(document.getElementById("iNavCardArt")!=null){b=true;var g=document.getElementById("iNavCardArt").getAttribute("data-card-name");if(encodeURI(g).indexOf("SimplyCash%C2%AE%20Plus%20Card")!=-1){IOA.globalRule.faqCodes="806-794"}else{IOA.globalRule.faqCodes="-1016"}}}var d=document.getElementById("ioaTool").querySelectorAll("a");for(var a=0;a<d.length;a++){if(d[a].getAttribute("href")=="#"){d[a].addEventListener("click",function(h){if(h.preventDefault){h.preventDefault()}else{h.returnValue=false}})}}if(!IOASSIST.ioaBox.footerLinkClicked&&overLayMaster!=null){adjustOverLayMasterZIndex();overLayMaster.style.display="block"}if(!IOASSIST.ioaBox.footerLinkClicked&&faqMaster!=null&&!b){faqMaster.style.display="block";openAssistLayer(c);if(typeof sendDataToLPFromAA==="function"){sendDataToLPFromAA(true)}return}removeFromBody();getItFromAAServer(c)}function removeFromBody(){try{if(overLayMaster!=null){document.body.removeChild(overLayMaster);overLayMaster=null}if(faqMaster!=null){document.body.removeChild(faqMaster);faqMaster=null}}catch(a){}}function getItFromAAServer(b){try{overLayMaster=document.createElement("div");setCSSProperties(overLayMaster);overLayMaster.setAttribute("id","overLayMaster");document.body.appendChild(overLayMaster);var a="<img id='aaloader' src='https://web.aexp-static.com/common/css/images/main-loader.gif?vra1.0' style='position:absolute; top:250px; left:650px;'>";document.getElementById("overLayMaster").innerHTML=a;if(typeof window.addEventListener!=="undefined"){window.addEventListener("resize",adjustaaLoader)}else{if(typeof window.attachEvent!=="undefined"){window.attachEvent("resize",adjustaaLoader)}}adjustaaLoader();if(!wasAAScriptAdded()){downLoadAAScripts(b)}else{if(typeof(aaCallback)==="function"){aaCallback(b)}}}catch(c){console.log("Error Occurred in Amex Assist:: "+c.message);removeFromBody();alert("We are Sorry, the system is not responding, please try after some time or with another browser.")}}function setCSSProperties(a){a.style.position="absolute";a.style.fontFamily="Arial, Helvetica, sans-serif";a.style.display="block";a.style.top="0";a.style.right="0";a.style.bottom="0";a.style.left="0";a.style.opacity="0.6";a.style.backgroundColor="#000";a.style.color="#fff";a.style.textAlign="center";a.style.height=getActualHeight()+"px";a.style.width=getActualWidth()+"px";adjustOverLayMasterZIndex();a.style.top="0";a.style.filter="alpha(opacity=60)"}function getActualHeight(){var b=document.body,c=document.documentElement;var a=Math.max(b.scrollHeight,b.offsetHeight,c.clientHeight,c.scrollHeight,c.offsetHeight);return a}function getActualWidth(){return document.documentElement.clientWidth-1}function wasAAScriptAdded(){var a=document.getElementsByTagName("script");for(var b=0;b<a.length;b++){if(a[b].src.indexOf("aaJS_min.js")>-1){return true}}return false}function downLoadAAScripts(a){downLoadCSS(getServerURL()+"css/min/aaCSS_min.css?vr6.0");downLoadAAJS(getServerURL()+"js/min/aaJS_min.js?vr20.0",a)}function downLoadAAJS(a,b){var d=document.getElementsByTagName("head").item(0);var c=document.createElement("script");if(c.readyState){c.onreadystatechange=function(){if(c.readyState=="loaded"||c.readyState=="complete"){c.onreadystatechange=null;aaCallback(b);onLineTabRestrictedDomains = [ "business-card-application", "small-business","personal-card-application/supplementary"];onlineSupportedPanesMap = {"gmip":"corporateCards","ATWORK":"corporateCards","OSPC":"corporateCards","cop":"corporateCards","merchant":"merchantServices","travel":"travel","knowledgecenter":"merchantServices","marketingcorner":"merchantServices"};
+if(window.location.href != null && (window.location.href.indexOf("merchant") > -1 || window.location.href.indexOf("knowledgecenter") > -1 || window.location.href.indexOf("marketingcorner") > -1)){
+						$iN('body').addClass("merclayr");
+				  }
+				  if(window.location.href.indexOf("knowledgecenter") > -1){
+					  donothideOnlineMap = {"merchantServices":"knowledgecenter"};
+				  }else if(window.location.href.indexOf("marketingcorner") > -1) {
+					  donothideOnlineMap = {"merchantServices":"marketingcorner"};
+				  }
+  aaLPCheck = function(a11) {
+    console.log("overriden");
+    if (aaLPCounter < 20) {
+        if (typeof lpMTagConfig !== "undefined") {
+            aaLPCounter = 0;
+            lppluginunavailable = false;
+            if ((window.location.href != null && window.location.href.indexOf("/merchant/") > -1)  || iscorppage ) {
+                finallyShowOnlineTab()
+            } else {
+                if (!setPageCalled) {
+                    lpMTagConfig.ifVisitorCode = lpMTagConfig.ifVisitorCode || [];
+                    lpMTagConfig.ifVisitorCode.push(function() {
+                        if (!setPageCalled) {
+                            finallyShowOnlineTab();
+                            setPageCalled = true
+                        }
+                    })
+                } else {
+                    finallyShowOnlineTab()
+                }
+            }
+            if (a11 == "dropdown") {
+                if (isCurrentPaneChatEligible()) {
+                    var b = document.getElementById("ioaSelectedOption").innerHTML;
+                    var d = "Contact:Online:" + b;
+                    fireomnituretracking(d)
+                }
+            }
+        } else {
+            aaLPCounter++;
+            aatimerVariable = window.setTimeout(function() {
+                aaLPCheck(a11)
+            }, 500)
+        }
+    } else {
+        aaLPCounter = 0;
+        onlineTabLoaded = false;
+        lppluginunavailable = true;
+        hideOnlineChatId();
+        var c = document.getElementById("ioaContactOnline").parentNode.getAttribute("id");
+        document.getElementById(c).querySelector("#ioaContactOnline").style.display = "none";
+        if (document.getElementById("mailId") == null) {
+            if (document.getElementById("phoneId").className == "normalTab") {
+                var b = document.getElementById("ioaSelectedOption").innerHTML;
+                var d = "Contact:Phone:" + b;
+                fireomnituretracking(d)
+            }
+            changeTab(document.getElementById("ioaContactPhone"), "block", "phoneId", "tabHighlighted", 20);
+            document.getElementById(c).querySelector("#ioaContactPhone").style.display = "block"
+        } else {
+            if (document.getElementById("mailId").getAttribute("class") == "tabHighlighted") {
+                changeTab(document.getElementById("ioaContactMail"), "block", "mailId", "tabHighlighted", 118);
+                document.getElementById(c).querySelector("#ioaContactMail").style.display = "block"
+            } else {
+                if (document.getElementById("phoneId").className == "normalTab") {
+                    var b = document.getElementById("ioaSelectedOption").innerHTML;
+                    var d = "Contact:Phone:" + b;
+                    fireomnituretracking(d)
+                }
+                changeTab(document.getElementById("ioaContactPhone"), "block", "phoneId", "tabHighlighted", 20);
+                document.getElementById(c).querySelector("#ioaContactPhone").style.display = "block"
+            }
+        }
+    }
+}
+
+
+
+finallyShowOnlineTab = function(){
+console.log("in finallyshowonloinetab");
+var k=window.location.href;if(k.indexOf("merchant")>-1||k.indexOf("travel")>-1||k.indexOf("iseatz.com")>-1||k.indexOf("gmip")>-1||k.indexOf("ATWORK")>-1||k.indexOf("OSPC")>-1||k.indexOf("cop")>-1){onloadlpTestPopulation="BAU";}
+    try {
+        document.getElementById("ioaonlineplaceholder").style.display = "none";
+        document.getElementById("ioa_chat_data").style.display = "block";
+        var g = window.location.href;
+        if ((window.location.href != null && !(window.location.href.indexOf("/merchant/") > -1))&&!iscorppage) {
+            var a = {};
+            var d = [{
+                name: "chat-SMC-startchat-english",
+                pid: "ioaLCBtn",
+                afterStartPage: true,
+                ovr: "lpMTagConfig.db1"
+            }, {
+                name: "chat-SMC-leavemessage-english",
+                pid: "ioaLMBtn",
+                afterStartPage: true,
+                ovr: "lpMTagConfig.db1"
+            }];
+            var j = [{
+                name: "chat-MR-contact-us-english",
+                pid: "ioaLCBtn",
+                afterStartPage: true,
+                ovr: "lpMTagConfig.db1"
+            }, {
+                name: "chat-SMC-leavemessage-english",
+                pid: "ioaLMBtn",
+                afterStartPage: true,
+                ovr: "lpMTagConfig.db1"
+            }];
+            var c = [{
+                name: "chat-corp-contact-us-english",
+                pid: "ioaLCBtn",
+                afterStartPage: true,
+                ovr: "lpMTagConfig.db1"
+            }, {
+                name: "chat-SMC-leavemessage-english",
+                pid: "ioaLMBtn",
+                afterStartPage: true,
+                ovr: "lpMTagConfig.db1"
+            }];
+            var h = [{
+                name: "chat-merchant-contact-us-english",
+                pid: "ioaLCBtn",
+                afterStartPage: true,
+                ovr: "lpMTagConfig.db1"
+            }, {
+                name: "chat-SMC-leavemessage-english",
+                pid: "ioaLMBtn",
+                afterStartPage: true,
+                ovr: "lpMTagConfig.db1"
+            }];
+            var k = [{
+                name: "chat-US-Travel-contact-us-english",
+                pid: "ioaLCBtn",
+                afterStartPage: true,
+                ovr: "lpMTagConfig.db1"
+            }, {
+                name: "chat-SMC-leavemessage-english",
+                pid: "ioaLMBtn",
+                afterStartPage: true,
+                ovr: "lpMTagConfig.db1"
+            }];
+            if (!lpSMCButtonsStarted) {
+                a.newDbs = d;
+                if (g.indexOf("rewards") > -1 && g.indexOf("earn-membership-rewards-points") == -1) {
+                    a.newDbs = j
+                } else {
+                    if (g.indexOf("gmip") > -1 || g.indexOf("ATWORK") > -1 || g.indexOf("OSPC") > -1 || g.indexOf("cop") > -1) {
+                        document.getElementsByClassName("ioaLCHdr")[0].innerHTML = "American Express Corporate Chat";
+                        document.getElementsByClassName("ioaLCTxt")[0].innerHTML = "Available Monday - Friday from 9am - 6pm EST.";
+                        a.newDbs = c
+                    } else {
+                        if (g.indexOf("merchant") > -1) {
+                            a.newDbs = h
+                        } else {
+                            if (g.indexOf("travel") > -1 || g.indexOf("iseatz.com") > -1) {
+                                document.getElementsByClassName("ioaLCHdr")[0].innerHTML = "American Express Travel Chat";
+                                document.getElementsByClassName("ioaLCTxt")[0].innerHTML = "Available Monday - Friday from 10am - 7pm EST.";
+                                a.newDbs = k
+                            }
+                        }
+                    }
+                }
+                lpSMCButtonsStarted = true
+            }
+            a.udes = "PV!unit=SMC";
+            if (g.indexOf("rewards") > -1 && g.indexOf("earn-membership-rewards-points") == -1) {
+                a.udes = "PV!unit=US-MR-contact-us"
+            } else {
+                if (g.indexOf("gmip") > -1 || g.indexOf("ATWORK") > -1 || g.indexOf("OSPC") > -1 || g.indexOf("cop") > -1) {
+                    a.udes = "PV!unit=corp-contact-us"
+                } else {
+                    if (g.indexOf("merchant") > -1) {
+                        a.udes = "PV!unit=US-Merchant-contact-us"
+                    } else {
+                        if (g.indexOf("travel") > -1 || g.indexOf("iseatz.com") > -1) {
+                            a.udes = "PV!unit=US-Travel-contact-us"
+                        }
+                    }
+                }
+            }
+            var i = document.getElementById("ioaSelectedOption").innerHTML;
+            i = i.replace(/ /g, "");
+            i = i.charAt(0).toLowerCase() + i.slice(1);
+            a.udes = a.udes + "&PV!contactUsSelection=" + i;
+            lpMTag.lpSetPage(a)
+        }
+        if ((window.location.href != null && window.location.href.indexOf("/merchant/") > -1) || iscorppage) {
+			var newSDEs = [];
+			var oldSDEs = lpTag.sdes.get();
+			for (n in oldSDEs) {
+				if (!n.match(/impDisplay|pagediv/)) {
+					newSDEs.push(oldSDEs[n][0]);
+				}
+			}
+            var updatedSection = "";
+			if (typeof lpTag.section === "string") {
+						updatedSection = [lpTag.section, "overlay"];
+			} else {
+						updatedSection = lpTag.section;
+						updatedSection.push("overlay");
+			}
+			lpTag.newPage(window.location.href, {
+						section: updatedSection,
+						sdes: newSDEs,
+				taglets: {
+					lp_external_js: {
+						id: "scripts",
+						value: lpTag.taglets.lp_external_js.inspect()._config.scripts
+					}
+				}
+			});
+        }
+        onlineTabLoaded = true;
+        isLAMHidden()
+    } catch (f) {
+        onlineTabLoaded = false;
+        hideOnlineChatId();
+        console.log("Error while sending parameters to LP:: " + f.message)
+    }
+}
+
+
+closeAA = function() {
+    if (overLayMaster != null) {
+        overLayMaster.style.display = "none"
+    }
+    if (faqMaster != null) {
+        faqMaster.style.display = "none"
+    }
+    focusOnParentTray();
+    sendDataToLPFromAA(false);
+    if ((window.location.href != null && window.location.href.indexOf("/merchant/") > -1) || iscorppage) {
+        var updatedSection = lpTag.section;
+			updatedSection.splice(-1,1);
+			lpTag.newPage(window.location.href, {
+				section: updatedSection,
+				taglets: {
+					lp_external_js: {
+						id: "scripts",
+						value: lpTag.taglets.lp_external_js.inspect()._config.scripts
+					}
+				}
+			});
+    }
+    if (typeof (omn_rmassistaction) !== "function") {
+        return
+    }
+    if (typeof frominPageFaqLink !== "undefined" && frominPageFaqLink != null) {
+        frominPageFaqLink = false
+    }
+    omn_close_aa()
+}
+
+openOnlineInfo = function() {
+    if (!fromdropdownchangeonline) {
+        var l = document.getElementById("ioaSelectedOption").innerHTML;
+        var b = "Contact:online:" + l;
+        fireomnituretracking(b)
+    }
+	if(window.location.href != null && (window.location.href.indexOf("merchant") > -1|| window.location.href.indexOf("knowledgecenter") > -1 || window.location.href.indexOf("marketingcorner") > -1)){
+		if( document.getElementById("ioaSelectedOption").innerHTML == "Merchant Services"){
+			if(document.getElementById("ioaMercCobrowser")==null){
+				$iN("#ioaContactOnline").append("<div id='ioaMercCobrowser'><div id='ioaMercCobrowserTitle'>Co-Browse</div><div id='ioaMercCobrowserBody'><div>Get assistance online by securely sharing your AmericanExpress.com screen with one of our Customer Care Professionals.</div><div id='ioaMercCobrowserLink' onclick='openCobrowseOnline()'><span class='ioaCobrowseimg'></span><a href='#' class='ioaCobrowselink'>Start a Co-Browse</a></div></div></div>");
+			}
+		}
+	}
+
+	if(window.location.href != null && !(window.location.href.indexOf("travel") !=-1 || window.location.href.indexOf("iseatz.com") != -1 )){
+			if(document.getElementById("ioaMercCobrowser")==null){
+				$iN('body').addClass("merclayr");
+				$iN("#ioaContactOnline").append("<div id='ioaMercCobrowser'><div id='ioaMercCobrowserTitle'>Co-Browse</div><div id='ioaMercCobrowserBody'><div>Get assistance online by securely sharing your AmericanExpress.com screen with one of our Customer Care Professionals.</div><div id='ioaMercCobrowserLink' onclick='openCobrowseOnline()'><span class='ioaCobrowseimg'></span><a href='#' class='ioaCobrowselink'>Start a Co-Browse</a></div></div></div>");
+			}
+	}
+    fromdropdownchangeonline = false;
+    if (currentHighlitedLeftPane == null) {
+        return
+    }
+    var a = currentHighlitedLeftPane.getElementsByTagName("div");
+    for (var g = 0; g < a.length; g++) {
+        var j = a[g];
+        if (typeof j === "undefined" || j == null) {
+            continue
+        }
+        var d = j.getAttribute("id");
+        if (typeof d === "undefined" || d == null) {
+            continue
+        }
+        if (d.indexOf("ioaContactPhone") > -1) {
+            changeTab(j, "none", "phoneId", "normalTab", null)
+        }
+        if (d.indexOf("ioaContactMail") > -1) {
+            changeTab(j, "none", "mailId", "normalTab", null)
+        }
+        var m = 20;
+        if (d.indexOf("ioaContactOnline") > -1) {
+            if (crntActPane == "membershipRewards") {
+                m = 20
+            }
+            changeTab(j, "block", "onlineChatId", "tabHighlighted", m)
+        }
+    }
+    if (onloadlpTestPopulation == "AUTOMATION") {
+        var c = document.getElementsByClassName("ioaLCHdr")[0];
+        if (c != null) {
+            c.innerHTML = "American Express Chat"
+        }
+        var h = document.getElementsByClassName("ioaLCTxt")[0];
+        if (h != null) {
+            h.innerHTML = "Get an immediate response to your inquiry."
+        }
+        var f = document.getElementsByClassName("ioaStrtBtn")[0];
+        if (f != null) {
+            f.innerHTML = "";
+            f.innerHTML = '<a class="ioaOlnBtnLt" href="#" onclick="lpMTagConfig.dynButton1.actionHook();"><span class="ioaOlnBtnMid"><span><img src="https://icm.aexp-static.com/content/dam/search/ioa/img/rsz_chat-bubble-small.png"></span><span style="float: right;">Start Chat</span></span><span class="ioaOlnBtnRt"></span></a>'
+        }
+    } else {
+        var k = window.location.href;
+        var c = document.getElementsByClassName("ioaLCHdr")[0];
+        if (c != null) {
+            if (k.indexOf("travel") > -1 || k.indexOf("iseatz.com") > -1) {
+                c.innerHTML = "American Express Travel Chat"
+            } else {
+                if (k.indexOf("gmip") > -1 || k.indexOf("ATWORK") > -1 || k.indexOf("OSPC") > -1 || k.indexOf("cop") > -1) {
+                    c.innerHTML = "American Express Corporate Chat"
+                } else {
+                    c.innerHTML = "Live Chat"
+                }
+            }
+        }
+        var h = document.getElementsByClassName("ioaLCTxt")[0];
+        if (h != null) {
+            if (k.indexOf("travel") > -1 || k.indexOf("iseatz.com") > -1) {
+                h.innerHTML = "Mon-Fri 9am-12am EST, Sat 10am-6:30pm EST and Sun 10am-11pm EST"
+            } else {
+                if (k.indexOf("gmip") > -1 || k.indexOf("ATWORK") > -1 || k.indexOf("OSPC") > -1 || k.indexOf("cop") > -1) {
+                    h.innerHTML = "Available Monday - Friday from 9am - 6pm EST."
+                } else {
+                    h.innerHTML = "Chat now with one of our Customer Care Professionals."
+                }
+            }
+        }
+    }
+    adjustMainInfo()
+}
+
+}}}else{c.onload=function(){aaCallback(b);onLineTabRestrictedDomains = [ "business-card-application", "small-business","personal-card-application/supplementary"];onlineSupportedPanesMap = {"gmip":"corporateCards","ATWORK":"corporateCards","OSPC":"corporateCards","cop":"corporateCards","merchant":"merchantServices","travel":"travel","knowledgecenter":"merchantServices","marketingcorner":"merchantServices"};
+if(window.location.href != null && (window.location.href.indexOf("merchant") > -1 || window.location.href.indexOf("knowledgecenter") > -1 || window.location.href.indexOf("marketingcorner") > -1)){
+		$iN('body').addClass("merclayr");
+}
+if(window.location.href.indexOf("knowledgecenter") > -1){
+					  donothideOnlineMap = {"merchantServices":"knowledgecenter"};
+				  }else if(window.location.href.indexOf("marketingcorner") > -1) {
+					  donothideOnlineMap = {"merchantServices":"marketingcorner"};
+				  }
+aaLPCheck = function(a11) {
+    console.log("overriden");
+    if (aaLPCounter < 20) {
+        if (typeof lpMTagConfig !== "undefined") {
+            aaLPCounter = 0;
+            lppluginunavailable = false;
+            if ((window.location.href != null && window.location.href.indexOf("/merchant/") > -1) || iscorppage) {
+                finallyShowOnlineTab()
+            } else {
+                if (!setPageCalled) {
+                    lpMTagConfig.ifVisitorCode = lpMTagConfig.ifVisitorCode || [];
+                    lpMTagConfig.ifVisitorCode.push(function() {
+                        if (!setPageCalled) {
+                            finallyShowOnlineTab();
+                            setPageCalled = true
+                        }
+                    })
+                } else {
+                    finallyShowOnlineTab()
+                }
+            }
+            if (a11 == "dropdown") {
+                if (isCurrentPaneChatEligible()) {
+                    var b = document.getElementById("ioaSelectedOption").innerHTML;
+                    var d = "Contact:Online:" + b;
+                    fireomnituretracking(d)
+                }
+            }
+        } else {
+            aaLPCounter++;
+            aatimerVariable = window.setTimeout(function() {
+                aaLPCheck(a11)
+            }, 500)
+        }
+    } else {
+        aaLPCounter = 0;
+        onlineTabLoaded = false;
+        lppluginunavailable = true;
+        hideOnlineChatId();
+        var c = document.getElementById("ioaContactOnline").parentNode.getAttribute("id");
+        document.getElementById(c).querySelector("#ioaContactOnline").style.display = "none";
+        if (document.getElementById("mailId") == null) {
+            if (document.getElementById("phoneId").className == "normalTab") {
+                var b = document.getElementById("ioaSelectedOption").innerHTML;
+                var d = "Contact:Phone:" + b;
+                fireomnituretracking(d)
+            }
+            changeTab(document.getElementById("ioaContactPhone"), "block", "phoneId", "tabHighlighted", 20);
+            document.getElementById(c).querySelector("#ioaContactPhone").style.display = "block"
+        } else {
+            if (document.getElementById("mailId").getAttribute("class") == "tabHighlighted") {
+                changeTab(document.getElementById("ioaContactMail"), "block", "mailId", "tabHighlighted", 118);
+                document.getElementById(c).querySelector("#ioaContactMail").style.display = "block"
+            } else {
+                if (document.getElementById("phoneId").className == "normalTab") {
+                    var b = document.getElementById("ioaSelectedOption").innerHTML;
+                    var d = "Contact:Phone:" + b;
+                    fireomnituretracking(d)
+                }
+                changeTab(document.getElementById("ioaContactPhone"), "block", "phoneId", "tabHighlighted", 20);
+                document.getElementById(c).querySelector("#ioaContactPhone").style.display = "block"
+            }
+        }
+    }
+}
+
+
+
+finallyShowOnlineTab = function(){
+console.log("in finallyshowonloinetab");
+var k=window.location.href;if(k.indexOf("merchant")>-1||k.indexOf("travel")>-1||k.indexOf("iseatz.com")>-1||k.indexOf("gmip")>-1||k.indexOf("ATWORK")>-1||k.indexOf("OSPC")>-1||k.indexOf("cop")>-1){onloadlpTestPopulation="BAU";}
+    try {
+        document.getElementById("ioaonlineplaceholder").style.display = "none";
+        document.getElementById("ioa_chat_data").style.display = "block";
+        var g = window.location.href;
+        if ((window.location.href != null && !(window.location.href.indexOf("/merchant/") > -1))&&!iscorppage) {
+            var a = {};
+            var d = [{
+                name: "chat-SMC-startchat-english",
+                pid: "ioaLCBtn",
+                afterStartPage: true,
+                ovr: "lpMTagConfig.db1"
+            }, {
+                name: "chat-SMC-leavemessage-english",
+                pid: "ioaLMBtn",
+                afterStartPage: true,
+                ovr: "lpMTagConfig.db1"
+            }];
+            var j = [{
+                name: "chat-MR-contact-us-english",
+                pid: "ioaLCBtn",
+                afterStartPage: true,
+                ovr: "lpMTagConfig.db1"
+            }, {
+                name: "chat-SMC-leavemessage-english",
+                pid: "ioaLMBtn",
+                afterStartPage: true,
+                ovr: "lpMTagConfig.db1"
+            }];
+            var c = [{
+                name: "chat-corp-contact-us-english",
+                pid: "ioaLCBtn",
+                afterStartPage: true,
+                ovr: "lpMTagConfig.db1"
+            }, {
+                name: "chat-SMC-leavemessage-english",
+                pid: "ioaLMBtn",
+                afterStartPage: true,
+                ovr: "lpMTagConfig.db1"
+            }];
+            var h = [{
+                name: "chat-merchant-contact-us-english",
+                pid: "ioaLCBtn",
+                afterStartPage: true,
+                ovr: "lpMTagConfig.db1"
+            }, {
+                name: "chat-SMC-leavemessage-english",
+                pid: "ioaLMBtn",
+                afterStartPage: true,
+                ovr: "lpMTagConfig.db1"
+            }];
+            var k = [{
+                name: "chat-US-Travel-contact-us-english",
+                pid: "ioaLCBtn",
+                afterStartPage: true,
+                ovr: "lpMTagConfig.db1"
+            }, {
+                name: "chat-SMC-leavemessage-english",
+                pid: "ioaLMBtn",
+                afterStartPage: true,
+                ovr: "lpMTagConfig.db1"
+            }];
+            if (!lpSMCButtonsStarted) {
+                a.newDbs = d;
+                if (g.indexOf("rewards") > -1 && g.indexOf("earn-membership-rewards-points") == -1) {
+                    a.newDbs = j
+                } else {
+                    if (g.indexOf("gmip") > -1 || g.indexOf("ATWORK") > -1 || g.indexOf("OSPC") > -1 || g.indexOf("cop") > -1) {
+                        document.getElementsByClassName("ioaLCHdr")[0].innerHTML = "American Express Corporate Chat";
+                        document.getElementsByClassName("ioaLCTxt")[0].innerHTML = "Available Monday - Friday from 9am - 6pm EST.";
+                        a.newDbs = c
+                    } else {
+                        if (g.indexOf("merchant") > -1) {
+                            a.newDbs = h
+                        } else {
+                            if (g.indexOf("travel") > -1 || g.indexOf("iseatz.com") > -1) {
+                                document.getElementsByClassName("ioaLCHdr")[0].innerHTML = "American Express Travel Chat";
+                                document.getElementsByClassName("ioaLCTxt")[0].innerHTML = "Available Monday - Friday from 10am - 7pm EST.";
+                                a.newDbs = k
+                            }
+                        }
+                    }
+                }
+                lpSMCButtonsStarted = true
+            }
+            a.udes = "PV!unit=SMC";
+            if (g.indexOf("rewards") > -1 && g.indexOf("earn-membership-rewards-points") == -1) {
+                a.udes = "PV!unit=US-MR-contact-us"
+            } else {
+                if (g.indexOf("gmip") > -1 || g.indexOf("ATWORK") > -1 || g.indexOf("OSPC") > -1 || g.indexOf("cop") > -1) {
+                    a.udes = "PV!unit=corp-contact-us"
+                } else {
+                    if (g.indexOf("merchant") > -1) {
+                        a.udes = "PV!unit=US-Merchant-contact-us"
+                    } else {
+                        if (g.indexOf("travel") > -1 || g.indexOf("iseatz.com") > -1) {
+                            a.udes = "PV!unit=US-Travel-contact-us"
+                        }
+                    }
+                }
+            }
+            var i = document.getElementById("ioaSelectedOption").innerHTML;
+            i = i.replace(/ /g, "");
+            i = i.charAt(0).toLowerCase() + i.slice(1);
+            a.udes = a.udes + "&PV!contactUsSelection=" + i;
+            lpMTag.lpSetPage(a)
+        }
+        if ((window.location.href != null && window.location.href.indexOf("/merchant/") > -1) || iscorppage) {
+			var newSDEs = [];
+			var oldSDEs = lpTag.sdes.get();
+			for (n in oldSDEs) {
+				if (!n.match(/impDisplay|pagediv/)) {
+					newSDEs.push(oldSDEs[n][0]);
+				}
+			}
+            var updatedSection = "";
+			if (typeof lpTag.section === "string") {
+						updatedSection = [lpTag.section, "overlay"];
+			} else {
+						updatedSection = lpTag.section;
+						updatedSection.push("overlay");
+			}
+			lpTag.newPage(window.location.href, {
+						section: updatedSection,
+						sdes: newSDEs,
+				taglets: {
+					lp_external_js: {
+						id: "scripts",
+						value: lpTag.taglets.lp_external_js.inspect()._config.scripts
+					}
+				}
+			});
+        }
+        onlineTabLoaded = true;
+        isLAMHidden()
+    } catch (f) {
+        onlineTabLoaded = false;
+        hideOnlineChatId();
+        console.log("Error while sending parameters to LP:: " + f.message)
+    }
+}
+
+
+closeAA = function() {
+    if (overLayMaster != null) {
+        overLayMaster.style.display = "none"
+    }
+    if (faqMaster != null) {
+        faqMaster.style.display = "none"
+    }
+    focusOnParentTray();
+    sendDataToLPFromAA(false);
+    if ((window.location.href != null && window.location.href.indexOf("/merchant/") > -1) || iscorppage) {
+         var updatedSection = lpTag.section;
+			updatedSection.splice(-1,1);
+			lpTag.newPage(window.location.href, {
+				section: updatedSection,
+				taglets: {
+					lp_external_js: {
+						id: "scripts",
+						value: lpTag.taglets.lp_external_js.inspect()._config.scripts
+					}
+				}
+			});
+    }
+    if (typeof (omn_rmassistaction) !== "function") {
+        return
+    }
+    if (typeof frominPageFaqLink !== "undefined" && frominPageFaqLink != null) {
+        frominPageFaqLink = false
+    }
+    omn_close_aa()
+}
+
+openOnlineInfo = function() {
+    if (!fromdropdownchangeonline) {
+        var l = document.getElementById("ioaSelectedOption").innerHTML;
+        var b = "Contact:online:" + l;
+        fireomnituretracking(b)
+    }
+	if(window.location.href != null && (window.location.href.indexOf("merchant") > -1 || window.location.href.indexOf("knowledgecenter") > -1 || window.location.href.indexOf("marketingcorner") > -1)){
+		if( document.getElementById("ioaSelectedOption").innerHTML == "Merchant Services"){
+			if(document.getElementById("ioaMercCobrowser")==null){
+				$iN("#ioaContactOnline").append("<div id='ioaMercCobrowser'><div id='ioaMercCobrowserTitle'>Co-Browse</div><div id='ioaMercCobrowserBody'><div>Get assistance online by securely sharing your AmericanExpress.com screen with one of our Customer Care Professionals.</div><div id='ioaMercCobrowserLink' onclick='openCobrowseOnline()'><span class='ioaCobrowseimg'></span><a href='#' class='ioaCobrowselink'>Start a Co-Browse</a></div></div></div>");
+			}
+		}
+	}
+
+
+	if(window.location.href != null && !(window.location.href.indexOf("travel") !=-1 || window.location.href.indexOf("iseatz.com") != -1 )){
+			if(document.getElementById("ioaMercCobrowser")==null){
+				$iN('body').addClass("merclayr");
+				$iN("#ioaContactOnline").append("<div id='ioaMercCobrowser'><div id='ioaMercCobrowserTitle'>Co-Browse</div><div id='ioaMercCobrowserBody'><div>Get assistance online by securely sharing your AmericanExpress.com screen with one of our Customer Care Professionals.</div><div id='ioaMercCobrowserLink' onclick='openCobrowseOnline()'><span class='ioaCobrowseimg'></span><a href='#' class='ioaCobrowselink'>Start a Co-Browse</a></div></div></div>");
+			}
+	}
+
+    fromdropdownchangeonline = false;
+    if (currentHighlitedLeftPane == null) {
+        return
+    }
+    var a = currentHighlitedLeftPane.getElementsByTagName("div");
+    for (var g = 0; g < a.length; g++) {
+        var j = a[g];
+        if (typeof j === "undefined" || j == null) {
+            continue
+        }
+        var d = j.getAttribute("id");
+        if (typeof d === "undefined" || d == null) {
+            continue
+        }
+        if (d.indexOf("ioaContactPhone") > -1) {
+            changeTab(j, "none", "phoneId", "normalTab", null)
+        }
+        if (d.indexOf("ioaContactMail") > -1) {
+            changeTab(j, "none", "mailId", "normalTab", null)
+        }
+        var m = 20;
+        if (d.indexOf("ioaContactOnline") > -1) {
+            if (crntActPane == "membershipRewards") {
+                m = 20
+            }
+            changeTab(j, "block", "onlineChatId", "tabHighlighted", m)
+        }
+    }
+    if (onloadlpTestPopulation == "AUTOMATION") {
+        var c = document.getElementsByClassName("ioaLCHdr")[0];
+        if (c != null) {
+            c.innerHTML = "American Express Chat"
+        }
+        var h = document.getElementsByClassName("ioaLCTxt")[0];
+        if (h != null) {
+            h.innerHTML = "Get an immediate response to your inquiry."
+        }
+        var f = document.getElementsByClassName("ioaStrtBtn")[0];
+        if (f != null) {
+            f.innerHTML = "";
+            f.innerHTML = '<a class="ioaOlnBtnLt" href="#" onclick="lpMTagConfig.dynButton1.actionHook();"><span class="ioaOlnBtnMid"><span><img src="https://qwww.aexp-static.com/api/axpi/ioa/img/rsz_chat-bubble-small.png"></span><span style="float: right;">Start Chat</span></span><span class="ioaOlnBtnRt"></span></a>'
+        }
+    } else {
+        var k = window.location.href;
+        var c = document.getElementsByClassName("ioaLCHdr")[0];
+        if (c != null) {
+            if (k.indexOf("travel") > -1 || k.indexOf("iseatz.com") > -1) {
+                c.innerHTML = "American Express Travel Chat"
+            } else {
+                if (k.indexOf("gmip") > -1 || k.indexOf("ATWORK") > -1 || k.indexOf("OSPC") > -1 || k.indexOf("cop") > -1) {
+                    c.innerHTML = "American Express Corporate Chat"
+                } else {
+                    c.innerHTML = "Live Chat"
+                }
+            }
+        }
+        var h = document.getElementsByClassName("ioaLCTxt")[0];
+        if (h != null) {
+            if (k.indexOf("travel") > -1 || k.indexOf("iseatz.com") > -1) {
+                h.innerHTML = "Mon-Fri 9am-12am EST, Sat 10am-6:30pm EST and Sun 10am-11pm EST"
+            } else {
+                if (k.indexOf("gmip") > -1 || k.indexOf("ATWORK") > -1 || k.indexOf("OSPC") > -1 || k.indexOf("cop") > -1) {
+                    h.innerHTML = "Available Monday - Friday from 9am - 6pm EST."
+                } else {
+                    h.innerHTML = "Chat now with one of our Customer Care Professionals."
+                }
+            }
+        }
+    }
+    adjustMainInfo()
+}
+
+}}c.type="text/javascript";c.async=true;c.src=a;d.appendChild(c)}function getQLinks(e,a){if(getiNavVersion()=="new"&&isSearchBarClosed()){return}var g=["<",">","alert","FSCommand","(",")",";","&"];for(var d=0;d<g.length;d++){var f=g[d].toUpperCase();if(a.toUpperCase().indexOf(f)>-1){a=""}}if(a==null||a.trim().length<3){if(typeof closeQLink==="function"){closeQLink()}if(a.trim().length==0){var c=document.getElementById("ioaNavSrchInputIcon");if(typeof c!=="undefined"&&c!==null){c.style.display="block"}var b=document.getElementById("ioaNavSearchClear");if(typeof b!=="undefined"&&b!==null){b.style.display="none"}}}if(e.keyCode=="38"||e.keyCode=="40"||(e.keyCode=="13"&&a.trim().length!=0)){predictiveAccs(e.keyCode)}else{result_n=0;if(!wasQLinkScriptAdded()){downloadQSearchScripts(a)}else{qLinksCallback(a)}}}function predictiveAccs(a){if(a=="38"){codefor38()}else{if(a=="40"){codefor40()}else{if(a=="13"){codefor13()}else{if(document.getElementById("result_"+(result_n))!=null){document.getElementById("result_"+(result_n)).style.backgroundColor="#ffffff"}result_n=0}}}}function getRowCount(){for(var a=1;;a++){if(document.getElementById("result_"+a)==null){return a-1}}}function isSearchBarClosed(){var a=document.getElementById("iNavSearchContainer");if(typeof a==="undefined"){return false}if(isSearchBarOpened(a,"ioaNewNavActive")){return false}return true}function goToSeachPage(a){if(a==="undefined"||a==null){a=document.getElementById("iOASearchInput").value}var c="-1";if(typeof NAV!=="undefined"&&typeof NAV.CW!=="undefined"&&typeof NAV.CW.getActiveCard()!=="undefined"){c=NAV.CW.getActiveCard()}var b=getOneAmexURL()+"?term=" +a;window.location.href=b}function wasQLinkScriptAdded(){var a=document.getElementsByTagName("script");for(var b=0;b<a.length;b++){if(a[b].src.indexOf("qSearch_min.js")>-1){return true}}return false}function downloadQSearchScripts(a){downLoadCSS(getServerURL()+"search/css/min/qSearch_min.css?vra4.0");downLoadQLinksJS(getServerURL()+"search/js/min/qSearch_min.js?vra5.0",a)}function downLoadQLinksJS(b,a){var d=document.getElementsByTagName("head").item(0);var c=document.createElement("script");if(c.readyState){c.onreadystatechange=function(){if(c.readyState=="loaded"||c.readyState=="complete"){c.onreadystatechange=null;qLinksCallback(a)}}}else{c.onload=function(){qLinksCallback(a)}}c.type="text/javascript";c.async=true;c.src=b;d.appendChild(c)}function getENV(){var a="3";try{if(Bootstrapper!=="undefined"&&Bootstrapper!=null&&Bootstrapper.ensEnv!=null){a=Bootstrapper.ensEnv}}catch(b){a=getFromHiddenVar()}return parseInt(a)}function getFromHiddenVar(){var c=window.location.href;if(c.indexOf("aaLauncher.jsp")>-1){isTestPage=true}var a="3";try{var d=document.getElementById("env");if(typeof d!=="undefined"&&d!=null){a=d.value;a=a.substring(1,2)}}catch(b){}return a}function getHomePageServerURL(){if(HOME_PAGE_SERVER_URL!=null){return HOME_PAGE_SERVER_URL}var a=getENV();switch(a){case 0:HOME_PAGE_SERVER_URL="https://dstatic.dev.ipc.us.aexp.com/";break;case 1:HOME_PAGE_SERVER_URL="https://dstatic.dev.ipc.us.aexp.com/";break;case 2:HOME_PAGE_SERVER_URL="https://qwww.aexp-static.com/";break;case 3:HOME_PAGE_SERVER_URL="https://www.aexp-static.com/";break;default:HOME_PAGE_SERVER_URL="https://www.aexp-static.com/";break}return HOME_PAGE_SERVER_URL}
+function getOneAmexURL() {
+	if (ONE_AMEX_SERVER_URL != null) {
+		return ONE_AMEX_SERVER_URL;
+	}
+	var env = getENV();
+	switch (env) {
+	case 0: {
+		ONE_AMEX_SERVER_URL = "http://phxj05429535.ads.aexp.com:9080/smartsearch/";
+		break;
+	}
+	case 1: {
+		ONE_AMEX_SERVER_URL = "https://dwww437.trcw.us.aexp.com/smartsearch/";
+		break;
+	}
+	case 2: {
+		ONE_AMEX_SERVER_URL = "https://e2qglobal.americanexpress.com/search";
+		break;
+	}
+	case 3: {
+		ONE_AMEX_SERVER_URL = "https://global.americanexpress.com/search";
+		break;
+	}
+	default: {
+		ONE_AMEX_SERVER_URL = "https://global.americanexpress.com/search";
+		break;
+	}
+	}
+	return ONE_AMEX_SERVER_URL;
+}
+function getServerURL(){if(SERVER_URL!=null){return SERVER_URL}var a=getENV();switch(a){case 0:SERVER_URL="http://phxj05429535.ads.aexp.com:9080/smartsearch/";break;case 1:SERVER_URL="https://dwww437.trcw.us.aexp.com/smartsearch/";break;case 2:SERVER_URL="https://qwww437.americanexpress.com/smartsearch/";break;case 3:SERVER_URL="https://www437.americanexpress.com/smartsearch/";break;default:SERVER_URL="https://www437.americanexpress.com/smartsearch/";break}return SERVER_URL}
+function createCORSRequest(b,a){if(!xhr){xhr=new XMLHttpRequest()}else{if(xhr.readyState!=0){xhr.abort();xhr=new XMLHttpRequest()}}if("withCredentials" in xhr){xhr.open(b,a,true)}else{if(typeof XDomainRequest!="undefined"){xhr=new XDomainRequest();xhr.open(b,a)}else{xhr=null}}return xhr}function showIOAToolTip(a){if(iOAcheckPhoneDesk()){document.getElementById(a).style.display="none";return}document.getElementById(a).style.display="block"}function hideIOAToolTip(a){document.getElementById(a).style.display="none"}function checkOnline(){var b=getQueryParamValueByName("openonline");if(b==="true"){openAA("phone",null);return}try{b=getQueryParamValueByName("helpcenter");if(b==="contactus"){openAA("phone",null);return}b=getQueryParamValueByName("helpcenter");if(b==="social"){openAA("social",null);return}b=getQueryParamValueByName("helpcenter");if(b==="faq"){openAA("faq",null);return}b=getQueryParamValueByName("opencontactus");var a=getQueryParamValueByName("fs");if(parseInt(b)>=0&&a==="y"){openAA("phone",null);return}if(parseInt(b)>=0){openAA("phone",null);return}}catch(c){console.log("Error in AA: "+c.message)}}function shownavTooltip(a){if(iOAcheckPhoneDesk()){document.getElementById(a).style.display="none";return}if(document.getElementById("iNavSearchContainer").innerHTML.length==0){document.getElementById("iNavSearchContainer").innerHTML='<div class="ioaNavHeaderTooltip" id="newNavSearchToolTip"><span id="searchTriangle" class="ioaNavTooltipTriangle"></span>Search</div><div class="ioaNavHeaderTooltip" id="newNavhelpToolTip"><span id="helpTriangle" class="ioaNavTooltipTriangle"></span>Help</div>'}if(a=="newNavHelpToolTip"){var f,e,d;if(typeof document.getElementsByClassName!=="undefined"){f=document.getElementsByClassName("ioaNavHelpBtn")[0];f.setAttribute("title","");e=document.getElementsByClassName("ioaNavHelpBtn")[0];var b=findPos(e);d=document.getElementById("newNavhelpToolTip");d.style.left=b-10+"px";document.getElementById("newNavhelpToolTip").style.visibility="visible";document.getElementById("newNavSearchToolTip").style.visibility="hidden"}else{if(typeof document.querySelectorAll!=="undefined"){f=document.querySelectorAll(".ioaNavHelpBtn")[0];f.setAttribute("title","");e=document.querySelectorAll(".ioaNavHelpBtn")[0];var b=findPos(e);d=document.getElementById("newNavhelpToolTip");d.style.left=b-10+"px";document.getElementById("newNavhelpToolTip").style.visibility="visible";document.getElementById("newNavSearchToolTip").style.visibility="hidden"}}}else{var f,e;if(typeof document.getElementsByClassName!=="undefined"){f=document.getElementsByClassName("ioaNavSrchBtn")[0];f.setAttribute("title","");e=document.getElementsByClassName("ioaNavSrchBtn")[0];var c=findPos(e);var d=document.getElementById("newNavSearchToolTip");d.style.left=c-20+"px";document.getElementById("newNavhelpToolTip").style.visibility="hidden";document.getElementById("newNavSearchToolTip").style.visibility="visible"}else{if(typeof document.querySelectorAll!=="undefined"){f=document.querySelectorAll(".ioaNavSrchBtn")[0];f.setAttribute("title","");e=document.querySelectorAll(".ioaNavSrchBtn")[0];var c=findPos(e);var d=document.getElementById("newNavSearchToolTip");d.style.left=c-20+"px";document.getElementById("newNavhelpToolTip").style.visibility="hidden";document.getElementById("newNavSearchToolTip").style.visibility="visible"}}}}function hidenavTooltips(){var b,a;if(typeof document.getElementsByClassName!=="undefined"){document.getElementById("newNavhelpToolTip").style.visibility="hidden";document.getElementById("newNavSearchToolTip").style.visibility="hidden";b=document.getElementsByClassName("ioaNavHelpBtn")[0];b.setAttribute("title","Help");a=document.getElementsByClassName("ioaNavSrchBtn")[0];a.setAttribute("title","Search")}else{if(typeof document.querySelectorAll!=="undefined"){document.getElementById("newNavhelpToolTip").style.visibility="hidden";document.getElementById("newNavSearchToolTip").style.visibility="hidden";b=document.querySelectorAll(".ioaNavHelpBtn")[0];b.setAttribute("title","Help");a=document.querySelectorAll(".ioaNavSrchBtn")[0];a.setAttribute("title","Search")}}}function findPos(a){var b=curtop=0;if(a.offsetParent){do{b+=a.offsetLeft;curtop+=a.offsetTop}while(a=a.offsetParent)}return b}function setSmartRespClasses(g){if(!g){g=window.event}if(g.target===null){return}if(typeof g.target=="undefined"||g.target.className===null){return}if (g.target.className && typeof(g.target.className) == "string" && g.target.className.indexOf(" ") > -1 && g.target.className.split(" ")[0] != "infoIcon" && g.target.className.split(" ")[0] != "smrttooltipWrap" && g.target.className.split(" ")[0] != "tooltipCnt" && g.target.className.split(" ")[0] != "tooltiparrow") {var a=null;if(typeof document.getElementsByClassName!=="undefined"){a=document.getElementsByClassName("smrttooltipWrap")}else{if(typeof document.querySelectorAll!=="undefined"){a=document.querySelectorAll(".smrttooltipWrap")}}var f=a.length;for(var d=0;d<=f;d++){if(typeof a[d]==="undefined"||a[d]===null){continue}if(a[d].className==="smrttooltipWrap smrtheadtooltip ioaToolTipActive active"){a[d].className="smrttooltipWrap smrtheadtooltip";a[d].parentNode.childNodes[1].className="infoIcon smrtCNTIcon";if(typeof document.querySelectorAll!=="undefined"){var c=document.querySelectorAll(".tooltiparrowTop");for(var d=0;d<c.length;d++){c[d].style.display="none"}}else{if(typeof document.getElementsByClassName!=="undefined"){var b=document.getElementsByClassName("tooltiparrowTop");for(var d=0;d<b.length;d++){b[d].style.display="none"}}}}}}if(iOAcheckPhoneDesk){newiNavPredLayerTouchHandler(g)}}if(typeof window.addEventListener!=="undefined"){document.body.addEventListener("click",function(a){if(document.getElementById("aaOverlayContainer")!=null&&typeof $iN!="undefined"){if($iN.contains(document.getElementById("aaOverlayContainer"),a.target)){if(a.preventDefault){a.preventDefault();a.stopImmediatePropagation()}else{a.returnValue=false}}}if(document.getElementsByClassName("click_to_chat")[0]!=null&&typeof $iN!="undefined"){if($iN.contains(document.getElementsByClassName("click_to_chat")[0],a.target)){if(a.preventDefault){a.preventDefault();a.stopImmediatePropagation()}else{a.returnValue=false}}}if(document.getElementById("lpButtonDiv")!=null&&typeof $iN!="undefined"){if($iN.contains(document.getElementById("lpButtonDiv"),a.target)){if(a.preventDefault){a.preventDefault();a.stopImmediatePropagation()}else{a.returnValue=false}}}if(document.getElementById("lpChatButton2014")!=null&&typeof $iN!="undefined"){if($iN.contains(document.getElementById("lpChatButton2014"),a.target)){if(a.preventDefault){a.preventDefault();a.stopImmediatePropagation()}else{a.returnValue=false}}}if(document.getElementById("lpChatWizContainer")!=null&&typeof $iN!="undefined"){if($iN.contains(document.getElementById("lpChatWizContainer"),a.target)){if(!(a.target.innerText=="Terms & Conditions" || a.target.innerText=="Terms of Use")){if (a.preventDefault){a.preventDefault();a.stopImmediatePropagation();}else{a.returnValue=false;}}}}setSmartRespClasses(a)},false)}else{if(typeof window.attachEvent!=="undefined"){document.body.attachEvent("onclick",function(a){if(document.getElementById("aaOverlayContainer")!=null&&typeof $iN!="undefined"){if($iN.contains(document.getElementById("aaOverlayContainer"),a.target)){if(a.preventDefault){a.preventDefault();a.stopImmediatePropagation()}else{a.returnValue=false}}}if(document.getElementsByClassName("click_to_chat")[0]!=null&&typeof $iN!="undefined"){if($iN.contains(document.getElementsByClassName("click_to_chat")[0],a.target)){if(a.preventDefault){a.preventDefault();a.stopImmediatePropagation()}else{a.returnValue=false}}}if(document.getElementById("lpButtonDiv")!=null&&typeof $iN!="undefined"){if($iN.contains(document.getElementById("lpButtonDiv"),a.target)){if(a.preventDefault){   a.preventDefault();a.stopImmediatePropagation()}else{a.returnValue=false}}}if(document.getElementById("lpChatButton2014")!=null&&typeof $iN!="undefined"){if($iN.contains(document.getElementById("lpChatButton2014"),a.target)){if(a.preventDefault){a.preventDefault();a.stopImmediatePropagation()}else{a.returnValue=false}}}if(document.getElementById("lpChatWizContainer")!=null&&typeof $iN!="undefined"){if($iN.contains(document.getElementById("lpChatWizContainer"),a.target)){if(!(a.target.innerText=="Terms & Conditions" || a.target.innerText=="Terms of Use")){if (a.preventDefault){a.preventDefault();a.stopImmediatePropagation();}else{a.returnValue=false;}}}}setSmartRespClasses(a)})}}function closePredLayer(){setTimeout(hideNewiOAPSDiv,500)}function hideNewiOAPSDiv(){if(iOAcheckPhoneDesk()){return}var a=document.getElementById("newiOAPSDiv");if(typeof a==="undefined"||a===null){return}a.style.display="none"}
+function clickSearchIcon(){var a=document.getElementById("iOASearchInput").value;var d=["<",">","alert","FSCommand","(",")",";","&"];for(var b=0;b<d.length;b++){var c=d[b].toUpperCase();if(a.toUpperCase().indexOf(c)>-1){a=""}}if(a==null||a.trim().length<1){document.getElementById("iOASearchInput").focus();return}goToSeachPage(a.trim())}
+function getOAsearch(event, searchStr) {
+    if (getiNavVersion() == "new" && isSearchBarClosed()) {
+        return;
+    }
+
+    var inplist = ["<", ">", "alert", "FSCommand", "(", ")", ";", "&"];
+    for (var i = 0; i < inplist.length; i++) {
+        var elementUpper = inplist[i].toUpperCase();
+        if (searchStr.toUpperCase().indexOf(elementUpper) > -1) {
+            searchStr = "";
+        }
+    }
+    if (searchStr == null || searchStr.trim().length < 3) {
+
+        if (searchStr.trim().length == 0) {
+            var div2 = document.getElementById("ioaNavSrchInputIcon");
+            if (typeof div2 !== "undefined" && div2 !== null) {
+                div2.style.display = "block";
+            }
+            var div3 = document.getElementById("ioaNavSearchClear");
+            if (typeof div3 !== "undefined" && div3 !== null) {
+                div3.style.display = "none";
+            }
+        }
+    }
+    if (event.keyCode == "13" && searchStr.trim().length != 0) {
+       clickSearchIcon();
+    }
+}
+function getQueryParamValueByName(b){b=b.replace(/[\[]/,"\\[").replace(/[\]]/,"\\]");var a="[\\?&]"+b+"=([^&#]*)";var c=new RegExp(a);var d=c.exec(window.location.search);if(d==null){return""}else{return decodeURIComponent(d[1].replace(/\+/g," "))}}function setCookie(d,f,a,e){var c=null;var b=document.domain;if(b.indexOf("aexp.com")!==-1){b="aexp.com"}else{if(b.indexOf("americanexpress.com")!==-1){b="americanexpress.com"}}var g=new Date();if(typeof e!=="undefined"&&e!==null){g.setTime(g.getTime()+(e*60*1000));c=e}else{g.setDate(g.getDate()+a);c=a}document.cookie=d+"="+escape(f)+((c==null)?"":"; expires="+g.toGMTString())+"; path=/; domain="+b}function getCookie_AA(b){var c=-1,a=-1;if(document.cookie.length>0){c=document.cookie.indexOf(b+"=");if(c>-1){c=c+b.length+1;a=document.cookie.indexOf(";",c);if(a==-1){a=document.cookie.length}return unescape(document.cookie.substring(c,a))}}return""}function delCookie(a){try{setCookie(a,"",-1)}catch(b){}}function iOAcheckPhoneDesk(){var a=navigator.userAgent;if(a.match(/iPhone/i)||a.match(/iPod/i)||a.match(/iPad/i)||a.match(/Android/i)||a.match(/BlackBerry/i)||a.match(/IEMobile/i)){return true}else{return false}}function isAAMobile(){if(/Android|webOS|iPhone|kindle|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)){return true}return false}function adjustaaLoader(){var a;var e=document.body;var c=document.documentElement;if(typeof document.height!=="undefined"){a=document.height}else{a=Math.max(e.scrollHeight,e.offsetHeight,c.clientHeight,c.scrollHeight,c.offsetHeight)}var d=document.getElementById("overLayMaster");if(d!=null){d.style.height=a+"px";d.style.width=document.documentElement.clientWidth+"px"}var b=document.getElementById("aaloader");if(b!=null){tLeft=document.documentElement.clientWidth/2+"px";tHeight=document.documentElement.clientHeight/2+"px";b.style.top=tHeight;b.style.left=tLeft}}function hideHelpPopUp(){document.getElementById("ioaHelpPopUp").style.display="none";document.getElementById("ioaHelpCol").className=document.getElementById("ioaHelpCol").className.replace("ioaNavActive","")}function showHelpPopUp(){if(document.getElementById("newiOAPSDiv")!=null&&document.getElementById("newiOAPSDiv").style.display=="block"){document.getElementById("ioaHelpPopUp").style.display="none";var a=document.getElementById("ioaHelpCol");a.className=a.className.replace("ioaNavActive","")}else{document.getElementById("ioaHelpPopUp").style.display="block";document.getElementById("ioaHelpCol").className="ioaNavActive"}}function toggleHelpPopup(){if(document.getElementById("newiOAPSDiv")!=null){document.getElementById("newiOAPSDiv").style.display="none"}if(document.getElementById("ioaHelpPopUp").style.display=="none"){document.getElementById("ioaHelpPopUp").style.display="block";document.getElementById("ioaHelpCol").className="ioaNavActive"}else{document.getElementById("ioaHelpPopUp").style.display="none";var a=document.getElementById("ioaHelpCol");a.className=a.className.replace("ioaNavActive","")}}function openSearchBox(a){a.className="ioaSrchActive";if(document.getElementById("iOASearchInput").value===""){document.getElementById("ioaPHText").style.display="block"}}function closeSearchBox(a){a.className=a.className.replace("ioaSrchActive","")}function summerNavInputBlur(){var a=document.getElementById("iOASearchForm");a.className=a.className.replace("ioaSrchActive","");setTimeout(hideNewiOAPSDiv,500);if(document.getElementById("iOASearchInput").value===""){document.getElementById("ioaPHText").style.display="none"}}function foucsPHInput(a){document.getElementById("iOASearchInput").focus()}function newiNavPredLayerTouchHandler(e){var d=false;var a=e.target;var b=a;while(b.parentNode){if(b.parentNode.id=="newiOAPSDiv"){d=true;break}else{b=b.parentNode}}if(!d){var c=document.getElementById("newiOAPSDiv");if(typeof c==="undefined"||c===null){return}c.style.display="none"}}function addNewiNavPredLayerTouchHandler(){if(!iOAcheckPhoneDesk){return}if(typeof window.addEventListener==="undefined"){return}window.addEventListener("touchstart",function(a){newiNavPredLayerTouchHandler(a)},false);window.addEventListener("touchmove",function(a){newiNavPredLayerTouchHandler(a)},false);window.addEventListener("touchend",function(a){newiNavPredLayerTouchHandler(event)},false)}function addAAScrollerFunc(){if(typeof window.addEventListener!=="undefined"){window.addEventListener("scroll",ioascroll)}else{if(typeof window.attachEvent!=="undefined"){window.attachEvent("onscroll",ioascroll)}}}function hideSummerNavPlaceHolder(){if(document.getElementById("ioaPHText").style.display=="block"){document.getElementById("ioaPHText").style.display="none"}else{if(document.getElementById("iOASearchInput").value==""){document.getElementById("ioaPHText").style.display="block"}else{document.getElementById("ioaPHText").style.display="none"}}}setTimeout(function(){if(window.location.href.indexOf("search.jsp")!=-1){if(!$iN("#advSWF").is(":empty")){if($iN("#advSWF").height()==0){$iN(".srchThreeColumn .srchRtContent").height(604);$iN(".srchThreeColumn .srchRtContent").width(164)}}}},5000);
+if(IOA.globalRule.cmscore){	var guid = getCookie_AA('blueboxpublic');if(typeof guid != "undefined" && guid!="" && guid.length==32){var tgtCookie = getCookie_AA("tgt"+guid);if(tgtCookie != "undefined" && tgtCookie!=""){targetScore=tgtCookie;}else{IOASSIST.ioaBox.getTargetscore("https://clicktochat.americanexpress.com/chat/cmscore?guid="+guid,guid);}}}
+function openCobrowseOnline(){
+	if(document.getElementById("cobrowseJS")!=null){
+		buildCobrowseHtml();
+		return;
+	}
+	var oHead = document.getElementsByTagName('head').item(0);
+	var oScript = document.createElement("script");
+	if (oScript.readyState) { // IE
+		oScript.onreadystatechange = function() {
+			if (oScript.readyState == "loaded"
+					|| oScript.readyState == "complete") {
+				oScript.onreadystatechange = null;
+				buildCobrowseHtml();
+			}
+		};
+	} else { // Others
+		oScript.onload = function() {
+			buildCobrowseHtml();
+		};
+	}
+	oScript.type = "text/javascript";
+	oScript.async = true;
+	oScript.id="cobrowseJS";
+	oScript.src = "https://icm.aexp-static.com/content/dam/chat/prod/js/cobrowse.js";
+	oHead.appendChild(oScript);
+}
+
+if(typeof Bootstrapper != "undefined" && Bootstrapper != null && Bootstrapper.readCookie("amexsessioncookie")==null && window.location.href.indexOf("myca/logon")!=-1){
+	  function bdaasFrameNL(){
+	  console.log("in bdaasFrameNLLoaded0");
+	var bdaasiFrame = document.createElement("iframe");
+    bdaasiFrame.id = 'bdaasiFrame';
+    bdaasiFrame.src = "https://icm.aexp-static.com/content/dam/chat/html/bdaasFrame.html";
+    bdaasiFrame.style.width = "0px";
+    bdaasiFrame.style.height = "0px";
+    document.body.appendChild(bdaasiFrame);
+	bdaasiFrame.onload = bdaasFrameNLLoaded;
+ }
+function bdaasFrameNLLoaded(){
+	console.log("in bdaasFrameNLLoaded");
+	if(Bootstrapper.readCookie("amexsessioncookie")==null){
+	  sendMessageTobdaasNL({"bdaasEmbWiz": "INTLBDAAS", "CMD" : "REMOVEXCUT"});
+	}
+}
+	
+function sendMessageTobdaasNL(jsonData){	
+console.log("in bdaasFrameNLLoaded1");
+  if (getbdaasFrameObjNL().postMessage)
+	getbdaasFrameObjNL().postMessage(JSON.stringify(jsonData), getTargetForbdaasFrameNL()); 
+  else  
+   throw new Error ("Your browser does not support the postMessage method!"); 
+ }
+ 
+ function getbdaasFrameObjNL(){
+ console.log("in bdaasFrameNLLoaded2");
+	 var x = document.getElementById("bdaasiFrame");
+	 if(typeof x != "undefined" && x != null )
+	 return (x.contentWindow || x.contentDocument);
+ }
+ 
+ function getTargetForbdaasFrameNL(){
+ console.log("in bdaasFrameNLLoaded3");
+  var iFrameURL = "https://icm.aexp-static.com/content/dam/chat/html/bdaasFrame.html";
+  return iFrameURL.indexOf('https') > -1 ? 'https://' + iFrameURL.substr(8).split('/')[0] : 'http://'
+       + iFrameURL.substr(7).split('/')[0];
+ }
+ 
+ bdaasFrameNL(); 
+	}

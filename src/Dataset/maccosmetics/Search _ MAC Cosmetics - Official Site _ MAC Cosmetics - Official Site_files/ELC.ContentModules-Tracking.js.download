@@ -1,0 +1,65 @@
+// Track click event of content modules - Analytics.
+(function(site, $) {
+  Drupal.behaviors.analyticsContentBehavior = {
+    attach: function(context) {
+      $('.js-analytics-tag-content-module').once('js-contentmodule-analytics').on('click', function(event) {
+        /* Exclude tagging while clicking on Non-Clickable Area
+        Include content module tagging when user clicks anywhere on the clickable block including text click
+        Include tagging when user clicks on Images and navigable text in a banner
+        Include tagging on olapic Image clicks
+        Include tagging on Video content clicks
+        */
+        var targetElem = event.target;
+        if (!$(targetElem).attr('href') && $(targetElem).closest('[href]').length < 1
+            && $(targetElem).closest('[data-clickable]').length < 1
+            && $(targetElem).closest('[data-url]').length < 1
+            && targetElem.tagName !== 'VIDEO'
+            && $(targetElem).closest('[data-video-provider]').length < 1) {
+          return;
+        }
+        var $nodeElem = $(this);
+        var promoId = [], promoName = [], promoType = [];
+        var contentName = $nodeElem.closest('.js-analytics-content-block').attr('trackname');
+        var processedElem = $nodeElem.find('[data-analytics-content="triggered"]');
+        if (!contentName || processedElem.length > 0) {
+          return;
+        }
+        var trackName = contentName.split('|');
+        var clickedLinkText = targetElem.text || targetElem.innerText;
+        // Updating clicked link text while user clicked on multilines text of a block
+        var multiLineText = clickedLinkText.split('\n');
+        $.each(multiLineText, function(i, val) {
+          var currentText = val;
+          if (!!currentText && currentText.trim() !== '' && currentText.trim() !== '&nbsp;') {
+            currentText = currentText.trim();
+            clickedLinkText = currentText.length > 50 ? currentText.split('\.')[0] : currentText;
+            return false;
+          }
+        });
+        if (!!trackName && trackName.length > 1) {
+          var promotionName = trackName[0];
+          clickedLinkText = clickedLinkText.trim();
+          if (!!clickedLinkText) {
+            promotionName = promotionName + ' | ' + clickedLinkText;
+          }
+          var promotionType = trackName[1];
+          promoName.push(promotionName);
+          promoType.push(promotionType);
+          promoId.push('module - ' + promotionType + ' - ' + promotionName);
+          site.track.evtLink({
+            event_name: 'content_module_click',
+            enh_action: 'promo_click',
+            event_category: 'ecommerce',
+            event_action: 'promotion click',
+            event_label: 'banner click' + ' | ' + promoName,
+            promo_pos: ['module'],
+            promo_creative: promoType,
+            promo_name: promoName,
+            promo_id: promoId,
+          });
+          $nodeElem.attr('data-analytics-content', 'triggered');
+        }
+      });
+    }
+  };
+}(window.site || {}, jQuery));

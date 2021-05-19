@@ -1,0 +1,235 @@
+/**
+ * (検索用)
+ * リンクで送られてくるパラメータ
+ * をチェックするファンクション
+ * 
+ * 除外項目に指定した項目はパラメータに追加しません。
+ * 対象項目を指定すると対象項目のみでパラメータを作成し、
+ * それ以外の項目はパラメータに追加しません。
+ * 
+ * 【使用例】
+ *		frm に
+ *			int1 = 1, int2 = 2, int3 = 3
+ *			string1 = "aaa", string2 = "bbb", string3 = "ccc"
+ *		というパラメータがあるとする
+ * 
+ * パターン1：	第1引数のみを指定した場合 (全て表示)
+ *		呼び出し：	submitFormChk(frm);
+ *		戻り値　：	?int1=1&int2=2&int3=3&string1=aaa&string2=bbb&string3=ccc
+ *
+ * パターン２：	第2引数を指定した場合
+ *		呼び出し：	submitFormChk(frm, "int2, string1, string3");
+ *		戻り値　：	?int1=1&int3=3&string2=bbb
+ *
+ * パターン３：	第3引数を指定した場合
+ *		呼び出し：	submitFormChk(frm, "", "int1, int2, string1");
+ *		戻り値　：	?int1=1&int2=2&string1=aaa
+ *
+ * パターン４：	第2引数と第3引数を指定した場合 (第3引数で絞り込んだものから、第2引数の項目を除外)
+ *		呼び出し：	submitFormChk(frm, "int2", "int1, int2, string1");
+ *		戻り値	：	?int1=1&string1=aaa
+ *
+ * パターン５：	正規表現が使用できます
+ *		呼び出し：	submitFormChk(frm, "", "int*");
+ *		戻り値　：	?int1=1&int2=2&int3=3
+ *
+ *		呼び出し：	submitFormChk(frm, "int1, ^2", "int*, string*");
+ *		戻り値　：	?int3=3&string1=aaa&string3=ccc
+ *
+ *
+ * @param frm フォームオブジェクト(必須)
+ * @param excludes 除外項目 (カンマ区切りで複数指定)
+ * @param includes 対象項目 (カンマ区切りで複数指定)
+ * @return URLパラメータ (?××××&○○○○&△△△△･･･)
+ */
+function submitFormChk(frm, excludes, includes) {
+	
+	var ary1 =  new Array();
+	var ary2 =  new Array();
+	var act = "";
+	
+	var excludesAry = stringSprit(excludes);
+	var includesAry = stringSprit(includes);
+	
+	if (frm.elements["dateUndecided"] == null || frm.elements["dateUndecided"].value == "" ||
+		(frm.elements["dateUndecided"].type == "checkbox" && frm.elements["dateUndecided"].checked == false)) {
+		// 日付指定の場合
+		for (var i = 0; i < frm.elements.length; i++) {
+			var flg = checkParameter(ary2, frm, i, excludesAry, includesAry);
+			if(flg) {
+				ary1.push(frm.elements[i].name + "=" + frm.elements[i].value);
+				ary2.push(frm.elements[i].name);
+			}
+		}
+	} else {
+		// 日付未定の場合
+		for (var i = 0; i < frm.elements.length; i++) {
+			var flg = checkParameter(ary2, frm, i, excludesAry, includesAry);
+			if(flg) {
+				if (frm.elements[i].name == "stayYear" || frm.elements[i].name == "stayMonth" || frm.elements[i].name == "stayDay") {
+					ary1.push(frm.elements[i].name + "=");
+					ary2.push(frm.elements[i].name);
+				} else {
+					ary1.push(frm.elements[i].name + "=" + frm.elements[i].value);
+					ary2.push(frm.elements[i].name);
+				}
+			}
+		}
+	}
+
+	for(var i = 0; i < ary1.length; i++) {
+		if(i == 0) {
+			act += "?";
+		} else {
+			act += "&";
+		}
+		act += ary1[i];
+	}
+
+	return act;
+}
+
+/**
+ * (共通)
+ * リンクで送られてくるパラメータ
+ * をチェックするファンクション
+ * 
+ * 除外項目に指定した項目はパラメータに追加しません。
+ * 対象項目を指定すると対象項目のみでパラメータを作成し、
+ * それ以外の項目はパラメータに追加しません。
+ *
+ * 【使用例】
+ *		frm に
+ *			int1 = 1, int2 = 2, int3 = 3
+ *			string1 = "aaa", string2 = "bbb", string3 = "ccc"
+ *		というパラメータがあるとする
+ * 
+ * パターン1：	第1引数のみを指定した場合 (全て表示)
+ *		呼び出し：	submitFormChkCom(frm);
+ *		戻り値　：	?int1=1&int2=2&int3=3&string1=aaa&string2=bbb&string3=ccc
+ *
+ * パターン２：	第2引数を指定した場合
+ *		呼び出し：	submitFormChkCom(frm, "int2, string1, string3");
+ *		戻り値　：	?int1=1&int3=3&string2=bbb
+ *
+ * パターン３：	第3引数を指定した場合
+ *		呼び出し：	submitFormChkCom(frm, "", "int1, int2, string1");
+ *		戻り値　：	?int1=1&int2=2&string1=aaa
+ *
+ * パターン４：	第2引数と第3引数を指定した場合 (第3引数で絞り込んだものから、第2引数の項目を除外)
+ *		呼び出し：	submitFormChk(frm, "int2", "int1, int2, string1");
+ *		戻り値	：	?int1=1&string1=aaa
+ *
+ * パターン５：	正規表現が使用できます
+ *		呼び出し：	submitFormChkCom(frm, "", "int*");
+ *		戻り値　：	?int1=1&int2=2&int3=3
+ *
+ *		呼び出し：	submitFormChkCom(frm, "int1, ^2", "int*, string*");
+ *		戻り値　：	?int3=3&string1=aaa&string3=ccc
+ *
+ *
+ * @param frm フォームオブジェクト(必須)
+ * @param excludes 除外項目 (カンマ区切りで複数指定)
+ * @param includes 対象項目 (カンマ区切りで複数指定)
+ * @return URLパラメータ (?××××&○○○○&△△△△･･･)
+ */
+function submitFormChkCom(frm, excludes, includes) {
+
+	var ary1 =  new Array();
+	var ary2 =  new Array();
+	var act = "";
+	
+	var excludesAry = stringSprit(excludes);
+	var includesAry = stringSprit(includes);
+	
+	for (var i = 0; i < frm.elements.length; i++) {
+		var flg = checkParameter(ary2, frm, i, excludesAry, includesAry);
+		if(flg) {
+			ary1.push(frm.elements[i].name + "=" + frm.elements[i].value);
+			ary2.push(frm.elements[i].name);
+		}
+	}
+	
+	for(var i = 0; i < ary1.length; i++) {
+		if(i == 0) {
+			act += "?";
+		} else {
+			act += "&";
+		}
+		act += ary1[i];
+	}
+
+	return act;
+}
+
+/**
+ * パラメータの登録可否を判定します
+ *
+ * @param array 登録済みリスト
+ * @param form フォームオブジェクト
+ * @param index 項番
+ * @param excludesAry 除外項目リスト
+ * @param includesAry 対象項目リスト
+ * @return true 登録可、 false 登録不可
+ */
+function checkParameter(array, form, index, excludesAry, includesAry) {
+	
+	for(var i = 0; i < array.length; i++) {
+		if(form.elements[index].name == array[i]) {
+			// 登録済みリストと比較
+			return false;
+		}
+	}
+	
+	for(var i = 0; i < excludesAry.length; i++) {
+		if(form.elements[index].name.match(excludesAry[i])) {	
+			// 除外項目リストと比較
+			return false;
+		}
+	}
+	
+	if(includesAry.length > 0) {
+		// 対象項目が指定されている場合
+		var flg = false;
+		for(var i = 0; i < includesAry.length; i++) {
+			if(form.elements[index].name.match(includesAry[i])) {
+				// 対象項目リストと比較
+				flg = true;
+				break;
+			}
+		}
+		if(!flg) {
+			return false;
+		}
+	}
+	
+	var flg = true;
+	if(form.elements[index].type == "checkbox") {
+		if(form.elements[index].name == "" || form.elements[index].checked == false) {
+			flg = false;
+		}
+	} else {
+		if (form.elements[index].name == "" || form.elements[index].value == "") {
+			flg = false;
+		}
+	}
+	
+	return flg;
+}
+
+/**
+ * 文字列をカンマ区切りで分解して、リストにして返します
+ * 
+ * @parma string 文字列
+ */
+function stringSprit(string) {
+	var ary = new Array();
+
+	if(string != null && string.length > 0) {
+		var rgexp = new RegExp(" ", "g");
+		var str = string.replace(rgexp, "");
+		ary = str.split(",");
+	}
+	
+	return ary;
+}

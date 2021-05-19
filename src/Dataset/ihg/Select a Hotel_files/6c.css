@@ -1,0 +1,148 @@
+.gwc-chat-message-container {
+	top: 85px !important;
+}
+
+.gwc-chat-message-form {
+	margin: 0 0 0px !important;
+}
+
+.gwc-chat-logo {
+	height: 30px;
+	background-repeat: no-repeat;
+	background-size: contain;
+	background-image: url(../img/6c.png) !important;
+}
+
+.gwc-chat-button {
+	background-image: linear-gradient(to bottom,#d0591f,#d96932);
+}
+
+.gwc-chat-button:hover {
+	background-image: linear-gradient(to bottom,#d96932,#d96932);
+}
+
+.gwc-chat-button:active {
+	background-image: linear-gradient(to bottom,#d96932,#d96932);
+}
+.gwc-chat-button-light {
+	background-image: linear-gradient(to bottom,#f4f4f4,#edefef);
+}
+
+.gwc-chat-button-light:hover {
+	background-image: linear-gradient(to bottom,#f4f4f4,#f4f4f4);
+}
+
+.gwc-chat-button-light:active {
+	background-image: linear-gradient(to bottom,#f4f4f4,#f4f4f4);
+}
+
+.gwc-chat-message-container {
+	left: 0;
+	right: 0;
+	padding: inherit;
+	border: none;
+}
+.gwc-chat-embedded-window {
+	box-shadow: 3px 4px 10px #b6aaad;
+	border: none;
+	border-top-left-radius: 9px; 
+	border-top-right-radius: 9px; 	
+	width: 400px;
+	max-width: 90%;
+}
+
+
+.gwc-chat-body {
+	height: 540px;
+}
+
+.gwc-chat-window-controls {
+	position: relative;
+	right: 10px;
+}
+
+.gwc-chat-control.gwc-chat-control-minimize {
+	position: relative;
+	right: 10px;
+}
+
+.gwc-chat-head {
+	border-top-left-radius: 9px;
+	border-top-right-radius: 9px;
+	background: #d96932;
+}
+
+.gwc-chat-body {
+	background: #fff;
+}
+
+.gwc-chat, .gwc-chat button, .gwc-chat div, .gwc-chat input, .gwc-chat textarea {
+	font: normal normal normal 16px Source Sans Pro !important;
+}
+.gwc-chat-message-author {
+	display: inline;
+	color: #d96932;
+	font-weight: bold;
+	padding-left: 10px;
+}
+.gwc-chat-message {
+	background-color: #f0f0f0;
+	border-radius: 9px;
+}
+
+.gwc-chat-message-text {
+	padding-left: 10px;
+	padding-right: 10px;
+	padding-top: 5px;
+	padding-bottom: 5px;
+}
+
+.gwc-chat-embedded-window ::-webkit-scrollbar-thumb:hover {
+	background: #929292;
+}
+
+.gwc-chat-embedded-window ::-webkit-scrollbar-thumb {
+	background: #888;
+}
+
+.gwc-chat-embedded-window ::-webkit-scrollbar-track {
+	background: #f1f1f1;
+}
+
+.gwc-chat-embedded-window ::-webkit-scrollbar {
+	width: 5px;
+}
+
+.gpe-dialog .gpe-dialog-buttonpane .gpe-button:first-child {
+	background-image: linear-gradient(to bottom,#d0591f,#d96932);
+	background-color: #d96932
+}
+
+.gpe-branding-logo {
+	width:50px;
+	background-image: url("../img/6c.png") !important;
+}
+
+.gpe-corner-all {
+	border-bottom-left-radius: 0px; 
+	border-bottom-right-radius: 0px; 
+	border-top-left-radius:9px; 
+	border-top-right-radius: 9px;
+}
+
+.gpe-dialog .gpe-dialog-titlebar {
+	background-color: #d96932
+}
+
+.gpe-dialog {
+	box-shadow: 3px 4px 10px #b6aaad;
+}
+
+.gpe-dialog.gpe-widget.gpe-widget-content.gpe-corner-all.gpe-front.gpe-dialog-buttons.gpe-draggable {
+        height: auto;
+        width: 300px;
+        display: block;
+        position: fixed;
+        top: 75%;
+        left: 75%;
+

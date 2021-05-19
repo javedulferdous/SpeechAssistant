@@ -1,0 +1,200 @@
+
+/*--safari text weight fix--*/
+*{-webkit-font-smoothing: subpixel-antialiased !important;}
+/* begin boilerplate */
+body,div{display:block;margin:0;padding:0;position:absolute;}
+body #ad *.In{opacity:1}
+body{
+	font-family: "Open Sans", Arial, Helvetica, sans-serif;
+	height:250px;
+	left:0;
+	top:0;
+	width:300px;
+}
+#ad{
+	background: #ffffff;
+	/*border: black 1px solid;*/
+	box-sizing: border-box;
+	color: #1e6db6;
+	display: block;
+	font-size: 15px;
+	height: 250px;
+	left: 0;
+	overflow: hidden;
+	top: 0;
+	width: 300px;
+}
+#border {
+	border: black 1px solid;
+	height: 248px;
+	left: 0px;
+	opacity: 1;
+	position: absolute;
+	top: 0px;
+	width: 298px;
+	z-index: 1000;
+}
+
+#bgExitArea { 
+	cursor:pointer;
+	height:250px; 
+	left:0;
+	opacity:0;
+	top:0; 
+	width:300px;  
+	z-index: 1200;
+}
+
+#logo {
+	background: url(PGR_logo_000000_158x22.svg) no-repeat;
+	height: 16.5px;
+	left: 12px;
+	opacity: 0;
+	top: 12px;
+	width: 118.5px;
+	z-index: 201;
+}
+#logo.in {
+	opacity: 1;
+	position: absolute;
+	transition: 2s;
+}
+
+/* begin custom code */
+
+#f1 div,
+#f2 div {
+	opacity: 0;
+	transition: opacity 2s;
+}
+#f1 .in,
+#f2 .in {
+	opacity: 1;
+}
+#f1 .out,
+#f2 .out {
+	opacity: 0;
+	transition: opacity .5s;
+}
+#border-blur {
+	background: url(box-blur.png) no-repeat;
+	height: 219px;
+	left: 15.5px;
+	top: 15.5px;
+	width: 269px;
+}
+#chart {
+	background: url(chart.png) no-repeat;
+	height: 209px;
+	left: 20px;
+	top: 20px;
+	width: 259px;
+}
+#chart-blur {
+	background: url(chart-blur.png) no-repeat;
+	height: 165px;
+	left:38px;
+	top: 43px;
+	width: 226px;
+}
+#t1 {
+	left: 12px;
+	overflow: hidden;
+	top: 39px;
+}
+#t1a {
+	background: url(clear.png) no-repeat;
+	height: 50px;
+	left: 80px;
+	top: 33px;
+	/* top: 27px; */
+	width: 150px;
+}
+#f2 #t1b {
+	height: 50px;
+	left: 85px;
+	top: 39px;
+}
+
+#t1a.final {
+	opacity: 0;
+}
+#flo {
+	background: url(flo.png) no-repeat;
+	height: 220px;
+	left: 300px;
+	opacity: 1;
+	top: 45px;
+	width: 167px;
+}
+#flo.in {
+	left: 133px;
+	transition: left 1s;	
+}
+
+/* frame 3 text */
+#rectangle1 {
+	height: 126px;
+	opacity: 1;
+	position: absolute;
+	left: 8px;
+	top: 70px;
+	width: 180px;
+	z-index: 400;
+}
+
+#text {
+    background: url(over750_savings_Eye_Chart_300x250.svg) no-repeat;
+	height: 100%;
+    opacity: 0;
+	position: absolute;
+	width: 100%;
+} 
+#text.in {
+	opacity: 1;
+	position: absolute;
+	-webkit-transition: all 3s;
+	-moz-transition: all 3s;
+	-ms-transition: all 3s;
+	transition: all 3s;
+} 
+
+/* frame 3 Get A Quote */
+#rectangle2 {
+	height: 36px;
+	left: -100px;
+	opacity: 0;
+	position: absolute;
+	top: 200px;
+	width: 134px;
+	transform: scale(.9);
+	z-index: 400;
+	/* border: red 1px solid; */
+}
+#rectangle2.in {
+	left: -100px;
+	opacity: 1;
+	position: absolute;
+}
+#rectangle2.slide {
+	left: 2px;
+	opacity: 1;
+	position: absolute;
+	-webkit-transition: all 1s;
+	-moz-transition: all 1s;
+	-ms-transition: all 1s;
+	transition: all 1s;
+}
+#quote {
+    background: url(button_ff8a39_134x36.svg) no-repeat;
+	height: 100%;
+    opacity: 0;
+	position: absolute;
+	width: 100%;
+	z-index: 400;
+	transition: all .5s;
+} 
+#quote.in {
+	opacity: 1;
+	position: absolute;
+}

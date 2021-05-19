@@ -1,0 +1,768 @@
+_satellite.pushAsyncScript(function(event, target, $variables){
+  
+!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
+n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;
+t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,
+document,'script','//connect.facebook.net/en_US/fbevents.js');
+
+fbq('init', '315259641998531');
+fbq('trackSingle', '315259641998531', 'PageView')
+if(_satellite.getVar('Page Level 2') == 'movie times | by movie'){
+  fbq('trackSingleCustom', '315259641998531', '', 
+    {content_category: 'Fandango Desktop Ticket',
+    content_ids:  _satellite.getVar('Movie ID') || _satellite.getQueryParam('mid')||(_satellite.getVar('window.mps.pagevars.cags.mv')||[''])[0],
+    content_type: 'product'
+   });
+} 
+//pxl-630 internal fandango marketing
+if(_satellite.getVar('Movie ID') || _satellite.getVar('Movie ID') != ''){
+fbq('init', '384280192611758');
+  fbq('trackSingleCustom', '384280192611758', 'PageView',
+    {content_ids:  _satellite.getVar('Movie ID'),
+   });
+}
+
+//Downton Abbey 216217
+if(_satellite.getVar('Movie ID') == '216217'){
+	fbq('init', '1006316492905159');
+	fbq('trackSingle', '1006316492905159', 'PageView')
+	fbq('trackSingle', '1006316492905159','ViewContent');
+}  
+
+//Spiderman Far From Home 216033
+if(_satellite.getVar('Movie ID') == '216033' || _satellite.getVar('Movie ID') == '218680' || _satellite.getVar('Movie ID') == '218681' || _satellite.getVar('Movie ID') == '218682'){
+	fbq('init', '366314873930272');
+	fbq('trackSingle', '366314873930272', 'PageView')
+	fbq('trackSingle', '366314873930272','ViewContent');
+}  
+
+//A24 Last Black Man in San Francisco 218018 & Midsommar 217742
+if(_satellite.getVar('Movie ID') == '218081' || _satellite.getVar('Movie ID') == '217742'){
+	fbq('init', '1576729352566661');
+	fbq('trackSingle', '1576729352566661', 'PageView')
+	fbq('trackSingle', '1576729352566661','ViewContent');
+}  
+//Yesterday 217233
+if(_satellite.getVar('Movie ID') == '217233'){
+	fbq('init', '331629074361121');
+	fbq('trackSingle', '331629074361121', 'PageView')
+	fbq('trackSingle', '331629074361121','ViewContent');
+}  
+//Anna 218458
+if(_satellite.getVar('Movie ID') == '218458'){
+	fbq('init', '2232571240328496');
+	fbq('trackSingle', '2232571240328496', 'PageView')
+	fbq('trackSingle', '2232571240328496','ViewContent');
+  if(_satellite.getVar('Page Level 2') == 'movie times | by movie'){
+    fbq('trackSingle', '2232571240328496', 'Search')
+  }
+}  
+//Maiden 216991
+if(_satellite.getVar('Movie ID') == '216991'){
+	fbq('init', '337901050220822');
+	fbq('trackSingle', '337901050220822', 'PageView')
+	fbq('trackSingle', '337901050220822','ViewContent');
+  fbq('init', '405769170153161');
+  fbq('trackSingle', '405769170153161', 'PageView')
+  fbq('trackSingle', '405769170153161','ViewContent');
+}
+//Crawl 218576
+if(_satellite.getVar('Movie ID') == '218576'){
+	fbq('init', '1118452321679807');
+	fbq('trackSingle', '1118452321679807', 'PageView')
+	fbq('trackSingle', '1118452321679807','ViewContent');
+}  
+
+//Art of Racing in the Rain 218970
+if(_satellite.getVar('Movie ID') == '218970'){
+	fbq('init', '562045747661390');
+	fbq('trackSingle', '562045747661390', 'Lead')
+}  
+
+//Stuber 217778 
+if(_satellite.getVar('Movie ID') == '217778'){
+    fbq('init', '2335257760070975');
+    fbq('trackSingle', '2335257760070975', 'Lead')
+}  
+
+//Ad Astra 219166
+if(_satellite.getVar('Movie ID') == '219166'){
+    fbq('init', '1403880673102360');
+    fbq('trackSingle', '1403880673102360', 'Lead')
+}  
+
+
+//The Farewell 218727
+if(_satellite.getVar('Movie ID') == '218727'){
+    fbq('init', '1576729352566661');
+    fbq('trackSingle', '1576729352566661', 'PageView')
+	fbq('trackSingle', '1576729352566661', 'ViewContent')
+	}  
+
+//Angel Has Fallen 218538
+if(_satellite.getVar('Movie ID') == '218538'){
+	fbq('init', '449276055876867');
+	fbq('trackSingle', '449276055876867', 'PageView')
+	fbq('trackSingle', '449276055876867','ViewContent');
+}  
+//WYG Bernadette 216250
+if(_satellite.getVar('Movie ID') == '216250'){
+  fbq('init', '737812879934867');
+  fbq('trackSingle', '737812879934867', 'PageView')
+  fbq('trackSingle', '737812879934867','ViewContent');
+}  
+//Addams Family 218443
+if(_satellite.getVar('Movie ID') == '218443'){
+  fbq('init', '2317573471632761');
+  fbq('trackSingle', '2317573471632761', 'PageView')
+  fbq('trackSingle', '2317573471632761','ViewContent');
+}  
+//Hobbs & Shaw 216993, 219410, 219279
+if(_satellite.getVar('Movie ID') == '216993' || _satellite.getVar('Movie ID') == '219410' || _satellite.getVar('Movie ID') == '219279'){
+  fbq('init', '1990873431214995');
+  fbq('trackSingle', '1990873431214995', 'PageView')
+  fbq('trackSingle', '1990873431214995','ViewContent');
+}  
+//Once Upon a Time in Hollywood 211527
+if(_satellite.getVar('Movie ID') == '211527'){
+	fbq('init', '451464695590603');
+	fbq('trackSingle', '451464695590603', 'PageView')
+	fbq('trackSingle', '451464695590603','ViewContent');
+}  
+//Bond 25 219381
+if(_satellite.getVar('Movie ID') == '219381'){
+  fbq('init', '311761916170016');
+  fbq('trackSingle', '311761916170016', 'PageView')
+  fbq('trackSingle', '311761916170016','ViewContent');
+}  
+//Dora and the Lost City of Gold 218094
+if(_satellite.getVar('Movie ID') == '218094'){
+	fbq('init', '2270552599824146');
+	fbq('trackSingle', '2270552599824146', 'PageView')
+	fbq('trackSingle', '2270552599824146','ViewContent');
+}  
+//After the Wedding 219189
+if(_satellite.getVar('Movie ID') == '219189'){
+  fbq('init', '405769170153161');
+  fbq('trackSingle', '405769170153161', 'PageView')
+  fbq('trackSingle', '405769170153161','ViewContent');
+}  
+
+//Good Boys 217779
+if(_satellite.getVar('Movie ID') == '217779'){
+  fbq('init', '277007612970792');
+  fbq('trackSingle', '277007612970792', 'PageView')
+  fbq('trackSingle', '277007612970792','ViewContent');
+}  
+//Angry Birds 2 217420
+if(_satellite.getVar('Movie ID') == '217420' || _satellite.getVar('Movie ID') == '219526'){
+  fbq('init', '1145095805651046');
+  fbq('trackSingle', '1145095805651046', 'PageView')
+  fbq('trackSingle', '1145095805651046','ViewContent');
+}  
+//Harriet 219554
+if(_satellite.getVar('Movie ID') == '219554'){
+	fbq('init', '303059137008963');
+	fbq('trackSingle', '303059137008963', 'PageView')
+	fbq('trackSingle', '303059137008963','ViewContent');
+}  
+//Overcomer 215749
+if(_satellite.getVar('Movie ID') == '215749'){
+  fbq('init', '361119231239554');
+  fbq('trackSingle', '361119231239554', 'PageView')
+  fbq('trackSingle', '361119231239554','ViewContent');
+}  
+//Brian Banks 216576
+if(_satellite.getVar('Movie ID') == '216576'){
+	fbq('init', '332096910992194');
+	fbq('trackSingle', '332096910992194', 'PageView')
+	fbq('trackSingle', '332096910992194','ViewContent');
+}  
+//Scary Stories to Tell in the Dark 217131
+if(_satellite.getVar('Movie ID') == '217131'){
+	fbq('init', '1093068247539372');
+	fbq('trackSingle', '1093068247539372', 'PageView')
+	fbq('trackSingle', '1093068247539372','ViewContent');
+}  
+
+//Knives Out 219390
+if(_satellite.getVar('Movie ID') == '219390'){
+    fbq('init', '1279627222192924');
+    fbq('trackSingle', '1279627222192924', 'PageView')
+    fbq('trackSingle', '1279627222192924','ViewContent');
+}  
+
+//Midway 219391
+if(_satellite.getVar('Movie ID') == '219391'){
+    fbq('init', '2106736296296606');
+    fbq('trackSingle', '2106736296296606', 'PageView')
+    fbq('trackSingle', '2106736296296606','ViewContent');
+}  
+//Rambo Last Blood 219052
+if(_satellite.getVar('Movie ID') == '219052'){
+    fbq('init', '481264739281508');
+    fbq('trackSingle', '481264739281508', 'PageView')
+    fbq('trackSingle', '481264739281508','ViewContent');
+  fbq('trackSingle', '481264739281508','Search');
+}  
+
+//Brittany Runs a Marathon 219182
+if(_satellite.getVar('Movie ID') == '219182'){
+    fbq('init', '661857920951489');
+    fbq('trackSingle', '661857920951489', 'PageView')
+    fbq('trackSingle', '661857920951489','ViewContent');
+}  
+
+//Bennett's War 219088
+if(_satellite.getVar('Movie ID') == '219088'){
+    fbq('init', '438430983369907');
+    fbq('trackSingle', '438430983369907', 'PageView')
+    fbq('trackSingle', '438430983369907','ViewContent');
+}  
+//The Art of Self Defense 217782
+if(_satellite.getVar('Movie ID') == '217782'){
+	fbq('init', '672483069861447');
+	fbq('trackSingle', '672483069861447', 'PageView')
+	fbq('trackSingle', '672483069861447','ViewContent');
+}  
+//MW Angel has fallen 218538 PXL-254
+if(_satellite.getVar('Page Level 2') == 'movie times | by movie'){
+  if(_satellite.getVar('Movie ID') == '218538'){
+    fbq('init', '449276055876867');
+    fbq('track', 'Search');
+}
+}  
+//Hustlers 218764
+if(_satellite.getVar('Movie ID') == '218764'){
+	fbq('init', '492887764818370');
+	fbq('trackSingle', '492887764818370', 'PageView')
+	fbq('trackSingle', '492887764818370','ViewContent');
+}  
+//Ready or Not 219278 pxl-256
+if(_satellite.getVar('Movie ID') == '219278'){
+	fbq('init', '119569235437585');
+	fbq('trackSingle', '119569235437585', 'PageView')
+	fbq('trackSingle', '119569235437585','ViewContent');
+}
+//Abominable 218991
+if(_satellite.getVar('Movie ID') == '218991'){
+  fbq('init', '2529998240560092');
+  fbq('trackSingle', '2529998240560092', 'PageView')
+  fbq('trackSingle', '2529998240560092','ViewContent');
+}  
+//Jexi 219983
+if(_satellite.getVar('Movie ID') == '219983'){
+    fbq('init', '372359400369744');
+    fbq('trackSingle', '372359400369744', 'PageView')
+    fbq('trackSingle', '372359400369744','ViewContent');
+}  
+
+//The Lighthouse 219741
+if(_satellite.getVar('Movie ID') == '219741'){
+    fbq('init', '1576729352566661');
+    fbq('trackSingle', '1576729352566661', 'PageView')
+    fbq('trackSingle', '1576729352566661','ViewContent');
+}  
+
+
+//Uncut Gems 220344
+if(_satellite.getVar('Movie ID') == '220344'){
+  fbq('init', '1576729352566661');
+  fbq('trackSingle', '1576729352566661', 'PageView')
+  fbq('trackSingle', '1576729352566661', 'ViewContent')
+}  
+
+//Waves 220088
+if(_satellite.getVar('Movie ID') == '220088'){
+  fbq('init', '1576729352566661');
+  fbq('trackSingle', '1576729352566661', 'PageView')
+  fbq('trackSingle', '1576729352566661', 'ViewContent')
+  }
+//Dark Waters 220217
+if(_satellite.getVar('Movie ID') == '220217'){
+    fbq('init', '2223327254637584');
+    fbq('trackSingle', '2223327254637584', 'PageView')
+    fbq('trackSingle', '2223327254637584','ViewContent');
+} 
+
+//Zombieland 219711
+if(_satellite.getVar('Movie ID') == '219711'){
+    fbq('init', '2054554154848692');
+    fbq('trackSingle', '2054554154848692', 'PageView')
+    fbq('trackSingle', '2054554154848692','ViewContent');
+}  
+
+//Charlie's Angels 219167
+if(_satellite.getVar('Movie ID') == '219167'){
+    fbq('init', '646543825768844');
+    fbq('trackSingle', '646543825768844', 'PageView')
+    fbq('trackSingle', '646543825768844','ViewContent');
+}  
+//Black and Blue 219366
+if(_satellite.getVar('Movie ID') == '219366'){
+    fbq('init', '689957508126784');
+    fbq('trackSingle', '689957508126784', 'PageView')
+    fbq('trackSingle', '689957508126784','ViewContent');
+}  
+//Gemini Man 210964
+if(_satellite.getVar('Movie ID') == '210964'){
+    fbq('init', '381881899156621');
+    fbq('trackSingle', '381881899156621', 'PageView')
+    fbq('trackSingle', '381881899156621','ViewContent');
+}  
+//Terminator 218973
+if(_satellite.getVar('Movie ID') == '218973' || _satellite.getVar('Movie ID') == '220025'){
+    fbq('init', '501532427303906');
+    fbq('trackSingle', '501532427303906', 'PageView')
+    fbq('trackSingle', '501532427303906','ViewContent');
+}  
+//Playing With Fire 219518
+if(_satellite.getVar('Movie ID') == '219518'){
+    fbq('init', '1824004534412549');
+    fbq('trackSingle', '1824004534412549', 'PageView')
+    fbq('trackSingle', '1824004534412549','ViewContent');
+}  
+
+
+//Countdown 220119
+if(_satellite.getVar('Movie ID') == '220119'){
+    fbq('init', '2522678901298912');
+    fbq('trackSingle', '2522678901298912', 'PageView')
+    fbq('trackSingle', '2522678901298912','ViewContent');
+}  
+
+// Parasite (Neon) - 2019
+if(_satellite.getVar('Movie ID') == '219062'){
+  fbq('init', '271877666587202');
+  fbq('trackSingle', '271877666587202', 'PageView')
+  fbq('trackSingle', '271877666587202','ViewContent', {
+    content_type: 'product',
+    content_ids: [_satellite.getVar('Movie ID')]
+  });
+}
+
+// Jojo Rabbit - 219662
+if(_satellite.getVar('Movie ID') == '219662'){
+  fbq('init', '540474590113845');
+  fbq('trackSingle', '540474590113845', 'PageView')
+  fbq('trackSingle', '540474590113845','ViewContent', {
+    content_type: 'product',
+    content_ids: [_satellite.getVar('Movie ID')]
+  });
+}
+
+//21 Bridges 
+if(_satellite.getVar('Movie ID') == '218572'){
+    fbq('init', '2286862374958847');
+    fbq('trackSingle', '2286862374958847', 'PageView')
+    fbq('trackSingle', '2286862374958847','ViewContent');
+}  
+//Honey Boy 219783
+if(_satellite.getVar('Movie ID') == '219783'){
+    fbq('init', '403323177017167');
+    fbq('trackSingle', '403323177017167', 'PageView')
+    fbq('trackSingle', '403323177017167','ViewContent');
+}  
+
+//Black Christmas 220065
+if(_satellite.getVar('Movie ID') == '220065'){
+    fbq('init', '2362774237338287');
+    fbq('trackSingle', '2362774237338287', 'PageView')
+    fbq('trackSingle', '2362774237338287','ViewContent');
+}  
+
+//Bombshell 219964
+if(_satellite.getVar('Movie ID') == '219964'){
+    fbq('init', '385103112147847');
+    fbq('trackSingle', '385103112147847', 'PageView')
+ if(_satellite.getVar('Page Level 2') == 'movie | overview'){
+  //MOP
+fbq('trackSingle', '385103112147847','ViewContent');
+}
+  if(_satellite.getVar('Page Level 2') == 'movie times | by movie'){
+  //MSP
+fbq('trackSingle', '385103112147847','AddToCart');
+}
+
+   
+    
+    
+  
+}  
+
+//Queen & Slim 219365
+if(_satellite.getVar('Movie ID') == '219365'){
+    fbq('init', '598441043976661');
+    fbq('trackSingle', '598441043976661', 'PageView')
+    fbq('trackSingle', '598441043976661','ViewContent');
+}  
+
+//A Beautiful Day In The Neighborhood 219638
+if(_satellite.getVar('Movie ID') == '219638'){
+    fbq('init', '2379974848756618');
+    fbq('trackSingle', '2379974848756618', 'PageView')
+    if(_satellite.getVar('Page Level 2') == 'movie | overview'){
+//MOP
+fbq('trackSingle', '2379974848756618', 'ViewContent')
+}
+  if(_satellite.getVar('Page Level 2') == 'movie times | by movie'){
+  //MSP
+fbq('trackSingleCustom', '2379974848756618', 'AddToWishlist')
+}
+}  
+
+
+
+//Jumanji 221519, 221520, 219414
+if(_satellite.getVar('Movie ID') == '221519' || _satellite.getVar('Movie ID')== '221520' || _satellite.getVar('Movie ID')== '219414'){
+    fbq('init', '349254029047351');
+    fbq('trackSingle', '349254029047351', 'PageView')
+if(_satellite.getVar('Page Level 2') == 'movie | overview'){
+//MOP
+fbq('trackSingle', '349254029047351', 'ViewContent')
+}
+  if(_satellite.getVar('Page Level 2') == 'movie times | by movie'){
+  //MSP
+fbq('trackSingleCustom', '349254029047351', 'AddToWishlist')
+}
+}  
+
+
+  //Little Women 219778
+if(_satellite.getVar('Movie ID') == '219778'){
+      fbq('init', '857070688020494');
+    fbq('trackSingle', '857070688020494', 'PageView')
+if(_satellite.getVar('Page Level 2') == 'movie | overview'){
+  //MOP
+fbq('trackSingle', '857070688020494','ViewContent');
+}
+  if(_satellite.getVar('Page Level 2') == 'movie times | by movie'){
+  //MSP
+fbq('trackSingle', '857070688020494','AddToWishlist');
+}
+}
+
+
+//The Grudge 220577
+if(_satellite.getVar('Movie ID') == '220577'){
+  if(_satellite.getVar('Page Level 2') == 'movie | overview' || _satellite.getVar('Page Level 2') == 'movie times | by movie'){
+      fbq('init', '539779910159469');
+      fbq('trackSingle', '539779910159469', 'PageView')
+    if(_satellite.getVar('Page Level 2') == 'movie | overview'){
+    //MOP
+      fbq('trackSingle', '539779910159469','ViewContent');
+    }
+    if(_satellite.getVar('Page Level 2') == 'movie times | by movie'){
+    //MSP
+    fbq('trackSingle', '539779910159469','AddToWishlist');
+    }
+  }
+}
+
+
+
+//Cats 219206
+if(_satellite.getVar('Movie ID') == '219206'){
+    fbq('init', '407128893348999');
+    fbq('trackSingle', '407128893348999', 'PageView')
+    fbq('trackSingle', '407128893348999','ViewContent');
+}  
+//1917 219742
+if(_satellite.getVar('Movie ID') == '219742'){
+    fbq('init', '372370926970202');
+    fbq('trackSingle', '372370926970202', 'PageView')
+    fbq('trackSingle', '372370926970202','ViewContent');
+}  
+//Last Christmas 219795
+if(_satellite.getVar('Movie ID') == '219795'){
+    fbq('init', '364919877493784');
+    fbq('trackSingle', '364919877493784', 'PageView')
+    fbq('trackSingle', '364919877493784','ViewContent');
+}  
+//Like a Boss 220122
+if(_satellite.getVar('Movie ID') == '220122'){
+    fbq('init', '541193980068180');
+    fbq('trackSingle', '541193980068180', 'PageView')
+    fbq('trackSingle', '541193980068180','ViewContent');
+}  
+
+//The Turning 220496
+if(_satellite.getVar('Movie ID') == '220496'){
+    fbq('init', '455137384977438');
+    fbq('trackSingle', '455137384977438', 'PageView')
+    fbq('trackSingle', '455137384977438','ViewContent');
+}  
+
+//The Gentlemen 220521
+if(_satellite.getVar('Movie ID') == '220521'){
+    fbq('init', '728674574283199');
+    fbq('trackSingle', '728674574283199', 'PageView')
+    fbq('trackSingle', '728674574283199','ViewContent');
+}  
+
+
+//The Photograph 221298
+if(_satellite.getVar('Movie ID') == '221298'){
+    fbq('init', '481456132558072');
+    fbq('trackSingle', '481456132558072', 'PageView')
+    fbq('trackSingle', '481456132558072','ViewContent');
+}  
+ 
+// Bad Boys For Life (Sony) 185731 and 220577 
+if(_satellite.getVar('Movie ID') == '185731' || _satellite.getVar('Movie ID') == '220577'){
+      fbq('init', '2348285858585938');
+    fbq('trackSingle', '2348285858585938', 'PageView')
+if(_satellite.getVar('Page Level 2') == 'movie | overview'){
+  //MOP
+fbq('trackSingle', '2348285858585938','ViewContent');
+}
+  if(_satellite.getVar('Page Level 2') == 'movie times | by movie'){
+  //MSP
+fbq('trackSingle', '2348285858585938','AddToWishlist');
+}
+}
+
+
+// I Still Believe 220007
+if(_satellite.getVar('Movie ID') == '220007'){
+    fbq('init', '2719963898037553');
+    fbq('trackSingle', '2719963898037553', 'PageView')
+    fbq('trackSingle', '2719963898037553','ViewContent');
+}  
+
+// Parasite 219062
+if(_satellite.getVar('Movie ID') == '219062'){
+    fbq('init', '619730498801057');
+    fbq('trackSingle', '619730498801057', 'PageView')
+    fbq('trackSingle', '619730498801057','ViewContent');
+}  
+
+// Rhythm Section 220343
+if(_satellite.getVar('Movie ID') == '220343'){
+    fbq('init', '738257396669281');
+    fbq('trackSingle', '738257396669281', 'PageView')
+    fbq('trackSingle', '738257396669281','ViewContent');
+}  
+
+
+
+
+// Fantasy Island 221284
+if(_satellite.getVar('Movie ID') == '221284'){
+    fbq('init', '1422963554519001');
+    fbq('trackSingle', '1422963554519001', 'PageView')
+    if(_satellite.getVar('Page Level 2') == 'movie | overview'){
+//MOP
+fbq('trackSingle', '1422963554519001', 'ViewContent')
+}
+  if(_satellite.getVar('Page Level 2') == 'movie times | by movie'){
+  //MSP
+fbq('trackSingleCustom', '1422963554519001', 'AddToWishlist')
+}
+}  
+// Lovebirds 222208
+if(_satellite.getVar('Movie ID') == '222208'){
+    fbq('init', '2249936735309230');
+    fbq('trackSingle', '2249936735309230', 'PageView')
+    fbq('trackSingle', '2249936735309230','ViewContent');
+}  
+
+// Sonic the Hedgehog 218659
+if(_satellite.getVar('Movie ID') == '218659'){
+    fbq('init', '2620755338039521');
+    fbq('trackSingle', '2620755338039521', 'PageView')
+    fbq('trackSingle', '2620755338039521','ViewContent');
+}  
+
+//Quiet Place 2 221936
+if(_satellite.getVar('Movie ID') == '221936'){
+    fbq('init', '170761807515775');
+    fbq('trackSingle', '170761807515775', 'PageView')
+    fbq('trackSingle', '170761807515775','ViewContent');
+}  
+
+// Brahms the Boy 2 218575
+if(_satellite.getVar('Movie ID') == '218575'){
+    fbq('init', '114282243275384');
+    fbq('trackSingle', '114282243275384', 'PageView')
+    fbq('trackSingle', '114282243275384','ViewContent');
+} 
+
+// Furious 9 190288
+if(_satellite.getVar('Movie ID') == '218575'){
+    fbq('init', '838990979886014');
+    fbq('trackSingle', '838990979886014', 'PageView')
+    fbq('trackSingle', '838990979886014','ViewContent');
+}
+
+// Invisible Man 221261
+if(_satellite.getVar('Movie ID') == '221261'){
+    fbq('init', '801038257004120');
+    fbq('trackSingle', '801038257004120', 'PageView')
+    fbq('trackSingle', '801038257004120','ViewContent');
+} 
+
+// Emma 221545
+if(_satellite.getVar('Movie ID') == '221545'){
+    fbq('init', '2354937758169739');
+    fbq('trackSingle', '2354937758169739', 'PageView')
+    fbq('trackSingle', '2354937758169739','ViewContent');
+}
+
+// Downhill 221948
+if(_satellite.getVar('Movie ID') == '221948'){
+    fbq('init', '639000586876537');
+    fbq('trackSingle', '639000586876537', 'PageView')
+    fbq('trackSingle', '639000586876537','ViewContent');
+}  
+
+//Portrait of a Lady on Fire
+if(_satellite.getVar('Movie ID') == '219068'){
+    fbq('init', '3024040940991362');
+    fbq('trackSingle', '3024040940991362', 'PageView')
+    fbq('trackSingle', '3024040940991362','ViewContent');
+}  
+
+//My Spy, Movie ID: 218211
+if(_satellite.getVar('Movie ID') == '218211'){
+	
+    fbq('init', '561443427954836');
+    fbq('trackSingle', '561443427954836', 'PageView')
+    fbq('trackSingle', '561443427954836','ViewContent');
+
+}
+
+//The First Cow 222147
+if(_satellite.getVar('Movie ID') == '222147'){	
+    fbq('init', '1576729352566661');
+    fbq('trackSingle', '1576729352566661', 'PageView')
+    fbq('trackSingle', '1576729352566661','ViewContent');
+
+}
+
+  //Saint Maude 221929
+if(_satellite.getVar('Movie ID') == '221929'){
+    fbq('init', '1576729352566661');
+    fbq('trackSingle', '1576729352566661', 'PageView')
+    fbq('trackSingle', '1576729352566661','ViewContent',
+   {content_category: 'Fandango Ticket',
+    content_ids:  _satellite.getVar('Movie ID'),
+    content_type: 'product'
+   });
+}     
+//Never Rarely Sometimes Always 221951
+if(_satellite.getVar('Movie ID') == '221951'){
+    fbq('init', '772101653313459');
+    fbq('trackSingle', '772101653313459', 'PageView')
+    fbq('trackSingle', '772101653313459','ViewContent');
+}  
+//The Hunt 219413
+if(_satellite.getVar('Movie ID') == '219413'){
+    fbq('init', '349357589045054');
+    fbq('trackSingle', '349357589045054', 'PageView')
+    fbq('trackSingle', '349357589045054','ViewContent');
+}  
+/*
+//Kajillionaire 223026
+if(_satellite.getVar('Movie ID') == '223026'){
+  //pxl-615
+  fbq('init', '285693475986591');
+  fbq('trackSingle', '285693475986591', 'PageView')
+  fbq('trackSingle', '285693475986591','ViewContent');  
+}
+*/
+
+//Never Rarely Sometimes Always 221951
+if(_satellite.getVar('Movie ID') == '221951'){
+    fbq('init', '772101653313459');
+    fbq('trackSingle', '772101653313459', 'PageView')
+    fbq('trackSingle', '772101653313459','ViewContent');
+}  
+//The Hunt 219413
+if(_satellite.getVar('Movie ID') == '219413'){
+    fbq('init', '349357589045054');
+    fbq('trackSingle', '349357589045054', 'PageView')
+    fbq('trackSingle', '349357589045054','ViewContent');
+}  
+
+
+//Desktop
+  //Bloodshot 221008, 222654
+if(_satellite.getVar('Movie ID') == '221008' || _satellite.getVar('Movie ID') == '222654'){
+      fbq('init', '985145801828437');
+    fbq('trackSingle', '985145801828437', 'PageView')
+if(_satellite.getVar('Page Level 2') == 'movie | overview'){
+  //MOP
+fbq('trackSingle', '985145801828437','ViewContent');
+}
+  if(_satellite.getVar('Page Level 2') == 'movie times | by movie'){
+  //MSP
+fbq('trackSingle', '985145801828437','AddToWishlist');
+}
+}
+//Trolls 2 219165
+if(_satellite.getVar('Movie ID') == '219165'){
+    fbq('init', '1788729894762994');
+    fbq('trackSingle', '1788729894762994', 'PageView')
+    fbq('trackSingle', '1788729894762994', 'ViewContent')
+}
+
+
+//Dolittle 220811
+if(_satellite.getVar('Movie ID') == '220811'){
+    fbq('init', '574324129998872');
+    fbq('trackSingle', '574324129998872', 'PageView')
+    fbq('trackSingle', '574324129998872','ViewContent');
+}  
+
+//Bill and Ted 223079
+if(_satellite.getVar('Movie ID') == '223079'){
+    fbq('init', '2542995572584089');
+    fbq('trackSingle', '2542995572584089', 'PageView')
+    fbq('trackSingle', '2542995572584089','ViewContent');
+}
+
+//Greenland 223133
+if(_satellite.getVar('Movie ID')== '223133'){
+    fbq('init', '184274263016029');
+    fbq('trackSingle', '184274263016029', 'PageView')
+    fbq('trackSingle', '184274263016029','ViewContent');
+}
+
+//Freaky 223450
+if(_satellite.getVar('Movie ID') == '223450'){
+fbq('init', '334328847944105');
+fbq('trackSingle', '334328847944105', 'PageView')
+fbq('trackSingle', '334328847944105','ViewContent');
+}
+
+//The Broken Hearts Gallery
+if(_satellite.getVar('Movie ID') == '223123'){
+    fbq('init', '252588702751263');
+    fbq('trackSingle', '252588702751263', 'PageView')
+
+    if(_satellite.getVar('Page Level 2') == 'movie | overview'){
+  //MOP
+fbq('trackSingle', '252588702751263','ViewContent');
+}
+  if(_satellite.getVar('Page Level 2') == 'movie times | by movie'){
+  //MSP
+fbq('trackSingleCustom', '252588702751263','AddToWishlist');
+}
+}
+//The Yellow Rose 221438
+if(_satellite.getVar('Movie ID') == '221438'){
+    fbq('init', '1552705154909857');
+    fbq('trackSingle', '1552705154909857', 'PageView')
+    }
+ if(_satellite.getVar('Page Level 2') == 'movie | overview'){
+  //MOP
+fbq('trackSingle', '1552705154909857','ViewContent');
+}
+if(_satellite.getVar('Page Level 2') == 'movie times | by movie'){
+  //MSP
+fbq('trackSingleCustom', '1552705154909857','AddToWishlist');
+}
+
+});

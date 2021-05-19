@@ -1,0 +1,2 @@
+!function(e){function o(o,s){s=s;var t=site.template.get({name:"product_fave_overlay",data:{already_exists:o}});generic.overlay.launch({content:t,width:391,height:304,cssClass:"product-fave-overlay-cbox",onClosed:function(){s.focus()}}),e("body").hasClass("device-mobile")&&e.colorbox.resize()}e(document).on("addToWishlist.exists",(function(e,s,t){o(!0,t)})),e(document).on("addToWishlist.success",(function(e,s,t){o(!1,t)}))}(jQuery);
+//# sourceMappingURL=product_fave_overlay_v1.js.map

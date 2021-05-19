@@ -1,0 +1,44 @@
+/*
+var JQZOOM_OPTIONS = {
+	zoomType: 'innerzoom',
+	preloadImages: false,
+	title: false,
+	position: ""
+};
+*/
+$(document).ready(function() {
+
+	// Clear Search Field
+	$('.autobox').autobox();
+
+	$('#prodAccordion .prodAccordionContent').hide();
+	$('#prodAccordion .ProductDescription').addClass('current');
+	$('#prodAccordion .ProductDescriptionContainer').show();
+	$('#prodAccordion .Block .subtitle').click(function() {
+
+		$(this).parent().toggleClass('current');
+		$(this).css('outline','none').siblings('div').slideToggle('slow');
+
+		return false;
+	});
+
+	// Horizontal Category List Dropdowns (non-flyout only)
+	if(document.all) {
+		$('#SideCategoryList li').hover(function() {
+			$(this).addClass('over');
+			return false;
+		},
+		function() {
+			$(this).removeClass('over');
+		});
+	}
+
+	$('#change-currency').click(function(e) {
+		e.stopPropagation();
+		$('#currency-chooser .currencies').toggle();
+		$(window).one('click', function() { $('#currency-chooser .currencies').hide(); });
+	});
+});
+
+
+

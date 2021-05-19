@@ -1,0 +1,1267 @@
+
+<!doctype html>
+<html class="no-js" lang="">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <title>Isabella Management LLC DBA Concordsupplies.</title>
+        <meta name="description" content="">
+		<meta name="keywords" content=""/>
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+
+		<!-- favicon
+		============================================ -->		
+		
+        <link rel="shortcut icon" type="image/x-icon" href="/images/favicon.ico">
+		
+		<!-- Google Fonts
+		============================================ -->		
+       <link href='https://fonts.googleapis.com/css?family=Lato:400,300italic,300,400italic,700,700italic' rel='stylesheet' type='text/css'>
+       <link href='https://fonts.googleapis.com/css?family=Poppins:400,300,500,600,700' rel='stylesheet' type='text/css'>
+	   
+		<!-- Bootstrap CSS
+		============================================ -->		
+        <link rel="stylesheet" href="/design/1/css/bootstrap.min.css">
+		<!-- Bootstrap CSS
+		============================================ -->
+        <link rel="stylesheet" href="/design/1/css/font-awesome.min.css">
+		<!-- owl.carousel CSS
+		============================================ -->
+        <link rel="stylesheet" href="/design/1/css/owl.carousel.css">
+        <link rel="stylesheet" href="/design/1/css/owl.theme.css">
+        <link rel="stylesheet" href="/design/1/css/owl.transitions.css">
+		<!-- nivo slider CSS
+		============================================ -->
+		<link rel="stylesheet" href="/design/1/lib/css/nivo-slider.css" type="text/css" />
+		<link rel="stylesheet" href="/design/1/lib/css/preview.css" type="text/css" media="screen" />
+		<!-- animate CSS
+		============================================ -->
+        <link rel="stylesheet" href="/design/1/css/animate.css">
+        <!-- meanmenu CSS
+		============================================ -->
+        <link rel="stylesheet" href="/design/1/css/meanmenu.min.css">
+        <!-- Image Zoom CSS
+		============================================ -->
+        <link rel="stylesheet" href="/design/1/css/img-zoom/jquery.simpleLens.css">
+        <!-- ui CSS
+		============================================ -->
+		<link href="/design/1/css/jquery-ui.css" rel="stylesheet">
+		<!-- normalize CSS
+		============================================ -->
+        <link rel="stylesheet" href="/design/1/css/normalize.css">
+		<!-- main CSS
+		============================================ -->
+        <link rel="stylesheet" href="/design/1/css/main.css">
+		<!-- style CSS
+		============================================ -->
+        <link rel="stylesheet" href="/design/1/style.css">
+		<!-- responsive CSS
+		============================================ -->
+        <link rel="stylesheet" href="/design/1/css/responsive.css">
+		<!-- modernizr JS
+		============================================ -->		
+        <script src="/design/1/js/vendor/modernizr-2.8.3.min.js"></script>
+		
+		
+		
+		
+		
+		
+		
+		<!--  translator -->	
+		<link rel="stylesheet" type="text/css" href="/translator/styles/jquery.translator.css" />
+		<script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+		<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+		<script type="text/javascript" src="/translator/javascript/jquery.translator.min.js"></script>
+		<script type="text/javascript" src="/Includes/jquery.ba-throttle-debounce.js"></script> 
+		<!-- lazy loader -->
+		<script>
+			$(document).ready(function () {
+			  setTimeout(function () {
+				$('.load-delay').each(function () {
+				  var imagex = $(this);
+				  var imgOriginal = imagex.data('original');
+				  $(imagex).attr('src', imgOriginal);
+				});
+			  }, 1500);
+			});
+		</script>
+		<script>
+			$(function () {
+				var initSearch = 1;
+				var resultsFormat = 0;
+				var searchCategory = 1;
+				var searchProduct = 1;
+
+				App = {
+					getSearchResults: function (event, ui) {
+						if (parseInt(resultsFormat)==0){ // detailed format
+							var x = (pagex - $('.ui-autocomplete').offset().left);
+
+							if (x <= 230) {	 //search only if user's mouse in left side of autocomplete box
+
+								$("#searchProd").html("<br/><br/><br/><br/><br/><span style='align:center; width:100%;'><center>Loading..</center></span>.");
+								var tempArr = ui.item.value.split("||");
+								var searchID = tempArr[0];
+								if (searchID == "SearchTerm1") {
+									$.ajax({
+										type: "POST",
+										url: "/AjaxFuncs.asp",
+										data: "action=searchProductsForSearchTerm&id=" + encodeURIComponent(ui.item.label),
+										success: function (data) {
+											$("#searchProd").html(data);
+										}
+									});
+								} else {
+									$.ajax({
+										type: "POST",
+										url: "/AjaxFuncs.asp",
+										data: "action=searchProductsForCategory&id=" + encodeURIComponent(searchID),
+										success: function (data) {
+											$("#searchProd").html(data);
+										}
+									});
+								}
+							}
+							return false;
+						}
+					}
+				}
+
+				
+				if (parseInt(initSearch)!=0){
+					if ( (parseInt(resultsFormat)==0) || ( (parseInt(resultsFormat)==1) && ( (parseInt(searchCategory)==1) || (parseInt(searchProduct)==1) ) ) ) {
+						$("#SearchCustomerDB").autocomplete({
+							minLength: 2,
+							source: function (request, response) {
+								var searchTerm = $("#SearchCustomerDB").val();
+								$.ajax({
+									type: "POST",
+									url: "/AjaxFuncs.asp",
+									data: "action=getSearchSuggestions&searchTerm=" + encodeURIComponent(searchTerm)+"&resultsFormat="+encodeURIComponent(resultsFormat)+"&searchCategory="+encodeURIComponent(searchCategory)+"&searchProduct="+encodeURIComponent(searchProduct),
+									dataType: "json",
+									success: function (data) {
+										response($.map(data, function (item) {
+											return {
+												label: item.Desc,
+												value: item.ID+"||"+item.Type
+											}
+										}));
+									}
+								});
+							},
+							select: function (event, ui) {
+								$("#SearchCustomerDB").val(ui.item.label);
+								var tempArr = ui.item.value.split("||");
+								$("#searchResID").val(tempArr[0]);
+								$("#searchSuggestionType").val(tempArr[1])
+								$("#searchResName").val(ui.item.label);
+								doSearch();
+								return false;
+							},
+
+							focus: $.debounce(500, App.getSearchResults),
+
+							open: function (event, ui) {
+								if (parseInt(resultsFormat)==0){ //detailed
+									$("#searchProd").show();
+									var searchTerm = $("#SearchCustomerDB").val();
+									$.ajax({
+										type: "POST",
+										url: "/AjaxFuncs.asp",
+										data: "action=searchProductsForSearchTerm&id=" + encodeURIComponent(searchTerm),
+										success: function (data) {
+											$("#searchProd").html(data);
+										}
+									});
+									return false;
+								}
+							},
+							close: function (event, ui) {
+								$("#searchProd").html("");
+								$("#searchProd").hide();
+								return false;
+							}
+						})
+						.autocomplete("instance")._renderItem = function (ul, item) {
+
+							return $("<li>")
+    						.append("<a>" + item.label + "</a>")
+							.appendTo(ul);
+						};
+					}
+				}
+			});
+
+		$(document).on('mousedown', '#searchProd', function () {
+			return false;
+		});
+
+		$(window).resize(function () {
+			$("#searchProd").html("");
+    		$("#searchProd").hide();
+			if ($(".ui-autocomplete")){
+    			$(".ui-autocomplete").css('display', 'none');
+			}
+    	});
+
+    	var pagex, pagey; //Declare these globally
+    	$(window).mousemove(function (e) {
+    		pagex = e.pageX;
+    		pagey = e.pageY;
+    	});
+	
+			$.translator.ready(function() {
+				$(".translator").translator();
+			});
+
+			function doSearch() {
+				$.ajax({
+					type: "POST",
+					url: "/AjaxFuncs.asp",  
+					data: "action=getSearchResultLink&id=" + encodeURIComponent($("#searchResID").val()) + "&name=" + encodeURIComponent($("#searchResName").val())+"&type="+ encodeURIComponent($("#searchSuggestionType").val()),
+					success: function (link) {
+						document.location = link;
+					}
+				});
+			}
+		</script>
+	<script>
+		function toggleFullScreen() {
+		  if (!document.fullscreenElement &&    // alternative standard method
+			  !document.mozFullScreenElement && !document.webkitFullscreenElement && !document.msFullscreenElement ) {  // current working methods
+			if (document.documentElement.requestFullscreen) {
+			  document.documentElement.requestFullscreen();
+			} else if (document.documentElement.msRequestFullscreen) {
+			  document.documentElement.msRequestFullscreen();
+			} else if (document.documentElement.mozRequestFullScreen) {
+			  document.documentElement.mozRequestFullScreen();
+			} else if (document.documentElement.webkitRequestFullscreen) {
+			  document.documentElement.webkitRequestFullscreen(Element.ALLOW_KEYBOARD_INPUT);
+			}
+		  } else {
+			if (document.exitFullscreen) {
+			  document.exitFullscreen();
+			} else if (document.msExitFullscreen) {
+			  document.msExitFullscreen();
+			} else if (document.mozCancelFullScreen) {
+			  document.mozCancelFullScreen();
+			} else if (document.webkitExitFullscreen) {
+			  document.webkitExitFullscreen();
+			}
+		  }
+		}
+	</script>
+		
+		
+	<!--  end translator -->
+	
+<style>
+.mysearch:hover { 
+     background-color: #f5f5f5;
+	 } 
+.ta-search-desc{ 
+	font-size: 12px;
+	color:Black;
+} 
+
+.ta-price{ 
+	font-size: 13px;
+	color:red;
+	font-weight:Bold;
+} 
+
+
+
+.ui-autocomplete
+{
+	z-index: 999;
+    top: 49px;
+	height: 465px;
+	left: 0px;
+	width: 850px;
+	position: absolute;
+	background-color: #fff;
+    border: 1px solid #ccc;
+    font-size: 14px;
+    background: #fff;
+    overflow: auto;
+	box-shadow: 0 6px 6px 0 rgba(0,0,0,.3);
+	margin-left:10px;
+	
+}
+
+#searchProd{
+    position: absolute;
+    z-index: 999999999;
+   top:50;
+   left: 230px;
+   width:605px;
+    height: 463px;
+	margin-top:0px;
+	margin-top:1px;
+    
+	overflow:hidden;
+	background-color:  #ebebeb;
+	
+	
+ }
+
+#searchProd li {
+    font: 14px/1.2 arial,sans-serif;
+    height: 200px;
+    padding: 0;
+    position: relative;
+    float: left;
+    margin: 2px 2px;
+    width: 24%;
+    padding: 2px 0;
+    text-align: center;
+	
+}
+
+.ui-menu .ui-menu-item a{
+    color: #666;
+    font-size: 12px;
+    padding-top:5px;
+    display: block;
+    
+	padding:5px;
+}
+
+
+
+
+.ui-state-focus
+{
+    color:black;
+    font-weight: bold;
+    cursor: pointer;
+	background-color: #ebebeb;
+	
+}
+.ui-menu-item:hover {
+    color:black;
+    font-weight: normal;
+    cursor: pointer;
+	background-color:  #ebebeb;
+}
+
+
+
+@media screen and (max-width: 1079px) 
+{
+	.ui-autocomplete
+{
+	z-index: 4999;
+    top: 49px;
+	height: 970px;
+	left: 0px;
+	width: 850px;
+	position: absolute;
+	background-color: #fff;
+    border: 1px solid #ccc;
+    font-size: 14px;
+    background: #fff;
+    overflow: auto;
+	box-shadow: 0 6px 6px 0 rgba(0,0,0,.3);
+	
+}
+#searchProd{
+    position: absolute;
+    z-index: 5999;
+   top:10;
+   left: 230px;
+   width:670px;
+    height: 950px;
+    margin-top:18px;
+	padding-left:10px;
+ }
+#searchProd li {
+    font: 14px/1.2 arial,sans-serif;
+    height: 100px;
+    padding: 0;
+    position: relative;
+    float: left;
+    margin: 6px 1%;
+    width: 98%;
+    padding: 4px 0;
+    text-align: left;
+}
+}
+
+
+
+
+  </style>
+ 
+
+  
+  
+  
+
+
+
+
+
+	<!-- Get Product Button Data -->	
+		
+		<style>
+			.cart-link2 {
+				font-size: 14px;
+				line-height: 32px;
+				min-height: 32px;
+				padding: 0;
+				text-align: center;
+				text-transform: uppercase;
+				transition-duration: 0.4s;
+				white-space: nowrap;
+				width: 100%;
+			}
+			.cart-link2 a {
+				border-right: 1px solid #fff;
+				float: left;
+			}
+			.moreinfo2 {
+				background: #4781a4 none repeat scroll 0 0;
+				float: left;
+				transition: all 0.8s ease 0s;
+				width: 55%;
+				font-size:12px;
+				color: #ffffff;
+				Padding:10px;
+			}
+			.moreinfo2:hover{
+				background:#757c8a none repeat scroll 0 0;
+				font-size:12px;
+				color: #ebebeb;
+				Padding:10px;
+			}
+			.add2cart {
+				background: #57b4c5 none repeat scroll 0 0;
+				float: left;
+				transition: all 0.8s ease 0s;
+				width: 55%;
+				color: #ffffff;
+				font-size:12px;
+				Padding:10px;
+			}
+			.add2cart:hover{
+				background: #757c8a none repeat scroll 0 0;
+				color: #ebebeb;
+				font-size:12px;
+				Padding:10px;
+			}
+			.SearchButton {
+				background: #57b4c5 none repeat scroll 0 0;
+				color: #ffffff;
+				font-size: 20px;
+				line-height: 38px;
+				text-align: center;
+				width: 44px;
+				height: 44px;
+				position: absolute;
+				right: -1px;
+				top: 0;
+				Border:0px solid #ffffff;
+				Border-radius:4px;
+				
+			}
+			
+			
+			
+		</style>
+	<!-- End Get Product Button Data -->	
+
+
+
+
+
+
+
+
+
+
+
+
+
+	
+	<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-50901805-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-50901805-1');
+</script>
+
+
+
+<!-- Facebook Pixel Code -->
+<script>
+!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
+n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;
+t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,
+document,'script','https://connect.facebook.net/en_US/fbevents.js');
+fbq('init', '227043107804811'); // Insert your pixel ID here.
+fbq('track', 'PageView');
+</script>
+<noscript><img height="1" width="1" style="display:none"
+src="https://www.facebook.com/tr?id=227043107804811&ev=PageView&noscript=1"
+/></noscript>
+<!-- DO NOT MODIFY -->
+<!-- End Facebook Pixel Code -->	
+		
+		
+    </head>
+    <body>
+		
+	
+        <!--[if lt IE 8]>
+            <p class="browserupgrade">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
+        <![endif]-->
+
+        <!-- Add your site or application content here -->
+       <!-- Top NavBar2 -->
+					
+		
+        <header class="header-area four-header">
+			
+					<div class="top-link-brdr hidden-xs" style="background-color:#1B5EA8;">
+						<div class="container" style="">
+							<div class="row" style="text-align: center;">
+								
+								<img src="https://www.concordsupplies.com/images//banners/freeshipbannerB.png" style="max-height:50px;" alt="" Title=""></a>
+							</div>
+						</div>
+					</div>
+				
+			<div class="top-link-brdr" style="background-color:#ffffff;">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-md-6 col-sm-6 hidden-xs">
+                            <div class="form-language">
+								<div class='translator-language-es' style='color:#000000; Font-size:12px; margin-top:10px;'><font style="font-size:16px"><b> <span class="glyphicon glyphicon-earphone"></span> 877-842-1308</b></font><font style="font-size:16px"><b> <span class="glyphicon glyphicon-envelope"></span> sales@concordsupplies.com</b></font></div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 col-sm-12 col-xs-12">
+                            <div class="form-language lock">
+                                <ul class="">
+                                   <li><a href="#"  onclick="toggleFullScreen()" Title="Full Screen Mode"><i class="fa fa-compress"></i></a></li>
+									
+										<li class="hidden-xs"><a href="/cart.asp"><font color="#000000" style="Font-size:12px;">View Cart</font></a></li>	
+										
+								   
+									<li class="hidden-xs"><a href="/Checkout.asp"><font color="#000000" style="Font-size:12px;">Checkout</font></a></li>
+									<li><a class="rn rnf" href="/MyAccount/"><i class="fa fa-unlock-alt"><font color="#000000" style="Font-size:12px;">&nbsp;&nbsp;My Account&nbsp;</font></i></a>
+                                       <ul class="rn2">
+                                            <li><a href="/MyAccount/">My Account</a></li>
+                                            <li><a href="/MyAccount/">My Wishlist</a></li>
+                                            <li><a href="/Cart.asp">My Cart</a></li>
+                                            <li><a href="/checkout.asp">Checkout</a></li>
+											
+                                            <li><a href="/MyAccount/login.asp">Log In</a></li>
+											
+										</ul>
+                                    </li>
+									
+									
+									<li><a href="#" class="rn rnf" ><i class="fa fa-cart-plus"></i>&nbsp; 0</a>
+									
+									<ul class="rn2" style="background-color:#ffffff; width:240px;">
+                                        <li style="">
+									
+                                        <div class="wish-cart margin">
+                                            <div class="wish-item">
+											
+												
+											</div>
+											<div class="" style="background-color:#ebebeb; width:100%;float:right;max-width:240px;width:240px;">
+                                                
+                                                    <div class="" style="float:right;background-color:#ebebeb; padding:3px; width:100%;">
+                                                        <span style="float:right;padding-right:27px; ">Subtotal:$ 0.00</span>
+                                                    </div>
+                                               
+                                            </div>
+                                            
+												<div class="" style="max-width:238px;width:238px;">
+													<table width="100%">
+														<tr>
+															<td style="width:116px; max-width:116px;">
+																 <a href="/cart.asp" ALT="View Cart"  Title="View Cart" style="">
+																<i class="fa fa-shopping-cart"><B>&nbsp;View Cart</B></i>
+																</a>
+															</td>
+															<td style="width:116px; max-width:116px; float:right;">
+																 <a href="/Checkout.asp" ALT="Checkout"  Title="Checkout" style="float:right; text-align:right;"><B>&nbsp;Checkout</B></a>
+															</td>
+														</tr>
+													</table>
+												</div>
+                                        </div>
+                                    
+										</li>	
+                                        </ul> 
+									</li>
+									
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+			<div class='' style='padding-right:0px;padding-left:0px; width:100%;background-color:#ffffff;'><div class='container' style='position:relative;height:100px;'>
+				<div class="row" style="background-color:"#ffffff;">
+					<!-- Logo -->
+                    <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12" style='position:relative;margin:auto;text-align:left;height:100px;'>
+                        <div class="logo logo-four" style="margin:auto;height:100px;vertical-align: middle ">
+                            <a href="/"><img src="/images//logos/concord_logo.gif" Title="www.concordsupplies.com" alt="www.concordsupplies.com" style="max-height:100px;position:absolute;top:0;bottom:0;margin:auto;"></a>
+                        </div>
+                    </div>
+                    
+					<!-- Search -->
+					
+					<div class="col-lg-6 col-md-6 col-sm-12 col-xs-12" style='text-align:center;margin:auto;max-height:100px;'>
+						<div class="search three-sreach four-sa" style='text-align:center;margin-top:27px;max-height:100px;width:100%;'  width="100%">
+                            <form action="/productsearch.asp" class="search_mini_form four-mini" style="width:100%;">
+                                <div class="form-search three-form four-form" style='width:100%;' width="100%">
+									
+										<input class="in-three" type="text" placeholder="Search..." name="searchTerm" id="SearchCustomerDB" >
+									
+								   
+                                    <button class="SearchButton" title="Search" type="submit" >
+                                        <span>
+                                            <i class="fa fa-search "></i>
+                                        </span>
+                                    </button>
+									
+									<input type="hidden" id="searchResID" />	<input type="hidden" id="searchResName" /><input type="hidden" id="searchSuggestionType" />
+									<div id="searchProd" style="display:none">
+									</div>
+									
+								</div>
+                            </form>
+                        </div>
+					</div>
+
+					<!-- Cart -->
+					
+                    <div class="col-lg-3  col-md-3 hidden-sm hidden-xs" style="position:relative;margin-top:35px;float:right;">
+						
+							<div  style=" float:right; max-height:100px;position:relative;margin:auto;">
+                               <span class="hidden-xs"><a href="/content.asp?id=2031"><img src="/images/logos/GSA.png" style="max-height:50px; margin-top:-10px;"></a></span>
+                                </div>
+							
+                    </div>
+					<!-- End Cart -->
+                </div>
+				<!-- End Row -->
+            </div>
+			
+			<!-- End FullWidth or boxed -->
+        </div>
+		<!-- End background color box -->
+	
+		<!-- End Logo Header bar -->	
+	
+	<!-- Stickey Menu -->		
+			<style>
+					/**
+					 * For IE 6/7 only
+					 * Include this rule to trigger hasLayout and contain floats.
+					 */
+					.cf {
+						*zoom: 1;
+					}
+					/* The sticky */
+					.sidebar {
+					  position: -webkit-sticky;
+					  position: sticky;
+					  top: 0px;
+					  z-index:999;
+					  border-bottom:2px solid white;
+					}
+					
+			</style>
+	<!-- Stickey Menu -->
+			  <script>
+			  window.console = window.console || function(t) {};
+			</script>
+	<!-- Stickey Menu -->
+			<script>
+			  if (document.location.search.match(/type=embed/gi)) {
+				window.parent.postMessage("resize", "*");
+			  }
+			</script>
+	<!-- Stickey Menu -->
+		<script src='/js/stickyfill.js'></script>		
+	
+		
+	
+		
+		
+		
+		
+		
+		
+		
+		
+			<style>
+				/*** moved from Style.css ***/
+				 	.category-menu-list ul li a:hover { 
+					     background-color: #E84C3D; 
+						} 
+					 
+					.category-menu-list > ul > li.arrow-plus::after {
+						color: #ffffff;
+						content: "";
+						font-family: "FontAwesome";
+						font-size: 11px;
+						padding-top: 11px;
+						position: absolute;
+						right: 12px;
+						top: 3px;
+					}
+				/* content slide out menu */
+					.category-menu-list ul li .cat-left-drop-menu {
+						box-shadow: 0 1px 5px 0 rgba(0, 0, 0, 0.1);
+						background: #fff none repeat scroll 0 0;
+						display: none;
+						left: 100%;
+						overflow: hidden;
+						padding: 10px 10px 10px;
+						position: absolute;
+						text-align: left;
+						top: 0;
+						width: 460px;
+						z-index: 999999999;
+					}
+				.category-menu-list ul li a {
+						color: #ffffff;
+						display: block;
+						font-size: 14px;
+						font-weight: 400;
+						line-height: 40px;
+						overflow: hidden;
+						padding: 0 15px;
+						position: relative;
+						text-decoration: none;
+					}
+				.category-menu-list ul li a:Hover {
+						color: #ffffff;
+						display: block;
+						font-size: 14px;
+						font-weight: 400;
+						line-height: 40px;
+						overflow: hidden;
+						padding: 0 15px;
+						position: relative;
+						text-decoration: none;
+					}
+					
+	
+
+	
+			</style>
+
+
+			
+			
+		<!--div class="row hidden-lg hidden-md col-sm-12 col-xs-12" style="padding-top:10px;"></div-->
+		</header>
+			
+            <div class="three-menu" style="background-color:#1B5EA8;">
+			
+                <div class="container">
+                    <div class="row">
+						<div class="col-md-3 col-sm-3 col-xs-12 cate-border">
+                            <div class="left-category-menu" >
+                                <div class="left-product-cat">
+                                    <div class="category-heading three-heading four-head">
+                                        <h2 style="background-color:#CC0000; color:#ffffff;"  onmouseover="this.style.color='#ffffff';" onmouseout="this.style.color='#ffffff';">Products</h2>
+                                    </div>
+											
+							        <div class='category-menu-list' style='display: none;'>
+										<ul>
+											
+                                            <li class='arrow-plus' style='background-color:#505050;'>
+                                                <a href='/GroupCatalog/36/Breakroom-and-Janitorial.html'>
+                                                    <!--span class='cat-thumb'>
+                                                        <img alt='' src='/img/category-img/thum10.png'>
+                                                    </span-->
+                                                    Breakroom and Janitorial
+                                                </a>
+												
+                                            </li>
+											
+                                            <li class='arrow-plus' style='background-color:#505050;'>
+                                                <a href='/GroupCatalog/1052/Computers-and-Tablets.html'>
+                                                    <!--span class='cat-thumb'>
+                                                        <img alt='' src='/img/category-img/thum10.png'>
+                                                    </span-->
+                                                    Computers & Tablets
+                                                </a>
+												
+                                            </li>
+											
+                                            <li class='arrow-plus' style='background-color:#505050;'>
+                                                <a href='/GroupCatalog/1048/Desk-Pads.html'>
+                                                    <!--span class='cat-thumb'>
+                                                        <img alt='' src='/img/category-img/thum10.png'>
+                                                    </span-->
+                                                    Desk Pads
+                                                </a>
+												
+                                            </li>
+											
+                                            <li class='arrow-plus' style='background-color:#505050;'>
+                                                <a href='/GroupCatalog/37/Furniture.html'>
+                                                    <!--span class='cat-thumb'>
+                                                        <img alt='' src='/img/category-img/thum10.png'>
+                                                    </span-->
+                                                    Furniture
+                                                </a>
+												
+                                            </li>
+											
+                                            <li class='arrow-plus' style='background-color:#505050;'>
+                                                <a href='/GroupCatalog/1053/Health,-Beauty-and-Fitness.html'>
+                                                    <!--span class='cat-thumb'>
+                                                        <img alt='' src='/img/category-img/thum10.png'>
+                                                    </span-->
+                                                    Health, Beauty & Fitness
+                                                </a>
+												
+                                            </li>
+											
+                                            <li class='arrow-plus' style='background-color:#505050;'>
+                                                <a href='/GroupCatalog/1055/Home,-Garden-and-Tools.html'>
+                                                    <!--span class='cat-thumb'>
+                                                        <img alt='' src='/img/category-img/thum10.png'>
+                                                    </span-->
+                                                    Home, Garden & Tools
+                                                </a>
+												
+                                            </li>
+											
+                                            <li class='arrow-plus' style='background-color:#505050;'>
+                                                <a href='/GroupCatalog/34/Ink-and-Toner.html'>
+                                                    <!--span class='cat-thumb'>
+                                                        <img alt='' src='/img/category-img/thum10.png'>
+                                                    </span-->
+                                                    Ink & Toner
+                                                </a>
+												
+                                            </li>
+											
+                                            <li class='arrow-plus' style='background-color:#505050;'>
+                                                <a href='/GroupCatalog/1049/Maintenance-and-Breakroom.html'>
+                                                    <!--span class='cat-thumb'>
+                                                        <img alt='' src='/img/category-img/thum10.png'>
+                                                    </span-->
+                                                    Maintenance & Breakroom
+                                                </a>
+												
+                                            </li>
+											
+                                            <li class='arrow-plus' style='background-color:#505050;'>
+                                                <a href='/GroupCatalog/35/Office-Supplies.html'>
+                                                    <!--span class='cat-thumb'>
+                                                        <img alt='' src='/img/category-img/thum10.png'>
+                                                    </span-->
+                                                    Office Supplies
+                                                </a>
+												
+                                            </li>
+											
+                                            <li class='arrow-plus' style='background-color:#505050;'>
+                                                <a href='/GroupCatalog/1063/PPE-Products.html'>
+                                                    <!--span class='cat-thumb'>
+                                                        <img alt='' src='/img/category-img/thum10.png'>
+                                                    </span-->
+                                                    PPE Products
+                                                </a>
+												
+                                            </li>
+											
+                                            <li class='arrow-plus' style='background-color:#505050;'>
+                                                <a href='/GroupCatalog/38/Technology.html'>
+                                                    <!--span class='cat-thumb'>
+                                                        <img alt='' src='/img/category-img/thum10.png'>
+                                                    </span-->
+                                                    Technology
+                                                </a>
+												
+                                            </li>
+											
+                                            <li class='arrow-plus' style='background-color:#505050;'>
+                                                <a href='/GroupCatalog/40/TV-and-Video.html'>
+                                                    <!--span class='cat-thumb'>
+                                                        <img alt='' src='/img/category-img/thum10.png'>
+                                                    </span-->
+                                                    TV & Video
+                                                </a>
+												
+                                            </li>
+											
+                                            <li class='arrow-plus' style='background-color:#505050;'>
+                                                <a href='/GroupCatalog/1062/Breakroom-and-Maintenance.html'>
+                                                    <!--span class='cat-thumb'>
+                                                        <img alt='' src='/img/category-img/thum10.png'>
+                                                    </span-->
+                                                    Breakroom & Maintenance
+                                                </a>
+												
+                                            </li>
+											
+                                            <li class='arrow-plus' style='background-color:#505050;'>
+                                                <a href='/GroupCatalog/1043/Refill-Solutions.html'>
+                                                    <!--span class='cat-thumb'>
+                                                        <img alt='' src='/img/category-img/thum10.png'>
+                                                    </span-->
+                                                    Refill Solutions
+                                                </a>
+												
+                                            </li>
+											
+                                            <li class='arrow-plus' style='background-color:#505050;'>
+                                                <a href='/GroupCatalog/1060/Technology-and-Electronics.html'>
+                                                    <!--span class='cat-thumb'>
+                                                        <img alt='' src='/img/category-img/thum10.png'>
+                                                    </span-->
+                                                    Technology & Electronics
+                                                </a>
+												
+                                            </li>
+											
+                                            <li class='arrow-plus' style='background-color:#505050;'>
+                                                <a href='/GroupCatalog/1042/Pantum-Printers.html'>
+                                                    <!--span class='cat-thumb'>
+                                                        <img alt='' src='/img/category-img/thum10.png'>
+                                                    </span-->
+                                                    Pantum Printers
+                                                </a>
+												
+                                            </li>
+											
+                                            <li class='arrow-plus' style='background-color:#505050;'>
+                                                <a href='/GroupCatalog/1041/3D-Filaments.html'>
+                                                    <!--span class='cat-thumb'>
+                                                        <img alt='' src='/img/category-img/thum10.png'>
+                                                    </span-->
+                                                    3D Filaments
+                                                </a>
+												
+                                            </li>
+											
+                                            <li class='arrow-plus' style='background-color:#505050;'>
+                                                <a href='/GroupCatalog/1040/Labels.html'>
+                                                    <!--span class='cat-thumb'>
+                                                        <img alt='' src='/img/category-img/thum10.png'>
+                                                    </span-->
+                                                    Labels
+                                                </a>
+												
+                                            </li>
+											
+                                            <li class='arrow-plus' style='background-color:#505050;'>
+                                                <a href='/GroupCatalog/1061/Food-and-Grocery.html'>
+                                                    <!--span class='cat-thumb'>
+                                                        <img alt='' src='/img/category-img/thum10.png'>
+                                                    </span-->
+                                                    Food & Grocery
+                                                </a>
+												
+                                            </li>
+											
+                                            
+                                           
+                                            
+                                           
+                                            
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-9 col-sm-9">
+                            <div class="three-menu-area four-menu" >
+                                <nav>
+                                    <ul>
+										
+<li>
+	<a href="/"  style='color:#ffffff;' onmouseover="this.style.color='#000000';" onmouseout="this.style.color='#ffffff';">Home</a>
+										<li style=''>
+												<a href='/Finder.asp?FinderID=34' style='color:#ffffff;' onmouseover="this.style.color='#000000';" onmouseout="this.style.color='#ffffff';">Toner Finder</a></li>
+												<li style=''>
+												<a href='/ProductList/114837/Masks-and-Sanitizers.html' style='color:#ffffff;' onmouseover="this.style.color='#000000';" onmouseout="this.style.color='#ffffff';">PPE Prodcuts</a></li>
+												
+										
+										
+                                        <!--li><a href="about-us.htmssl">about us</a></li>
+                                        <li><a href="contact.hsstml">Contacts</a></li>
+                                        <li><a href="/blog/">Blog</a></li-->
+                                        <li><a class="active2" href="#" style='color:#ffffff;' onmouseover="this.style.color='#000000';" onmouseout="this.style.color='#ffffff';">Help</a>
+                                            <ul class="tablet">
+												
+                                                <!--li><a href="/html">--about us</a></li>
+                                                <li><a href="/blog/">--blog</a></li>
+												<li><a href="/wishlist.html">--wishlist</a></li-->
+                                                <li><a href="/checkout.asp">checkout</a></li>
+                                                <li><a href="/Cart.asp">Shopping Cart</a></li>
+                                                <li><a href="/myaccount/">My Account</a></li>
+                                                
+                                                
+                                            </ul>
+                                        </li>
+                                    </ul>
+                                </nav>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+       
+	
+	
+	
+	<div ID="MainBody">	
+		<div class="row" style="padding-top:5px;"> </div>
+		
+<style>
+  #greyscreenmsg
+  {
+	width: 450px;
+	height: 150px;
+	background: #DDD;
+	border: black solid 1px;
+	text-align: center;
+	position: fixed;
+	margin-top:-75px;
+	margin-left:-225px;
+	left: 50%;
+	top: 50%;
+	z-index: 20;
+	display: none;
+}
+ 
+	#greyscreen
+	{
+	 position: absolute;
+	left: 0;
+	top: 0;
+	background: #000;
+	}
+
+  </style>
+
+        <!-- start shopping-cart-area
+		============================================ -->
+        <div class="shopping-cart-area">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-12 col-xs-12">
+                        <div class="s-cart-all">
+                            <div class="page-title">
+                                <h1><b></b></h1>
+                            </div>
+                            <div class="container" style="height:600px;">
+		<center><h1 class="checkout-title" style="Padding-top:100px;">SORRY :(</h3>
+		<h3 class="checkout-title">The page you are looking for could not be found. </h3></center>
+		
+		
+		<center><div class="add-to-cart" style="padding-top:20px;"><a href="/" class="btn btn-primaryCart" style=" padding:10px; font-size:18px;"><b>Go to our homepage</b></a></div></center>
+
+ </div>
+                        </div>
+                    </div>
+                </div>
+                
+		
+		 </div>
+		</div>
+
+
+		 	
+	</div>
+    <div class="container">
+		<div class="row">          
+            <div class="col-md-12">
+				<div class="block-subscribe" style="padding-bottom:0px;">
+					<div class="subscribe-title " >
+                        <h3>Products You viewed:</h3>
+                    </div>
+                    <div class="item_all indicator-style3" style="border:1px solid white;">
+					
+                    </div>  
+                </div>
+            </div>
+		</div>
+		<div class="row"><div class="col-md-12" style="padding:10px;"></div></div> 
+	</div>
+	
+	<footer class="footer-area" style="">
+            <div class="container">
+                <div class="row">
+                    <div class="support">
+                        <div class="col-md-4 col-sm-4 col-xs-12">
+                            <div class="logo-footer">
+                                <a href="#"></a>
+                            </div>
+                            <div class="footer-static-content">
+                                <div class="footer-contact">
+								
+                                    <!--p class="adress">
+                                        <span class="ft-left">Address: </span>
+                                        <span class="ft-content">123 Main Street, Anytown, CA 12345 USA.</span>
+                                    </p>
+                                    <p class="phone">
+                                        <span class="ft-left">Phone: </span>
+                                        <span class="ft-content">(800) 123 456 789</span>
+                                    </p>
+                                    <p class="email">
+                                        <span class="ft-left">Email: </span>
+                                        <span class="ft-content">admin@Bootexperts.com</span>
+                                    </p-->
+									<p class="marbottom_10">Signup to receive our weekly emails full of special deals we know you'll love.</p>
+										<div class="input-one form-list col-md-12">
+											<form action="/emaillist-action.asp" method="post" id="mc-embedded-subscribe-form" name="mc-embedded-subscribe-form" class="validate">
+												<table cellpadding=0 cellspacing=0 width="100%">
+													<TR>
+														<TD>
+															<input type="text" value="Email Address" name="emailAddress" class="email" id="mce-EMAIL" onclick="this.value='';" onfocus="this.select()" onblur="this.value=!this.value?'Email Address':this.value;">
+														</td>
+														<td>
+															<input type="submit" value="Subscribe" name="subscribe" class="email" value="Join">
+														</td>
+													</tr>
+												</table>
+												<div style="padding:7px;"></div>
+											</form>
+										</div>
+										
+										
+									<!-- Social Links -->	
+			<dt class='martop_20' style='padding-bottom:7px; color:white;'>Follow concordsupplies.com</dt><dd ><a href='https://www.facebook.com/Concord-Supplies-142652242412275/' target='New'><img src='/images///logos/facebook-icon.png' title='' class='followlogo' style='max-width:58px; padding-right:5px;' border='0' /></a><a href='https://twitter.com/Concord_News' target='New'><img src='/images///logos/twitter-icon.png' title='' class='followlogo' style='max-width:58px; padding-right:5px;' border='0' /></a></dd>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-2 col-sm-4 col-xs-12 foot-l">
+                            <div class="footer-static-title">
+                                <h3>Customer Service</h3>
+                            </div>
+                            <div class="footer-static-content">
+                                <ul>
+									<li><a href=mailto:customerservice@concordsupplies.com>Contact Us</a></li><li><a href='/content.asp?id=20'>Shipping Info</a></li><li><a href='/content.asp?id=23'>Consumer Education</a></li><li><a href='/content.asp?id=1023'>Consumer Rights</a></li><li><a href='/content.asp?id=2024'>Warranty</a></li><li><a href='/content.asp?id=2025'>Payment Methods</a></li><li><a href='/content.asp?id=2030'>Return Policy</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="col-md-2 hidden-sm col-xs-12">
+                            <div class="footer-static-title">
+                                <h3>Company Information</h3>
+                            </div>
+                            <div class="footer-static-content">
+                                <ul>
+                                    <li><a href='/content.asp?id=13'>About Us</a></li><li><a href='/content.asp?id=17'>Terms</a></li><li><a href='/content.asp?id=18'>Privacy Policy</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="col-md-2 col-sm-4 col-xs-12 foot-l">
+                            <div class="footer-static-title">
+                                <h3>Special Ordering</h3>
+                            </div>
+                            <div class="footer-static-content">
+                                <ul>
+                                    <li><a href='/content.asp?id=2026'>Affiliate Program</a></li><li><a href='/content.asp?id=2027'>Education</a></li><li><a href='/content.asp?id=2028'>Special Orders</a></li><li><a href='/content.asp?id=2029'>Business</a></li><li><a href='/content.asp?id=2031'>GSA GS-02F-0052W</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="col-md-2 hidden-sm col-xs-12">
+                            <div class="footer-static-title">
+                                <h3>904 S. Roselle Rd<BR>Ste 257<BR>Schaumburg IL 60193</h3>
+                            </div>
+                            <div class="footer-static-content">
+                                <ul>
+                                    
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+               
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="footer-address">
+                            <address>
+                                Copyright ©
+                                <a href="#">Isabella Management LLC DBA Concordsupplies.</a>
+                                All Rights Reserved 
+								
+								<div style="float:right;color:#a0a0a0;">Powered by <a href="http://www.Power-eCommerce.com" style="text-decoration:none; color:#a0a0a0;">Power-eCommerce.com</a></div>
+								
+								
+                            </address>
+                        </div>
+						
+                    </div>
+                </div>
+				
+				
+				
+				
+            </div>
+			
+			
+        </footer>
+		
+        <!-- start scrollUp
+		============================================ -->
+        <div id="toTop">
+            <i class="fa fa-chevron-up"></i>
+        </div>
+        <!-- end scrollUp
+		============================================ -->
+		<!-- jquery
+		============================================ -->		
+        <!--script src="/Design/1/js/vendor/jquery-1.11.3.min.js"></script-->
+		<!-- bootstrap JS
+		============================================ -->		
+        <script src="/Design/1/js/bootstrap.min.js"></script>
+		<!-- wow JS
+		============================================ -->		
+        <script src="/Design/1/js/wow.min.js"></script>
+        <!-- Img Zoom js -->
+		<script src="/Design/1/js/img-zoom/jquery.simpleLens.min.js"></script>
+		<!-- price-slider JS
+		============================================ -->		
+        <script src="/Design/1/js/jquery-price-slider.js"></script>		
+		<!-- meanmenu JS
+		============================================ -->		
+        <script src="/Design/1/js/jquery.meanmenu.js"></script>
+		<!-- owl.carousel JS
+		============================================ -->		
+        <script src="/Design/1/js/owl.carousel.min.js"></script>
+        <!-- jquery.ui js -->
+        <script src="/Design/1/js/jquery-ui.min.js"></script>
+		<!-- scrollUp JS
+		============================================ -->		
+        <script src="/Design/1/js/jquery.scrollUp.min.js"></script>
+		<!-- Nivo slider js
+		============================================ --> 		
+		<script src="/Design/1/lib/js/jquery.nivo.slider.js" type="text/javascript"></script>
+		<script src="/Design/1/lib/home.js" type="text/javascript"></script>
+		<!-- plugins JS
+		============================================ -->		
+        <script src="/Design/1/js/plugins.js"></script>
+		<!-- main JS
+		============================================ -->		
+        <script src="/Design/1/js/main.js"></script>
+		<!-- Custom -->	
+		
+		
+
+	
+    </body>
+</html>

@@ -1,0 +1,30 @@
+_satellite.pushAsyncScript(function(event, target, $variables){
+  try{
+
+if (window.location.href.indexOf("/business-booker/") == -1){
+	var url = window.location.pathname;
+  var germanTag = url.indexOf("/de/de/");
+  var englishTag = url.indexOf("/gb/en/");
+
+  var id = "";
+  var ec = "";
+  if (germanTag >= 0) { 
+    id = 4030739;	// german id
+    ec = "German - Search";
+  }
+  if (englishTag >=0){ 
+    id = 5950008; // core id
+    ec = "Core - Search";
+  }
+
+  (function(w,d,t,r,u){var f,n,i;w[u]=w[u]||[] ,f=function(){var o={ti:id}; o.q=w[u],w[u]=new UET(o),w[u].push("pageLoad")} 
+  ,n=d.createElement(t),n.src=r,n.async=1,n.onload=n .onreadystatechange=function() {var s=this.readyState;s &&s!=="loaded"&& s!=="complete"||(f(),n.onload=n. 
+  onreadystatechange=null)},i= d.getElementsByTagName(t)[0],i. parentNode.insertBefore(n,i)})(window,document,"script"," //bat.bing.com/bat.js","uetq");
+  window.uetq = window.uetq || [];
+  window.uetq.push({ 'ec':ec, 'ea':'searchLeadDays', 'el': _satellite.getVar('searchDaysToCheckIn'),'ev': _satellite.getVar('searchDaysToCheckIn') });
+  window.uetq.push({ 'ec':ec, 'ea':'checkin Day +\ Nights', 'el': _satellite.getVar('searchWeekdayFrom') + ' : ' + _satellite.getVar('searchNumberOfNights') });
+}
+} catch(err) { 
+  _satellite.notify("Direct Call Rule Error - Combined - Resp SRP List Bing Tag: " + err.message,[3]);
+}
+});

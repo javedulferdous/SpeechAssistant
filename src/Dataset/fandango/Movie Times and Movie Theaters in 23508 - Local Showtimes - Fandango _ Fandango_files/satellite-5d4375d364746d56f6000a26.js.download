@@ -1,0 +1,28 @@
+_satellite.pushAsyncScript(function(event, target, $variables){
+  if(_satellite.getVar('Page Level 2') == 'movie times | by movie'){
+
+  
+        // the way i see it 223261 MSP
+ if(_satellite.getVar('Movie ID') == '223261'){
+
+  //pxl-607
+    _satellite.loadScript('https://www.googletagmanager.com/gtag/js?id=AW-614370386')
+  window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'AW-614370386');
+gtag('event', 'conversion', {'send_to': 'AW-614370386/JvPOCOaDzdwBENKY-qQC'});
+
+
+
+
+  //pxl-607
+    _satellite.loadScript('https://www.googletagmanager.com/gtag/js?id=AW-614370596')
+  window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'AW-614370596');
+  gtag('event', 'conversion', {'send_to': 'AW-614370596/cLdwCITKw9wBEKSa-qQC'});
+}
+}
+});

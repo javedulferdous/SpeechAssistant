@@ -1,0 +1,232 @@
+/* Modal & Slideout Styling */
+
+.modal-outer,
+.slideout-outer {
+    background-color: rgba(0, 0, 0, 0.6);
+    height: 100%;
+    width: 100%;
+    position: fixed;
+    top: 0;
+    /* CDC header z-index is 1000 */
+    z-index: 9999999;
+    transition: opacity .3s;
+}
+
+.slideout-outer {
+    opacity: 0;
+}
+
+.slideout-outer.slideout-visible {
+    opacity: 1;
+}
+
+.modal-inner {
+    height: 90vh;
+    overflow: scroll;
+    background-color: #fff;
+    width: 70vw;
+    margin: 0 auto;
+    position: relative;
+    top: 50%;
+    transform: translateY(-50%);
+    padding: 30px;
+    max-height: 75%;
+    overflow-y: auto;
+    overflow-x: hidden;
+    z-index: 1051;
+}
+
+.modal-content {
+    height: 100%;
+}
+
+.modal-close {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    border: 1px solid #8f8f8f;
+    border-radius: 50% 50%;
+    display: block;
+    height: 35px;
+    width: 35px;
+    margin-top: 0;
+    margin-right: -2px;
+    margin-bottom: 10px;
+    padding: 0;
+    padding-top: 8px;
+    font-size: 27px;
+    font-weight: 400;
+    color: #8f8f8f;
+    text-align: center;
+    line-height: 15px;
+    cursor: pointer;
+    -webkit-transition: all 0.3s ease-in-out;
+    -moz-transition: all 0.3s ease-in-out;
+    -o-transition: all 0.3s ease-in-out;
+    transition: all 0.3s ease-in-out;
+}
+
+.modal-close:hover {
+    text-decoration: none;
+    border: 1px solid #000;
+    color: #000;
+}
+
+.stop-scrolling {
+    overflow-y: hidden;
+    overflow-x: hidden;
+}
+
+.slideout-inner {
+    height: 100%;
+    position: absolute;
+    right: 0;
+    top: 0;
+    width: 75%;
+    overflow-y: auto;
+    transition: transform .3s;
+    transform: translateX(0);
+    background-color: #eee;
+    padding: 10px 10px 50px;
+}
+
+.close-slideout-container {
+    position: fixed;
+    bottom: 0;
+    width: 75%;
+    right: 0;
+    text-align: center;
+    background-color: #eee;
+    padding: 10px 0;
+    transition: transform .3s;
+    transform: translateX(0);
+}
+
+.close-slideout-btn {
+    padding: 15px;
+    display: inline-block;
+    color: #fff;
+    background: #3a861c;
+    width: 340px;
+    max-width: 95%;
+    border-radius: 3px;
+    cursor: pointer;
+}
+
+.slideout-offscreen {
+    transform: translateX(100%);
+}
+
+@media only screen and (max-width: 767px) {
+    .modal-inner {
+        max-height: none;
+        width: 90vw;
+    }
+
+    .slideout-inner,
+    .close-slideout-container {
+        width: 85%;
+    }
+}
+
+/* Adestra iFrames */
+iframe.adestra-frame {
+    width: 100%;
+    border: none;
+}
+
+/* Captcha Error Messaging */
+
+#g-recaptcha-errormsg {
+    color: #D50000;
+    padding-top: 10px;
+    display: none;
+}
+
+
+@media screen and (max-width: 481px) {
+    #snackbar {
+        display: none;
+        position: absolute;
+        top: 50px;
+        width: 100%;
+        height: 50px;
+        text-align: center;
+        background-color: #cee1c6;
+        padding-top: 18px;
+        opacity: 1;
+        z-index: 2;
+        transition: opacity 1300ms ease-in-out 800ms;
+        -webkit-transition: opacity 1300ms ease-in-out 800ms;
+        -moz-transition: opacity 1300ms ease-in-out 800ms;
+        -o-transition: opacity 1300ms ease-in-out 800ms;
+        -ms-transition: opacity 1300ms ease-in-out 800ms;
+        pointer-events: none
+    }
+    
+    #snackbar.failure {
+        background-color: #ddaeae!important;
+    }
+    
+    #snackbar.snackbar--fade--out {
+        opacity: 0;
+    }
+    
+    #snackbar #snackbar__container {
+        display: inline-block;
+        position: relative;
+        padding: 0 0 0 30px;
+        color: #3a861c;
+        font-size: 15px;
+        font-weight: 600
+    }
+    
+    #snackbar.failure #snackbar__container {
+        color: #D83F3F;
+    }
+    
+    #snackbar__container:before {
+        content: "";
+        position: absolute;
+        top: -4px;
+        left: 0;
+        display: block;
+        width: 22px;
+        height: 22px;
+        background-color: #3a861c;
+        border-radius: 11px
+    }
+    
+    #snackbar.failure #snackbar__container:before {
+        background-color: #D83F3F!important;
+    }
+    
+    #snackbar:not(.failure) #snackbar__container:after {
+        content: "";
+        display: inline-block;
+        height: 5px;
+        width: 10px;
+        border-left: 2px solid;
+        border-bottom: 2px solid;
+        transform: rotate(-45deg);
+        -webkit-transform: rotate(-45deg);
+        -moz-transform: rotate(-45deg);
+        -ms-transform: rotate(-45deg);
+        -o-transform: rotate(-45deg);
+        position: absolute;
+        left: 5px;
+        top: 2px;
+        color: #fff
+    }
+    
+    #snackbar.failure #snackbar__container:after {
+        content: 'x';
+        display: inline-block;
+        height: 4px;
+        color: #fff;
+        position: absolute;
+        left: 7px;
+        top: -1px;
+    }
+}
+

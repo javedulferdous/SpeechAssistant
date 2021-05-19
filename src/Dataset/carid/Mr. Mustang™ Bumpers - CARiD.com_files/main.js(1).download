@@ -1,0 +1,51 @@
+/****** PUBLIC ACCESS ******/
+function $(id) { return document.getElementById(id) };
+var st = setTimeout;
+
+/****** / PUBLIC ACCESS ******/
+	var banner = (function() {
+	'use strict';
+	function Banner() {
+		// private variables
+		$('bgExitArea').addEventListener('click',function(){window.open(window.clickTag, "_blank");})
+
+		function onEnablerVisible() {
+			//put timeline here
+
+			$('chart-blur').className = 'in';
+			$('border-blur').className = 'in';
+			$("border").className = "in";
+			
+			st(function(){
+				$('chart').className = 'in';
+			},1000);
+			st(function(){
+				$('border-blur').className = '';
+				$('chart-blur').className = '';				
+			},2000);
+			st(function(){
+				$('chart').className = 'out';
+				$("logo").className = "in";
+				$('t1').className = 'in';
+				$('t1a').className = 'in';
+				$('flo').className = 'in';
+				$("text").className = "in";
+				$("rectangle2").className = "in";
+			},3000);  
+
+			st(function(){
+				$('t1b').className = 'in';
+				$('t1a').className = 'final';
+				$("rectangle2").className = "slide";
+				$("quote").className = "in"
+			},4000)
+
+		}
+
+		// privileged methods
+		this.init = function() {
+			onEnablerVisible();
+		};
+	}
+	return new Banner();
+})();

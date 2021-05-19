@@ -1,0 +1,205 @@
+/* General */
+html, body{
+	margin: 0;
+	padding: 0;
+}
+body, input, select, textarea{
+	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-size: 10pt;
+}
+p{
+	line-height: 160%;
+	margin-bottom: 20px;
+}
+img{
+	border: none;
+}
+
+/* Headings */
+h3, h4, h5{
+	margin: 20px 0 20px 0;
+}
+h1, h2{
+	margin: 0 0 30px 0;
+	color: #333;
+}
+h1{
+	font-size: 230%;
+	line-height: 100%;
+}
+h2{ font-size: 200% }
+h3{ font-size: 150% }
+h4{ font-size: 130% }
+
+/* Links */
+a{
+	text-decoration: none;
+	color: #39C;
+}
+a:hover{ text-decoration: underline }
+
+/* Main page wrapper */
+.container{
+	position: relative;
+	width: 688px;
+	margin: 40px auto;
+	padding: 40px;
+	background: #F4F4F4;
+	color: #555;
+}
+
+/* Logo */
+.amf-form-logo{
+	float: right;
+}
+
+/* General element styles */
+.amf-el{
+	margin-bottom: 10px;
+}
+
+/* Submit button */
+.amf-el.amf-type-button{
+	margin-bottom: 0;
+	margin-top: 20px;
+	margin-left: 304px;
+}
+.amf-el.amf-type-button input{
+	padding: 5px 20px;
+	background: #666;
+	cursor: pointer;
+	border-radius: 2px;
+	border: none;
+	color: white;
+}
+
+/* Horizontal labels */
+.amf-el label{
+	width: 284px;
+	display: block;
+	float: left;
+	text-align: right;
+	height: 25px;
+	line-height: 25px;
+	font-weight: bold;
+}
+/* Inline labels for radio/checkboxes */
+.amf-el .amf-el-inner label{
+	width: auto;
+	display: inline;
+	text-align: left;
+	float: none;
+	font-weight: normal;
+}
+.amf-el .amf-el-inner{
+	margin-left: 304px;
+}
+
+/* Errors */
+.amf-error-message{ 
+	color: #db391e;
+	font-style: italic;
+	margin-top: 3px;
+	margin-left: 304px;
+	font-size: 9pt;
+}
+.amf-error.amf-type-textbox input,
+.amf-error.amf-type-textarea textarea,
+.amf-error.amf-type-email input,
+.amf-error.amf-type-postalcode input,
+.amf-error.amf-type-datepicker input{
+	border: 1px solid #db391e;
+}
+
+/* Input styles */
+.amf-type-textbox input,
+.amf-type-email input,
+.amf-type-datepicker input,
+.amf-type-postalcode input,
+.amf-type-textarea textarea{
+	width: 370px;
+	border: 1px solid #BBB;
+	padding: 5px;
+	margin: 0;
+	border-radius: 2px;
+	box-shadow: 1px 1px 0 white;
+}
+.amf-type-select select{
+	border-color: #AAA;
+}
+.amf-type-textarea textarea{
+	height: 50px;
+}
+input:focus, textarea:focus, select:focus{
+	box-shadow: 0 0 5px #CCC;
+	outline: none;
+	border-color: #AAA;
+}
+
+.amf-consent-iframe {
+	border: 0;
+	width: 100%;
+	border: 2px solid #ccc;
+	border-radius: 5px;
+}
+
+.amf-error .amf-consent-iframe {
+	border-color: #db391e;
+}
+
+/* Special case to remove top white margin on portrait iPads */
+@media only screen and (max-width: 1023px) and (orientation: portrait) and (-webkit-min-device-pixel-ratio:1.5){
+	body{
+		background: #F4F4F4;
+	}
+	.container{
+		margin-top: 0;
+	}
+}
+
+/* Small screens, phones, etc */
+@media only screen and (max-width: 767px){
+	body{
+		background: #F4F4F4;
+	}
+	.container{
+		width: auto;
+		margin: 0;
+		padding: 20px;
+	}
+	.amf-form-logo{
+		float: none;
+		margin-bottom: 20px;
+	}
+	
+	h1, h2, h3, h4, h5{
+		margin-bottom: 10px;
+	}
+	
+	/* Vertical element alignment */
+	.amf-el label{
+		width: auto;
+		display: inline;
+		float: none;
+	}
+	.amf-el .amf-el-inner{
+		margin-left: 0;
+	}
+	.amf-error-message{
+		margin-left: 0;
+	}
+	
+	/* Reduce input width for portrait iPhones */
+	.amf-type-textbox input,
+	.amf-type-email input,
+	.amf-type-datepicker input,
+	.amf-type-postalcode input,
+	.amf-type-textarea textarea{
+		width: 268px;
+	}
+	
+	/* Submit button back on the left */
+	.amf-el.amf-type-button{
+		margin-left: 0;
+	}
+}

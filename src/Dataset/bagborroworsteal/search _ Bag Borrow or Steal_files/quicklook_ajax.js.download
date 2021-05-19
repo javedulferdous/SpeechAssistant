@@ -1,0 +1,164 @@
+
+// set up timers to pad the response of user interactions
+var quicklookLoadTimers = {};
+var quicklookHideTimers = {};
+
+// if a user hovers for a second, load the quicklook (triggered on mouseover)
+function quicklookHandler(productId, offsetX, offsetY) {
+        quicklookLoadTimers[productId] = setTimeout("loadQuicklook("+productId+","+offsetX+","+offsetY+")", 700);
+        // ensure that we don't accidentally hide it...
+        if(null!=quicklookHideTimers[productId]){
+                clearTimeout(quicklookHideTimers[productId]);
+        }
+}
+
+// hide the quicklook (triggered on mouse-out)
+function cancelQuicklook(productId) {
+        // clear the timeout so we don't accidentally call load again
+        if(null!=quicklookLoadTimers[productId]){
+                clearTimeout(quicklookLoadTimers[productId]);
+        }
+        quicklookHideTimers[productId] = setTimeout("hideQuicklook("+productId+")", 500);
+}
+
+// self explanatory (triggered by timer)
+function hideQuicklook(productId) {
+        $("#quicklook_"+productId).css("display","none");
+}
+
+// load a quicklook if it hasn't been already (triggered by timer)
+function loadQuicklook(productId, offsetX, offsetY){
+    //console.log("loading quicklook for product "+productId);
+    // get the offset of the product's <li> and position accordingly
+    if($("#product_"+productId).length != 0){
+        var productOffset = $("#product_"+productId).offset();        
+    }else{
+        // hack for browse boutique featured products
+        var productOffset = $("#featuredProductLink").offset();        
+    }
+
+    var scrollTop = $(window).scrollTop();
+    var scrollBottom = $(window).scrollTop()+$(window).height();
+    var divId = "#quicklook_"+productId;
+
+    if ( $(divId).length == 0  ){
+
+        // TODO: spin here?
+        $("#quicklookContainer").clone().appendTo(document.body).attr('id','quicklook_'+productId);
+        $(".quicklookContainerHtml", "#quicklook_"+productId).html($("#quicklookHtml_"+productId).html());
+
+        // fill in main and thumbnail images
+        $("#detailMain_"+productId,"#quicklook_"+productId).html(quicklookProductImageUrls[productId]);
+        $(".thumbnailLink","#quicklook_"+productId).each(function(){
+          //console.log("INDEX "+$(this).attr('name'));
+          //console.log("MARKUP "+quicklookThumbnailUrls[productId][$(this).attr('name')]);
+          // name refers to the index of the thumbnail
+          $(this).html(quicklookThumbnailUrls[productId][$(this).attr('name')]);
+        });
+        
+
+
+        // position X axis, check whether it's offscreen on right side, then left
+        // browse products: x == 140 || x == -445
+        // wishlist: x == 610
+        if((productOffset.left+offsetX+$(divId).width()) >= $(window).width()){
+            $(divId).css('left',$(window).width()-$(divId).width());
+        }else if(productOffset.left+offsetX < 0){
+            $(divId).css('left',0);
+        }else{
+            $(divId).css('left',productOffset.left+offsetX);
+        }
+
+        // position Y axis
+        // browse products: y == -85
+        // wishlist: y == -145
+        if(productOffset.top+offsetY < scrollTop){
+            $(divId).css('top',scrollTop);
+        }else if((productOffset.top+offsetY+$(divId).outerHeight()) <= scrollBottom){
+            $(divId).css('top',productOffset.top+offsetY);
+        }else{
+            $(divId).css('top',scrollBottom-$(divId).outerHeight());
+        }
+
+        // bind actions
+        //$("#quicklook_"+productId).bind('mouseover',function(){
+        //  quicklookHandler(productId, offsetX, offsetY);
+        //}).bind('mouseout',function(){
+        //  cancelQuicklook(productId);
+        //});
+
+//         $("", "#quicklook_"+productId).bind('click',function(){
+//         });
+
+        $(divId).show();
+
+    }else{
+        // quicklook is already loaded, just show it
+        $(divId).show();
+
+        // check positioning for X axis
+        if((productOffset.left+offsetX+$(divId).width()) >= $(window).width()){
+            $(divId).css('left',($(window).width()-$(divId).width()));
+        }else if(productOffset.left+offsetX < 0){
+            $(divId).css('left',0);
+        }else{
+            $(divId).css('left',productOffset.left+offsetX);
+        }
+
+        // check positioning for Y axis
+        if(productOffset.top+offsetY < scrollTop){
+            $(divId).css('top',scrollTop);
+        }else if((productOffset.top+offsetY+$(divId).outerHeight()) <= scrollBottom){
+            $(divId).css('top',productOffset.top+offsetY);
+        }else{
+            $(divId).css('top',scrollBottom-$(divId).outerHeight());
+        }
+
+    }
+
+}
+
+function addToWishList(productId){
+  signInUrl = signInUrl + productId;
+
+  //console.log("checking credentials...");
+  var ajaxUrl = isSignedInUrlNonsecure + "?#" + String(Math.floor(Math.random()*10001));
+  $.ajax({
+    type:"GET",
+    url:ajaxUrl,
+    dataType: "script",
+    success: function(){
+      
+      if(authenticationLevel=="authenticated"){
+        //console.log("authd");
+        $.ajax({
+          url: addToWishListQuicklookUrl,
+          type: "POST",
+          data: 'productId='+productId,
+          dataType: "script",
+          success: function(result){
+            //$(".wishListDiv","#quicklook_"+productId).html(result);  
+            
+             if(wishListItemExists=="true"){
+                  $(".wishListDiv","#quicklook_"+productId).html('We know you like this one! <br>It\'s already in your Wish List.<br><a href="'+wishListUrl+'">View Wish List</a>').show();
+                }else{
+                  // TODO: this should be changed to an id selector (and the markup should be updated too) when the test has finished running
+                  $(".wishListDiv","#quicklook_"+productId).html('Item has been added to your Wish List.<br><a href="'+wishListUrl+'">View Wish List</a>').show();
+                }
+            
+          }
+        });
+        
+        return true;
+      }else{
+        //console.log("not authd");
+        $(".wishListDiv","#quicklook_"+productId).html("You are not currently signed in.  Please <a href="+signInUrl+">sign in</a> to use this feature.");
+        return false;
+      }
+    },
+    error: function(){
+      alert('There was an error handling your request.  Please refresh the page and try again.');
+    }
+    
+});
+}

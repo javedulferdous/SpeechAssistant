@@ -1,0 +1,3260 @@
+var JALAN = JALAN || {};
+JALAN.CONTENTS = {};
+
+JALAN.CONTENTS.INDICATION = {
+	init : function(){
+		this.setParameters();
+		this.indicateContents();
+	},
+	setParameters : function(){
+		this.$wakeari = $('.jsc-wakeari-wrapper');
+		this.$targetPoint = $('.jsc-detail-list').children('li:first-child').find('.plan-icon-plural');
+	},
+	indicateContents : function(){
+		var _self = this;
+		this.$targetPoint.each(function(){
+			$(this).append(_self.$wakeari.clone(true));
+		});
+	}
+};
+
+JALAN.CONTENTS.DIVISION = {
+    ROOM : 0,
+    PLAN : 1,
+    TYPE : 2,
+
+    init : function(){
+        this.setParameters();
+		this.setCancelTitle();
+		this.setCancelDetail();
+        this.getData();
+    },
+    setParameters : function(){
+		this.$pageWrapper = $('#wrapper');
+        this.$wrapper = $('.jsc-contents-wrapper');
+        this.$hiddenData = $('.jsc-hidden-data');
+        this.$iconBox = $('.jsc-icon-box');
+		this.$cancelData = $('.jsc-cancel-policy-data');
+		this.$cancelFlg = $('.jsc-hidden-cancel-flg');
+        this.$hiddenCancelRules = $('.jsc-hidden-cancel-rules');
+        this.$hiddenCancelPrev = $('.jsc-hidden-cancel-prev');
+        this.$hiddenCancelVal = $('.jsc-hidden-cancel-val');
+        this.$hiddenCancelNyo = $('.jsc-hidden-cancel-nyo');
+		this.$hiddenCancelCsk = $('.jsc-hidden-cancel-csk');
+        this.$hiddenFreeword = $('.jsc-hidden-freeword');
+        this.language = $('#wrapper').data('language');
+		this.$title = $('.jsc-cancel-title');
+		this.$link = $('.jsc-cancel-link').find('a');
+		this.$standardTxt = $('.jsc-cancel-standard');
+    },
+	setCancelTitle : function(){
+		var _self = this;
+		this.$hiddenCancelPrev.each(function(){
+			var name = $(this).attr('name'),
+	        	datas = name.split('.');
+
+			if(_self.$pageWrapper.hasClass('detail-page')){
+				//詳細画面
+				var room = datas[parseInt(_self.ROOM)].match(/room\[(\d+)\]/)[1],
+	                plan = datas[parseInt(_self.PLAN)].match(/plan\[(\d+)\]/)[1];
+			}else{
+				//一覧画面
+				var room = datas[parseInt(_self.ROOM)].match(/yado\[(\d+)\]/)[1],
+	                plan = datas[parseInt(_self.PLAN)].match(/plan\[(\d+)\]/)[1];
+			}
+
+			var type = datas[parseInt(_self.TYPE)],
+	            val = $(this).val(),
+	            $cancelWrap = _self.$wrapper.eq(room).find('.jsc-target-content').children('li').eq(plan).find('.jsc-cancel-policy-wrap'),
+				$line1 = $cancelWrap.children('.jsc-cancel-policy-line-1'),
+				$line2 = $cancelWrap.children('.jsc-cancel-policy-line-2'),
+				$line3 = $cancelWrap.children('.jsc-cancel-policy-line-3'),
+				$line4 = $cancelWrap.children('.jsc-cancel-policy-line-4'),
+				$line5 = $cancelWrap.children('.jsc-cancel-policy-line-5'),
+				$line1Title = $line1.children('.jsc-cancel-policy-title'),
+				$line1Txt = $line1.children('.jsc-cancel-policy-txt'),
+				$line2Title = $line2.children('.jsc-cancel-policy-title'),
+				$line2Txt = $line2.children('.jsc-cancel-policy-txt'),
+				$line3Title = $line3.children('.jsc-cancel-policy-title'),
+				$line3Txt = $line3.children('.jsc-cancel-policy-txt'),
+				$line4Title = $line4.children('.jsc-cancel-policy-title'),
+				$line4Txt = $line4.children('.jsc-cancel-policy-txt'),
+				$line5Title = $line5.children('.jsc-cancel-policy-title'),
+				$line5Txt = $line5.children('.jsc-cancel-policy-txt');
+
+			if(type === 'cancelFeePrev1'){
+				if(val === '-1'){
+					//無連絡キャンセル
+					var line1FixedTitle = '';
+					if(_self.language === 'en'){
+						line1FixedTitle = 'Without notification in advance : ';
+					}else if(_self.language === 'cn'){
+						line1FixedTitle = '无联络取消 : ';
+					}else if(_self.language === 'tn'){
+						line1FixedTitle = '無聯絡取消 : ';
+					}else if(_self.language === 'kr'){
+						line1FixedTitle = '연락없이 취소 : ';
+					}else if(_self.language === 'fr'){
+						line1FixedTitle = 'Annulation sans prévenir : ';
+					}else if(_self.language === 'th'){
+						line1FixedTitle = 'ยกเลิกโดยที่ไม่มีการติดต่อ : ';
+					}else if(_self.language === 'id'){
+						line1FixedTitle = 'Pembatalan tanpa pemberitahuan : ';
+					}else if(_self.language === 'my'){
+						line1FixedTitle = 'Pembatalan tanpa pemberitahuan : ';
+					}else{
+						return;
+					}
+					$line1Title.text(line1FixedTitle);
+				}else if(val === '0'){
+					//当日キャンセル
+					var line1FixedTitle = '';
+					if(_self.language === 'en'){
+						line1FixedTitle = 'On the date of arrival : ';
+					}else if(_self.language === 'cn'){
+						line1FixedTitle = '入住当天 : ';
+					}else if(_self.language === 'tn'){
+						line1FixedTitle = '入住當天 : ';
+					}else if(_self.language === 'kr'){
+						line1FixedTitle = '체크인 당일 : ';
+					}else if(_self.language === 'fr'){
+						line1FixedTitle = 'Le jour d\'arrivée : ';
+					}else if(_self.language === 'th'){
+						line1FixedTitle = 'วันที่เข้าพัก : ';
+					}else if(_self.language === 'id'){
+						line1FixedTitle = 'Pada hari kedatangan : ';
+					}else if(_self.language === 'my'){
+						line1FixedTitle = 'Hari kejadian : ';
+					}else{
+						return;
+					}
+					$line1Title.text(line1FixedTitle);
+				}else{
+					$line1Title.text(val);
+				}
+			}else if(type === 'cancelFeePrev2'){
+				if(val === '-1'){
+					//無連絡キャンセル
+					var line2FixedTitle = '';
+					if(_self.language === 'en'){
+						line2FixedTitle = 'Without notification in advance : ';
+					}else if(_self.language === 'cn'){
+						line2FixedTitle = '无联络取消 : ';
+					}else if(_self.language === 'tn'){
+						line2FixedTitle = '無聯絡取消 : ';
+					}else if(_self.language === 'kr'){
+						line2FixedTitle = '연락없이 취소 : ';
+					}else if(_self.language === 'fr'){
+						line2FixedTitle = 'Annulation sans prévenir : ';
+					}else if(_self.language === 'th'){
+						line2FixedTitle = 'ยกเลิกโดยที่ไม่มีการติดต่อ : ';
+					}else if(_self.language === 'id'){
+						line2FixedTitle = 'Pembatalan tanpa pemberitahuan : ';
+					}else if(_self.language === 'my'){
+						line2FixedTitle = 'Pembatalan tanpa pemberitahuan : ';
+					}else{
+						return;
+					}
+					$line2Title.text(line2FixedTitle);
+				}else if(val === '0'){
+					//当日キャンセル
+					var line2FixedTitle = '';
+					if(_self.language === 'en'){
+						line2FixedTitle = 'On the date of arrival : ';
+					}else if(_self.language === 'cn'){
+						line2FixedTitle = '入住当天 : ';
+					}else if(_self.language === 'tn'){
+						line2FixedTitle = '入住當天 : ';
+					}else if(_self.language === 'kr'){
+						line2FixedTitle = '체크인 당일 : ';
+					}else if(_self.language === 'fr'){
+						line2FixedTitle = 'Le jour d\'arrivée : ';
+					}else if(_self.language === 'th'){
+						line2FixedTitle = 'วันที่เข้าพัก : ';
+					}else if(_self.language === 'id'){
+						line2FixedTitle = 'Pada hari kedatangan : ';
+					}else if(_self.language === 'my'){
+						line2FixedTitle = 'Hari kejadian : ';
+					}else{
+						return;
+					}
+					$line2Title.text(line2FixedTitle);
+				}else{
+					$line2Title.text(val);
+				}
+			}else if(type === 'cancelFeePrev3'){
+				if(val === '-1'){
+					//無連絡キャンセル
+					var line3FixedTitle = '';
+					if(_self.language === 'en'){
+						line3FixedTitle = 'Without notification in advance : ';
+					}else if(_self.language === 'cn'){
+						line3FixedTitle = '无联络取消 : ';
+					}else if(_self.language === 'tn'){
+						line3FixedTitle = '無聯絡取消 : ';
+					}else if(_self.language === 'kr'){
+						line3FixedTitle = '연락없이 취소 : ';
+					}else if(_self.language === 'fr'){
+						line3FixedTitle = 'Annulation sans prévenir : ';
+					}else if(_self.language === 'th'){
+						line3FixedTitle = 'ยกเลิกโดยที่ไม่มีการติดต่อ : ';
+					}else if(_self.language === 'id'){
+						line3FixedTitle = 'Pembatalan tanpa pemberitahuan : ';
+					}else if(_self.language === 'my'){
+						line3FixedTitle = 'Pembatalan tanpa pemberitahuan : ';
+					}else{
+						return;
+					}
+					$line3Title.text(line3FixedTitle);
+				}else if(val === '0'){
+					//当日キャンセル
+					var line3FixedTitle = '';
+					if(_self.language === 'en'){
+						line3FixedTitle = 'On the date of arrival : ';
+					}else if(_self.language === 'cn'){
+						line3FixedTitle = '入住当天 : ';
+					}else if(_self.language === 'tn'){
+						line3FixedTitle = '入住當天 : ';
+					}else if(_self.language === 'kr'){
+						line3FixedTitle = '체크인 당일 : ';
+					}else if(_self.language === 'fr'){
+						line3FixedTitle = 'Le jour d\'arrivée : ';
+					}else if(_self.language === 'th'){
+						line3FixedTitle = 'วันที่เข้าพัก : ';
+					}else if(_self.language === 'id'){
+						line3FixedTitle = 'Pada hari kedatangan : ';
+					}else if(_self.language === 'my'){
+						line3FixedTitle = 'Hari kejadian : ';
+					}else{
+						return;
+					}
+					$line3Title.text(line3FixedTitle);
+				}else{
+					$line3Title.text(val);
+				}
+			}else if(type === 'cancelFeePrev4'){
+				if(val === '-1'){
+					//無連絡キャンセル
+					var line4FixedTitle = '';
+					if(_self.language === 'en'){
+						line4FixedTitle = 'Without notification in advance : ';
+					}else if(_self.language === 'cn'){
+						line4FixedTitle = '无联络取消 : ';
+					}else if(_self.language === 'tn'){
+						line4FixedTitle = '無聯絡取消 : ';
+					}else if(_self.language === 'kr'){
+						line4FixedTitle = '연락없이 취소 : ';
+					}else if(_self.language === 'fr'){
+						line4FixedTitle = 'Annulation sans prévenir : ';
+					}else if(_self.language === 'th'){
+						line4FixedTitle = 'ยกเลิกโดยที่ไม่มีการติดต่อ : ';
+					}else if(_self.language === 'id'){
+						line4FixedTitle = 'Pembatalan tanpa pemberitahuan : ';
+					}else if(_self.language === 'my'){
+						line4FixedTitle = 'Pembatalan tanpa pemberitahuan : ';
+					}else{
+						return;
+					}
+					$line4Title.text(line4FixedTitle);
+				}else if(val === '0'){
+					//当日キャンセル
+					var line4FixedTitle = '';
+					if(_self.language === 'en'){
+						line4FixedTitle = 'On the date of arrival : ';
+					}else if(_self.language === 'cn'){
+						line4FixedTitle = '入住当天 : ';
+					}else if(_self.language === 'tn'){
+						line4FixedTitle = '入住當天 : ';
+					}else if(_self.language === 'kr'){
+						line4FixedTitle = '체크인 당일 : ';
+					}else if(_self.language === 'fr'){
+						line4FixedTitle = 'Le jour d\'arrivée : ';
+					}else if(_self.language === 'th'){
+						line4FixedTitle = 'วันที่เข้าพัก : ';
+					}else if(_self.language === 'id'){
+						line4FixedTitle = 'Pada hari kedatangan : ';
+					}else if(_self.language === 'my'){
+						line4FixedTitle = 'Hari kejadian : ';
+					}else{
+						return;
+					}
+					$line4Title.text(line4FixedTitle);
+				}else{
+					$line4Title.text(val);
+				}
+			}else if(type === 'cancelFeePrev5'){
+				if(val === '-1'){
+					//無連絡キャンセル
+					var line5FixedTitle = '';
+					if(_self.language === 'en'){
+						line5FixedTitle = 'Without notification in advance : ';
+					}else if(_self.language === 'cn'){
+						line5FixedTitle = '无联络取消 : ';
+					}else if(_self.language === 'tn'){
+						line5FixedTitle = '無聯絡取消 : ';
+					}else if(_self.language === 'kr'){
+						line5FixedTitle = '연락없이 취소 : ';
+					}else if(_self.language === 'fr'){
+						line5FixedTitle = 'Annulation sans prévenir : ';
+					}else if(_self.language === 'th'){
+						line5FixedTitle = 'ยกเลิกโดยที่ไม่มีการติดต่อ : ';
+					}else if(_self.language === 'id'){
+						line5FixedTitle = 'Pembatalan tanpa pemberitahuan : ';
+					}else if(_self.language === 'my'){
+						line5FixedTitle = 'Pembatalan tanpa pemberitahuan : ';
+					}else{
+						return;
+					}
+					$line5Title.text(line5FixedTitle);
+				}else if(val === '0'){
+					//当日キャンセル
+					var line5FixedTitle = '';
+					if(_self.language === 'en'){
+						line5FixedTitle = 'On the date of arrival : ';
+					}else if(_self.language === 'cn'){
+						line5FixedTitle = '入住当天 : ';
+					}else if(_self.language === 'tn'){
+						line5FixedTitle = '入住當天 : ';
+					}else if(_self.language === 'kr'){
+						line5FixedTitle = '체크인 당일 : ';
+					}else if(_self.language === 'fr'){
+						line5FixedTitle = 'Le jour d\'arrivée : ';
+					}else if(_self.language === 'th'){
+						line5FixedTitle = 'วันที่เข้าพัก : ';
+					}else if(_self.language === 'id'){
+						line5FixedTitle = 'Pada hari kedatangan : ';
+					}else if(_self.language === 'my'){
+						line5FixedTitle = 'Hari kejadian : ';
+					}else{
+						return;
+					}
+					$line5Title.text(line5FixedTitle);
+				}else{
+					$line5Title.text(val);
+				}
+			}else{
+				return;
+			}
+		});
+	},
+	setCancelDetail : function(){
+		var _self = this;
+		this.$hiddenCancelVal.each(function(){
+			var name = $(this).attr('name'),
+	        	datas = name.split('.');
+
+			if(_self.$pageWrapper.hasClass('detail-page')){
+				//詳細画面
+				var room = datas[parseInt(_self.ROOM)].match(/room\[(\d+)\]/)[1],
+	                plan = datas[parseInt(_self.PLAN)].match(/plan\[(\d+)\]/)[1];
+			}else{
+				//一覧画面
+				var room = datas[parseInt(_self.ROOM)].match(/yado\[(\d+)\]/)[1],
+	                plan = datas[parseInt(_self.PLAN)].match(/plan\[(\d+)\]/)[1];
+			}
+
+			var type = datas[parseInt(_self.TYPE)],
+	            val = $(this).val(),
+	            $cancelWrap = _self.$wrapper.eq(room).find('.jsc-target-content').children('li').eq(plan).find('.jsc-cancel-policy-wrap'),
+				$line1 = $cancelWrap.children('.jsc-cancel-policy-line-1'),
+				$line2 = $cancelWrap.children('.jsc-cancel-policy-line-2'),
+				$line3 = $cancelWrap.children('.jsc-cancel-policy-line-3'),
+				$line4 = $cancelWrap.children('.jsc-cancel-policy-line-4'),
+				$line5 = $cancelWrap.children('.jsc-cancel-policy-line-5'),
+				$line1Title = $line1.children('.jsc-cancel-policy-title'),
+				$line1Txt = $line1.children('.jsc-cancel-policy-txt'),
+				$line2Title = $line2.children('.jsc-cancel-policy-title'),
+				$line2Txt = $line2.children('.jsc-cancel-policy-txt'),
+				$line3Title = $line3.children('.jsc-cancel-policy-title'),
+				$line3Txt = $line3.children('.jsc-cancel-policy-txt'),
+				$line4Title = $line4.children('.jsc-cancel-policy-title'),
+				$line4Txt = $line4.children('.jsc-cancel-policy-txt'),
+				$line5Title = $line5.children('.jsc-cancel-policy-title'),
+				$line5Txt = $line5.children('.jsc-cancel-policy-txt');
+
+			if(type === 'cancelFeeVal5'){
+				$line5Txt.text(val);
+			}else if(type === 'cancelFeeVal4'){
+				$line4Txt.text(val);
+			}else if(type === 'cancelFeeVal3'){
+				$line3Txt.text(val);
+			}else if(type === 'cancelFeeVal2'){
+				$line2Txt.text(val);
+			}else if(type === 'cancelFeeVal1'){
+				$line1Txt.text(val);
+			}else{
+				return;
+			}
+		});
+	},
+    getData : function(){
+        var _self = this;
+        $.ajax({
+            async: false,
+            type: 'GET',
+            url:   '/global_pc/js/' + this.language + '-contents.json',
+            cache: false,
+            dataType: 'jsonp',
+            jsonpCallback: 'plan_detail',
+            success: $.proxy(this.parseJSON, this),
+            error: $.proxy(this.error, this)
+        });
+    },
+	error : function(status){
+	},
+    parseJSON: function(array){
+        var _self = this;
+        this.$hiddenData.each(function(){
+            var name = $(this).attr('name'),
+            	datas = name.split('.');
+			if(_self.$pageWrapper.hasClass('detail-page')){
+				var room = datas[parseInt(_self.ROOM)].match(/room\[(\d+)\]/)[1],
+	                plan = datas[parseInt(_self.PLAN)].match(/plan\[(\d+)\]/)[1];
+			}else{
+				var room = datas[parseInt(_self.ROOM)].match(/yado\[(\d+)\]/)[1],
+	                plan = datas[parseInt(_self.PLAN)].match(/plan\[(\d+)\]/)[1];
+			}
+
+            var type = datas[parseInt(_self.TYPE)],
+                val = $(this).val(),
+                $targetPoint = _self.$wrapper.eq(room).find('.jsc-target-content').children('li').eq(plan);
+            if($targetPoint.children().is("ul")){
+
+                $targetPoint = _self.$wrapper.eq(room).find('.jsc-target-content').children('li').eq(plan);
+
+                $targetPointInline = $targetPoint.find('.plan-icon-block');
+                $targetPointPlural = $targetPoint.find('.plan-icon-plural');
+                $targetPointInfo = $targetPoint.find('.plan-icon-info');
+                $targetPointPrice = $targetPoint.find('.plan-icon-price');
+                $targetPointWakeari = $targetPoint.find('.jsc-wakeari-contents');
+                $targetPointDev = $targetPoint.find('.jsc-plan-icon-develop-inner');
+				$targetInfoMeal = $targetPoint.find('.jsc-info-meal-box');
+				$targetInfoFreeword = $targetPoint.find('.jsc-info-freeword-box');
+				$targetInfoCheck = $targetPoint.find('.jsc-info-check-box');
+				$targetInfoCheckcancel = $targetPoint.find('.jsc-info-checkcancel-box');
+            }
+            else{
+                $targetPoint = $targetPoint.find('.jsc-detail-list');
+                $targetPointInline = $targetPoint;
+                $targetPointPlural = $targetPoint;
+                $targetPointInfo = $targetPoint;
+                $targetPointPrice = $targetPoint;
+            }
+
+			//hidden項目以外のnameが指定されていた場合
+			if(type !== 'brkfstFlg' && type !== 'brkfstPlcCd' && type !== 'dinnerFlg' && type !== 'dinnerPlcCd' && type !== 'bath'
+			&& type !== 'toil' && type !== 'roomCapaMostNum' && type !== 'dayRsvRctStrTime' && type !== 'dayRsvRctEndTime' && type !== 'checkinStartTime'
+			&& type !== 'checkinLastTime' && type !== 'dayRsvCheckinStrTime' && type !== 'dayRsvCheckinEndTime' && type !== 'checkoutLastTime' && type !== '0312'
+			&& type !== '0313' && type !== '0314' && type !== '0315' && type !== '0316' && type !== '0321'
+			&& type !== '0317' && type !== '0318' && type !== '0319' && type !== '0322' && type !== '0421'
+			&& type !== '0422' && type !== '0423' && type !== '0424' && type !== '0425' && type !== '0426'
+			&& type !== '0427' && type !== '0428' && type !== '0429' && type !== '0430' && type !== '0432'
+			&& type !== '0301' && type !== '0302' && type !== '0302' && type !== '0303' && type !== '0304'
+			&& type !== '0305' && type !== '0306' && type !== '0307' && type !== '0308' && type !== '0309'
+			&& type !== '0310' && type !== '0311' && type !== '0320' && type !== '0401' && type !== '0402'
+			&& type !== '0403' && type !== '0404' && type !== '0405' && type !== '0406' && type !== '0407'
+			&& type !== '0408' && type !== '0409' && type !== '0410' && type !== '0411' && type !== '0412'
+			&& type !== '0413' && type !== '0414' && type !== '0415' && type !== '0416' && type !== '0417'
+			&& type !== '0418' && type !== '0419' && type !== '0420' && type !== '0431' && type !== '0323' && type !== '0324'
+			&& type !== 'rsvCancelEndDay' && type !== 'rsvCancelEndHh' && type !== '0433' && type !== '0434') return;
+
+            var buildType = array[type]['buildType'];
+
+			//空文字だった場合
+			if(type === '0312' || type === '0313' || type === '0314' || type === '0315' || type === '0316' || type === '0317' || type === '0318' || type === '0319' || type === '0421' || type === '0422' || type === '0423' || type === '0424' ||
+			type === '0425' || type === '0426' || type === '0324' || type === '0427' || type === '0428' || type === '0429' || type === '0430' || type === '0410' || type === '0411' || type === '0412' || type === '0413' || type === '0414' || type === '0415'
+			|| type === '0416' || type === '0417' || type === '0418' || type === '0419' || type === '0420' || type === '0433' || type === '0434'){
+				if(val !== type + '01'){
+					return;
+				}
+			}else if(type === '0321' || type === '0322' || type === '0432' || type === '0305'　|| type === '0306' || type === '0307' || type === '0308' || type === '0309' || type === '0310' || type === '0311'
+			|| type === '0320' || type === '0431'){
+				if(val === ''){
+					return;
+				}
+			}
+
+			if(type == 'brkfstFlg' ||type == 'dinnerFlg' ||type == 'bath' ||type == 'toil'){
+			    if(val === '0'){
+			        return;
+                }
+            }
+
+            if(array[type]['txt'] && array[type]['value'] === undefined){
+                var arrayData = array[type]['txt'],
+                    $content = _self['build' + buildType](type,arrayData,val,room,plan);
+            }else if(array[type]['value'] && array[type]['txt'] === undefined){
+                var arrayData = array[type]['value'][val],
+                    $content = _self['build' + buildType](type,arrayData,val,room,plan);
+            }else if(array[type]['value'] === undefined && array[type]['txt'] === undefined){
+                var $content = _self['build' + buildType](type,arrayData,val,$targetPoint,room,plan);
+                return true;
+            }else{
+                return;
+            }
+            if(type === 'roomCapaMostNum' || type === 'bath' || type === 'toil'|| type === 'rsvEndHh' || type ==='0304' || type === '0305'|| type ==='0306' || type === '0307'||
+                type === '0308'|| type === '0309'|| type === '0310'|| type === "0311"|| type ==='0320'){
+            	$content.addClass("order-icn");
+            }
+
+			if(type === '0401' || type === '0402' || type === '0403' || type === '0404' || type === '0405' || type === '0406' || type === '0407' || type === '0408' || type === '0409' || type === '0410'
+			|| type === '0411' || type === '0412' || type === '0413' || type === '0414' || type === '0415' || type === '0416' || type === '0417' || type === '0418') {
+				// 横並びにするためクラス付与
+				$content.addClass('content-byside');
+			}
+
+			if(type === "0420" || type === '0419' || type === '0433' || type === '0434'){
+				$content.addClass('content-byside jsc-combining-txt');
+			}
+
+			if(type === "0312" || type ==="0313" || type ==="0314" || type ==="0315" || type ==="0316" || type ==='0323' || type ==='0324' || type ==="0426" || type ==="0427" || type ==="0316"){
+				$content.append('<p class="append-txt-' +type+ '">');
+				var fragment = document.createDocumentFragment();
+	            fragment.appendChild($content.get(0));
+			}else{
+				var fragment = document.createDocumentFragment();
+	            fragment.appendChild($content.get(0));
+			}
+
+			//表示箇所の指定
+			if(type === 'brkfstFlg' || type === 'dinnerFlg' || type === 'brkfstPlcCd'|| type === 'dinnerPlcCd' || type ==='rsvEndHh'|| type ==='0317'|| type ==='0318'|| type ==='0319'|| type ==='0421'|| type ==='0422'|| type ==='0423'|| type ==='0424'||
+                type ==='0425'||  type ==='0429'|| type ==='0430'|| type ==='0419'|| type ==='0420' || type ==='0433'|| type ==='0434') {
+				// 上段のdivの場合
+                $targetPointInline.get(0).appendChild(fragment);
+			}else if(type === 'roomCapaMostNum' || type === 'bath' || type === 'toil'|| type === 'rsvEndHh' || type ==='0304' || type === '0305'|| type ==='0306' || type === '0307'||
+                type === '0308'|| type === '0309'|| type === '0310'|| type === "0311"|| type ==='0320'){
+				// 中段のdivの場合
+				$targetPointPlural.get(0).appendChild(fragment);
+			}else if(type === 'checkinLastTime' ||type === 'checkinLastTime' ||type === 'dayRsvCheckinEndTime' ||
+                type ==='cancelRulesKbn1'||type ==='cancelRulesKbn2'||type ==='cancelRulesKbn3'||type ==='cancelRulesKbn4'||type ==='cancelRulesKbn5'||type ==='cancelFeePrev1'||type ==='cancelFeePrev2'||type ==='cancelFeePrev3'||
+                type ==='cancelFeePrev4'||type ==='cancelFeePrev5'||type ==='cancelFeeVal1'||type ==='cancelFeeVal2'||type ==='cancelFeeVal3'||type ==='cancelFeeVal4'||type ==='cancelFeeVal5'||type ==='canNyo1'||type ==='canNyo2'||
+                type ==='canNyo3'||type ==='canNyo4'||type ==='canNyo5'){
+				// info内コンテンツ
+				$targetPointInfo.get(0).appendChild(fragment);
+			}else if(type === '0401' || type === '0402' || type === '0403' || type === '0404' || type === '0405' || type === '0406' || type === '0407'
+		 	|| type === '0408'  || type === '0409' || type === '0410' || type === '0411'|| type === '0412' || type === '0413'
+			|| type === '0414' || type === '0415'  || type === '0416' || type === '0417' || type === '0418'){
+				//info内の食事項目
+				$targetInfoMeal.get(0).appendChild(fragment);
+			}else if( type === "0312" || type === '0313' || type === '0314' || type === '0315' || type === '0316' || type ==='0323' || type ==='0324' || type ==='0426' ||type ==='0427'|| type ==='0428'){
+				// wakeariアイコン
+				$targetPointWakeari.get(0).appendChild(fragment);
+			}else{
+				$targetPoint.get(0).appendChild(fragment);
+			}
+        });
+    },
+    buildFreeword : function(type,arrayData,val){
+        var $content = $('<p class="plan-txt">');
+		$content.text(val);
+        var fragment = document.createDocumentFragment();
+		if(type ==='rsvEndDay' || type ==='rsvEndHh' || type ==='dayRsvRctStrTime' || type ==='dayRsvRctEndTime'){
+			// 下段div
+			fragment.appendChild($content.get(0));
+			$targetPointDev.get(0).appendChild(fragment);
+		}
+		if(type ==='0321'){
+			// wakeariアイコン
+			$content.addClass('inner-cation-text jsc-wakeari-box-order99 jsc-check-target');
+			fragment.appendChild($content.get(0));
+			$targetPointWakeari.get(0).appendChild(fragment);
+		}
+		if(type === 'checkinLastTime' || type ==='canCsk'){
+			// フリーワードでinfo内コンテンツ
+			fragment.appendChild($content.get(0));
+			$targetPointInfo.get(0).appendChild(fragment);
+		}
+		if(type === '0322' || type === '0432' || type === '0320' || type === '0431'){
+			//info内のフリーワード項目
+			if(type === '0431'){
+				$content.addClass('jsc-info-freeword-order1');
+			}else if(type === '0322'){
+				$content.addClass('jsc-info-freeword-order2');
+			}else if(type === '0432'){
+				$content.addClass('jsc-info-freeword-order3');
+			}else if(type === '0320'){
+				$content.addClass('jsc-info-freeword-order4');
+			}
+			fragment.appendChild($content.get(0));
+			$targetInfoFreeword.get(0).appendChild(fragment);
+		}
+		if(type === 'checkinStartTime' || type === 'checkinLastTime' || type ==='dayRsvCheckinStrTime' || type ==='dayRsvCheckinEndTime' || type ==='checkoutLastTime'){
+			//info内のチェック項目
+			if(type === 'checkinStartTime'){
+				$content.addClass('jsc-checkinStartTime');
+			}else if(type === 'checkinLastTime'){
+				$content.addClass('jsc-checkinLastTime');
+			}else if(type === 'dayRsvCheckinStrTime'){
+				$content.addClass('jsc-dayRsvCheckinStrTime');
+			}else if(type === 'dayRsvCheckinEndTime'){
+				$content.addClass('jsc-dayRsvCheckinEndTime');
+			}else if(type === 'checkoutLastTime'){
+				$content.addClass('jsc-checkoutLastTime');
+			}
+			fragment.appendChild($content.get(0));
+			$targetInfoCheck.get(0).appendChild(fragment);
+		}
+		if(type ==='rsvCancelEndDay' || type ==='rsvCancelEndHh'){
+			///info内のチェックキャンセル項目
+			if(type ==='rsvCancelEndDay'){
+				$content.addClass('jsc-rsvCancelEndDay');
+			}
+			if(type ==='rsvCancelEndHh'){
+				$content.addClass('jsc-rsvCancelEndHh');
+			}
+			fragment.appendChild($content.get(0));
+			$targetInfoCheckcancel.get(0).appendChild(fragment);
+		}
+		if(type ==='dayRsvRctStrTime' || type ==='dayRsvRctEndTime'){
+			// フリーワードで中段のdivの場合
+			fragment.appendChild($content.get(0));
+			$targetPointPlural.get(0).appendChild(fragment);
+		}
+    },
+    buildIcon : function(type,arrayData,val,room,plan){
+        if(type == 'brkfstFlg' && arrayData == ''){
+            var $content = $('.jsc-' + type).clone();
+            $content.find('.jsc-icon-txt').eq(0).addClass("icon-status-none");
+            $content.find('.jsc-icon-txt').eq(1).removeClass("icon-status-none");
+            $content.addClass('jsc-meal-brkfst-content');
+            $content.attr('data-position',room+plan);
+			$content.addClass('jsc-meal-content');
+            return $content;
+        }else if(type == 'dinnerFlg' && arrayData == ''){
+            var $content = $('.jsc-' + type).clone();
+            $content.find('.jsc-icon-txt').eq(0).addClass("icon-status-none");
+            $content.find('.jsc-icon-txt').eq(1).removeClass("icon-status-none");
+            $content.addClass('jsc-meal-dinner-content');
+            $content.attr('data-position',room+plan);
+            return $content;
+        }else if(type == 'bath' && arrayData == ''){
+            var $content = $('.jsc-' + type).clone();
+            $content.find('.jsc-icon-txt').eq(0).addClass("icon-status-none");
+            $content.find('.jsc-icon-txt').eq(1).removeClass("icon-status-none");
+            return $content;
+        }else if(type == 'toil' && arrayData == ''){
+            var $content = $('.jsc-' + type).clone();
+            $content.find('.jsc-icon-txt').eq(0).addClass("icon-status-none");
+            $content.find('.jsc-icon-txt').eq(1).removeClass("icon-status-none");
+            return $content;
+        }else{
+            var $content = $('.jsc-' + type).clone();
+			if(type === 'brkfstFlg'){
+				$content.addClass('jsc-meal-brkfst-content');
+				$content.attr('data-position',room+plan);
+			}
+            else if(type === 'dinnerFlg'){
+                $content.addClass('jsc-meal-dinner-content');
+                $content.attr('data-position',room+plan);
+            }
+
+            $content.find('.jsc-icon-txt').eq(0).removeClass("icon-status-none");
+            $content.find('.jsc-icon-txt').eq(1).addClass("icon-status-none");
+            return $content;
+        }
+    },
+    buildSelectText : function(type,arrayData,val,room,plan){
+        if (type == 'brkfstPlcCd'){
+            var $content = $('.jsc-' + type).clone();
+            $content.find('.jsc-icon-txt').text(arrayData);
+			$content.addClass('jsc-meal-brkfst-item meal-brkfst-item');
+			$content.attr('data-position',room+plan);
+            return $content;
+        }
+        if (type == 'dinnerPlcCd'){
+            var $content = $('.jsc-' + type).clone();
+            $content.find('.jsc-icon-txt').text(arrayData);
+            $content.addClass('jsc-meal-dinner-item meal-dinner-item');
+            $content.attr('data-position',room+plan);
+            return $content;
+        }
+        var txt = arrayData,
+            $content = $('<p class="plan-txt">');
+        $content.text(txt);
+        return $content;
+    },
+    buildIconTxt : function(type,arrayData,val){
+		if(type === '0306' ||type === '0307' || type === '0308'|| type === '0309'|| type === '0310'|| type === '0311'){
+            var $content = $('.jsc-' + type).clone();
+            $content.find('.jsc-icon-txt').text(val+ " " + arrayData);
+            return $content;
+        }
+        if(type == '0305') {
+            var $content = $('.jsc-' + type).clone();
+            $content.find('.jsc-icon-txt').text(val + '㎡');
+            return $content;
+        }
+        if(type == 'roomCapaMostNum'){
+            var $content = $('.jsc-' + type).clone();
+            $content.find('.jsc-icon-txt').text(val);
+            return $content;
+        }
+
+        var $content = $('.jsc-' + type).clone();
+        $content.find('.jsc-icon-txt').text(arrayData);
+		if(type === '0304'){
+			if(val === '030403' || val === '030404'){
+				$content.addClass('icon-plug')
+			}else{
+				$content.removeClass('icon-plug')
+			}
+		}
+        return $content;
+    },
+    buildTxt : function(type,arrayData,val){
+        var $content = $('<p class="plan-txt">');
+        if(val == ''){
+            return;
+        }
+        switch (type) {
+            case '0401':
+				$content.addClass('jsc-brkfst-genre');
+                $content.text(arrayData);
+                break;
+            case '0402':
+				$content.addClass('jsc-brkfst-genre');
+                $content.text(arrayData);
+                break;
+            case '0403':
+				$content.addClass('jsc-brkfst-genre');
+                $content.text(arrayData);
+                break;
+            case '0404':
+				$content.addClass('jsc-brkfst-genre');
+                $content.text(arrayData);
+                break;
+            case '0405':
+				$content.addClass('jsc-brkfst-genre');
+                $content.text(arrayData);
+                break;
+            case '0406':
+				$content.addClass('jsc-dinner-genre');
+                $content.text(arrayData);
+                break;
+            case '0407':
+				$content.addClass('jsc-dinner-genre');
+                $content.text(arrayData);
+                break;
+            case '0408':
+				$content.addClass('jsc-dinner-genre');
+                $content.text(arrayData);
+                break;
+            case '0409':
+				$content.addClass('jsc-dinner-genre');
+                $content.text(arrayData);
+                break;
+            case '0410':
+				$content.addClass('jsc-dinner-genre');
+                $content.text(arrayData);
+                break;
+            case '0411':
+				$content.addClass('jsc-dinner-genre');
+                $content.text(arrayData);
+                break;
+            case '0412':
+				$content.addClass('jsc-dinner-genre');
+                $content.text(arrayData);
+                break;
+            case '0413':
+				$content.addClass('jsc-dinner-genre');
+                $content.text(arrayData);
+                break;
+            case '0414':
+				$content.addClass('jsc-dinner-genre');
+                $content.text(arrayData);
+                break;
+            case '0415':
+				$content.addClass('jsc-dinner-genre');
+                $content.text(arrayData);
+                break;
+            case '0416':
+				$content.addClass('jsc-dinner-genre');
+                $content.text(arrayData);
+                break;
+            case '0417':
+				$content.addClass('jsc-dinner-genre');
+                $content.text(arrayData);
+                break;
+            case '0418':
+				$content.addClass('jsc-dinner-genre');
+                $content.text(arrayData);
+                break;
+			case '0425':
+                $txtBlank.text(arrayData);
+                break;
+        }
+        return $content;
+    }
+};
+
+JALAN.CONTENTS.CANCELPOLICY = {
+	ROOM : 0,
+    PLAN : 1,
+    TYPE : 2,
+	init : function(){
+		this.setParameters();
+		this.fixTitle();
+		this.fixDetail();
+		this.setFreeword();
+		this.setCanTxt();
+	},
+	setParameters : function(){
+		this.$pageWrapper = $('#wrapper');
+        this.$wrapper = $('.jsc-contents-wrapper');
+		this.cancelWrapper = $('.jsc-cancel-policy-wrap');
+		this.$cancelData = $('.jsc-cancel-policy-data');
+		this.$cancelFlg = $('.jsc-hidden-cancel-flg');
+        this.$hiddenCancelRules = $('.jsc-hidden-cancel-rules');
+        this.$hiddenCancelPrev = $('.jsc-hidden-cancel-prev');
+        this.$hiddenCancelVal = $('.jsc-hidden-cancel-val');
+        this.$hiddenCancelNyo = $('.jsc-hidden-cancel-nyo');
+		this.$hiddenCancelCsk = $('.jsc-hidden-cancel-csk');
+        this.$hiddenFreeword = $('.jsc-hidden-freeword');
+        this.language = $('#wrapper').data('language');
+		this.$link = $('.jsc-cancel-link').find('a');
+	},
+	fixTitle : function(){
+		var _self = this;
+		this.cancelWrapper.each(function(){
+			var $line5 = $(this).find('.jsc-cancel-policy-line-5'),
+				$line4 = $(this).find('.jsc-cancel-policy-line-4'),
+				$line3 = $(this).find('.jsc-cancel-policy-line-3'),
+				$line5Title = $line5.children('.jsc-cancel-policy-title'),
+				$line4Title = $line4.children('.jsc-cancel-policy-title'),
+				$line3Title = $line3.children('.jsc-cancel-policy-title');
+
+			var	$line1 = $(this).find('.jsc-cancel-policy-line-1'),
+				$line2 = $(this).find('.jsc-cancel-policy-line-2'),
+				$line1Title = $line1.children('.jsc-cancel-policy-title'),
+				$line2Title = $line2.children('.jsc-cancel-policy-title');
+
+
+			var line5Val = $line5Title.text(),
+				line4Val = $line4Title.text(),
+				line3Val = $line3Title.text(),
+				line2Val = $line2Title.text(),
+				line1Val = $line1Title.text();
+
+
+			if(0 < line1Val.length && line1Val.length < 4){
+				var line1Num = parseInt(line1Val.match(/[0-9]+/)[0]) + 1;
+			}else{
+				var line1Num = 1;
+			}
+			if(0 < line2Val.length && line2Val.length < 4){
+				var line2Num = parseInt(line2Val.match(/[0-9]+/)[0]) + 1;
+			}else{
+				var line2Num = 1;
+			}
+			if(0 < line3Val.length && line3Val.length < 4){
+				var line3Num = parseInt(line3Val.match(/[0-9]+/)[0]) + 1;
+			}else{
+				var line3Num = 3;
+			}
+			if(0 < line4Val.length && line4Val.length < 4){
+				var line4Num = parseInt(line4Val.match(/[0-9]+/)[0]) + 1;
+			}else{
+				var line4Num = 4;
+			}
+			if(0 < line5Val.length && line5Val.length < 4){
+				var line5Num = parseInt(line5Val.match(/[0-9]+/)[0]) + 1;
+			}else{
+				var line5Num = 1;
+			}
+
+			if(line2Num === line1Num + 1){
+				var line2FixedTitle = '';
+				if(_self.language === 'en'){
+					line2FixedTitle = line1Num + ' day(s) before arrival : ';
+					$line2Title.text(line2FixedTitle);
+				}else if(_self.language === 'cn'){
+					line2FixedTitle = line1Num + ' 天前 : ';
+				}else if(_self.language === 'tn'){
+					line2FixedTitle = line1Num + ' 天前 : ';
+				}else if(_self.language === 'kr'){
+					line2FixedTitle = line1Num + ' 일 전 : ';
+				}else if(_self.language === 'fr'){
+					line2FixedTitle = line1Num + ' jour(s) avant : ';
+				}else if(_self.language === 'th'){
+					line2FixedTitle = 'ก่อน ' + line1Num + ' วัน : ';
+				}else if(_self.language === 'id'){
+					line2FixedTitle = line1Num + ' hari sebelum : ';
+				}else if(_self.language === 'my'){
+					line2FixedTitle = line1Num + ' hari sebelum : ';
+				}else{
+					return;
+				}
+				if(0 < line1Val.length && line1Val.length < 4){
+					if(_self.language === 'en'){
+						$line1Title.text(line1Val + ' - ' + 1 + ' day(s) before arrival : ');
+					}else if(_self.language === 'cn'){
+						$line1Title.text(line1Val + ' 天～ ' + 1 + ' 天前 : ');
+					}else if(_self.language === 'tn'){
+						$line1Title.text(line1Val + ' 天～ ' + 1 + ' 天前 : ');
+					}else if(_self.language === 'kr'){
+						$line1Title.text(line1Val + '일~ ' + 1 + '일 전 : ');
+					}else if(_self.language === 'fr'){
+						$line1Title.text(line1Val + ' - ' + 1 + 'jour(s) avant : ');
+					}else if(_self.language === 'th'){
+						$line1Title.text('ก่อน ' + line1Val + ' วัน~ ' + 1 + ' วัน : ');
+					}else if(_self.language === 'id'){
+						$line1Title.text(line1Val + ' ~ ' + 1 + ' hari sebelum : ');
+					}else if(_self.language === 'my'){
+						$line1Title.text(line1Val + ' hari ～ ' + 1 + ' hari sebelum : ');
+					}else{
+						return;
+					}
+				}
+			}else{
+				if(0 < line1Val.length && line1Val.length < 4){
+					if(_self.language === 'en'){
+						$line1Title.text(line1Val + ' - ' + 1 + ' day(s) before arrival : ');
+					}else if(_self.language === 'cn'){
+						$line1Title.text(line1Val + ' 天～ ' + 1 + ' 天前 : ');
+					}else if(_self.language === 'tn'){
+						$line1Title.text(line1Val + ' 天～ ' + 1 + ' 天前 : ');
+					}else if(_self.language === 'kr'){
+						$line1Title.text(line1Val + '일~ ' + 1 + ' 일 전 : ');
+					}else if(_self.language === 'fr'){
+						$line1Title.text(line1Val + ' - ' + 1 + ' jour(s) avant : ');
+					}else if(_self.language === 'th'){
+						$line1Title.text('ก่อน ' + line1Val + ' วัน~ ' + 1 + ' วัน : ');
+					}else if(_self.language === 'id'){
+						$line1Title.text(line1Val + ' ~ ' + 1 + ' hari sebelum : ');
+					}else if(_self.language === 'my'){
+						$line1Title.text(line1Val + ' hari ～ ' + 1 + ' hari sebelum : ');
+					}else{
+						return;
+					}
+				}
+				if(0 < line2Val.length && line2Val.length < 4){
+					if(_self.language === 'en'){
+						$line2Title.text(line2Val + ' - ' + line1Num + ' day(s) before arrival : ');
+					}else if(_self.language === 'cn'){
+						$line2Title.text(line2Val + ' 天～ ' + line1Num + ' 天前 : ');
+					}else if(_self.language === 'tn'){
+						$line2Title.text(line2Val + ' 天～ ' + line1Num + ' 天前 : ');
+					}else if(_self.language === 'kr'){
+						$line2Title.text(line2Val + ' 일~ ' + line1Num + ' 일 전 : ');
+					}else if(_self.language === 'fr'){
+						$line2Title.text(line2Val + ' - ' + line1Num + 'jour(s) avant : ');
+					}else if(_self.language === 'th'){
+						$line2Title.text('ก่อน ' + line2Val + ' วัน~ ' + line1Num + ' วัน : ');
+					}else if(_self.language === 'id'){
+						$line2Title.text(line2Val + ' ~ ' + line1Num + ' hari sebelum : ');
+					}else if(_self.language === 'my'){
+						$line2Title.text(line2Val + ' hari ～ ' + line1Num + ' hari sebelum : ');
+					}else{
+						return;
+					}
+				}
+			}
+
+			if(line3Num === line2Num + 1){
+				var line3FixedTitle = '';
+				if(_self.language === 'en'){
+					line3FixedTitle = line2Num + ' day(s) before arrival : ';
+					$line3Title.text(line3FixedTitle);
+				}else if(_self.language === 'cn'){
+					line3FixedTitle = line2Num + ' 天前 : ';
+					$line3Title.text(line3FixedTitle);
+				}else if(_self.language === 'tn'){
+					line3FixedTitle = line2Num + ' 天前 : ';
+					$line3Title.text(line3FixedTitle);
+				}else if(_self.language === 'kr'){
+					line3FixedTitle = line2Num + ' 일 전 : ';
+					$line3Title.text(line3FixedTitle);
+				}else if(_self.language === 'fr'){
+					line3FixedTitle = line2Num + ' jour(s) avant : ';
+					$line3Title.text(line3FixedTitle);
+				}else if(_self.language === 'th'){
+					line3FixedTitle = 'ก่อน ' + line2Num + ' วัน : ';
+					$line3Title.text(line3FixedTitle);
+				}else if(_self.language === 'id'){
+					line3FixedTitle = line2Num + ' hari sebelum : ';
+					$line3Title.text(line3FixedTitle);
+				}else if(_self.language === 'my'){
+					line3FixedTitle = line2Num + ' hari sebelum : ';
+					$line3Title.text(line3FixedTitle);
+				}else{
+					return;
+				}
+			}else{
+				if(0 < line3Val.length && line3Val.length < 4){
+					if(_self.language === 'en'){
+						$line3Title.text(line3Val + ' - ' + line2Num + ' day(s) before arrival : ');
+					}else if(_self.language === 'cn'){
+						$line3Title.text(line3Val + ' 天～ ' + line2Num + ' 天前 : ');
+					}else if(_self.language === 'tn'){
+						$line3Title.text(line3Val + ' 天～ ' + line2Num + ' 天前 : ');
+					}else if(_self.language === 'kr'){
+						$line3Title.text(line3Val + '일~ ' + line2Num + ' 일 전 : ');
+					}else if(_self.language === 'fr'){
+						$line3Title.text(line3Val + ' - ' + line2Num + ' jour(s) avant : ');
+					}else if(_self.language === 'th'){
+						$line3Title.text('ก่อน ' + line3Val + ' วัน~ ' + line2Num + ' วัน : ');
+					}else if(_self.language === 'id'){
+						$line3Title.text(line3Val + ' ~ ' + line2Num + ' hari sebelum : ');
+					}else if(_self.language === 'my'){
+						$line3Title.text(line3Val + ' hari ～ ' + line2Num + ' hari sebelum : ');
+					}else{
+						return;
+					}
+				}
+			}
+			if(line4Num === line3Num + 1){
+				var line4FixedTitle = '';
+				if(_self.language === 'en'){
+					line4FixedTitle = line3Num + ' day(s) before arrival : ';
+					$line4Title.text(line4FixedTitle);
+				}else if(_self.language === 'cn'){
+					line4FixedTitle = line3Num + ' 天前 : ';
+					$line4Title.text(line4FixedTitle);
+				}else if(_self.language === 'tn'){
+					line4FixedTitle = line3Num + ' 天前 : ';
+					$line4Title.text(line4FixedTitle);
+				}else if(_self.language === 'kr'){
+					line4FixedTitle = line3Num + ' 일 전 : ';
+					$line4Title.text(line4FixedTitle);
+				}else if(_self.language === 'fr'){
+					line4FixedTitle = line3Num + ' jour(s) avant : ';
+					$line4Title.text(line4FixedTitle);
+				}else if(_self.language === 'th'){
+					line4FixedTitle = 'ก่อน ' + line3Num + ' วัน : ';
+					$line4Title.text(line4FixedTitle);
+				}else if(_self.language === 'id'){
+					line4FixedTitle = line3Num + ' hari sebelum : ';
+					$line4Title.text(line4FixedTitle);
+				}else if(_self.language === 'my'){
+					line4FixedTitle = line3Num + ' hari sebelum : ';
+					$line4Title.text(line4FixedTitle);
+				}else{
+					return;
+				}
+			}else{
+				if(0 < line4Val.length && line4Val.length < 4){
+					if(_self.language === 'en'){
+						$line4Title.text(line4Val + ' - ' + line3Num + ' day(s) before arrival : ');
+					}else if(_self.language === 'cn'){
+						$line4Title.text(line4Val + ' 天～ ' + line3Num + ' 天前 : ');
+					}else if(_self.language === 'tn'){
+						$line4Title.text(line4Val + ' 天～ ' + line3Num + ' 天前 : ');
+					}else if(_self.language === 'kr'){
+						$line4Title.text(line4Val + ' 일~ ' + line3Num + ' 일 전 : ');
+					}else if(_self.language === 'fr'){
+						$line4Title.text(line4Val + ' - ' + line3Num + 'jour(s) avant : ');
+					}else if(_self.language === 'th'){
+						$line4Title.text('ก่อน ' + line4Val + ' วัน~ ' + line3Num + ' วัน : ');
+					}else if(_self.language === 'id'){
+						$line4Title.text(line4Val + ' ~ ' + line3Num + ' hari sebelum : ');
+					}else if(_self.language === 'my'){
+						$line4Title.text(line4Val + ' hari ～ ' + line3Num + ' hari sebelum : ');
+					}else{
+						return;
+					}
+				}
+			}
+
+			if(line5Num === line4Num + 1){
+				var line5FixedTitle = '';
+				if(_self.language === 'en'){
+					line5FixedTitle = line4Num + ' day(s) before arrival : ';
+					$line5Title.text(line5FixedTitle);
+				}else if(_self.language === 'cn'){
+					line5FixedTitle = line4Num + ' 天前 : ';
+					$line5Title.text(line5FixedTitle);
+				}else if(_self.language === 'tn'){
+					line5FixedTitle = line4Num + ' 天前 : ';
+					$line5Title.text(line5FixedTitle);
+				}else if(_self.language === 'kr'){
+					line5FixedTitle = line4Num + ' 일 전 : ';
+					$line5Title.text(line5FixedTitle);
+				}else if(_self.language === 'fr'){
+					line5FixedTitle = line4Num + ' jour(s) avant : ';
+					$line5Title.text(line5FixedTitle);
+				}else if(_self.language === 'th'){
+					line5FixedTitle = 'ก่อน ' + line4Num + ' วัน : ';
+					$line5Title.text(line5FixedTitle);
+				}else if(_self.language === 'id'){
+					line5FixedTitle = line4Num + ' hari sebelum : ';
+					$line5Title.text(line5FixedTitle);
+				}else if(_self.language === 'my'){
+					line5FixedTitle = line4Num + ' hari sebelum : ';
+					$line5Title.text(line5FixedTitle);
+				}else{
+					return;
+				}
+			}else{
+				if(0 < line5Val.length && line5Val.length < 4){
+					if(_self.language === 'en'){
+						$line5Title.text(line5Val + ' - ' + line4Num + ' day(s) before arrival : ');
+					}else if(_self.language === 'cn'){
+						$line5Title.text(line5Val + ' 天～ ' + line4Num + ' 天前 : ');
+					}else if(_self.language === 'tn'){
+						$line5Title.text(line5Val + ' 天～ ' + line4Num + ' 天前 : ');
+					}else if(_self.language === 'kr'){
+						$line5Title.text(line5Val + ' 일~ ' + line4Num + ' 일 전 : ');
+					}else if(_self.language === 'fr'){
+						$line5Title.text(line5Val + ' - ' + line4Num + ' jour(s) avant : ');
+					}else if(_self.language === 'th'){
+						$line5Title.text('ก่อน ' + line5Val + ' วัน~ ' + line4Num + ' วัน : ');
+					}else if(_self.language === 'id'){
+						$line5Title.text(line5Val + ' ~ ' + line4Num + ' hari sebelum : ');
+					}else if(_self.language === 'my'){
+						$line5Title.text(line5Val + ' hari ～ ' + line4Num + ' hari sebelum : ');
+					}else{
+						return;
+					}
+				}
+			}
+
+			//リンク追加
+			var $link = $('<a class="cancel-link"></a>')
+			if(_self.language === 'en'){
+				$link.append('About cancellations (cancellation policy)').attr('href','https://www.jalan.net/jalan/doc/global/en/howto/en_01goriyou.html');
+				$(this).find('.jsc-cancel-link-box').append($link);
+			}else if(_self.language === 'cn'){
+				$link.append('关于取消预约（取消预约的条款）').attr('href','https://www.jalan.net/jalan/doc/global/cn/howto/cn_01goriyou.html');
+				$(this).find('.jsc-cancel-link-box').append($link);
+			}else if(_self.language === 'tn'){
+				$link.append('有關取消預約 (取消條款)').attr('href','https://www.jalan.net/jalan/doc/global/tn/howto/tn_01goriyou.html');
+				$(this).find('.jsc-cancel-link-box').append($link);
+			}else if(_self.language === 'kr'){
+				$link.append('예약 내용의 변경 (취소 가능)').attr('href','https://www.jalan.net/jalan/doc/global/kr/howto/kr_01goriyou.html');
+				$(this).find('.jsc-cancel-link-box').append($link);
+			}else{
+				$link.append('About cancellations (cancellation policy)').attr('href','https://www.jalan.net/jalan/doc/global/en/howto/en_01goriyou.html');
+				$(this).find('.jsc-cancel-link-box').append($link);
+			}
+
+			//キャンセル規定タイトル追加
+			var $txtBox = $('<p class="cancel-provision"></p>')
+			if(_self.language === 'en'){
+				$txtBox.append('Cancellation Fee(based on the total charge)');
+				$(this).prev('.jsc-cancel-provision').append($txtBox);
+			}else if(_self.language === 'cn'){
+				$txtBox.append('取消条款(请参照总金额)');
+				$(this).prev('.jsc-cancel-provision').prepend($txtBox);
+			}else if(_self.language === 'tn'){
+				$txtBox.append('取消條款(請參照總金額)');
+				$(this).prev('.jsc-cancel-provision').prepend($txtBox);
+			}else if(_self.language === 'kr'){
+				$txtBox.append('취소 규정(객실요금은 객실 별 계산)');
+				$(this).prev('.jsc-cancel-provision').prepend($txtBox);
+			}else if(_self.language === 'fr'){
+				$txtBox.append('Conditions d\'annulation(se référer au montant total)');
+				$(this).prev('.jsc-cancel-provision').prepend($txtBox);
+			}else if(_self.language === 'th'){
+				$txtBox.append('ระเบียบการยกเลิก(อ้างอิงจากยอดรวมทั้งหมด)');
+				$(this).prev('.jsc-cancel-provision').prepend($txtBox);
+			}else if(_self.language === 'id'){
+				$txtBox.append('Ketentuan pembatalan(lihat total biaya)');
+				$(this).prev('.jsc-cancel-provision').prepend($txtBox);
+			}else if(_self.language === 'my'){
+				$txtBox.append('Peraturan pembatalan(Sila merujuk pada jumlah)');
+				$(this).prev('.jsc-cancel-provision').prepend($txtBox);
+			}else{
+				return;
+			}
+		});
+	},
+	fixDetail : function(){
+		var _self = this;
+		this.$hiddenCancelRules.each(function(){
+			var name = $(this).attr('name'),
+	        	datas = name.split('.');
+
+			if(_self.$pageWrapper.hasClass('detail-page')){
+				//詳細画面
+				var room = datas[parseInt(_self.ROOM)].match(/room\[(\d+)\]/)[1],
+	                plan = datas[parseInt(_self.PLAN)].match(/plan\[(\d+)\]/)[1];
+			}else{
+				//一覧画面
+				var room = datas[parseInt(_self.ROOM)].match(/yado\[(\d+)\]/)[1],
+	                plan = datas[parseInt(_self.PLAN)].match(/plan\[(\d+)\]/)[1];
+			}
+
+			var type = datas[parseInt(_self.TYPE)],
+	            val = $(this).val(),
+	            $cancelWrap = _self.$wrapper.eq(room).find('.jsc-target-content').children('li').eq(plan).find('.jsc-cancel-policy-wrap'),
+				$line1 = $cancelWrap.children('.jsc-cancel-policy-line-1'),
+				$line2 = $cancelWrap.children('.jsc-cancel-policy-line-2'),
+				$line3 = $cancelWrap.children('.jsc-cancel-policy-line-3'),
+				$line4 = $cancelWrap.children('.jsc-cancel-policy-line-4'),
+				$line5 = $cancelWrap.children('.jsc-cancel-policy-line-5'),
+				$line1Txt = $line1.children('.jsc-cancel-policy-txt'),
+				$line2Txt = $line2.children('.jsc-cancel-policy-txt'),
+				$line3Txt = $line3.children('.jsc-cancel-policy-txt'),
+				$line4Txt = $line4.children('.jsc-cancel-policy-txt'),
+				$line5Txt = $line5.children('.jsc-cancel-policy-txt'),
+				line1Num = $line1Txt.text(),
+				line2Num = $line2Txt.text(),
+				line3Num = $line3Txt.text(),
+				line4Num = $line4Txt.text(),
+				line5Num = $line5Txt.text();
+
+			//設定なしの場合
+			if(type === 'cancelRulesKbn1' && val === '0'){
+				$line1.remove();
+			}else if(type === 'cancelRulesKbn2' && val === '0'){
+				$line2.remove();
+			}else if(type === 'cancelRulesKbn3' && val === '0'){
+				$line3.remove();
+			}else if(type === 'cancelRulesKbn4' && val === '0'){
+				$line4.remove();
+			}else if(type === 'cancelRulesKbn5' && val === '0'){
+				$line5.remove();
+			}
+
+			//定額の場合
+			if(type === 'cancelRulesKbn1' && val === '2'){
+				if(_self.language === 'en'){
+					$line1Txt.text(line1Num + ' yen');
+				}else if(_self.language === 'cn'){
+					$line1Txt.text('一律' + line1Num + ' 日元');
+				}else if(_self.language === 'tn'){
+					$line1Txt.text('一律' + line1Num + ' 日圓');
+				}else if(_self.language === 'kr'){
+					$line1Txt.text('일률 ' + line1Num + ' 엔');
+				}else if(_self.language === 'fr'){
+					$line1Txt.text(line1Num + 'yen à prix unique');
+				}else if(_self.language === 'th'){
+					$line1Txt.text(line1Num + ' เยน');
+				}else if(_self.language === 'id'){
+					$line1Txt.text('Semuanya sama dengan ' + line1Num + ' yen');
+				}else if(_self.language === 'my'){
+					$line1Txt.text('bersamaan ' + line1Num + 'yen');
+				}else{
+					return;
+				}
+			}else if(type === 'cancelRulesKbn2' && val === '2'){
+				if(_self.language === 'en'){
+					$line2Txt.text(line2Num + ' yen');
+				}else if(_self.language === 'cn'){
+					$line2Txt.text('一律' + line2Num + ' 日元');
+				}else if(_self.language === 'tn'){
+					$line2Txt.text('一律' + line2Num + ' 日圓');
+				}else if(_self.language === 'kr'){
+					$line2Txt.text('일률 ' + line2Num + ' 엔');
+				}else if(_self.language === 'fr'){
+					$line2Txt.text(line1Num + 'yen à prix unique');
+				}else if(_self.language === 'th'){
+					$line2Txt.text(line2Num + ' เยน');
+				}else if(_self.language === 'id'){
+					$line2Txt.text('Semuanya sama dengan ' + line2Num + ' yen');
+				}else if(_self.language === 'my'){
+					$line2Txt.text('bersamaan ' + line2Num + 'yen');
+				}else{
+					return;
+				}
+			}else if(type === 'cancelRulesKbn3' && val === '2'){
+				if(_self.language === 'en'){
+					$line3Txt.text(line3Num + ' yen');
+				}else if(_self.language === 'cn'){
+					$line3Txt.text('一律' + line3Num + ' 日元');
+				}else if(_self.language === 'tn'){
+					$line3Txt.text('一律' + line3Num + ' 日圓');
+				}else if(_self.language === 'kr'){
+					$line3Txt.text('일률 ' + line3Num + ' 엔');
+				}else if(_self.language === 'fr'){
+					$line3Txt.text('定額');
+				}else if(_self.language === 'th'){
+					$line3Txt.text(line3Num + ' เยน');
+				}else if(_self.language === 'id'){
+					$line3Txt.text('Semuanya sama dengan ' + line3Num + ' yen');
+				}else if(_self.language === 'my'){
+					$line3Txt.text('bersamaan ' + line3Num + 'yen');
+				}else{
+					return;
+				}
+			}else if(type === 'cancelRulesKbn4' && val === '2'){
+				if(_self.language === 'en'){
+					$line4Txt.text(line4Num + ' yen');
+				}else if(_self.language === 'cn'){
+					$line4Txt.text('一律' + line4Num + ' 日元');
+				}else if(_self.language === 'tn'){
+					$line4Txt.text('一律' + line4Num + ' 日圓');
+				}else if(_self.language === 'kr'){
+					$line4Txt.text('일률 ' + line4Num + ' 엔');
+				}else if(_self.language === 'fr'){
+					$line4Txt.text('定額');
+				}else if(_self.language === 'th'){
+					$line4Txt.text(line4Num + ' เยน');
+				}else if(_self.language === 'id'){
+					$line4Txt.text('Semuanya sama dengan ' + line4Num + ' yen');
+				}else if(_self.language === 'my'){
+					$line4Txt.text('bersamaan ' + line4Num + 'yen');
+				}else{
+					return;
+				}
+			}else if(type === 'cancelRulesKbn5' && val === '2'){
+				if(_self.language === 'en'){
+					$line5Txt.text(line5Num + ' yen');
+				}else if(_self.language === 'cn'){
+					$line5Txt.text('一律' + line5Num + ' 日元');
+				}else if(_self.language === 'tn'){
+					$line5Txt.text('一律' + line5Num + ' 日圓');
+				}else if(_self.language === 'kr'){
+					$line5Txt.text('일률 ' + line5Num + ' 엔');
+				}else if(_self.language === 'fr'){
+					$line5Txt.text('定額');
+				}else if(_self.language === 'th'){
+					$line5Txt.text(line5Num + ' เยน');
+				}else if(_self.language === 'id'){
+					$line5Txt.text('Semuanya sama dengan ' + line5Num + ' yen');
+				}else if(_self.language === 'my'){
+					$line5Txt.text('bersamaan ' + line5Num + 'yen');
+				}else{
+					return;
+				}
+			}
+
+			//料率の場合
+			if(type === 'cancelRulesKbn1' && val === '1'){
+				if(_self.language === 'en'){
+					$line1Txt.text(line1Num + ' % of total amount');
+				}else if(_self.language === 'cn'){
+					$line1Txt.text('住宿费的 ' + line1Num + ' %');
+				}else if(_self.language === 'tn'){
+					$line1Txt.text('住宿費的 ' + line1Num + ' %');
+				}else if(_self.language === 'kr'){
+					$line1Txt.text('숙박요금의' + line1Num + ' %');
+				}else if(_self.language === 'fr'){
+					$line1Txt.text(line1Num + " % du tarif d'hébergement");
+				}else if(_self.language === 'th'){
+					$line1Txt.text(line1Num + ' %ของค่าเข้าพัก');
+				}else if(_self.language === 'id'){
+					$line1Txt.text(line1Num + ' % dari biaya penginapan');
+				}else if(_self.language === 'my'){
+					$line1Txt.text(line1Num + ' % cas penginapan');
+				}else{
+					return;
+				}
+			}else if(type === 'cancelRulesKbn2' && val === '1'){
+				if(_self.language === 'en'){
+					$line2Txt.text(line2Num + ' % of total amount');
+				}else if(_self.language === 'cn'){
+					$line2Txt.text('住宿费的 ' + line2Num + ' %');
+				}else if(_self.language === 'tn'){
+					$line2Txt.text('住宿費的 ' + line2Num + ' %');
+				}else if(_self.language === 'kr'){
+					$line2Txt.text('숙박요금의' + line2Num + ' %');
+				}else if(_self.language === 'fr'){
+					$line2Txt.text(line2Num + " % du tarif d'hébergement");
+				}else if(_self.language === 'th'){
+					$line2Txt.text(line2Num + ' %ของค่าเข้าพัก');
+				}else if(_self.language === 'id'){
+					$line2Txt.text(line2Num + ' % dari biaya penginapan');
+				}else if(_self.language === 'my'){
+					$line2Txt.text(line2Num + ' % cas penginapan');
+				}else{
+					return;
+				}
+			}else if(type === 'cancelRulesKbn3' && val === '1'){
+				if(_self.language === 'en'){
+					$line3Txt.text(line3Num + ' % of total amount');
+				}else if(_self.language === 'cn'){
+					$line3Txt.text('住宿费的 ' + line3Num + ' %');
+				}else if(_self.language === 'tn'){
+					$line3Txt.text('住宿費的 ' + line3Num + ' %');
+				}else if(_self.language === 'kr'){
+					$line3Txt.text('숙박요금의' + line3Num + ' %');
+				}else if(_self.language === 'fr'){
+					$line3Txt.text(line3Num + " % du tarif d'hébergement");
+				}else if(_self.language === 'th'){
+					$line3Txt.text(line3Num + ' %ของค่าเข้าพัก');
+				}else if(_self.language === 'id'){
+					$line3Txt.text(line3Num + ' % dari biaya penginapan');
+				}else if(_self.language === 'my'){
+					$line3Txt.text(line3Num + ' % cas penginapan');
+				}else{
+					return;
+				}
+			}else if(type === 'cancelRulesKbn4' && val === '1'){
+				if(_self.language === 'en'){
+					$line4Txt.text(line4Num + ' % of total amount');
+				}else if(_self.language === 'cn'){
+					$line4Txt.text('住宿费的 ' + line4Num + ' %');
+				}else if(_self.language === 'tn'){
+					$line4Txt.text('住宿費的 ' + line4Num + ' %');
+				}else if(_self.language === 'kr'){
+					$line4Txt.text('숙박요금의' + line4Num + ' %');
+				}else if(_self.language === 'fr'){
+					$line4Txt.text(line4Num + "% du tarif d'hébergement");
+				}else if(_self.language === 'th'){
+					$line4Txt.text(line4Num + ' %ของค่าเข้าพัก');
+				}else if(_self.language === 'id'){
+					$line4Txt.text(line4Num + ' % dari biaya penginapan');
+				}else if(_self.language === 'my'){
+					$line4Txt.text(line4Num + ' % cas penginapan');
+				}else{
+					return;
+				}
+			}else if(type === 'cancelRulesKbn5' && val === '1'){
+				if(_self.language === 'en'){
+					$line5Txt.text(line5Num + ' % of total amount');
+				}else if(_self.language === 'cn'){
+					$line5Txt.text('住宿费的 ' + line5Num + ' %');
+				}else if(_self.language === 'tn'){
+					$line5Txt.text('住宿費的 ' + line5Num + ' %');
+				}else if(_self.language === 'kr'){
+					$line5Txt.text('숙박요금의' + line5Num + ' %');
+				}else if(_self.language === 'fr'){
+					$line5Txt.text(line5Num + " % du tarif d'hébergement");
+				}else if(_self.language === 'th'){
+					$line5Txt.text(line5Num + ' %ของค่าเข้าพัก');
+				}else if(_self.language === 'id'){
+					$line5Txt.text(line5Num + ' % dari biaya penginapan');
+				}else if(_self.language === 'my'){
+					$line5Txt.text(line5Num + ' % cas penginapan');
+				}else{
+					return;
+				}
+			}
+
+			//フリーワードの場合
+			if(type === 'cancelRulesKbn1' && val === '3'){
+				$line1Txt.addClass('jsc-freeword-flag')
+			}else if(type === 'cancelRulesKbn2' && val === '3'){
+				$line2Txt.addClass('jsc-freeword-flag')
+			}else if(type === 'cancelRulesKbn3' && val === '3'){
+				$line3Txt.addClass('jsc-freeword-flag')
+			}else if(type === 'cancelRulesKbn4' && val === '3'){
+				$line4Txt.addClass('jsc-freeword-flag')
+			}else if(type === 'cancelRulesKbn5' && val === '3'){
+				$line5Txt.addClass('jsc-freeword-flag')
+			}
+		});
+	},
+	setFreeword : function(){
+		var _self = this;
+		this.$hiddenCancelNyo.each(function(){
+			var name = $(this).attr('name'),
+	        	datas = name.split('.');
+
+			if(_self.$pageWrapper.hasClass('detail-page')){
+				//詳細画面
+				var room = datas[parseInt(_self.ROOM)].match(/room\[(\d+)\]/)[1],
+	                plan = datas[parseInt(_self.PLAN)].match(/plan\[(\d+)\]/)[1];
+			}else{
+				//一覧画面
+				var room = datas[parseInt(_self.ROOM)].match(/yado\[(\d+)\]/)[1],
+	                plan = datas[parseInt(_self.PLAN)].match(/plan\[(\d+)\]/)[1];
+			}
+
+			var type = datas[parseInt(_self.TYPE)],
+	            val = $(this).val(),
+	            $cancelWrap = _self.$wrapper.eq(room).find('.jsc-target-content').children('li').eq(plan).find('.jsc-cancel-policy-wrap'),
+				$line1 = $cancelWrap.children('.jsc-cancel-policy-line-1'),
+				$line2 = $cancelWrap.children('.jsc-cancel-policy-line-2'),
+				$line3 = $cancelWrap.children('.jsc-cancel-policy-line-3'),
+				$line4 = $cancelWrap.children('.jsc-cancel-policy-line-4'),
+				$line5 = $cancelWrap.children('.jsc-cancel-policy-line-5'),
+				$line1Txt = $line1.children('.jsc-cancel-policy-txt'),
+				$line2Txt = $line2.children('.jsc-cancel-policy-txt'),
+				$line3Txt = $line3.children('.jsc-cancel-policy-txt'),
+				$line4Txt = $line4.children('.jsc-cancel-policy-txt'),
+				$line5Txt = $line5.children('.jsc-cancel-policy-txt');
+
+			if(type === 'canNyo1' && $line1Txt.hasClass('jsc-freeword-flag')){
+				$line1Txt.text(val);
+			}else if(type === 'canNyo2' && $line2Txt.hasClass('jsc-freeword-flag')){
+				$line2Txt.text(val);
+			}else if(type === 'canNyo3' && $line3Txt.hasClass('jsc-freeword-flag')){
+				$line3Txt.text(val);
+			}else if(type === 'canNyo4' && $line4Txt.hasClass('jsc-freeword-flag')){
+				$line4Txt.text(val);
+			}else if(type === 'canNyo5' && $line5Txt.hasClass('jsc-freeword-flag')){
+				$line5Txt.text(val);
+			}
+		});
+	},
+	setCanTxt : function(){
+		var _self = this;
+		this.$hiddenCancelCsk.each(function(){
+			var name = $(this).attr('name'),
+	        	datas = name.split('.');
+
+			if(_self.$pageWrapper.hasClass('detail-page')){
+				//詳細画面
+				var room = datas[parseInt(_self.ROOM)].match(/room\[(\d+)\]/)[1],
+	                plan = datas[parseInt(_self.PLAN)].match(/plan\[(\d+)\]/)[1];
+			}else{
+				//一覧画面
+				var room = datas[parseInt(_self.ROOM)].match(/yado\[(\d+)\]/)[1],
+	                plan = datas[parseInt(_self.PLAN)].match(/plan\[(\d+)\]/)[1];
+			}
+
+			var type = datas[parseInt(_self.TYPE)],
+	            val = $(this).val(),
+	            $cancelWrap = _self.$wrapper.eq(room).find('.jsc-target-content').children('li').eq(plan).find('.jsc-cancel-policy-wrap'),
+				$target = $cancelWrap.find('.jsc-cancel-txt');
+
+			$target.text(val);
+		});
+	}
+};
+
+JALAN.CONTENTS.COMBINING = {
+	init : function(){
+		this.setParameters();
+        this.joinWordBreakfast();
+        this.joinWordDinner();
+	},
+	setParameters : function(){
+		this.$detailBox = $('.jsc-detail-list').children('li:first-child');
+		this.$listBox = $('.jsc-detail-list');
+		this.$wrapper = $('#wrapper');
+	},
+    joinWordBreakfast: function(){
+        var _self = this;
+        if(this.$wrapper.hasClass('detail-page')){
+            _self.$detailBox.each(function(){
+			var $target = $(this).find('.jsc-meal-brkfst-content'),
+				$item = $(this).find('.jsc-meal-brkfst-item'),
+				$targetTxtbox = $target.find('.jsc-brkfst-txt');
+                targetTxt = $targetTxtbox.text(),
+                    itemTxt = $item.find('.jsc-brkfst-txt').text();
+                if(itemTxt.length == 0){
+                    $targetTxtbox.text(targetTxt);
+				}else{
+					$targetTxtbox.text(targetTxt+' ('+itemTxt+')');
+				}
+
+			$item.remove();
+		});
+        }else {
+            _self.$listBox.each(function () {
+                var $target = $(this).find('.jsc-meal-brkfst-content'),
+                    $item = $(this).find('.jsc-meal-brkfst-item'),
+                    $targetTxtbox = $target.find('.jsc-brkfst-txt');
+                	targetTxt = $targetTxtbox.text(),
+                    itemTxt = $item.find('.jsc-brkfst-txt').text();
+                	if(itemTxt.length == 0) {
+                        $targetTxtbox.text(targetTxt);
+                    }else {
+                        $targetTxtbox.text(targetTxt+' ('+itemTxt+')');
+					}
+                $item.remove();
+            });
+        }
+	},
+    joinWordDinner: function() {
+        var _self = this;
+        if (this.$wrapper.hasClass('detail-page')) {
+            _self.$detailBox.each(function () {
+                var $target = $(this).find('.jsc-meal-dinner-content'),
+                    $item = $(this).find('.jsc-meal-dinner-item'),
+                    $targetTxtbox = $target.find('.jsc-dinner-txt');
+                    targetTxt = $target.find('.jsc-dinner-txt').text(),
+                    itemTxt = $item.find('.jsc-dinner-txt').text();
+					if(itemTxt.length == 0) {
+						$targetTxtbox.text(targetTxt);
+					}else {
+						$targetTxtbox.text(targetTxt+' ('+itemTxt+')');
+					}
+                $item.remove();
+            });
+        } else {
+            _self.$listBox.each(function () {
+                var $target = $(this).find('.jsc-meal-dinner-content'),
+                    $item = $(this).find('.jsc-meal-dinner-item'),
+                    $targetTxtbox = $target.find('.jsc-dinner-txt');
+                	targetTxt = $target.find('.jsc-dinner-txt').text(),
+                    itemTxt = $item.find('.jsc-dinner-txt').text();
+					if(itemTxt.length == 0) {
+						$targetTxtbox.text(targetTxt);
+					}else {
+						$targetTxtbox.text(targetTxt+' ('+itemTxt+')');
+					}
+                $item.remove();
+
+            });
+        }
+    }
+
+};
+
+JALAN.CONTENTS.TOOLTIP1 = {
+	init : function(){
+		this.setParameters();
+		this.bindEvent();
+	},
+	setParameters : function(){
+		this.$trigger = $('.jsc-condition-target');
+		this.$bedTrigger = $('.jsc-bed-target');
+	},
+	bindEvent : function(){
+		this.$trigger.each(function(){
+			var $target = $(this).find('.jsc-condition-detail');
+			$(this).on('click',function(){
+				if($target.is(':visible')){
+					$target.stop(true,true);
+					$target.fadeOut();
+				}else{
+					$target.stop(true,true);
+					$target.fadeIn();
+				}
+			});
+			$target.on('mouseover',function(){
+				$(this).stop(true,true);
+				$(this).show();
+			});
+            $target.parent().on('mouseleave',function(){
+                $target.stop(true,true);
+                $target.fadeOut()
+            });
+			$target.on('click',function(e){
+				e.stopPropagation();
+			});
+		});
+		this.$bedTrigger.each(function(){
+			var $target = $(this).find('.jsc-bed-detail');
+			$(this).on('click',function(){
+				if($target.is(':visible')){
+					$target.stop(true,true);
+					$target.fadeOut();
+				}else{
+					$target.stop(true,true);
+					$target.fadeIn();
+				}
+			});
+			$target.on('mouseover',function(){
+				$(this).stop(true,true);
+				$(this).show();
+			});
+            $target.parent().on('mouseleave',function(){
+                $target.stop(true,true);
+                $target.fadeOut()
+            });
+			$target.on('click',function(e){
+				e.stopPropagation();
+			});
+
+		});
+	}
+};
+
+JALAN.CONTENTS.TOOLTIP2 = {
+	init : function(){
+		this.setParameters();
+		this.bindEvent();
+	},
+	setParameters : function(){
+		this.$trigger = $('.jsc-desc-target');
+	},
+	bindEvent : function(){
+		this.$trigger.each(function(){
+			var $target = $(this).next('.jsc-open-menu');
+			$(this).on('click',function(){
+				if($target.is(':visible')){
+					$target.stop(true,true);
+					$target.fadeOut();
+				}else{
+					$target.stop(true,true);
+					$target.fadeIn();
+				}
+			});
+			$target.on('mouseover',function(){
+				$(this).stop(true,true);
+
+				$(this).show();
+			});
+            $target.parent().on('mouseleave',function(){
+                $target.stop(true,true);
+                $target.fadeOut()
+            });
+			$target.on('click',function(e){
+				e.stopPropagation();
+			});
+		});
+	}
+};
+JALAN.CONTENTS.NOMEAL = {
+    init : function(){
+        this.setParameters();
+		this.bindEvent();
+    },
+    setParameters:function(){
+		this.$wrapper = $('#wrapper');
+        this.listContent = $('.jsc-target-content').find('.jsc-detail-list');
+        this.iconContent = this.listContent.children('li');
+        this.nomeal = $('.jsc-nomeal');
+    },
+	bindEvent : function(){
+		if(this.$wrapper.hasClass('detail-page')){
+			this.detailEvent()
+		}else{
+			this.listEvent();
+		}
+	},
+	listEvent:function(){
+        var _self = this;
+        this.listContent.each(function () {
+            if($(this).find('.jsc-check-meal')[0]){
+            }else{
+                $(this).append(_self.nomeal.clone());
+            }
+        });
+    },
+	detailEvent:function(){
+        var _self = this;
+        this.iconContent.each(function () {
+            if($(this).find('.jsc-check-meal')[0]){
+            }else{
+                var $targetPointInline = $(this).find('.plan-icon-block');
+                $targetPointInline.prepend(_self.nomeal.clone());
+            }
+        });
+    }
+
+}
+
+JALAN.CONTENTS.WAKEARI = {
+	init : function(){
+		this.setParameters();
+		this.judgeWakeari();
+	},
+	setParameters : function(){
+		this.$planBox = $('.jsc-detail-list').children('li:first-child');
+	},
+	judgeWakeari : function(){
+		this.$planBox.each(function(){
+			var $target = $(this).find('.jsc-wakeari-wrapper');
+				if($(this).find('.jsc-check-target')[0]){
+					return;
+				}
+			$target.remove();
+		});
+	}
+
+};
+
+JALAN.CONTENTS.BEDCOMBINE = {
+    init : function(){
+        this.setParameters();
+        this.inputArray();
+    },
+    setParameters : function(){
+		this.$planBox = $('.jsc-detail-list').children('li:first-child');
+    },
+    inputArray:function(){
+		var _self = this;
+        this.$planBox.each(function () {
+            var maxArrayNum = 0;
+            $(this).find(".jsc-bed-target").each(function () {
+                var classNum = $(this).attr('class');
+                if(/jsc\-bed\-box\-order(\d+)(\s+|$)/.test(classNum)){
+                    if(maxArrayNum < RegExp.$1){
+                        maxArrayNum = RegExp.$1
+                    }
+                }
+            });
+			var bedArray = [];
+			var bedAlignmentArray = [];
+            var bedAlignmentArrayNoEmpty= [];
+            $target = $(this).find('.jsc-bed-target'),
+                targetNum = $target.size();
+
+                for(i=1;i <=maxArrayNum;i++){
+                    bedAlignmentArray.push($(this).find(".jsc-bed-box-order"+String(i)+"").text());
+                }
+
+				for(var i = 0,len = maxArrayNum;i < len;i++){
+					bedArray.push($target.eq(i).text());
+				}
+            bedAlignmentArrayNoEmpty = $.grep(bedAlignmentArray, function(e){return e !== "";});
+				var combineText = bedAlignmentArrayNoEmpty.join(" + ");
+				$target.text(combineText);
+
+            $target.append("<img src= /assets/global/icon/img/icon-txt.png />")
+        });
+    }
+};
+
+JALAN.CONTENTS.CANCELTXT = {
+	init : function(){
+		this.setParameters();
+		this.removeTxt();
+	},
+	setParameters : function(){
+		this.$table = $('.jsc-cancel-provision-table');
+		this.$cancelTxt = $('.jsc-cancel-supplement');
+	},
+	removeTxt : function(){
+		this.$cancelTxt.each(function(){
+			var txt = $(this).text();
+			if(txt !== ''){
+				return;
+			}
+			$(this).remove();
+		});
+		this.$table.each(function(){
+			var $tr = $(this).find('tbody').children('tr');
+			if($tr.length === 0){
+				$(this).parent('.jsc-cancel-provision-box').find('.jsc-cancel-title').remove();
+				$(this).parent('.jsc-cancel-provision-box').find('.jsc-cancel-link').remove();
+				$(this).parent('.jsc-cancel-provision-box').find('.jsc-cancel-standard').remove();
+				$(this).parent('.jsc-cancel-provision-box').remove();
+			}
+		});
+	}
+};
+
+JALAN.CONTENTS.CONBINING_CONDITION = {
+	init : function(){
+		if(!$('#wrapper').hasClass('detail-page')) return;
+		this.setParameters();
+		this.combineTxt();
+		this.setAccordion();
+        this.setAccordionwrapper();
+	},
+	setParameters : function(){
+		this.$wrapper = $('.jsc-contents-wrapper');
+		this.$planList = this.$wrapper.find('.jsc-target-content');
+		this.$planCassette = this.$planList.children('li');
+
+        this.$wrappericn = $('.jsc-accordion-wrapper:gt(4)');
+        this.$list = this.$wrapper.find('.jsc-target-content');
+        this.$contents = this.$list.find('li');
+        this.$trigger = this.$wrapper.find('.jsc-plan-trigger');
+		this.$triggerBox = $('.jsc-more-room-box');
+	},
+	combineTxt : function(){
+		this.$planCassette.each(function(){
+			var conditionArray = [],
+				$targetTxt = $(this).find('.jsc-combining-txt');
+			if($targetTxt.is(':visible')){
+				for(var i = 0,len = $targetTxt.length;i < len;i++){
+					conditionArray.push($targetTxt.eq(i).text());
+				}
+				var combineText = conditionArray.join(" / ");
+				for(var i = 1,len = $targetTxt.length;i < len;i++){
+					$targetTxt.eq(i).remove();
+				}
+
+				$targetTxt.text(combineText);
+                $targetTxt.append("<img src= /assets/global/icon/img/icon-txt.png />");
+            }
+		});
+	},
+    setAccordion : function(){
+        this.$wrapper.each(function(){
+            var len = $(this).find('.jsc-target-content').children('li').length;
+            if(len <= 3){
+                $(this).find('.plan-display-btn').remove();
+                return;
+            }
+            var $contents = $(this).find('.jsc-target-content').children('li:gt(2)');
+            $contents.hide();
+        });
+    },
+    setAccordionwrapper : function(){
+        var len = $('.jsc-accordion-wrapper').length;
+        if(len <= 5){
+            this.$triggerBox.remove();
+            return;
+        }
+        this.$wrappericn.hide();
+    }
+};
+
+JALAN.CONTENTS.REMOVE = {
+    init : function(){
+        this.setParameters();
+        this.removeEvent();
+    },
+    setParameters :function(){
+		this.$planBox = $('.jsc-detail-list').children('li:first-child');
+    },
+    removeEvent :function(){
+		this.$planBox.each(function(){
+			var target = $(this).find('.plan-icon-plural .jsc-bed-icnTxt');
+			for(var i = 1 ,len = target.length; i < len; i++){
+	            target.eq(i).remove();
+	        }
+            target.addClass('jsc-center-box-order2');
+		});
+    }
+};
+
+JALAN.CONTENTS.ADDITION = {
+	init : function(){
+        this.setParameters();
+        this.addConditonDetail();
+        this.addBedDetail();
+    },
+    setParameters :function(){
+		this.$targetCondition = $('.jsc-condition-target');
+		this.$targetBed = $('.jsc-bed-target');
+    },
+    addConditonDetail :function(){
+		this.$targetCondition.each(function(){
+			$(this).append('<div class="jsc-condition-detail conditon-detail-box open-cation-detail-1">')
+		});
+    },
+    addBedDetail :function(){
+		this.$targetBed.each(function(){
+			$(this).append('<div class="jsc-bed-detail bed-detail-box open-cation-detail-1">')
+		});
+    }
+};
+
+JALAN.CONTENTS.ADD_CONDITON_TXT = {
+	ROOM : 0,
+    PLAN : 1,
+    TYPE : 2,
+	init : function(){
+		this.setParameters();
+		this.getData();
+	},
+	setParameters : function(){
+		this.$pageWrapper = $('#wrapper');
+        this.$wrapper = $('.jsc-contents-wrapper');
+        this.$hiddenData = $('.jsc-hidden-data');
+        this.$iconBox = $('.jsc-icon-box');
+		this.$cancelFlg = $('.jsc-hidden-cancel-flg');
+        this.$hiddenCancelRules = $('.jsc-hidden-cancel-rules');
+        this.$hiddenCancelPrev = $('.jsc-hidden-cancel-prev');
+        this.$hiddenCancelVal = $('.jsc-hidden-cancel-val');
+        this.$hiddenCancelNyo = $('.jsc-hidden-cancel-nyo');
+		this.$hiddenCancelCsk = $('.jsc-hidden-cancel-csk');
+        this.$calcellBox = $('.jsc-cancel-provision-box');
+        this.$table = $('.jsc-cancel-provision-table').find('tbody');
+        this.$hiddenFreeword = $('.jsc-hidden-freeword');
+        this.language = $('#wrapper').data('language');
+		this.$title = $('.jsc-cancel-title');
+		this.$link = $('.jsc-cancel-link').find('a');
+		this.$standardTxt = $('.jsc-cancel-standard');
+
+	},
+	getData : function(){
+        var _self = this;
+        $.ajax({
+            async: false,
+            type: 'GET',
+            url:   '/global_pc/js/' + this.language + '-contents.json',
+            cache: false,
+            dataType: 'jsonp',
+            jsonpCallback: 'plan_detail',
+            success: $.proxy(this.parseJSON, this),
+            error: $.proxy(this.error, this)
+        });
+    },
+	error : function(status){
+	},
+	parseJSON: function(array){
+		var _self = this;
+		this.$hiddenData.each(function(){
+			if(!_self.$pageWrapper.hasClass('detail-page')) return;
+			var name = $(this).attr('name'),
+				datas = name.split('.');
+
+			var room = datas[parseInt(_self.ROOM)].match(/room\[(\d+)\]/)[1],
+				plan = datas[parseInt(_self.PLAN)].match(/plan\[(\d+)\]/)[1];
+
+			var type = datas[parseInt(_self.TYPE)],
+				val = $(this).val();
+
+			if(type === "0317" || type === "0318" || type === "0319" || type === "0421" || type === "0422" || type === "0423" || type === "0424" ||
+			type === "0425" || type === "0429" || type === "0430" || type === "0419" || type === "0420" || type === "0433" || type === "0434") {
+				var arrayData = array[type]['txt'],
+					$targetPoint = _self.$wrapper.eq(room).find('.jsc-target-content').children('li').eq(plan).find('.jsc-condition-detail');
+
+				var $content = $('.jsc-condition-single').clone();
+				$content.addClass('jsc-item-'+type);
+				$content.addClass('jsc-condition-detail-item');
+				$content.removeClass('jsc-condition-single');
+				$content.find('.jsc-icon-txt').text(arrayData);
+
+				var fragment = document.createDocumentFragment();
+				fragment.appendChild($content.get(0));
+				$targetPoint.get(0).appendChild(fragment);
+			}
+
+			if(type === "0306" || type === "0307" || type === "0308" || type === "0309" || type === "0310"){
+
+				var arrayData = array[type]['txt'],
+					$targetPoint = _self.$wrapper.eq(room).find('.jsc-target-content').children('li').eq(plan).find('.jsc-bed-detail');
+					$bedDetail = $('<p class="bed-size">');
+
+				if(_self.language === "en"){
+					if(type === "0306"){
+						// シングルベッド
+						$bedDetail.append(arrayData+ ' : width 90cm ～ 130cm');
+						$targetPoint.append($bedDetail);
+                        $bedDetail.addClass('jsc-bed-size-order1');
+					}else if(type === "0307"){
+						// クイーンベッド
+						$bedDetail.append(arrayData+ ' : width 151cm ～ 180cm');
+						$targetPoint.append($bedDetail);
+                        $bedDetail.addClass('jsc-bed-size-order3');
+
+					}else if(type === "0309"){
+						// ダブルベッド
+						$bedDetail.append(arrayData+ ' : width 131cm ～ 150cm');
+						$targetPoint.append($bedDetail);
+                        $bedDetail.addClass('jsc-bed-size-order2');
+					}else if(type === "0310"){
+						// キングベッド
+						$bedDetail.append(arrayData+ ' : width 181cm ～ 210cm');
+						$targetPoint.append($bedDetail);
+                        $bedDetail.addClass('jsc-bed-size-order4');
+					}else{
+						return;
+					}
+				}else if(_self.language === "cn"){
+					if(type === "0306"){
+						// シングルベッド
+						$bedDetail.append(arrayData+ ' : 宽度 90cm ～ 130cm');
+						$targetPoint.append($bedDetail);
+                        $bedDetail.addClass('jsc-bed-size-order1');
+					}else if(type === "0307"){
+						// クイーンベッド
+						$bedDetail.append(arrayData+ ' : 宽度 151cm ～ 180cm');
+						$targetPoint.append($bedDetail);
+                        $bedDetail.addClass('jsc-bed-size-order3');
+					}else if(type === "0309"){
+						// ダブルベッド
+						$bedDetail.append(arrayData+ ' : 宽度 131cm ～ 150cm');
+						$targetPoint.append($bedDetail);
+                        $bedDetail.addClass('jsc-bed-size-order2');
+					}else if(type === "0310"){
+						// キングベッド
+						$bedDetail.append(arrayData+ ' : 宽度 181cm ～ 210cm');
+						$targetPoint.append($bedDetail);
+                        $bedDetail.addClass('jsc-bed-size-order4');
+					}else{
+						return;
+					}
+				}else if(_self.language === "tn"){
+					if(type === "0306"){
+						// シングルベッド
+						$bedDetail.append(arrayData+ ' : 寬度 90cm ～ 130cm');
+						$targetPoint.append($bedDetail);
+                        $bedDetail.addClass('jsc-bed-size-order1');
+					}else if(type === "0307"){
+						// クイーンベッド
+						$bedDetail.append(arrayData+ ' : 寬度 151cm ～ 180cm');
+						$targetPoint.append($bedDetail);
+                        $bedDetail.addClass('jsc-bed-size-order3');
+					}else if(type === "0309"){
+						// ダブルベッド
+						$bedDetail.append(arrayData+ ' : 寬度 131cm ～ 150cm');
+						$targetPoint.append($bedDetail);
+                        $bedDetail.addClass('jsc-bed-size-order2');
+					}else if(type === "0310"){
+						// キングベッド
+						$bedDetail.append(arrayData+ ' : 寬度 181cm ～ 210cm');
+						$targetPoint.append($bedDetail);
+                        $bedDetail.addClass('jsc-bed-size-order4');
+					}else{
+						return;
+					}
+				}else if(_self.language === "kr"){
+					if(type === "0306"){
+						// シングルベッド
+						$bedDetail.append(arrayData+ ' : 너비 90cm ～ 130cm');
+						$targetPoint.append($bedDetail);
+                        $bedDetail.addClass('jsc-bed-size-order1');
+					}else if(type === "0307"){
+						// クイーンベッド
+						$bedDetail.append(arrayData+ ' : 너비 151cm ～ 180cm');
+						$targetPoint.append($bedDetail);
+                        $bedDetail.addClass('jsc-bed-size-order3');
+					}else if(type === "0309"){
+						// ダブルベッド
+						$bedDetail.append(arrayData+ ' : 너비 131cm ～ 150cm');
+						$targetPoint.append($bedDetail);
+                        $bedDetail.addClass('jsc-bed-size-order2');
+					}else if(type === "0310"){
+						// キングベッド
+						$bedDetail.append(arrayData+ ' : 너비 181cm ～ 210cm');
+						$targetPoint.append($bedDetail);
+                        $bedDetail.addClass('jsc-bed-size-order4');
+					}else{
+						return;
+					}
+				}else if(_self.language === "th"){
+					if(type === "0306"){
+						// シングルベッド
+						$bedDetail.append(arrayData+ ' : ความกว้าง 90cm ～ 130cm');
+						$targetPoint.append($bedDetail);
+                        $bedDetail.addClass('jsc-bed-size-order1');
+					}else if(type === "0307"){
+						// クイーンベッド
+						$bedDetail.append(arrayData+ ' : ความกว้าง 151cm ～ 180cm');
+						$targetPoint.append($bedDetail);
+                        $bedDetail.addClass('jsc-bed-size-order3');
+					}else if(type === "0309"){
+						// ダブルベッド
+						$bedDetail.append(arrayData+ ' : ความกว้าง 131cm ～ 150cm');
+						$targetPoint.append($bedDetail);
+                        $bedDetail.addClass('jsc-bed-size-order2');
+					}else if(type === "0310"){
+						// キングベッド
+						$bedDetail.append(arrayData+ ' : ความกว้าง 181cm ～ 210cm');
+						$targetPoint.append($bedDetail);
+                        $bedDetail.addClass('jsc-bed-size-order4');
+					}else{
+						return;
+					}
+				}else if(_self.language === "id"){
+					if(type === "0306"){
+						// シングルベッド
+						$bedDetail.append(arrayData+ ' : lebar 90cm ～ 130cm');
+						$targetPoint.append($bedDetail);
+                        $bedDetail.addClass('jsc-bed-size-order1');
+					}else if(type === "0307"){
+						// クイーンベッド
+						$bedDetail.append(arrayData+ ' : lebar 151cm ～ 180cm');
+						$targetPoint.append($bedDetail);
+                        $bedDetail.addClass('jsc-bed-size-order3');
+					}else if(type === "0309"){
+						// ダブルベッド
+						$bedDetail.append(arrayData+ ' : lebar 131cm ～ 150cm');
+						$targetPoint.append($bedDetail);
+                        $bedDetail.addClass('jsc-bed-size-order2');
+					}else if(type === "0310"){
+						// キングベッド
+						$bedDetail.append(arrayData+ ' : lebar 181cm ～ 210cm');
+						$targetPoint.append($bedDetail);
+                        $bedDetail.addClass('jsc-bed-size-order4');
+					}else{
+						return;
+					}
+				}else if(_self.language === "my"){
+					if(type === "0306"){
+						// シングルベッド
+						$bedDetail.append(arrayData+ ' : lebar 90cm ～ 130cm');
+						$targetPoint.append($bedDetail);
+                        $bedDetail.addClass('jsc-bed-size-order1');
+					}else if(type === "0307"){
+						// クイーンベッド
+						$bedDetail.append(arrayData+ ' : lebar 151cm ～ 180cm');
+						$targetPoint.append($bedDetail);
+                        $bedDetail.addClass('jsc-bed-size-order3');
+					}else if(type === "0309"){
+						// ダブルベッド
+						$bedDetail.append(arrayData+ ' : lebar 131cm ～ 150cm');
+						$targetPoint.append($bedDetail);
+                        $bedDetail.addClass('jsc-bed-size-order2');
+					}else if(type === "0310"){
+						// キングベッド
+						$bedDetail.append(arrayData+ ' : lebar 181cm ～ 210cm');
+						$targetPoint.append($bedDetail);
+                        $bedDetail.addClass('jsc-bed-size-order4');
+					}else{
+						return;
+					}
+				}else if(_self.language === "fr"){
+					if(type === "0306"){
+						// シングルベッド
+						$bedDetail.append(arrayData+ ' : largeur 90cm ～ 130cm');
+						$targetPoint.append($bedDetail);
+                        $bedDetail.addClass('jsc-bed-size-order1');
+					}else if(type === "0307"){
+						// クイーンベッド
+						$bedDetail.append(arrayData+ ' : largeur 151cm ～ 180cm');
+						$targetPoint.append($bedDetail);
+                        $bedDetail.addClass('jsc-bed-size-order3');
+					}else if(type === "0309"){
+						// ダブルベッド
+						$bedDetail.append(arrayData+ ' : largeur 131cm ～ 150cm');
+						$targetPoint.append($bedDetail);
+                        $bedDetail.addClass('jsc-bed-size-order2');
+					}else if(type === "0310"){
+						// キングベッド
+						$bedDetail.append(arrayData+ ' : largeur 181cm ～ 210cm');
+						$targetPoint.append($bedDetail);
+                        $bedDetail.addClass('jsc-bed-size-order4');
+					}else{
+						return;
+					}
+				}else {
+					return;
+				}
+			}
+		});
+	}
+};
+
+JALAN.CONTENTS.APPENDED_TXT = {
+	ROOM : 0,
+    PLAN : 1,
+    TYPE : 2,
+	init : function(){
+		this.setParameters();
+		this.getData();
+	},
+	setParameters : function(){
+		this.$pageWrapper = $('#wrapper');
+        this.$wrapper = $('.jsc-contents-wrapper');
+        this.language = $('#wrapper').data('language');
+		this.$item = $('.jsc-condition-detail-item')
+	},
+	getData : function(){
+        var _self = this;
+        $.ajax({
+            async: false,
+            type: 'GET',
+            url:   '/global_pc/js/' + this.language + '-appended-text.json',
+            cache: false,
+            dataType: 'jsonp',
+            jsonpCallback: 'appended_text',
+            success: $.proxy(this.parseJSON, this),
+            error: $.proxy(this.error, this)
+        });
+    },
+	parseJSON : function(data){
+		this.$item.each(function(){
+			if($(this).hasClass('jsc-item-0317')){
+				var txtData = data[55],
+					appendedTxt = $('<div class="conditon-appended-txt">').append(txtData);
+				$(this).append(appendedTxt);
+			}else if($(this).hasClass('jsc-item-0318')){
+				var txtData = data[56],
+					appendedTxt = $('<div class="conditon-appended-txt">').append(txtData);
+				$(this).append(appendedTxt);
+			}else if($(this).hasClass('jsc-item-0319')){
+				var txtData = data[57],
+					appendedTxt = $('<div class="conditon-appended-txt">').append(txtData);
+				$(this).append(appendedTxt);
+			}else if($(this).hasClass('jsc-item-0421')){
+				var txtData = data[59],
+					appendedTxt = $('<div class="conditon-appended-txt">').append(txtData);
+				$(this).append(appendedTxt);
+			}else if($(this).hasClass('jsc-item-0422')){
+				var txtData = data[60],
+					appendedTxt = $('<div class="conditon-appended-txt">').append(txtData);
+				$(this).append(appendedTxt);
+			}else if($(this).hasClass('jsc-item-0423')){
+				var txtData = data[61],
+					appendedTxt = $('<div class="conditon-appended-txt">').append(txtData);
+				$(this).append(appendedTxt);
+			}else if($(this).hasClass('jsc-item-0424')){
+				var txtData = data[62],
+					appendedTxt = $('<div class="conditon-appended-txt">').append(txtData);
+				$(this).append(appendedTxt);
+			}else if($(this).hasClass('jsc-item-0425')){
+				var txtData = data[63],
+					appendedTxt = $('<div class="conditon-appended-txt">').append(txtData);
+				$(this).append(appendedTxt);
+			}else if($(this).hasClass('jsc-item-0429')){
+				var txtData = data[67],
+					appendedTxt = $('<div class="conditon-appended-txt">').append(txtData);
+				$(this).append(appendedTxt);
+			}else if($(this).hasClass('jsc-item-0430')){
+				var txtData = data[68],
+					appendedTxt = $('<div class="conditon-appended-txt">').append(txtData);
+				$(this).append(appendedTxt);
+			}else if($(this).hasClass('jsc-item-0426')){
+				var txtData = data[64],
+					appendedTxt = $('<div class="conditon-appended-txt">').append(txtData);
+				$(this).append(appendedTxt);
+			}else if($(this).hasClass('jsc-item-0427')){
+				var txtData = data[65],
+					appendedTxt = $('<div class="conditon-appended-txt">').append(txtData);
+				$(this).append(appendedTxt);
+			}else if($(this).hasClass('jsc-item-0428')){
+				var txtData = data[66],
+					appendedTxt = $('<div class="conditon-appended-txt">').append(txtData);
+				$(this).append(appendedTxt);
+			}else if($(this).hasClass('jsc-item-0312')){
+				var txtData = data[49],
+					appendedTxt = $('<div class="conditon-appended-txt">').append(txtData);
+				$(this).append(appendedTxt);
+			}else if($(this).hasClass('jsc-item-0313')){
+				var txtData = data[50],
+					appendedTxt = $('<div class="conditon-appended-txt">').append(txtData);
+				$(this).append(appendedTxt);
+			}else if($(this).hasClass('jsc-item-0314')){
+				var txtData = data[51],
+					appendedTxt = $('<div class="conditon-appended-txt">').append(txtData);
+				$(this).append(appendedTxt);
+			}else if($(this).hasClass('jsc-item-0315')){
+				var txtData = data[52],
+					appendedTxt = $('<div class="conditon-appended-txt">').append(txtData);
+				$(this).append(appendedTxt);
+			}else if($(this).hasClass('jsc-item-0316')){
+				var txtData = data[53],
+					appendedTxt = $('<div class="conditon-appended-txt">').append(txtData);
+				$(this).append(appendedTxt);
+			}else if($(this).hasClass('jsc-item-0323')){
+				var txtData = data[69],
+					appendedTxt = $('<div class="conditon-appended-txt">').append(txtData);
+				$(this).append(appendedTxt);
+			}else if($(this).hasClass('jsc-item-0324')){
+				var txtData = data[72],
+					appendedTxt = $('<div class="conditon-appended-txt">').append(txtData);
+				$(this).append(appendedTxt);
+			}else if($(this).hasClass('jsc-item-0419')){
+				var txtData = data[46],
+					appendedTxt = $('<div class="conditon-appended-txt">').append(txtData);
+				$(this).append(appendedTxt);
+			}else if($(this).hasClass('jsc-item-0420')){
+				var txtData = data[47],
+					appendedTxt = $('<div class="conditon-appended-txt">').append(txtData);
+				$(this).append(appendedTxt);
+			}else if($(this).hasClass('jsc-item-0433')){
+				var txtData = data[70],
+					appendedTxt = $('<div class="conditon-appended-txt">').append(txtData);
+				$(this).append(appendedTxt);
+			}else if($(this).hasClass('jsc-item-0434')){
+				var txtData = data[71],
+					appendedTxt = $('<div class="conditon-appended-txt">').append(txtData);
+				$(this).append(appendedTxt);
+			}
+		});
+	}
+};
+
+JALAN.CONTENTS.PRICE_TXT = {
+	init : function(){
+		this.setParameters();
+		this.addTxt();
+	},
+	setParameters : function(){
+		this.language = $('#wrapper').data('language');
+		this.$target = $('.jsc-price-detail');
+	},
+	addTxt : function(){
+		// 「料金のお支払いは日本円になります」多言語
+		if(this.language === 'en'){
+			this.$target.text('Payment will be only accepted in Japanese yen.');
+		}else if(this.language === 'cn'){
+			this.$target.text('住宿付款币种为日元。');
+		}else if(this.language === 'tn'){
+			this.$target.text('住宿支付貨幣為日元。');
+		}else if(this.language === 'kr'){
+			this.$target.text('숙박요금의 지불은 일본 엔화로 거래됩니다.');
+		}else if(this.language === 'th'){
+			this.$target.text('การชำระเงินจะเป็นการชำระด้วยสกุลเงินเยนเท่านั้น');
+		}else if(this.language === 'id'){
+			this.$target.text('Cara pembayaran biaya adalah dengan Yen Jepang.');
+		}else if(this.language === 'my'){
+			this.$target.text('Hanya pembayaran dalam mata wang Yen Jepun akan diterima.');
+		}else if(this.language === 'fr'){
+			this.$target.text('Le règlement des frais est effectué en yens japonais.');
+		}else{
+			return;
+		}
+	}
+};
+
+
+JALAN.CONTENTS_ALIGNMENT = {
+    init : function(){
+        this.setParameters();
+        this.centerBoxAlignment();
+        this.wakeariBoxAlignment();
+        this.bedSizeAlignment();
+    },
+    setParameters : function(){
+		this.centerContentsWrapper = $('.jsc-centerbox');
+		this.wakeariContentsWrapper = $('.jsc-wakeari-wrapper');
+    },
+    centerBoxAlignment : function(){
+        this.centerContentsWrapper.each(function () {
+        	var maxArrayNum = 0,
+            	contentsAlignmentBox = [],
+        		contentsNum = $(this).children().size();
+
+			$(this).children().each(function () {
+				if($(this).parent("div").hasClass("cation-text")) return;
+                var classNum = $(this).attr('class');
+                if(/jsc\-center\-box\-order(\d+)(\s+|$)/.test(classNum)){
+                    if(maxArrayNum < RegExp.$1){
+                    	maxArrayNum = RegExp.$1
+					}
+                }
+            });
+
+        	for(var i = 1;i <= maxArrayNum;i++){
+                contentsAlignmentBox.push($(this).children(".jsc-center-box-order"+String(i)+""));
+			}
+			$(this).find(".order-icn").remove();
+			for(var i = 0;i <= maxArrayNum;i++){
+                $(this).append(contentsAlignmentBox[i]);
+			}
+        })
+    },
+    wakeariBoxAlignment : function(){
+        this.wakeariContentsWrapper.each(function () {
+            var maxArrayNum = 0;
+            $(this).find(".jsc-check-target").each(function () {
+                var classNum = $(this).attr('class');
+                if(/jsc\-wakeari\-box\-order(\d+)(\s+|$)/.test(classNum)){
+                    if(maxArrayNum < parseInt(RegExp.$1,10)){
+                        maxArrayNum = parseInt(RegExp.$1,10)
+                    }
+                }
+            });
+            $(this).find('.jsc-wakeari-contents').css('display','block');
+            var wakeariAlignmentBox = [],
+				wakeariNum = $(this).find('.jsc-wakeari-contents').children().size();
+            for(i=1;i <=maxArrayNum;i++){
+                wakeariAlignmentBox.push($(this).find(".jsc-wakeari-box-order"+String(i)+""));
+            }
+            $(this).find('.jsc-wakeari-contents').empty();
+            for(i=0;i <=maxArrayNum;i++){
+                $(this).find('.jsc-wakeari-contents').append(wakeariAlignmentBox[i]);
+            }
+            $(this).find('.jsc-wakeari-contents').css('display','none');
+
+        })
+	},
+    bedSizeAlignment : function(){
+        var maxArrayNum = 0;
+       $(".jsc-bed-target").each(function () {
+
+		   $(this).find(".bed-size").each(function(){
+			   var classNum = $(this).attr('class');
+			   if(/jsc\-bed\-size\-order(\d+)(\s+|$)/.test(classNum)){
+                   if(maxArrayNum < RegExp.$1){
+                       maxArrayNum = RegExp.$1
+                   }
+               }
+		   });
+        });
+        this.centerContentsWrapper.find('.jsc-bed-detail').css('display','block');
+        this.centerContentsWrapper.find('.jsc-bed-detail').each(function () {
+            var bedAlignmentBox = [];
+
+            for(var i=0;i <=maxArrayNum;i++){
+                bedAlignmentBox.push($(this).find(".jsc-bed-size-order"+String(i)+""));
+            }
+            $(this).children('.jsc-bed-detail').empty();
+            for(var i=0;i <= maxArrayNum;i++){
+                $(this).append(bedAlignmentBox[i]);
+            }
+        });
+        this.centerContentsWrapper.find('.jsc-bed-detail').css('display','none');
+    }
+};
+
+JALAN.CONTENTS.INFO_MEAL_COMBINING = {
+	init : function(){
+		if(!$('#wrapper').hasClass('detail-page')) return;
+		this.setParameters();
+		this.bindEvent();
+		this.combineBrkfstTxt();
+		this.combineDinnerTxt();
+		this.removeContents();
+	},
+	setParameters : function(){
+		this.$wrapper = $('.jsc-contents-wrapper');
+		this.$planList = this.$wrapper.find('.jsc-target-content');
+		this.$planCassette = this.$planList.children('li');
+		this.$brkfstTitle = $('.jsc-info-brkfst-title');
+		this.$dinnerTitle = $('.jsc-info-dinner-title');
+		this.$brkfstDetail = $('.jsc-info-brkfst-detail');
+		this.$dinnerDetail = $('.jsc-info-dinner-detail');
+		this.language = $('#wrapper').data('language');
+	},
+	bindEvent : function(){
+		if(this.language === 'en'){
+			var brkfstTitle  = 'Breakfast : ',
+				dinnerTitle  = 'Dinner : ';
+		}else if(this.language === 'cn'){
+			var brkfstTitle  = '早餐 : ',
+				dinnerTitle  = '晚餐 : ';
+		}else if(this.language === 'tn'){
+			var brkfstTitle  = '早餐 : ',
+				dinnerTitle  = '晚餐 : ';
+		}else if(this.language === 'kr'){
+			var brkfstTitle  = '조식 : ',
+				dinnerTitle  = '석식 : ';
+		}else if(this.language === 'fr'){
+			var brkfstTitle  = 'Petit déjeuner : ',
+				dinnerTitle  = 'Dîner : ';
+		}else if(this.language === 'th'){
+			var brkfstTitle  = 'อาหารเช้า : ',
+				dinnerTitle  = 'อาหารเย็น : ';
+		}else if(this.language === 'id'){
+			var brkfstTitle  = 'Sarapan : ',
+				dinnerTitle  = 'Makan malam : ';
+		}else if(this.language === 'my'){
+			var brkfstTitle  = 'Sarapan : ',
+				dinnerTitle  = 'Makan malam : ';
+		}else{
+			return;
+		}
+
+		this.$brkfstTitle.text(brkfstTitle);
+		this.$dinnerTitle .text(dinnerTitle);
+	},
+	combineBrkfstTxt : function(){
+		this.$planCassette.each(function(){
+			var txts = [],
+				$targetTxts = $(this).find('.jsc-brkfst-genre');
+
+			if($targetTxts){
+				for(var i = 0,len = $targetTxts.length;i < len;i++){
+					txts.push($targetTxts.eq(i).text());
+				}
+				var combineText = txts.join(", ");
+				for(var i = 0,len = $targetTxts.length;i < len;i++){
+					$targetTxts.eq(i).remove();
+				}
+			}
+			var setPoint = $(this).find('.jsc-info-brkfst-detail');
+			setPoint.append(combineText);
+
+		});
+	},
+	combineDinnerTxt : function(){
+		this.$planCassette.each(function(){
+			var txts = [],
+				$targetTxts = $(this).find('.jsc-dinner-genre');
+
+			if($targetTxts){
+				for(var i = 0,len = $targetTxts.length;i < len;i++){
+					txts.push($targetTxts.eq(i).text());
+				}
+				var combineText = txts.join(", ");
+				for(var i = 0,len = $targetTxts.length;i < len;i++){
+					$targetTxts.eq(i).remove();
+				}
+			}
+			var setPoint = $(this).find('.jsc-info-dinner-detail');
+			setPoint.append(combineText);
+		});
+	},
+	removeContents : function(){
+		this.$brkfstDetail.each(function(){
+			var brkfstTxt = $(this).text();
+			if(brkfstTxt === ''){
+				$(this).prev('.jsc-info-brkfst-title').remove();
+				$(this).remove();
+			}
+		});
+		this.$dinnerDetail.each(function(){
+			var dinnerTxt = $(this).text();
+			if(dinnerTxt === ''){
+				$(this).prev('.jsc-info-dinner-title').remove();
+				$(this).remove();
+			}
+		});
+	}
+};
+
+JALAN.CONTENTS.CONBINING_CHECK = {
+	init : function(){
+		if(!$('#wrapper').hasClass('detail-page')) return;
+		this.setParameters();
+		this.combineCheckText();
+		this.combineAppoCancelText();
+	},
+	setParameters : function(){
+		this.$wrapper = $('.jsc-contents-wrapper');
+		this.$planList = this.$wrapper.find('.jsc-target-content');
+		this.$planCassette = this.$planList.children('li');
+		this.language = $('#wrapper').data('language');
+	},
+	combineCheckText : function(){
+		var _self = this;
+		this.$planCassette.each(function(){
+			var $start = $(this).find('.jsc-checkinStartTime'),
+				$end = $(this).find('.jsc-checkinLastTime'),
+				$dayStart = $(this).find('.jsc-dayRsvCheckinStrTime'),
+				$dayEnd = $(this).find('.jsc-dayRsvCheckinEndTime');
+				$simpleEnd = $(this).find('.jsc-checkoutLastTime');
+
+			var startTxt = $start.text(),
+				endTxt = $end.text(),
+				dayStartTxt = $dayStart.text(),
+				dayEndTxt = $dayEnd.text(),
+				simpleEndTxt = $simpleEnd.text();
+
+
+			//check-in　開始時間
+			var startNums = startTxt.split('');
+			var len = startNums.length;
+			var	startHour1;
+			var	startHour2;
+			var	startMinute1;
+			var	startMinute2 ;
+
+			if(len === 3){
+				startHour1 = '';
+				startHour2 = startNums[0];
+				startMinute1 = startNums[1];
+				startMinute2 = startNums[2];
+			}else if(len === 4){
+				startHour1 = startNums[0];
+				startHour2 = startNums[1];
+				startMinute1 = startNums[2];
+				startMinute2 = startNums[3];
+			}
+
+			//check-in 締め切り時間
+			var endNums = endTxt.split('');
+			var len = endNums.length;
+			var	endHour1;
+			var	endHour2;
+			var	endMinute1;
+			var	endMinute2 ;
+
+			if(len === 3){
+				endHour1 = '';
+				endHour2 = endNums[0];
+				endMinute1 = endNums[1];
+				endMinute2 = endNums[2];
+			}else if(len === 4){
+				endHour1 = endNums[0];
+				endHour2 = endNums[1];
+				endMinute1 = endNums[2];
+				endMinute2 = endNums[3];
+			}
+
+
+			//check-in　開始時間
+			var dayStartNums = dayStartTxt.split('');
+			var len = dayStartNums.length;
+			var	dayStartHour1;
+			var	dayStartHour2;
+			var	dayStartMinute1;
+			var	dayStartMinute2 ;
+
+			if(len === 3){
+				dayStartHour1 = '';
+				dayStartHour2 = dayStartNums[0];
+				dayStartMinute1 = dayStartNums[1];
+				dayStartMinute2 = dayStartNums[2];
+			}else if(len === 4){
+				dayStartHour1 = dayStartNums[0];
+				dayStartHour2 = dayStartNums[1];
+				dayStartMinute1 = dayStartNums[2];
+				dayStartMinute2 = dayStartNums[3];
+			}
+
+			//check-in 締め切り時間
+			var dayEndNums = dayEndTxt.split('');
+			var len = dayEndNums.length;
+			var	dayEndHour1;
+			var	dayEndHour2;
+			var	dayEndMinute1;
+			var	dayEndMinute2 ;
+
+			if(len === 3){
+				dayEndHour1 = '';
+				dayEndHour2 = dayEndNums[0];
+				dayEndMinute1 = dayEndNums[1];
+				dayEndMinute2 = dayEndNums[2];
+			}else if(len === 4){
+				dayEndHour1 = dayEndNums[0];
+				dayEndHour2 = dayEndNums[1];
+				dayEndMinute1 = dayEndNums[2];
+				dayEndMinute2 = dayEndNums[3];
+			}
+
+			//check-out 単体時間
+			var simpleEndNums = simpleEndTxt.split('');
+			var len = simpleEndNums.length;
+			var	simpleEndHour1;
+			var	simpleEndHour2;
+			var	simpleEndMinute1;
+			var	simpleEndMinute2 ;
+
+			if(len === 3){
+				simpleEndHour1 = '';
+				simpleEndHour2 = simpleEndNums[0];
+				simpleEndMinute1 = simpleEndNums[1];
+				simpleEndMinute2 = simpleEndNums[2];
+			}else if(len === 4){
+				simpleEndHour1 = simpleEndNums[0];
+				simpleEndHour2 = simpleEndNums[1];
+				simpleEndMinute1 = simpleEndNums[2];
+				simpleEndMinute2 = simpleEndNums[3];
+			}
+
+			var checkTxt = $('<p>'),
+				dayCheckTxt = $('<p>'),
+				simpleCheckTxt = $('<p>'),
+				setPoint = $(this).find('.jsc-info-check-box');
+
+			if(_self.language === 'en'){
+				checkTxt.text('Check-in time : ' + startHour1 + startHour2 + ':' + startMinute1 + startMinute2 + ' ~ ' + endHour1 + endHour2 + ':' + endMinute1 + endMinute2);
+				dayCheckTxt.text('Check-out time : ' + dayStartHour1 + dayStartHour2 + ':' + dayStartMinute1 + dayStartMinute2 + ' ~ ' + dayEndHour1 + dayEndHour2 + ':' + dayEndMinute1 + dayEndMinute2);
+				simpleCheckTxt.text('Check-out time : ' + simpleEndHour1 + simpleEndHour2 + ':' + simpleEndMinute1 + simpleEndMinute2);
+			}else if(_self.language === 'cn'){
+				checkTxt.text('办理入住时间 : ' + startHour1 + startHour2 + ':' + startMinute1 + startMinute2 + ' ~ ' + endHour1 + endHour2 + ':' + endMinute1 + endMinute2);
+				dayCheckTxt.text('退房时间 : ' + dayStartHour1 + dayStartHour2 + ':' + dayStartMinute1 + dayStartMinute2 + ' ~ ' + dayEndHour1 + dayEndHour2 + ':' + dayEndMinute1 + dayEndMinute2);
+				simpleCheckTxt.text('退房时间 : ' + simpleEndHour1 + simpleEndHour2 + ':' + simpleEndMinute1 + simpleEndMinute2);
+			}else if(_self.language === 'tn'){
+				checkTxt.text('辦理入住時間 : ' + startHour1 + startHour2 + ':' + startMinute1 + startMinute2 + ' ~ ' + endHour1 + endHour2 + ':' + endMinute1 + endMinute2);
+				dayCheckTxt.text('退房時間 : ' + dayStartHour1 + dayStartHour2 + ':' + dayStartMinute1 + dayStartMinute2 + ' ~ ' + dayEndHour1 + dayEndHour2 + ':' + dayEndMinute1 + dayEndMinute2);
+				simpleCheckTxt.text('退房時間 : ' + simpleEndHour1 + simpleEndHour2 + ':' + simpleEndMinute1 + simpleEndMinute2);
+			}else if(_self.language === 'kr'){
+				checkTxt.text('체크인시간 : ' + startHour1 + startHour2 + ':' + startMinute1 + startMinute2 + ' ~ ' + endHour1 + endHour2 + ':' + endMinute1 + endMinute2);
+				dayCheckTxt.text('체크아웃시간 : ' + dayStartHour1 + dayStartHour2 + ':' + dayStartMinute1 + dayStartMinute2 + ' ~ ' + dayEndHour1 + dayEndHour2 + ':' + dayEndMinute1 + dayEndMinute2);
+				simpleCheckTxt.text('체크아웃시간 : ' + simpleEndHour1 + simpleEndHour2 + ':' + simpleEndMinute1 + simpleEndMinute2);
+			}else if(_self.language === 'fr'){
+				checkTxt.text('Horaires d\'enregistrement : ' + startHour1 + startHour2 + ':' + startMinute1 + startMinute2 + ' ~ ' + endHour1 + endHour2 + ':' + endMinute1 + endMinute2);
+				dayCheckTxt.text('Horaires de règlement de la note : ' + dayStartHour1 + dayStartHour2 + ':' + dayStartMinute1 + dayStartMinute2 + ' ~ ' + dayEndHour1 + dayEndHour2 + ':' + dayEndMinute1 + dayEndMinute2);
+				simpleCheckTxt.text('Horaires de règlement de la note : ' + simpleEndHour1 + simpleEndHour2 + ':' + simpleEndMinute1 + simpleEndMinute2);
+			}else if(_self.language === 'th'){
+				checkTxt.text('เวลาเช็กอิน : ' + startHour1 + startHour2 + ':' + startMinute1 + startMinute2 + ' ~ ' + endHour1 + endHour2 + ':' + endMinute1 + endMinute2);
+				dayCheckTxt.text('เวลาเช็กเอาต์์ : ' + dayStartHour1 + dayStartHour2 + ':' + dayStartMinute1 + dayStartMinute2 + ' ~ ' + dayEndHour1 + dayEndHour2 + ':' + dayEndMinute1 + dayEndMinute2);
+				simpleCheckTxt.text('เวลาเช็กเอาต์ : ' + simpleEndHour1 + simpleEndHour2 + ':' + simpleEndMinute1 + simpleEndMinute2);
+			}else if(_self.language === 'id'){
+				checkTxt.text('Waktu check-in : ' + startHour1 + startHour2 + ':' + startMinute1 + startMinute2 + ' ~ ' + endHour1 + endHour2 + ':' + endMinute1 + endMinute2);
+				dayCheckTxt.text('Waktu check-out : ' + dayStartHour1 + dayStartHour2 + ':' + dayStartMinute1 + dayStartMinute2 + ' ~ ' + dayEndHour1 + dayEndHour2 + ':' + dayEndMinute1 + dayEndMinute2);
+				simpleCheckTxt.text('Waktu check-out : ' + simpleEndHour1 + simpleEndHour2 + ':' + simpleEndMinute1 + simpleEndMinute2);
+			}else if(_self.language === 'my'){
+				checkTxt.text('Waktu pendaftaran masuk : ' + startHour1 + startHour2 + ':' + startMinute1 + startMinute2 + ' ~ ' + endHour1 + endHour2 + ':' + endMinute1 + endMinute2);
+				dayCheckTxt.text('Waktu pendaftaran keluar : ' + dayStartHour1 + dayStartHour2 + ':' + dayStartMinute1 + dayStartMinute2 + ' ~ ' + dayEndHour1 + dayEndHour2 + ':' + dayEndMinute1 + dayEndMinute2);
+				simpleCheckTxt.text('Waktu pendaftaran keluar : ' + simpleEndHour1 + simpleEndHour2 + ':' + simpleEndMinute1 + simpleEndMinute2);
+			}else{
+				return;
+			}
+
+			if($start.length !== 0){
+				setPoint.append(checkTxt);
+			}
+			if($dayStart.length !== 0){
+				setPoint.append(dayCheckTxt);
+			}
+			if($simpleEnd.length !== 0){
+				setPoint.append(simpleCheckTxt);
+			}
+
+			$start.remove();
+			$end.remove();
+			$dayStart.remove();
+			$dayEnd.remove();
+			$simpleEnd.remove();
+		});
+	},
+	combineAppoCancelText : function(){
+		var _self = this;
+		this.$planCassette.each(function(){
+			var $cancelDay = $(this).find('.jsc-rsvCancelEndDay'),
+				$cancelTime = $(this).find('.jsc-rsvCancelEndHh');
+
+			var cancelDayTxt = $cancelDay.text(),
+				cancelTimeTxt = $cancelTime.text();
+
+			if(cancelTimeTxt !== ""){
+				var eachNums = cancelTimeTxt.split('');
+				var len = eachNums.length;
+				var	hour1;
+				var	hour2;
+				var	minute1;
+				var	minute2 ;
+				if(len === 3){
+					hour2 = eachNums[0];
+					minute1 = eachNums[1];
+					minute2 = eachNums[2];
+				}else if(len === 4){
+					hour1 = eachNums[0];
+					hour2 = eachNums[1];
+					minute1 = eachNums[2];
+					minute2 = eachNums[3];
+				}else{
+					return;
+				}
+			}else{
+				return;
+			}
+
+
+			if(hour1 === undefined){
+				var appoCancelTxt = $('<p>'),
+					setPoint = $(this).find('.jsc-info-checkcancel-box');
+					if(cancelDayTxt === '0'){
+						if(_self.language === 'en'){
+							appoCancelTxt.text('Booking cancellation due date : ' + 'Until ' + hour2 + ':' + minute1 + minute2 + ' of the day of the check-in');
+						}else if(_self.language === 'cn'){
+							appoCancelTxt.text('取消订单截止时间 : ' + '当天的 ' + hour2 + ' 点 ' + minute1 + minute2 + ' 分')
+						}else if(_self.language === 'tn'){
+							appoCancelTxt.text('預約取消截止時間 : ' + '當天的 ' + hour2 + ' 點 ' + minute1 + minute2 + ' 分');
+						}else if(_self.language === 'kr'){
+							appoCancelTxt.text('예약취소 기한 : ' + '체크인 당일의 ' + hour2 + ' 시 ' + minute1 + minute2 + ' 분까지');
+						}else if(_self.language === 'fr'){
+							appoCancelTxt.text('Date limite d\'annulation de réservation : ' + "jusqu'à " +  hour2 + " h " + minute1 + minute2 + " le jour de l'arrivée");
+						}else if(_self.language === 'th'){
+							appoCancelTxt.text('กำหนดการยกเลิกการจอง : ' + 'ถึง ' + hour2 + ' นาฬิกา ' + minute1 + minute2 + ' ของวันที่เข้าพัก');
+						}else if(_self.language === 'id'){
+							appoCancelTxt.text('Jatuh tempo pembatalan pemesananan : ' + 'Sampai jam ' + hour2 + ':' + minute1 + minute2 + ' di hari kedatangan');
+						}else if(_self.language === 'my'){
+							appoCancelTxt.text('Tarikh tutup pembatalan tempahan : ' + 'sehingga ' + hour2 + ' jam ' + minute1 + minute2 + ' minit hari kejadian');
+						}else{
+							return;
+						}
+					}else{
+						if(_self.language === 'en'){
+							appoCancelTxt.text('Booking cancellation due date : ' + 'Until ' + hour2 + ':' + minute1 + minute2 +  ' of the day ' + cancelDayTxt + ' days before the check-in');
+						}else if(_self.language === 'cn'){
+							appoCancelTxt.text('取消订单截止时间 : ' + '入住 ' + cancelDayTxt + ' 天前的到 ' + hour2 + ' 点 ' + minute1 + minute2 + ' 分')
+						}else if(_self.language === 'tn'){
+							appoCancelTxt.text('預約取消截止時間 : ' + '入住 ' + cancelDayTxt + ' 天前的到 ' + hour2 + ' 點 ' + minute1 + minute2 + ' 分');
+						}else if(_self.language === 'kr'){
+							appoCancelTxt.text('예약취소 기한 : ' + '체크인당일 ' + cancelDayTxt + ' 일 전의 ' +hour2+ ' 시 ' + minute1 + minute2 + ' 분까지');
+						}else if(_self.language === 'fr'){
+							appoCancelTxt.text('Date limite d\'annulation de réservation : ' + "jusqu'à " + hour2 + " h " + minute1 + minute2 + " de " + cancelDayTxt + " jour(s) avant l'arrivée prévue");
+						}else if(_self.language === 'th'){
+							appoCancelTxt.text('กำหนดการยกเลิกการจอง : ' + 'ถึง ' + cancelDayTxt + ' นาฬิกา ' + hour2 + ' ของก่อนวันเข้าพัก ' + minute1 + minute2 + ' วัน');
+						}else if(_self.language === 'id'){
+							appoCancelTxt.text('Jatuh tempo pembatalan pemesananan : ' + 'Sampai jam ' + hour2 + ':' + minute1 + minute2 + ' pada ' + cancelDayTxt + ' hari sebelum menginap');
+						}else if(_self.language === 'my'){
+							appoCancelTxt.text('Tarikh tutup pembatalan tempahan : ' + 'sehingga ' + hour2 + ' jam ' + minute1 + minute2 + ' minit sebelum hari ' + cancelDayTxt +' penginapan');
+						}else{
+							return;
+						}
+					}
+			}else{
+				var appoCancelTxt = $('<p>'),
+					setPoint = $(this).find('.jsc-info-checkcancel-box');
+					if(cancelDayTxt === '0'){
+						if(_self.language === 'en'){
+							appoCancelTxt.text('Booking cancellation due date : ' + 'Until ' + hour1 + hour2 + ':' + minute1 + minute2 + ' of the day of the check-in');
+						}else if(_self.language === 'cn'){
+							appoCancelTxt.text('取消订单截止时间 : ' + '当天的 ' + hour1 + hour2 + ' 点 ' + minute1 + minute2 + ' 分')
+						}else if(_self.language === 'tn'){
+							appoCancelTxt.text('預約取消截止時間 : ' + '當天的 ' + hour1 + hour2 + ' 點 ' + minute1 + minute2 + ' 分');
+						}else if(_self.language === 'kr'){
+							appoCancelTxt.text('예약취소 기한 : ' + '체크인 당일의 ' + hour1 + hour2 + ' 시 ' + minute1 + minute2 + ' 분까지');
+						}else if(_self.language === 'fr'){
+							appoCancelTxt.text('Date limite d\'annulation de réservation : ' + "jusqu'à " +  hour1 + hour2 + " h " + minute1 + minute2 + " le jour de l'arrivée");
+						}else if(_self.language === 'th'){
+							appoCancelTxt.text('กำหนดการยกเลิกการจอง : ' + 'ถึง ' + hour1 + hour2 + ' นาฬิกา ' + minute1 + minute2 + ' ของวันที่เข้าพัก');
+						}else if(_self.language === 'id'){
+							appoCancelTxt.text('Jatuh tempo pembatalan pemesananan : ' + 'Sampai jam ' + hour1 + hour2 + ':' + minute1 + minute2 + ' di hari kedatangan');
+						}else if(_self.language === 'my'){
+							appoCancelTxt.text('Tarikh tutup pembatalan tempahan : ' + 'sehingga ' + hour1 + hour2 + ' jam ' + minute1 + minute2 + ' minit hari kejadian');
+						}else{
+							return;
+						}
+					}else{
+						if(_self.language === 'en'){
+							appoCancelTxt.text('Booking cancellation due date : ' + 'Until ' + hour1 + hour2 + ':' + minute1 + minute2 +  ' of the day ' + cancelDayTxt + ' days before the check-in');
+						}else if(_self.language === 'cn'){
+							appoCancelTxt.text('取消订单截止时间 : ' + '入住 ' + cancelDayTxt + ' 天前的到 ' + hour1 + hour2 + ' 点 ' + minute1 + minute2 + ' 分')
+						}else if(_self.language === 'tn'){
+							appoCancelTxt.text('預約取消截止時間 : ' + '入住 ' + cancelDayTxt + ' 天前的到 ' + hour1 + hour2 + ' 點 ' + minute1 + minute2 + ' 分');
+						}else if(_self.language === 'kr'){
+							appoCancelTxt.text('예약취소 기한 : ' + '체크인당일 ' + cancelDayTxt + ' 일 전의 ' +hour1 + hour2+ ' 시 ' + minute1 + minute2 + ' 분까지');
+						}else if(_self.language === 'fr'){
+							appoCancelTxt.text('Date limite d\'annulation de réservation : ' + "jusqu'à " + hour1 + hour2 + " h " + minute1 + minute2 + " de " + cancelDayTxt + " jour(s) avant l'arrivée prévue");
+						}else if(_self.language === 'th'){
+							appoCancelTxt.text('กำหนดการยกเลิกการจอง : ' + 'ถึง ' + cancelDayTxt + ' นาฬิกา ' + hour1 + hour2 + ' ของก่อนวันเข้าพัก ' + minute1 + minute2 + ' วัน');
+						}else if(_self.language === 'id'){
+							appoCancelTxt.text('Jatuh tempo pembatalan pemesananan : ' + 'Sampai jam ' + hour1 + hour2 + ':' + minute1 + minute2 + ' pada ' + cancelDayTxt + ' hari sebelum menginap');
+						}else if(_self.language === 'my'){
+							appoCancelTxt.text('Tarikh tutup pembatalan tempahan : ' + 'sehingga ' + hour1 + hour2 + ' jam ' + minute1 + minute2 + ' minit sebelum hari ' + cancelDayTxt +' penginapan');
+						}else{
+							return;
+						}
+					}
+			}
+
+
+
+
+				if($cancelDay.length !== 0 || $cancelTime.length !== 0){
+					setPoint.append(appoCancelTxt);
+				}
+
+				$cancelDay.remove();
+				$cancelTime.remove();
+		});
+	}
+};
+
+JALAN.CONTENTS.REMOVE_INFORMATION = {
+	init : function(){
+		this.setParameters();
+		this.setCorrectNum();
+		this.removeEmptyContents();
+		this.removeCancelContents();
+		this.removeMealContent();
+		this.removeCanTxt();
+		this.removeBedPopup();
+		this.sortFreeword();
+		this.changeStyle();
+	},
+	setParameters : function(){
+		this.$pageWrapper = $('#wrapper');
+		this.$wrapper = $('.jsc-contents-wrapper');
+		this.infoWrapper = $('.jsc-open-menu');
+		this.$cancelData = $('.jsc-cancel-policy-data');
+		this.$cancelFlg = $('.jsc-hidden-cancel-flg');
+		this.cancelWrapper = $('.jsc-cancel-policy-wrap');
+		this.$canTxt = $('.jsc-cancel-txt');
+		this.bedPopup = $('.jsc-bed-detail');
+		this.$cancelFreeword = $('.jsc-freeword-flag');
+	},
+	setCorrectNum : function(){
+		this.cancelWrapper.each(function(){
+			var $line1 = $(this).find('.jsc-cancel-policy-line-1'),
+				$line2 = $(this).find('.jsc-cancel-policy-line-2'),
+				$line3 = $(this).find('.jsc-cancel-policy-line-3'),
+				$line4 = $(this).find('.jsc-cancel-policy-line-4'),
+				$line5 = $(this).find('.jsc-cancel-policy-line-5');
+
+			var $line1TitleTxt = $line1.children('.jsc-cancel-policy-title').text(),
+				$line2TitleTxt = $line2.children('.jsc-cancel-policy-title').text(),
+				$line3TitleTxt = $line3.children('.jsc-cancel-policy-title').text(),
+				$line4TitleTxt = $line4.children('.jsc-cancel-policy-title').text(),
+				$line5TitleTxt = $line5.children('.jsc-cancel-policy-title').text();
+
+				if($line1TitleTxt.indexOf('undefined')　!= -1){
+					var result1 = $line1TitleTxt.replace( /undefined/g , "1" );
+					$line1.children('.jsc-cancel-policy-title').text(result1);
+				}
+				else if($line2TitleTxt.indexOf('undefined')　!= -1){
+					var result2 = $line2TitleTxt.replace( /undefined/g , "1" );
+					$line2.children('.jsc-cancel-policy-title').text(result2);
+
+				}else if($line3TitleTxt.indexOf('undefined')　!= -1){
+					var result3 = $line3TitleTxt.replace( /undefined/g , "1" );
+					$line3.children('.jsc-cancel-policy-title').text(result3);
+				}else if($line4TitleTxt.indexOf('undefined')　!= -1){
+					var result4 = $line4TitleTxt.replace( /undefined/g , "1" );
+					$line4.children('.jsc-cancel-policy-title').text(result4);
+				}else if($line5TitleTxt.indexOf('undefined')　!= -1){
+					var result5 = $line5TitleTxt.replace( /undefined/g , "1" );
+					$line5.children('.jsc-cancel-policy-title').text(result5);
+				}
+
+				if($line1TitleTxt.indexOf('1 - 1')　!= -1){
+					var day1 = $line1TitleTxt.replace( /1 - 1/g , "1" );
+					$line1.children('.jsc-cancel-policy-title').text(day1);
+				}
+				else if($line2TitleTxt.indexOf('1 - 1')　!= -1){
+					var day2 = $line2TitleTxt.replace( /1 - 1/g , "1" );
+					$line2.children('.jsc-cancel-policy-title').text(day2);
+
+				}else if($line3TitleTxt.indexOf('1 - 1')　!= -1){
+					var day3 = $line3TitleTxt.replace( /1 - 1/g , "1" );
+					$line3.children('.jsc-cancel-policy-title').text(day3);
+				}else if($line4TitleTxt.indexOf('1 - 1')　!= -1){
+					var day4 = $line4TitleTxt.replace( /1 - 1/g , "1" );
+					$line4.children('.jsc-cancel-policy-title').text(day4);
+				}else if($line5TitleTxt.indexOf('1 - 1')　!= -1){
+					var day5 = $line5TitleTxt.replace( /1 - 1/g , "1" );
+					$line5.children('.jsc-cancel-policy-title').text(day5);
+				}
+		});
+	},
+	removeEmptyContents : function(){
+		this.infoWrapper.each(function(){
+			var $brkfstBox = $(this).find('.info-brkfst-box'),
+				$dinnerBox = $(this).find('.info-dinner-box'),
+				$freewordBox = $(this).find('.jsc-info-freeword-box'),
+				$checkBox = $(this).find('.jsc-info-check-box'),
+				$checkcancelBox = $(this).find('.jsc-info-checkcancel-box'),
+				$cancelProvisionBox = $(this).find('.jsc-cancel-provision'),
+				$mealBox = $(this).find('.jsc-info-meal-box');
+
+			if($brkfstBox.children().length === 0){
+				$brkfstBox.remove();
+			}
+			if($dinnerBox.children().length === 0){
+				$dinnerBox.remove();
+			}
+			if($dinnerBox.text() === ''){
+				$dinnerBox.remove();
+			}
+			if($freewordBox.text() === ''){
+				$freewordBox.remove();
+			}
+			if($checkBox.text() === ''){
+				$checkBox.remove();
+			}
+			if($checkcancelBox.text() === ''){
+				$checkcancelBox.remove();
+			}
+			if($cancelProvisionBox.text() === ''){
+				$cancelProvisionBox.remove();
+			}
+		});
+	},
+	removeCancelContents : function(){
+		this.cancelWrapper.each(function(){
+			var $line1 = $(this).find('.jsc-cancel-policy-line-1'),
+				$line2 = $(this).find('.jsc-cancel-policy-line-2'),
+				$line3 = $(this).find('.jsc-cancel-policy-line-3'),
+				$line4 = $(this).find('.jsc-cancel-policy-line-4'),
+				$line5 = $(this).find('.jsc-cancel-policy-line-5');
+
+			var $line1Title = $line1.children('.jsc-cancel-policy-title').text(),
+				$line2Title = $line2.children('.jsc-cancel-policy-title').text(),
+				$line3Title = $line3.children('.jsc-cancel-policy-title').text(),
+				$line4Title = $line4.children('.jsc-cancel-policy-title').text(),
+				$line5Title = $line5.children('.jsc-cancel-policy-title').text();
+
+			var $line1Txt = $line1.children('.jsc-cancel-policy-txt').text(),
+				$line2Txt = $line2.children('.jsc-cancel-policy-txt').text(),
+				$line3Txt = $line3.children('.jsc-cancel-policy-txt').text(),
+				$line4Txt = $line4.children('.jsc-cancel-policy-txt').text(),
+				$line5Txt = $line5.children('.jsc-cancel-policy-txt').text();
+
+			if($line1Title === '' && $line2Title === '' && $line3Title === '' && $line4Title === '' && $line5Title === ''){
+				$(this).remove();
+			}
+
+			if($line1Txt === '' && $line2Txt === '' && $line3Txt === '' && $line4Txt === '' && $line5Txt === ''){
+				$(this).remove();
+			}
+		});
+	},
+	removeMealContent : function(){
+		this.infoWrapper.each(function(){
+			var $mealBox = $(this).find('.jsc-info-meal-box');
+			if($mealBox.children().length === 0){
+				$mealBox.remove();
+			}
+
+			var $SetWrap = $(this).find('.jsc-info-set-wrap');
+			if($SetWrap.children().length === 0){
+				$SetWrap.remove();
+			}
+		});
+	},
+	removeCanTxt : function(){
+		this.$canTxt.each(function(){
+			if($(this).text() === ''){
+				$(this).remove();
+			}
+		});
+	},
+	removeBedPopup : function(){
+		this.bedPopup.each(function(){
+			if($(this).text() === ''){
+				$(this).parent().css({
+					'text-decoration' : 'none'
+				});
+				$(this).prev().remove();
+				$(this).remove();
+			}
+		});
+	},
+	sortFreeword : function(){
+		this.infoWrapper.each(function(){
+			var line1 = $(this).find('.jsc-info-freeword-order1'),
+				line2 = $(this).find('.jsc-info-freeword-order2'),
+				line3 = $(this).find('.jsc-info-freeword-order3'),
+				line4 = $(this).find('.jsc-info-freeword-order4');
+
+			if(line1.length !== 0){
+				line1.after(line2,line3,line4);
+			}else if(line2.length !== 0){
+				line2.after(line3,line4);
+			}else if(line3.length !== 0){
+				line3.after(line4);
+			}else if(line4.length !== 0){
+				return;
+			}else{
+				return;
+			}
+
+		});
+	},
+	changeStyle : function(){
+		this.$cancelFreeword.each(function(){
+			if($(this).text() === ''){
+				$(this).text('　')
+			}
+		});
+	}
+};
+
+JALAN.CONTENTS.ANCHOR_LINK = {
+	init : function(){
+		if(!$('#wrapper').hasClass('detail-page')) return;
+		this.setParameters();
+		this.moveToTarget();
+	},
+	setParameters : function(){
+		this.$window = $(window);
+		this.hash = location.hash;
+	},
+	moveToTarget : function(){
+		if(!this.hash || $(this.hash).length === 0) return;
+		var targetPosition = $(this.hash).offset().top;
+		this.$window.scrollTop(targetPosition);
+	}
+};
+
+JALAN.CONTENTS.CALFLAG_CHECKER = {
+	ROOM : 0,
+    PLAN : 1,
+    TYPE : 2,
+	init : function(){
+		if(!$('#wrapper').hasClass('detail-page')) return;
+		this.setParameters();
+		this.checkFlg();
+	},
+	setParameters : function(){
+		this.$wrapper = $('.jsc-contents-wrapper');
+		this.$flg = $('.jsc-hidden-cancel-flg');
+	},
+	checkFlg : function(){
+		var _self = this;
+		this.$flg.each(function(){
+			var name = $(this).attr('name'),
+				datas = name.split('.');
+
+			var room = datas[parseInt(_self.ROOM)].match(/room\[(\d+)\]/)[1],
+				plan = datas[parseInt(_self.PLAN)].match(/plan\[(\d+)\]/)[1];
+
+			var type = datas[parseInt(_self.TYPE)],
+				val = $(this).val(),
+				$targetPoint = _self.$wrapper.eq(room).find('.jsc-target-content').children('li').eq(plan);
+
+			if(val === "0"){
+				var $canTitle = $targetPoint.find('.jsc-cancel-provision'),
+					$canWrap = $targetPoint.find('.jsc-cancel-policy-wrap');
+
+				$canTitle.remove();
+				$canWrap.remove();
+			}
+		});
+	}
+};
+
+JALAN.CONTENTS.CURSOL_CHECKER = {
+	init : function(){
+		this.setParameters();
+		this.changeCursol();
+	},
+	setParameters : function(){
+		this.bedContents = $('.jsc-bed-icnTxt');
+	},
+	changeCursol : function(){
+		this.bedContents.each(function(){
+			if($(this).find('.jsc-bed-detail').length === 0){
+				$(this).find('.jsc-icon-txt').css({
+					'cursor' : 'default'
+				});
+			}
+		});
+	}
+};
+
+JALAN.CONTENTS.SETHOVEREVENT = {
+	init : function(){
+		if(!$('#wrapper').hasClass('list-page')) return;
+		this.setParameters();
+		this.bindEvent();
+	},
+	setParameters : function(){
+		this.$yadoCassette = $('.jsc-contents-wrapper');
+		this.$planCassette = $('.cassette-hotel-plan li');
+	},
+	bindEvent : function(){
+		var active = 'isActive',
+				noBorde = 'noBorder';
+				hotelName = $('.cassette-hotel-name > a');
+
+		this.$yadoCassette.on({
+			'mouseover.parentHover': function() {
+				var $self = $(this);
+				if(!$self.hasClass(active)) {
+					$self
+						.addClass(active)
+						.find(hotelName).addClass(active);
+				}
+			},
+			'mouseleave.parentHover' : function() {
+				var $self = $(this);
+				if($self.hasClass(active)) {
+					$self
+						.removeClass(active)
+						.find(hotelName).removeClass(active);
+				}
+			}
+		});
+
+		this.$planCassette.on({
+			'mouseover.childHover': function(event) {
+				var $self = $(this);
+				$self
+					.addClass(active)
+					.closest('.jsc-contents-wrapper').removeClass(active)
+					.find(hotelName).removeClass(active);
+				$self.prev('li').addClass(noBorde);
+				event.stopPropagation();
+			},
+			'mouseleave.childHover': function(){
+				var $self = $(this);
+				$self.removeClass(active);
+				$self.prev('li').removeClass(noBorde);
+			}
+		});
+	}
+};
+
+JALAN.CONTENTS.LOCATIONLINK = {
+	init : function(){
+		if(!$('#wrapper').hasClass('list-page')) return;
+		this.setParameters();
+		this.bindEvent();
+	},
+	setParameters : function(){
+		this.$hotelName = $('.cassette-hotel-name > a');
+	},
+	bindEvent : function(){
+		this.$hotelName.each(function() {
+			var $self = $(this);
+			var destination = $self.attr('href');
+
+			$self.parents('.jsc-cassette-container').on('click.locationLink', function() {
+				window.location.href = destination;
+			});
+			$('.cassette-hotel-map, .cassette-hotel-plan > li,.btn.booked').on('click', function(e) {
+				e.stopPropagation();
+			});
+		});
+	}
+};
+
+$(window).on('load',function(){
+    var language = $('#wrapper').data('language');
+	$("#icon-contents-outer").load('/assets/global/icon/template.html #'+language+'-icon-contents',function(){
+		var $img = $('#icon-contents-outer').find('img');
+			images = [];
+
+			$img.each(function(){
+				var image = new Image();
+				image.src = $(this).attr('src');
+				images.push(image);
+			});
+			var timerId = setInterval(function(){
+				for(var i = 0,len = images.length; i < len;i ++){
+					if(!images[i].complete){
+						return;
+					}
+				}
+				clearInterval(timerId);
+				JALAN.CONTENTS.INDICATION.init();
+				JALAN.CONTENTS.DIVISION.init();
+				JALAN.CONTENTS.CANCELPOLICY.init();
+				JALAN.CONTENTS.COMBINING.init();
+				JALAN.CONTENTS.NOMEAL.init();
+				JALAN.CONTENTS.WAKEARI.init();
+				JALAN.CONTENTS.BEDCOMBINE.init();
+				JALAN.CONTENTS.REMOVE.init();
+				JALAN.CONTENTS.CANCELTXT.init();
+				JALAN.CONTENTS.CONBINING_CONDITION.init();
+				JALAN.CONTENTS.ADDITION.init();
+				JALAN.CONTENTS.ADD_CONDITON_TXT.init();
+				JALAN.CONTENTS.APPENDED_TXT.init();
+				JALAN.CONTENTS.PRICE_TXT.init();
+				JALAN.CONTENTS_ALIGNMENT.init();
+				JALAN.CONTENTS.TOOLTIP1.init();
+				JALAN.CONTENTS.TOOLTIP2.init();
+				JALAN.CONTENTS.INFO_MEAL_COMBINING.init();
+				JALAN.CONTENTS.CONBINING_CHECK.init();
+				JALAN.CONTENTS.REMOVE_INFORMATION.init();
+				JALAN.CONTENTS.CALFLAG_CHECKER.init();
+				JALAN.CONTENTS.ANCHOR_LINK.init();
+				JALAN.CONTENTS.CURSOL_CHECKER.init();
+				JALAN.CONTENTS.SETHOVEREVENT.init();
+				JALAN.CONTENTS.LOCATIONLINK.init();
+			},100);
+	});
+});

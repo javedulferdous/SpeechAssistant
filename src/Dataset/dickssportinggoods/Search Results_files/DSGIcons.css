@@ -1,0 +1,57 @@
+/*
+  Icon Font: DSGIcons
+*/
+
+@font-face {
+  font-family: "DSGIcons";
+  src: url("./DSGIcons.eot");
+  src: url("./DSGIcons.eot?#iefix") format("embedded-opentype"),
+       url("./DSGIcons.woff") format("woff"),
+       url("./DSGIcons.ttf") format("truetype"),
+       url("./DSGIcons.svg#DSGIcons") format("svg");
+  font-weight: normal;
+  font-style: normal;
+}
+
+@media screen and (-webkit-min-device-pixel-ratio:0) {
+  @font-face {
+    font-family: "DSGIcons";
+    src: url("./DSGIcons.svg#DSGIcons") format("svg");
+  }
+}
+
+[data-icon]:before { content: attr(data-icon); }
+
+[data-icon]:before, .dsg-icon-bag:before, .dsg-icon-bopis:before, .dsg-icon-box:before, .dsg-icon-cart:before, .dsg-icon-checked:before, .dsg-icon-dnbicon:before, .dsg-icon-dsg-account:before, .dsg-icon-dsg-cart:before, .dsg-icon-dsg-stores:before, .dsg-icon-menu:before, .dsg-icon-minus:before, .dsg-icon-plus:before, .dsg-icon-rebate:before, .dsg-icon-sizechart:before, .dsg-icon-stores:before, .dsg-icon-unchecked:before, .dsg-icon-weeklyad:before, .dsg-icon-x:before {
+  display: inline-block;
+  font-family: "DSGIcons";
+  font-style: normal;
+  font-weight: normal;
+  font-variant: normal;
+  line-height: 1;
+  text-decoration: inherit;
+  text-rendering: optimizeLegibility;
+  text-transform: none;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-font-smoothing: antialiased;
+  font-smoothing: antialiased
+}
+
+.dsg-icon-bag:before { content: "\f100"; }
+.dsg-icon-bopis:before { content: "\f101";}
+.dsg-icon-box:before { content: "\f102"; }
+.dsg-icon-cart:before { content: "\f103";}
+.dsg-icon-checked:before { content: "\f104"; }
+.dsg-icon-dnbicon:before { content: "\f105"; }
+.dsg-icon-dsg-account:before { content: "\f106"; }
+.dsg-icon-dsg-cart:before { content: "\f107"; }
+.dsg-icon-dsg-stores:before { content: "\f108"; }
+.dsg-icon-menu:before { content: "\f109"; }
+.dsg-icon-minus:before { content: "\f10a"; }
+.dsg-icon-plus:before {  content: "\f10b"; }
+.dsg-icon-rebate:before { content: "\f10c"; }
+.dsg-icon-sizechart:before { content: "\f10d"; }
+.dsg-icon-stores:before { content: "\f10e"; }
+.dsg-icon-unchecked:before { content: "\f10f"; }
+.dsg-icon-weeklyad:before { content: "\f110"; }
+.dsg-icon-x:before { content: "\f111"; }

@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<!-- saved from url=(0125)file:///C:/Users/jafra/OneDrive/Desktop/New%20Dataset/carid/Mr.%20Mustang%E2%84%A2%20Bumpers%20-%20CARiD.com_files/index.html -->
+<html class=" js webgl no-touch geolocation websockets rgba csstransforms csstransforms3d csstransitions fontface video audio svg js webgl no-touch geolocation websockets rgba csstransforms csstransforms3d csstransitions fontface video audio svg"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<title>Rakuten Ad</title>
+	
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" type="text/css" href="./style.css">
+	<link href="./css(3)" rel="stylesheet">
+	<script type="text/javascript">
+		mF = {
+			config: {
+				width: 300,
+				height: 250,
+				url: 'https://www.coursera.org/browse?utm_medium=onlineads&utm_source=display&utm_content=retargeting',
+				feeds: {
+					main_feed: '/products/json/course6577/personal_top_specializations'
+				},
+				contents: [{
+						type: 'feed',
+						selector: "#main_feed",
+						key: 'main_feed',
+						feed_key: 'main_feed',
+						url: {
+							append_querystring: 'utm_medium=onlineads&utm_source=display&utm_content=retargeting'
+						},
+						attributes: [{
+								key: 'brand',
+								selector: '.item_info .item_brand',
+								length: 65
+							}, {
+								key: 'name',
+								selector: '.item_image .item_name_box .item_name',
+								length: 40
+							},
+							{
+								key: 'rating',
+								selector: '.item_image .item_rating'
+							},
+							{
+								key: 'image_url',
+								type: 'image',
+								selector: '.item_image',
+								value: function(v, data) {
+									return (data.total_ratings == 0) ? '<span>' + v + '</span>' : ''
+								}
+							},
+							{
+								type: 'image',
+								selector: '.item_image .item_stars',
+								value: function(v, data) {
+									if (data.rating == "1") {
+										return "images/1.png";
+									}
+									if (data.rating == "2") {
+										return "images/2.png";
+									}
+									if (data.rating == "3") {
+										return "images/3.png";
+									} else if (data.rating == "4") {
+										return "images/4.png";
+									} else if (data.rating == "5") {
+										return "images/5.png";
+									} else if (data.rating == "0.1" || data.rating == "0.2" || data.rating == "0.3" || data.rating == "0.4" || data.rating == "0.5" || data.rating == "0.6" || data.rating == "0.7" || data.rating == "0.8" || data.rating == "0.9") {
+										return "images/H.png";
+									} else if (data.rating == "1.1" || data.rating == "1.2" || data.rating == "1.3" || data.rating == "1.4" || data.rating == "1.5" || data.rating == "1.6" || data.rating == "1.7" || data.rating == "1.8" || data.rating == "1.9") {
+										return "images/1H.png";
+									} else if (data.rating == "2.1" || data.rating == "2.2" || data.rating == "2.3" || data.rating == "2.4" || data.rating == "2.5" || data.rating == "2.6" || data.rating == "2.7" || data.rating == "2.8" || data.rating == "2.9") {
+										return "images/2H.png";
+									} else if (data.rating == "3.1" || data.rating == "3.2" || data.rating == "3.3" || data.rating == "3.4" || data.rating == "3.5" || data.rating == "3.6" || data.rating == "3.7" || data.rating == "3.8" || data.rating == "3.9") {
+										return "images/3H.png";
+									} else if (data.rating == "4.1" || data.rating == "4.2" || data.rating == "4.3" || data.rating == "4.4" || data.rating == "4.5" || data.rating == "4.6" || data.rating == "4.7" || data.rating == "4.8" || data.rating == "4.9") {
+										return "images/4H.png";
+									}
+								}
+							},
+							{
+								key: 'total_ratings',
+								selector: '.item_image .item_total'
+							}
+
+						],
+						transition: {
+							type: 'slider',
+							duration: 1000,
+							include_arrows: true,
+							auto_size: false,
+							active_location: 'center',
+							orientation: 'horizontal',
+							auto_scroll: {
+								//	handler: 'load',
+								wait: 2000,
+								interval: 3000,
+								max_count: 8,
+								//	canceling_handlers: ['InitialEngagement', 'MouseIn'],
+								//	activating_handlers: ['Load', 'MouseOut']
+							}
+						}
+					},
+					{
+						type: 'static',
+						key: 'wrapper',
+						selector: '#wrapper'
+					},
+					{
+						type: 'static',
+						key: 'wrapper',
+						selector: '#cta'
+					}
+				]
+			}
+		}
+
+	</script>
+<style>#privacy-holder { position:absolute; top:0; right:0; width:100%; z-index:100; cursor: auto; }
+#privacy-holder, #privacy-holder p { color:#000000; font-family:Arial; font-size:11px; font-weight:normal; line-height:13px; }
+#privacy-holder p { margin: 1em 0 0; } .height-90 #privacy-holder p { margin: 0.5em 0 0; }
+#privacy-icon { position:absolute; top:0; right:0; background:url("//ads.rd.linksynergy.com/privacy/ad_choices.png") no-repeat 100% 0; width:16px; height:15px; cursor: pointer; }
+#privacy-icon:hover { background-position:100% 100%; width:72px; }
+#privacy-container { position:relative; background-color:white; border:1px solid black; }
+#privacy-container .close-div { position: relative; float:right; }
+#privacy-container .close-div a.toggle { color:#707070; font-size:10px; text-decoration:none; }
+#privacy-content { padding-bottom: 1em; }
+#privacy-content .padded-container { padding:0 10px; }
+#privacy-content .link-container a { color:#2B2F98; text-decoration:none; font-weight:bold; }
+#privacy-content .link-container a:hover { text-decoration:underline; }
+#privacy-content .floated { position: relative; float: left; }</style><style>#privacy-holder { position:absolute; top:0; right:0; width:100%; z-index:100; cursor: auto; }
+#privacy-holder, #privacy-holder p { color:#000000; font-family:Arial; font-size:11px; font-weight:normal; line-height:13px; }
+#privacy-holder p { margin: 1em 0 0; } .height-90 #privacy-holder p { margin: 0.5em 0 0; }
+#privacy-icon { position:absolute; top:0; right:0; background:url("///privacy/ad_choices.png") no-repeat 100% 0; width:16px; height:15px; cursor: pointer; }
+#privacy-icon:hover { background-position:100% 100%; width:72px; }
+#privacy-container { position:relative; background-color:white; border:1px solid black; }
+#privacy-container .close-div { position: relative; float:right; }
+#privacy-container .close-div a.toggle { color:#707070; font-size:10px; text-decoration:none; }
+#privacy-content { padding-bottom: 1em; }
+#privacy-content .padded-container { padding:0 10px; }
+#privacy-content .link-container a { color:#2B2F98; text-decoration:none; font-weight:bold; }
+#privacy-content .link-container a:hover { text-decoration:underline; }
+#privacy-content .floated { position: relative; float: left; }</style></head>
+
+<body class="size-300x250 width-300 height-250" style="position: relative; overflow: hidden; width: 300px; height: 250px;" data-new-gr-c-s-check-loaded="14.981.0">
+
+	<script type="text/javascript" src="./phoenix-2.26.min.js.download"></script>
+	<div id="logo"></div>
+	
+
+	
+
+	<script>
+		$("#wrapper").fadeIn(3000).delay(5000).fadeOut("slow");
+
+	</script>
+
+	<script>
+		$(document).ready(function() {
+			var d = new Date();
+			switch (d.getMonth()) {
+				case 0:
+					month = "Jan";
+					break;
+				case 1:
+					month = "Feb";
+					break;
+				case 2:
+					month = "Mar";
+					break;
+				case 3:
+					month = "Apr";
+					break;
+				case 4:
+					month = "May";
+					break;
+				case 5:
+					month = "Jun";
+					break;
+				case 6:
+					month = "Jul";
+					break;
+				case 7:
+					month = "Aug";
+					break;
+				case 8:
+					month = "Sep";
+					break;
+				case 9:
+					month = "Oct";
+					break;
+				case 10:
+					month = "Nov";
+					break;
+				case 11:
+					month = "Dec";
+					break;
+			}
+			document.getElementById("cta").innerHTML = "<span id='enrolltoday'>Enroll Today</span><br>Starts " + month + ". " + d.getDate();
+		})
+
+	</script>
+
+
+
+
+<div id="ad" style="position: absolute; top: 0px; left: 0px; overflow: hidden; width: 300px; height: 250px;"><div id="privacy-holder"><a id="privacy-icon" class="toggle"></a><div id="privacy-container" style="display: none;"><div class="close-div"><a href="https://ads.rd.linksynergy.com/advertisers/course6577/rias/ria11682256/index.html?riaID=11682264&amp;merchantID=6577&amp;networkID=29&amp;event_id=2a2eba51-e9b2-4559-906a-a9b394d8cd3b&amp;embedid=1&amp;instanceid=1&amp;rd_idfa=&amp;locationurl=https%3A//amp.rd.linksynergy.com/%3Fmerchant%3Dcourse6577%26nID%3D29%26width%3D300%26height%3D250%26strategy%3Dhomepage%26cb%3D1604186218503678%26redirecturl%3Dhttps%3A//googleads.g.doubleclick.net/dbm/clk%253Fsa%253DL%2526ai%253DCFazvavCdX_7eHo_9zgX24bgQ_92FxV_n0-vwwAyYz4r45RoQASDa5uojYMnGpo3spIQRoAH77qSqAsgBCagDAaoE1AFP0Az36ewKEI5lrm2C4F2CUqJciFnj32BoLqDH-d1NM5zrApUF0c2EQkHAsH3g5UKTNUXvNfnzwDOLiMqLBF8FAPdRLncmOnFey3O2xxkRz2qr0wROn9cjVKU-CL39M9aw-b9vS3EFk01HausZmnBaLRCOAE3nKdYCA-FNEIoismoQwZU-z2_QNE0ziLRSaD-izVAl5wu0i1Kwsw0R_1DoE4lkTGLJBJ5Mt7LDnVi3lASEt7hg-v34XTHyA0xNxmokJYGpXOOLCIsrZHWbuM51iGYNacAEtdGrrIkD4AQDkAYBoAZNgAftkNvVAYgHAZAHAqgH1ckbqAfw2RuoB_LZG6gHjs4bqAeT2BuoB7oGqAfs1RuoB-6WsQKoB6a-G6gH7NUbqAfz0RuoB5bYG6gHwtob2AcA0ggGCAAQAhgNgAoDmAsByAsBgAwBsBOPp9UJ0BMA2BMN2BQB%2526ae%253D1%2526num%253D1%2526cid%253DCAMSeQClSFh3ySBBtGeQMVbNVKmOKvpf-zo19Ogt3RXOm1kMEBD85UFWUumUQ7Gm57i-pdA8oLWtVPUpJf3jwJ1-1mqPHa_9IYGWiMBBh2DcubFPdU6n3TBXfRCtomFBDetia7qlkgMmy4EDMegnHA0TUmHL5xoo8jPJZSM%2526sig%253DAOD64_2MiV7IvcfVwsnfaV-sytGdSbJ6MQ%2526client%253Dca-pub-3883021343090622%2526dbm_c%253DAKAmf-BsOG3TFzlWA7i8A&amp;redirecturl=https%3A%2F%2Fgoogleads.g.doubleclick.net%2Fdbm%2Fclk%3Fsa%3DL%26ai%3DCFazvavCdX_7eHo_9zgX24bgQ_92FxV_n0-vwwAyYz4r45RoQASDa5uojYMnGpo3spIQRoAH77qSqAsgBCagDAaoE1AFP0Az36ewKEI5lrm2C4F2CUqJciFnj32BoLqDH-d1NM5zrApUF0c2EQkHAsH3g5UKTNUXvNfnzwDOLiMqLBF8FAPdRLncmOnFey3O2xxkRz2qr0wROn9cjVKU-CL39M9aw-b9vS3EFk01HausZmnBaLRCOAE3nKdYCA-FNEIoismoQwZU-z2_QNE0ziLRSaD-izVAl5wu0i1Kwsw0R_1DoE4lkTGLJBJ5Mt7LDnVi3lASEt7hg-v34XTHyA0xNxmokJYGpXOOLCIsrZHWbuM51iGYNacAEtdGrrIkD4AQDkAYBoAZNgAftkNvVAYgHAZAHAqgH1ckbqAfw2RuoB_LZG6gHjs4bqAeT2BuoB7oGqAfs1RuoB-6WsQKoB6a-G6gH7NUbqAfz0RuoB5bYG6gHwtob2AcA0ggGCAAQAhgNgAoDmAsByAsBgAwBsBOPp9UJ0BMA2BMN2BQB%26ae%3D1%26num%3D1%26cid%3DCAMSeQClSFh3ySBBtGeQMVbNVKmOKvpf-zo19Ogt3RXOm1kMEBD85UFWUumUQ7Gm57i-pdA8oLWtVPUpJf3jwJ1-1mqPHa_9IYGWiMBBh2DcubFPdU6n3TBXfRCtomFBDetia7qlkgMmy4EDMegnHA0TUmHL5xoo8jPJZSM%26sig%3DAOD64_2MiV7IvcfVwsnfaV-sytGdSbJ6MQ%26client%3Dca-pub-3883021343090622%26dbm_c%3DAKAmf-BsOG3TFzlWA7i8ATzEXN_g4ZU1x2bjIZy-fS_G1F4aaFcczHx8SwVBUbLy88WdgESQQ2LSAVOu2InqJKp0CVvBEGbU8b9xR_31fNZBcvv-xeMGJdjGqNIomwAQ7REf24V8XlpbrAdyaqib2EPavU-B--ISgQ%26dbm_d%3DAKAmf-BgrPSLH-5ripj9MV1VWnvCI1N2cl0o9IZnTXDK5bp0F1yCj5yJSyBXJZgrNKQrDGZ3WxmOMgza7FJrgTgj_CwXvXJUAgvAmk-9wdE7LmfE2bVpqS_juPETR-L4HqEzl0-5mP7DC-CElnN6RbQ2BW1bok1eLLquQq6xOa3x7EhEIxp7OMTcjiF0IyKIizPIXlbzXQNpbpDfCFZRTFgKAJlrhYLSRBEivfekf5X-tLDEeEMXq5Ksi95Q5iqxE1zi58eQLEhmN2W176n1ljbxu_M588Bt__yng2SvkuP4fiV6E1DS-YtIpMz2c4GPS83_KsVZa5EB87OF-47Ex7lkzYT51zZCtqmzl0-ZaXlhksN_NaI_63_-97oH5_eeEVax2ILFoIQnhLo3gYaK_2ElADnXb1nnMmON2nrGHRExbnUXEP3VWD3ysUJRZlIv0PKRK5Qdpe1-jvnMcRC80Z4CQL7dOHFMdRt6lKkksUeG6baLgU64nto%26adurl%3D#" class="toggle">[ X ]</a></div><div id="privacy-content"></div></div></div><div class="content feed_content" id="main_feed"><div class="viewport slider_transition horizontal_orientation" style="position: relative;"><ul class="items_main" style="position: absolute; left: 0px; width: 450px; top: 0px;"><li class="items_viewport" style="float: left; display: inline;" id="main_feed_items_viewport_7"><ul class="items"><li class="item item_0" id="main_feed_items_viewport_7_0"><div class="item_info"><div class="item_brand">University of Pennsylvania</div></div><div class="item_image"><div class="item_name_box"><div class="item_name">Business Analytics</div></div><div class="item_rating">4.6</div><div><img></div><div class="item_stars"><img></div><div class="item_total">21,607</div></div></li></ul></li><li class="items_viewport" style="float: left; display: inline;" id="main_feed_items_viewport_8"><ul class="items"><li class="item item_0" id="main_feed_items_viewport_8_0"><div class="item_info"><div class="item_brand">University of Pennsylvania</div></div><div class="item_image"><div class="item_name_box"><div class="item_name">Business and Financial Modeling</div></div><div class="item_rating">4.5</div><div><img></div><div class="item_stars"><img></div><div class="item_total">13,480</div></div></li></ul></li><li class="items_viewport" style="float: left; display: inline;" id="main_feed_items_viewport_9"><ul class="items"><li class="item item_0" id="main_feed_items_viewport_9_0"><div class="item_info"><div class="item_brand">Duke University</div></div><div class="item_image"><div class="item_name_box"><div class="item_name">Java Programming and Software Engineerin…</div></div><div class="item_rating">4.6</div><div><img></div><div class="item_stars"><img></div><div class="item_total">18,792</div></div></li></ul></li><li class="items_viewport" style="float: left; display: inline;" id="main_feed_items_viewport_10"><ul class="items"><li class="item item_0" id="main_feed_items_viewport_10_0"><div class="item_info"><div class="item_brand">University of Washington</div></div><div class="item_image"><div class="item_name_box"><div class="item_name">Machine Learning</div></div><div class="item_rating">4.7</div><div><img></div><div class="item_stars"><img src="./4H.png"></div><div class="item_total">21,730</div></div></li></ul></li><li class="items_viewport" style="float: left; display: inline;" id="main_feed_items_viewport_11"><ul class="items"><li class="item item_0" id="main_feed_items_viewport_11_0"><div class="item_info"><div class="item_brand">University of California, Irvine</div></div><div class="item_image"><div class="item_name_box"><div class="item_name">Project Management Principles and Practi…</div></div><div class="item_rating">4.7</div><div><img></div><div class="item_stars"><img src="./4H.png"></div><div class="item_total">29,263</div></div></li></ul></li><li class="items_viewport active" style="float: left; display: inline;" id="main_feed_items_viewport_0"><ul class="items"><li class="item item_0" id="main_feed_items_viewport_0_0"><div class="item_info"><div class="item_brand">deeplearning.ai</div></div><div class="item_image"><div class="item_name_box"><div class="item_name">Deep Learning</div></div><div class="item_rating">4.8</div><div><img></div><div class="item_stars"><img src="./4H.png"></div><div class="item_total">250,333</div></div></li></ul></li><li class="items_viewport" style="float: left; display: inline;" id="main_feed_items_viewport_1"><ul class="items"><li class="item item_0" id="main_feed_items_viewport_1_0"><div class="item_info"><div class="item_brand">Johns Hopkins University</div></div><div class="item_image"><div class="item_name_box"><div class="item_name">Data Science</div></div><div class="item_rating">4.5</div><div><img></div><div class="item_stars"><img src="./4H.png"></div><div class="item_total">77,331</div></div></li></ul></li><li class="items_viewport" style="float: left; display: inline;" id="main_feed_items_viewport_2"><ul class="items"><li class="item item_0" id="main_feed_items_viewport_2_0"><div class="item_info"><div class="item_brand">University of Michigan</div></div><div class="item_image"><div class="item_name_box"><div class="item_name">Python for Everybody</div></div><div class="item_rating">4.8</div><div><img></div><div class="item_stars"><img src="./4H.png"></div><div class="item_total">293,665</div></div></li></ul></li><li class="items_viewport" style="float: left; display: inline;" id="main_feed_items_viewport_3"><ul class="items"><li class="item item_0" id="main_feed_items_viewport_3_0"><div class="item_info"><div class="item_brand">Duke University</div></div><div class="item_image"><div class="item_name_box"><div class="item_name">Excel to MySQL: Analytic Techniques for …</div></div><div class="item_rating">4.6</div><div><img></div><div class="item_stars"><img src="./4H.png"></div><div class="item_total">16,493</div></div></li></ul></li><li class="items_viewport" style="float: left; display: inline;" id="main_feed_items_viewport_4"><ul class="items"><li class="item item_0" id="main_feed_items_viewport_4_0"><div class="item_info"><div class="item_brand">Duke University</div></div><div class="item_image"><div class="item_name_box"><div class="item_name">Statistics with R</div></div><div class="item_rating">4.5</div><div><img></div><div class="item_stars"><img src="./4H.png"></div><div class="item_total">8,406</div></div></li></ul></li><li class="items_viewport" style="float: left; display: inline;" id="main_feed_items_viewport_5"><ul class="items"><li class="item item_0" id="main_feed_items_viewport_5_0"><div class="item_info"><div class="item_brand">University of California San Diego</div></div><div class="item_image"><div class="item_name_box"><div class="item_name">Big Data</div></div><div class="item_rating">4.5</div><div><img></div><div class="item_stars"><img src="./4H.png"></div><div class="item_total">16,552</div></div></li></ul></li><li class="items_viewport" style="float: left; display: inline;" id="main_feed_items_viewport_6"><ul class="items"><li class="item item_0" id="main_feed_items_viewport_6_0"><div class="item_info"><div class="item_brand">University of Pennsylvania</div></div><div class="item_image"><div class="item_name_box"><div class="item_name">Foundations of Positive Psychology</div></div><div class="item_rating">4.7</div><div><img></div><div class="item_stars"><img src="./4H.png"></div><div class="item_total">7,977</div></div></li></ul></li></ul></div><ul class="nav_arrows"><li class="nav_previous" data-direction="previous"><a href="https://ads.rd.linksynergy.com/advertisers/course6577/rias/ria11682256/index.html?riaID=11682264&amp;merchantID=6577&amp;networkID=29&amp;event_id=2a2eba51-e9b2-4559-906a-a9b394d8cd3b&amp;embedid=1&amp;instanceid=1&amp;rd_idfa=&amp;locationurl=https%3A//amp.rd.linksynergy.com/%3Fmerchant%3Dcourse6577%26nID%3D29%26width%3D300%26height%3D250%26strategy%3Dhomepage%26cb%3D1604186218503678%26redirecturl%3Dhttps%3A//googleads.g.doubleclick.net/dbm/clk%253Fsa%253DL%2526ai%253DCFazvavCdX_7eHo_9zgX24bgQ_92FxV_n0-vwwAyYz4r45RoQASDa5uojYMnGpo3spIQRoAH77qSqAsgBCagDAaoE1AFP0Az36ewKEI5lrm2C4F2CUqJciFnj32BoLqDH-d1NM5zrApUF0c2EQkHAsH3g5UKTNUXvNfnzwDOLiMqLBF8FAPdRLncmOnFey3O2xxkRz2qr0wROn9cjVKU-CL39M9aw-b9vS3EFk01HausZmnBaLRCOAE3nKdYCA-FNEIoismoQwZU-z2_QNE0ziLRSaD-izVAl5wu0i1Kwsw0R_1DoE4lkTGLJBJ5Mt7LDnVi3lASEt7hg-v34XTHyA0xNxmokJYGpXOOLCIsrZHWbuM51iGYNacAEtdGrrIkD4AQDkAYBoAZNgAftkNvVAYgHAZAHAqgH1ckbqAfw2RuoB_LZG6gHjs4bqAeT2BuoB7oGqAfs1RuoB-6WsQKoB6a-G6gH7NUbqAfz0RuoB5bYG6gHwtob2AcA0ggGCAAQAhgNgAoDmAsByAsBgAwBsBOPp9UJ0BMA2BMN2BQB%2526ae%253D1%2526num%253D1%2526cid%253DCAMSeQClSFh3ySBBtGeQMVbNVKmOKvpf-zo19Ogt3RXOm1kMEBD85UFWUumUQ7Gm57i-pdA8oLWtVPUpJf3jwJ1-1mqPHa_9IYGWiMBBh2DcubFPdU6n3TBXfRCtomFBDetia7qlkgMmy4EDMegnHA0TUmHL5xoo8jPJZSM%2526sig%253DAOD64_2MiV7IvcfVwsnfaV-sytGdSbJ6MQ%2526client%253Dca-pub-3883021343090622%2526dbm_c%253DAKAmf-BsOG3TFzlWA7i8A&amp;redirecturl=https%3A%2F%2Fgoogleads.g.doubleclick.net%2Fdbm%2Fclk%3Fsa%3DL%26ai%3DCFazvavCdX_7eHo_9zgX24bgQ_92FxV_n0-vwwAyYz4r45RoQASDa5uojYMnGpo3spIQRoAH77qSqAsgBCagDAaoE1AFP0Az36ewKEI5lrm2C4F2CUqJciFnj32BoLqDH-d1NM5zrApUF0c2EQkHAsH3g5UKTNUXvNfnzwDOLiMqLBF8FAPdRLncmOnFey3O2xxkRz2qr0wROn9cjVKU-CL39M9aw-b9vS3EFk01HausZmnBaLRCOAE3nKdYCA-FNEIoismoQwZU-z2_QNE0ziLRSaD-izVAl5wu0i1Kwsw0R_1DoE4lkTGLJBJ5Mt7LDnVi3lASEt7hg-v34XTHyA0xNxmokJYGpXOOLCIsrZHWbuM51iGYNacAEtdGrrIkD4AQDkAYBoAZNgAftkNvVAYgHAZAHAqgH1ckbqAfw2RuoB_LZG6gHjs4bqAeT2BuoB7oGqAfs1RuoB-6WsQKoB6a-G6gH7NUbqAfz0RuoB5bYG6gHwtob2AcA0ggGCAAQAhgNgAoDmAsByAsBgAwBsBOPp9UJ0BMA2BMN2BQB%26ae%3D1%26num%3D1%26cid%3DCAMSeQClSFh3ySBBtGeQMVbNVKmOKvpf-zo19Ogt3RXOm1kMEBD85UFWUumUQ7Gm57i-pdA8oLWtVPUpJf3jwJ1-1mqPHa_9IYGWiMBBh2DcubFPdU6n3TBXfRCtomFBDetia7qlkgMmy4EDMegnHA0TUmHL5xoo8jPJZSM%26sig%3DAOD64_2MiV7IvcfVwsnfaV-sytGdSbJ6MQ%26client%3Dca-pub-3883021343090622%26dbm_c%3DAKAmf-BsOG3TFzlWA7i8ATzEXN_g4ZU1x2bjIZy-fS_G1F4aaFcczHx8SwVBUbLy88WdgESQQ2LSAVOu2InqJKp0CVvBEGbU8b9xR_31fNZBcvv-xeMGJdjGqNIomwAQ7REf24V8XlpbrAdyaqib2EPavU-B--ISgQ%26dbm_d%3DAKAmf-BgrPSLH-5ripj9MV1VWnvCI1N2cl0o9IZnTXDK5bp0F1yCj5yJSyBXJZgrNKQrDGZ3WxmOMgza7FJrgTgj_CwXvXJUAgvAmk-9wdE7LmfE2bVpqS_juPETR-L4HqEzl0-5mP7DC-CElnN6RbQ2BW1bok1eLLquQq6xOa3x7EhEIxp7OMTcjiF0IyKIizPIXlbzXQNpbpDfCFZRTFgKAJlrhYLSRBEivfekf5X-tLDEeEMXq5Ksi95Q5iqxE1zi58eQLEhmN2W176n1ljbxu_M588Bt__yng2SvkuP4fiV6E1DS-YtIpMz2c4GPS83_KsVZa5EB87OF-47Ex7lkzYT51zZCtqmzl0-ZaXlhksN_NaI_63_-97oH5_eeEVax2ILFoIQnhLo3gYaK_2ElADnXb1nnMmON2nrGHRExbnUXEP3VWD3ysUJRZlIv0PKRK5Qdpe1-jvnMcRC80Z4CQL7dOHFMdRt6lKkksUeG6baLgU64nto%26adurl%3D#">&lt;</a></li><li class="nav_next" data-direction="next"><a href="https://ads.rd.linksynergy.com/advertisers/course6577/rias/ria11682256/index.html?riaID=11682264&amp;merchantID=6577&amp;networkID=29&amp;event_id=2a2eba51-e9b2-4559-906a-a9b394d8cd3b&amp;embedid=1&amp;instanceid=1&amp;rd_idfa=&amp;locationurl=https%3A//amp.rd.linksynergy.com/%3Fmerchant%3Dcourse6577%26nID%3D29%26width%3D300%26height%3D250%26strategy%3Dhomepage%26cb%3D1604186218503678%26redirecturl%3Dhttps%3A//googleads.g.doubleclick.net/dbm/clk%253Fsa%253DL%2526ai%253DCFazvavCdX_7eHo_9zgX24bgQ_92FxV_n0-vwwAyYz4r45RoQASDa5uojYMnGpo3spIQRoAH77qSqAsgBCagDAaoE1AFP0Az36ewKEI5lrm2C4F2CUqJciFnj32BoLqDH-d1NM5zrApUF0c2EQkHAsH3g5UKTNUXvNfnzwDOLiMqLBF8FAPdRLncmOnFey3O2xxkRz2qr0wROn9cjVKU-CL39M9aw-b9vS3EFk01HausZmnBaLRCOAE3nKdYCA-FNEIoismoQwZU-z2_QNE0ziLRSaD-izVAl5wu0i1Kwsw0R_1DoE4lkTGLJBJ5Mt7LDnVi3lASEt7hg-v34XTHyA0xNxmokJYGpXOOLCIsrZHWbuM51iGYNacAEtdGrrIkD4AQDkAYBoAZNgAftkNvVAYgHAZAHAqgH1ckbqAfw2RuoB_LZG6gHjs4bqAeT2BuoB7oGqAfs1RuoB-6WsQKoB6a-G6gH7NUbqAfz0RuoB5bYG6gHwtob2AcA0ggGCAAQAhgNgAoDmAsByAsBgAwBsBOPp9UJ0BMA2BMN2BQB%2526ae%253D1%2526num%253D1%2526cid%253DCAMSeQClSFh3ySBBtGeQMVbNVKmOKvpf-zo19Ogt3RXOm1kMEBD85UFWUumUQ7Gm57i-pdA8oLWtVPUpJf3jwJ1-1mqPHa_9IYGWiMBBh2DcubFPdU6n3TBXfRCtomFBDetia7qlkgMmy4EDMegnHA0TUmHL5xoo8jPJZSM%2526sig%253DAOD64_2MiV7IvcfVwsnfaV-sytGdSbJ6MQ%2526client%253Dca-pub-3883021343090622%2526dbm_c%253DAKAmf-BsOG3TFzlWA7i8A&amp;redirecturl=https%3A%2F%2Fgoogleads.g.doubleclick.net%2Fdbm%2Fclk%3Fsa%3DL%26ai%3DCFazvavCdX_7eHo_9zgX24bgQ_92FxV_n0-vwwAyYz4r45RoQASDa5uojYMnGpo3spIQRoAH77qSqAsgBCagDAaoE1AFP0Az36ewKEI5lrm2C4F2CUqJciFnj32BoLqDH-d1NM5zrApUF0c2EQkHAsH3g5UKTNUXvNfnzwDOLiMqLBF8FAPdRLncmOnFey3O2xxkRz2qr0wROn9cjVKU-CL39M9aw-b9vS3EFk01HausZmnBaLRCOAE3nKdYCA-FNEIoismoQwZU-z2_QNE0ziLRSaD-izVAl5wu0i1Kwsw0R_1DoE4lkTGLJBJ5Mt7LDnVi3lASEt7hg-v34XTHyA0xNxmokJYGpXOOLCIsrZHWbuM51iGYNacAEtdGrrIkD4AQDkAYBoAZNgAftkNvVAYgHAZAHAqgH1ckbqAfw2RuoB_LZG6gHjs4bqAeT2BuoB7oGqAfs1RuoB-6WsQKoB6a-G6gH7NUbqAfz0RuoB5bYG6gHwtob2AcA0ggGCAAQAhgNgAoDmAsByAsBgAwBsBOPp9UJ0BMA2BMN2BQB%26ae%3D1%26num%3D1%26cid%3DCAMSeQClSFh3ySBBtGeQMVbNVKmOKvpf-zo19Ogt3RXOm1kMEBD85UFWUumUQ7Gm57i-pdA8oLWtVPUpJf3jwJ1-1mqPHa_9IYGWiMBBh2DcubFPdU6n3TBXfRCtomFBDetia7qlkgMmy4EDMegnHA0TUmHL5xoo8jPJZSM%26sig%3DAOD64_2MiV7IvcfVwsnfaV-sytGdSbJ6MQ%26client%3Dca-pub-3883021343090622%26dbm_c%3DAKAmf-BsOG3TFzlWA7i8ATzEXN_g4ZU1x2bjIZy-fS_G1F4aaFcczHx8SwVBUbLy88WdgESQQ2LSAVOu2InqJKp0CVvBEGbU8b9xR_31fNZBcvv-xeMGJdjGqNIomwAQ7REf24V8XlpbrAdyaqib2EPavU-B--ISgQ%26dbm_d%3DAKAmf-BgrPSLH-5ripj9MV1VWnvCI1N2cl0o9IZnTXDK5bp0F1yCj5yJSyBXJZgrNKQrDGZ3WxmOMgza7FJrgTgj_CwXvXJUAgvAmk-9wdE7LmfE2bVpqS_juPETR-L4HqEzl0-5mP7DC-CElnN6RbQ2BW1bok1eLLquQq6xOa3x7EhEIxp7OMTcjiF0IyKIizPIXlbzXQNpbpDfCFZRTFgKAJlrhYLSRBEivfekf5X-tLDEeEMXq5Ksi95Q5iqxE1zi58eQLEhmN2W176n1ljbxu_M588Bt__yng2SvkuP4fiV6E1DS-YtIpMz2c4GPS83_KsVZa5EB87OF-47Ex7lkzYT51zZCtqmzl0-ZaXlhksN_NaI_63_-97oH5_eeEVax2ILFoIQnhLo3gYaK_2ElADnXb1nnMmON2nrGHRExbnUXEP3VWD3ysUJRZlIv0PKRK5Qdpe1-jvnMcRC80Z4CQL7dOHFMdRt6lKkksUeG6baLgU64nto%26adurl%3D#">&gt;</a></li></ul></div><div id="wrapper" class="content static_content" style="">
+
+		<div id="intro">
+			<div id="headline1">
+				<h1>Learn from </h1>
+				<h2>world-class universities </h2>
+				<h3>&amp; companies</h3>
+			</div>
+			<div id="shimmy_bg_animation">
+				<div id="shimmy_bg"></div>
+			</div>
+
+
+			<div id="headline2">
+				<h1>from </h1>
+				<h2>your home. </h2>
+			</div>
+			<div id="lifestyle_bg"></div>
+		</div>
+
+	</div><div id="cta" class="content static_content"><span id="enrolltoday">Enroll Today</span><br>Starts Nov. 2</div><div id="privacy-holder"><a id="privacy-icon" class="toggle"></a><div id="privacy-container" style="display: none;"><div class="close-div"><a href="file:///C:/Users/jafra/OneDrive/Desktop/New%20Dataset/carid/Mr.%20Mustang%E2%84%A2%20Bumpers%20-%20CARiD.com_files/index.html#" class="toggle">[ X ]</a></div><div id="privacy-content"></div></div></div></div><img width="1" height="1" src="./t" style="position: absolute; top: -1000px; left: -1000px;"><img width="1" height="1" src="./logi.aspx" style="position: absolute; top: -1000px; left: -1000px;"><img width="1" height="1" src="file://ut.rd.linksynergy.com/t?url=&amp;eID=&amp;aID=&amp;mID=&amp;type=1&amp;nID=24&amp;rmch=rd&amp;tp=imp&amp;duration=176&amp;v=2.26.10&amp;engine=phoenix&amp;cts=11%2F02%2F2020+20%3A06%3A25&amp;sID=7D887967-BC15-1312-0410-2C3902582BA9" style="position: absolute; top: -1000px; left: -1000px;"><img width="1" height="1" src="file://nypi.dc-storm.com/dcv4/logi.aspx?tp=rmi&amp;lqs=1&amp;rdmid=&amp;rdadid=&amp;rdevent=imp&amp;rdrnd=1604365585808" style="position: absolute; top: -1000px; left: -1000px;"></body></html>

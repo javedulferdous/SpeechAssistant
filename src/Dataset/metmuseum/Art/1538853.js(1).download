@@ -1,0 +1,94 @@
+jQuery('document').ready(function() {
+  
+   var observeDOM = (function(){
+    var MutationObserver = window.MutationObserver || window.WebKitMutationObserver,
+        eventListenerSupported = window.addEventListener;
+
+    return function(obj, callback){
+        if( MutationObserver ){
+            // define a new observer
+            var obs = new MutationObserver(function(mutations, observer){
+                if( mutations[0].type == 'attributes' )
+                    callback();
+            });
+            // have the observer observe foo for changes in children
+            obs.observe( obj, { attributes :true });
+        }
+        else if( eventListenerSupported ){
+            obj.addEventListener('DOMAttrModified', callback, false);
+        }
+    };
+  })();
+  
+  function updateBorderHeight() {
+    jQuery('.mt_borderRight').hide();
+    setTimeout(function() {
+      var imageEl = document.querySelector('.mt_item_0 img');
+      var imageHeight = document.querySelector('.mt_item_0 img').offsetHeight;
+      var container = document.querySelector('.mt_sliderMask');
+      var containerHeight = container.offsetHeight;
+      var contTop = container.offsetTop;
+      var imageTop = imageEl.offsetTop;
+      var contBottom = contTop + containerHeight;
+      var imageBottom = imageTop + imageHeight;
+      var spacingImageBottom = contBottom - imageBottom;
+    
+
+      jQuery('.mt_borderRight').height(imageHeight);
+      jQuery('.mt_borderRight').css('top', (-1 * ((spacingImageBottom / 2) -1)));
+      jQuery('.mt_borderRight').show();
+    }, 100);
+  };
+  
+  function updateScrollHeight() {
+    var imageEl = jQuery('.mt_sliderMask .mt_item_0 img');
+
+    var imageHeight = imageEl[0].offsetHeight;
+    if (imageHeight > 0 && imageHeight < 300 ) {
+        var container = jQuery('.mt_sliderMask');
+        var containerHeight = container[0].offsetHeight;
+        var contTop = container[0].offsetTop;
+        var imageTop = imageEl[0].offsetTop;
+        var contBottom = contTop + containerHeight;
+        var imageBottom = imageTop + imageHeight;
+        var spacingImageTop = imageTop - contTop;
+        var spacingImageBottom = contBottom - imageBottom;
+
+        var arrowContainer = jQuery('.mt_arrowContainer');
+
+        for (var i =0 ; i < arrowContainer.length; i++) {
+            arrowContainer[i].style.top = ((spacingImageBottom - spacingImageTop) / 2) * -1 + 'px';
+        }
+    }
+  }
+  
+var endcapInitAttempted = 0;
+var borderInitialized = false;
+function initializeEndcapItemHeight() {
+  endcapInitAttempted++;
+  var itemHeight = jQuery('.mt_sliderMask .mt_item_0 img').height();
+  var containerHeight = jQuery('.mt_sliderMask').height();
+  if (endcapInitAttempted >= 20) {
+    return;
+  }
+  if (!borderInitialized && itemHeight > 0 && itemHeight < 300 && containerHeight < 1000) {
+    updateScrollHeight();
+    borderInitialized = true;
+    var sliderMaskLength = jQuery('.mt_sliderMask').length;
+    var borderRightLength = jQuery('.mt_borderRight').length;
+    if (sliderMaskLength > 0) {
+      if (jQuery('.mt_borderRight').length < 1) {
+        jQuery('.mt_sliderMask').after('<div class="mt_borderRight" style="border-right: 1px solid #f1f1f1; left: -2px; position: relative"></div>');
+      }
+    }
+    updateBorderHeight();
+    observeDOM(document.querySelector('.mt_item_0'), function() {
+       updateBorderHeight();
+    });
+  } else { 
+    setTimeout(initializeEndcapItemHeight, 200);
+  }
+};
+  initializeEndcapItemHeight();
+
+});

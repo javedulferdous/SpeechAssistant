@@ -1,0 +1,27 @@
+_satellite.pushAsyncScript(function(event, target, $variables){
+  /**
+ * Rule:   "Bing Ads Universal Event Tracking (UET)"
+ * Script: "Load Bing UET"
+ */
+!(function(e, t, a, n, o) {
+  var r, i, c
+  ;(e[o] = e[o] || []),
+    (r = function() {
+      var t = { ti: _satellite.getVar('bing_uet_id') }
+      ;(t.q = e[o]),
+        (e[o] = new UET(t)),
+        e[o].push('pageLoad'),
+        'checkout:confirmation' == _satellite.getVar('page_name') &&
+          e[o].push({ gv: _satellite.getVar('order').OrderSubtotal })
+    }),
+    ((i = t.createElement(a)).src = '//bat.bing.com/bat.js'),
+    (i.async = 1),
+    (i.onload = i.onreadystatechange = function() {
+      var e = this.readyState
+      ;(e && 'loaded' !== e && 'complete' !== e) ||
+        (r(), (i.onload = i.onreadystatechange = null))
+    }),
+    (c = t.getElementsByTagName('body')[0]).appendChild(i)
+})(window, document, 'script', 0, 'uetq')
+
+});

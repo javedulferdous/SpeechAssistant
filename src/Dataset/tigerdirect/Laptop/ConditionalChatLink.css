@@ -1,0 +1,22 @@
+.rn_ConditionalChatLink .rn_ChatAvailable
+{
+    display: block;
+}
+#nav-chat{
+    font-size: 13px;
+    width: 100px;
+    line-height: 45px;	
+}
+li#nav-chat.nav-chat.insight-chat-link{
+	display: inline !important;
+}
+#contactUsChatLinkInfo:not(.rn_ChatAvailable) span {
+    position: absolute;
+    max-width: 40%;
+    left: 0;
+    background: white;
+    display: block;
+    font-weight: 400;
+    z-index: 1;
+    padding: 0 10px;
+}

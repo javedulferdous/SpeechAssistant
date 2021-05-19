@@ -1,0 +1,1 @@
+DSGShoppingPathJS.certonaRecommendations({"resonance":{"schemes":[{"scheme":"search_rr","explanation":"","display":"no","items":[]}]}});

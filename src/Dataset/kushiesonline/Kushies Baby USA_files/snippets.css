@@ -1,0 +1,209 @@
+/*-------------------------------------------------------CUSTOM CSS STARTS---------------------------------------------*/
+.vcb-snippet.vcb-custom .vcb-gradient{
+    background: -moz-linear-gradient(top, transparent 0%, rgba(0, 0, 0, 0.3) 100%) !important;
+background: -webkit-linear-gradient(top, transparent 0%, rgba(0, 0, 0, 0.3) 100%)!important;
+background: linear-gradient(to bottom, transparent 0%, rgba(0, 0, 0, 0.3) 100%)!important;
+}
+/*-------------------------------------------------------CUSTOM CSS ENDS---------------------------------------------*/
+
+
+.vcb-snippet.vcb-custom .vcb-section__title {
+  font-size: 1.3em; }
+  .vcb-snippet.vcb-custom .vcb-section__title--top {
+    font-size: 1.2em; }
+  .vcb-snippet.vcb-custom .vcb-section__title--bottom {
+    font-size: 3em; }
+
+.vcb-snippet.vcb-custom .vcb-pos-a {
+  position: absolute; }
+  .vcb-snippet.vcb-custom .vcb-pos-a-top {
+    position: absolute;
+    top: 0; }
+  .vcb-snippet.vcb-custom .vcb-pos-a-right {
+    position: absolute;
+    right: 0; }
+    @media only screen and (min-width: 992px) {
+      .vcb-snippet.vcb-custom .vcb-pos-a-right-md-and-up {
+        position: absolute;
+        right: 0; } }
+  .vcb-snippet.vcb-custom .vcb-pos-a-bottom {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    left: 0; }
+  .vcb-snippet.vcb-custom .vcb-pos-a-left {
+    position: absolute;
+    left: 0; }
+    @media only screen and (min-width: 768px) {
+      .vcb-snippet.vcb-custom .vcb-pos-a-left-sm-and-up {
+        position: absolute;
+        left: 0; } }
+  .vcb-snippet.vcb-custom .vcb-pos-a-v-center {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%); }
+    @media only screen and (max-width: 767px) {
+      .vcb-snippet.vcb-custom .vcb-pos-a-v-center-xs {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%); } }
+    @media only screen and (min-width: 768px) {
+      .vcb-snippet.vcb-custom .vcb-pos-a-v-center-sm-and-up {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%); } }
+    @media only screen and (min-width: 992px) {
+      .vcb-snippet.vcb-custom .vcb-pos-a-v-center-md-and-up {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%); } }
+  .vcb-snippet.vcb-custom .vcb-pos-a-h-center {
+    position: absolute;
+    right: 0;
+    left: 0;
+    margin-right: auto;
+    margin-left: auto; }
+    @media only screen and (max-width: 767px) {
+      .vcb-snippet.vcb-custom .vcb-pos-a-h-center-xs {
+        position: absolute;
+        right: 0;
+        left: 0;
+        margin-right: auto;
+        margin-left: auto; } }
+    @media only screen and (min-width: 768px) {
+      .vcb-snippet.vcb-custom .vcb-pos-a-h-center-sm-and-up {
+        position: absolute;
+        right: 0;
+        left: 0;
+        margin-right: auto;
+        margin-left: auto; } }
+    @media only screen and (min-width: 992px) {
+      .vcb-snippet.vcb-custom .vcb-pos-a-h-center-md-and-up {
+        position: absolute;
+        right: 0;
+        left: 0;
+        margin-right: auto;
+        margin-left: auto; } }
+
+.vcb-snippet.vcb-custom .vcb-pos-r {
+  position: relative; }
+
+.vcb-snippet.vcb-custom .vcb-block {
+  padding: 15px; }
+  .vcb-snippet.vcb-custom .vcb-block.no-pad {
+    padding-right: 0;
+    padding-left: 0; }
+
+.vcb-snippet.vcb-custom .vcb-ellipsis {
+  max-width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis; }
+
+.vcb-snippet.vcb-custom .vcb-below-cb-icons-height {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: calc(57.5% - 35px); }
+
+.vcb-snippet.vcb-custom .vcb-gradient {
+  background: transparent;
+  background: -moz-linear-gradient(top, transparent 0%, rgba(0, 0, 0, 0.6) 100%);
+  background: -webkit-linear-gradient(top, transparent 0%, rgba(0, 0, 0, 0.6) 100%);
+  background: linear-gradient(to bottom, transparent 0%, rgba(0, 0, 0, 0.6) 100%);
+  color: white; }
+
+.vcb-snippet.vcb-custom .vcb-hover-box-shadow:hover {
+  box-shadow: 0 5px 30px 5px rgba(0, 0, 0, 0.2); }
+
+.vcb-snippet.vcb-custom .vcb-hover-darken-children {
+  background-color: black; }
+  .vcb-snippet.vcb-custom .vcb-hover-darken-children:hover > * {
+    opacity: 0.8; }
+  .vcb-snippet.vcb-custom .vcb-hover-darken-children > * {
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+    transition: opacity 0.8s ease; }
+
+.vcb-snippet.vcb-custom .vcb-hover-lighten-children {
+  background-color: white; }
+  .vcb-snippet.vcb-custom .vcb-hover-lighten-children:hover > * {
+    opacity: 0.7; }
+  .vcb-snippet.vcb-custom .vcb-hover-lighten-children > * {
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+    transition: opacity 0.3s linear; }
+
+@media only screen and (min-width: 768) {
+  .vcb-custom.vol-pt-handmade .col-sm-offset-right-1 {
+    margin-right: 8.3333333333%; } }
+
+@media only screen and (min-width: 1200px) {
+  .vcb-custom.vol-pt-handmade .col-lg-offset-right-1 {
+    margin-right: 8.3333333333%; } }
+
+@media only screen and (min-width: 768px) {
+  .vcb-custom.vol-pt-handmade .vcb-pos-a-center-right-md-and-up {
+    position: absolute;
+    top: 50%;
+    right: 0;
+    transform: translateY(-50%); } }
+
+@media only screen and (max-width: 767px) {
+  .vcb-custom.vol-pt-handmade .row-xs {
+    margin-right: -15px;
+    margin-left: -15px; } }
+
+@media only screen and (max-width: 767px) {
+  .vcb-custom.vol-pt-handmade .vcb-section--promo:not(.vcb-section--promo5) {
+    padding-bottom: 0; } }
+
+@media only screen and (min-width: 768px) {
+  .vcb-custom.vol-pt-handmade .vcb-section--promo1 {
+    padding-top: 7%; } }
+
+@media only screen and (min-width: 768px) {
+  .vcb-custom.vol-pt-handmade .vcb-section--promo4 {
+    padding-top: 7%; } }
+
+@media only screen and (min-width: 768px) and (max-width: 991px) {
+  .vcb-custom.vol-pt-handmade .vcb-section--promo5 {
+    margin-top: -5%; } }
+
+@media only screen and (min-width: 992px) {
+  .vcb-custom.vol-pt-handmade .vcb-section--promo5 {
+    padding-top: 4%; } }
+
+.vcb-custom.vol-pt-handmade .vcb-section__title {
+  margin-top: 0; }
+
+@media only screen and (min-width: 768px) {
+  .vcb-custom.vol-pt-handmade .vcb-section__button {
+    padding-top: 20px; } }
+
+@media only screen and (max-width: 767px) {
+  .vcb-custom.vol-pt-handmade .img-scale-xs {
+    height: 100%;
+    max-width: none; } }
+
+@media only screen and (min-width: 768px) {
+  .vcb-custom.vol-pt-handmade .vcb-vertical-spacing-top {
+    margin-top: 20px; } }
+
+@media only screen and (min-width: 768px) {
+  .vcb-custom.vol-pt-handmade .vcb-vertical-spacing-bottom {
+    margin-bottom: 20px; } }
+
+.vcb-custom.vol-pt-handmade .vcb-product-grid .vcb-product__img {
+  margin-bottom: 10px; }
+
+.vcb-custom.vol-pt-handmade .vcb-product-grid .vcb-product__title {
+  margin-bottom: 5px; }
+
+.vcb-custom.vol-pt-handmade .vcb-product-grid .vcb-product__productprice {
+  text-decoration: none; }
+
+@media only screen and (min-width: 992px) {
+  .vcb-custom.vol-pt-handmade .vcb-textblock {
+    padding: 20px 30px; } }

@@ -1,0 +1,12 @@
+(function($) {
+
+// @TODO: This probably needs to be smarter, giving a specific message to the user,
+//        if this is something they've already favorited. Also, the already favorited
+//        products should have their heart icon filled in on page load, somehow (currently,
+//        they're not).
+$(document).on('addToWishlist.success addToWishlist.exists', function(event, cr, $el) {
+  // Set icon to heart--selected, in the wake of a successful favoriting (even if it was already a favorite)
+  $el.find('.icon').removeClass('icon--heart').addClass('icon--heart--selected');
+});
+
+})(jQuery);

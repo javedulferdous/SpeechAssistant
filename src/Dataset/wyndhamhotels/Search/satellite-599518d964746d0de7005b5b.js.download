@@ -1,0 +1,214 @@
+_satellite.pushBlockingScript(function(event, target, $variables){
+  // lite_enroll_complete
+document.body.addEventListener('lite_enroll_complete', function (evt) {
+  if (evt && evt.detail && evt.detail.subscribeEstatements) {
+    digitalData.user.preferences.subscribeEstatements = evt.detail.subscribeEstatements;
+  }
+  if (evt && evt.detail && evt.detail.wyndhamRewardsOptIn) {
+    digitalData.confirmation.confirmInfo.wyndhamRewardsOptIn = evt.detail.wyndhamRewardsOptIn;
+  }
+}, false);
+
+// security_questions
+document.body.addEventListener('security_questions', function (evt) {
+  if (evt && evt.detail && evt.detail.subscribeEstatements) {
+    digitalData.user.preferences.subscribeEstatements = evt.detail.subscribeEstatements;
+  }
+  if (evt && evt.detail && evt.detail.wyndhamRewardsPartnerOptIn) {
+    digitalData.confirmation.confirmInfo.wyndhamRewardsPartnerOptIn = evt.detail.wyndhamRewardsPartnerOptIn;
+  }
+}, false);
+
+
+// enroll_complete
+document.body.addEventListener('enroll_complete', function (evt) {
+  if (evt && evt.detail && evt.detail.addressType) {
+    digitalData.user.userInfo.addressType = evt.detail.addressType;
+  }
+}, false);
+
+// preferences-complete
+document.body.addEventListener('preferences-complete', function (evt) {
+  if (evt && evt.detail) {
+    if (evt.detail.subscribeEstatements) {
+      digitalData.user.preferences.subscribeEstatements = evt.detail.subscribeEstatements;
+    }
+    if (evt.detail.wyndhamRewardsPartnerOptIn) {
+      digitalData.confirmation.confirmInfo.wyndhamRewardsPartnerOptIn = evt.detail.wyndhamRewardsPartnerOptIn;
+    }
+    if (evt.detail.hotelBrandSelection) {
+      digitalData.user.preferences.hotelBrandSelection = evt.detail.hotelBrandSelection;
+    }
+    if (evt.detail.earningSelection) {
+      digitalData.user.preferences.earningSelection = evt.detail.earningSelection;
+    }
+    if (evt.detail.travelPartner) {
+      digitalData.user.preferences.travelPartner = evt.detail.travelPartner;
+    }
+  }
+}, false);
+
+// filter-results
+document.body.addEventListener('filter-results', function (evt) {
+  if (evt.detail.filters) {
+    digitalData.search.filter.refinementType = 'redeem-listings';
+    digitalData.search.filter.refinementSelection = evt.detail.filters;
+  }
+}, false);
+
+// filter-results
+document.body.addEventListener('zero-filter-results', function (evt) {
+  if (evt.detail.filters) {
+    digitalData.search.filter.refinementType = 'redeem-listings';
+    digitalData.search.filter.refinementSelection = evt.detail.filters;
+  }
+}, false);
+
+// redeem-form
+document.body.addEventListener('redeem-form', function (evt) {
+  if (evt.detail.partnerName) {
+  	digitalData.user.userInfo.partnerRedeemed = evt.detail.partnerName;
+  }
+}, false);
+
+// redeem-complete
+document.body.addEventListener('redeem-complete', function (evt) {
+  if (evt.detail.pointsRedeemed) {
+    digitalData.user.userInfo.pointsRedeemed = evt.detail.pointsRedeemed;
+  }
+  if (evt.detail.partnerType) {
+    digitalData.user.userInfo.redeemPartnerType = evt.detail.partnerType;
+  }
+  if (evt.detail.partnerName) {
+    digitalData.user.userInfo.redeemPartner = evt.detail.partnerName;
+  }
+  if (evt.detail.accountNumber) {
+		digitalData.user.userInfo.redeemPartnerAccountNumber = evt.detail.accountNumber;
+  }
+}, false);
+
+// signin-complete
+document.body.addEventListener('signin-complete', function (evt) {
+  if (evt.detail) {
+    digitalData.user.userInfo.authenticated = evt.detail.authenticated;
+    digitalData.user.userInfo.wyndhamRewardsID = evt.detail.wyndhamRewardsID;
+    digitalData.user.userInfo.pointsExpiration = evt.detail.pointsExpiration;
+    digitalData.user.userInfo.pointsBalance = evt.detail.pointsBalance;
+    digitalData.user.userInfo.memberLevel = evt.detail.memberLevel;
+    digitalData.user.userInfo.memberProgression = evt.detail.memberProgression;
+  }
+}, false);
+
+// city-member-level
+document.body.addEventListener('city-member-level', function (evt) {
+  if (evt.detail.filter) {
+    digitalData.search.filter.refinementType = 'city-member-level';
+    digitalData.search.filter.refinementSelection = evt.detail.filter;
+  }
+}, false);
+
+// upcoming-reservation
+document.body.addEventListener('upcoming-reservation', function (evt) {
+  if (evt.detail.upcomingReservation) {
+    digitalData.user.userInfo.upcomingReservation = evt.detail.upcomingReservation;
+  }
+}, false);
+
+// my-activity-filter
+document.body.addEventListener('my-activity-filter', function (evt) {
+  if (evt.detail.filter) {
+    digitalData.search.filter.refinementType = 'my-activity-filter';
+    digitalData.search.filter.refinementSelection = evt.detail.filter;
+  }
+}, false);
+
+// claim-form_success
+document.body.addEventListener('claim-form_success', function (evt) {
+  if (evt.detail.type) {
+    digitalData.rewards.claim.claimType = evt.detail.type;
+  }
+  if (evt.detail.data && evt.detail.data.voucher) {
+    digitalData.rewards.claim.claimPoints.voucher = evt.detail.data.voucher;
+  }
+  if (evt.detail.data && evt.detail.data.partner) {
+    digitalData.rewards.claim.caesarsMatch.partner = evt.detail.data.partner;
+  }
+  if (evt.detail.data && evt.detail.data.subscribeEStatements) {
+    digitalData.rewards.claim.caesarsMatch.subscribeEStatements = evt.detail.data.subscribeEStatements;
+  }
+}, false);
+
+// Claim voucher success
+document.body.addEventListener('claim-voucher', function (evt) {
+  if (evt.detail && evt.detail.voucher) {
+    digitalData.rewards.claim.claimPoints.voucher = evt.detail.voucher;
+  }
+}, false);
+
+// Global Rewards error
+document.body.addEventListener('rewards-error', function (evt) {
+  if (evt.detail && evt.detail.errorPath) {
+    digitalData.error.errorInfo.errorPath = evt.detail.errorPath;
+    // console.log('error path: ' + evt.detail.errorPath);
+  }
+  if (evt.detail && evt.detail.errorMessage) {
+    digitalData.error.errorInfo.errorMessage = evt.detail.errorMessage;
+  }
+}, false);
+
+// Global Brands error
+document.body.addEventListener('brands-error', function (evt) {
+  if (evt.detail && evt.detail.errorMessage) {
+    digitalData.error.errorInfo.errorMessage = evt.detail.errorMessage;
+  }
+}, false);
+
+// Global Form error
+document.body.addEventListener('brands-form-error', function (evt) {
+
+  if (evt.detail && evt.detail.errorFormMessage) {
+    digitalData.error.errorInfo.errorFormMessage = evt.detail.errorFormMessage;
+  }
+}, false);
+
+// Contact Us form success
+document.body.addEventListener('contact-us-form_success', function (evt) {
+  if (evt.detail && evt.detail.formName) {
+    digitalData.event.contactUs.formName = evt.detail.formName;
+  }
+}, false);
+
+// Contact Us form error
+document.body.addEventListener('contact-us-form_error', function (evt) {
+  if (evt.detail && evt.detail.errorMessage) {
+    digitalData.error.errorInfo.errorMessage = evt.detail.errorMessage;
+  }
+}, false);
+
+// Offer success
+document.body.addEventListener('rewards-offer_success', function (evt) {
+  if (evt.detail && evt.detail.wyndhamRewardsID) {
+    digitalData.user.userInfo.wyndhamRewardsID = evt.detail.wyndhamRewardsID;
+  }
+}, false);
+
+// Section Link
+document.body.addEventListener('section-link', function (evt) {
+  if (evt.detail && evt.detail.sectionName) {
+    digitalData.event.eventInfo.eventName = evt.detail.sectionName;
+    // console.log('event-name: ' + evt.detail.sectionName);
+  }
+}, false);
+
+document.body.addEventListener('section-link-item', function (evt) {
+  // console.log('event-name: ' + evt.detail.sectionName);
+  // console.log('event-item-detail: ' + evt.detail.sectionItemDetail);
+  if (evt.detail && evt.detail.sectionName && evt.detail.sectionItemDetail) {
+    digitalData.event.eventInfo.eventName = evt.detail.sectionName;
+    digitalData.event.eventInfo.eventDetail = evt.detail.sectionItemDetail;
+  }
+}, false);
+
+
+
+});

@@ -1,0 +1,177 @@
+var SRPromotions = function () {
+
+	var m_saSaleBannersAdded = null;
+
+	// Public Methods
+	function fnInit() {
+		m_saSaleBannersAdded = [];
+	}
+
+	// -------------------------------------------------------------------------
+	// Promotional banner handling
+	function fnSetSearchRepeaterPromotions() {
+
+		m_saSaleBannersAdded = [];
+
+		setSearchRepeaterBannersFromSTEP();
+
+		/*
+		fnSetSingleSearchRepeaterSaleBanner({
+			saSiteCodes: // string array of site codes to use the banner
+			sStyleClass: // string class name(s) to apply to the banner (space-seperate for multiple)
+			sUniqueClassName: // string class name unique to this banner (single class only)
+			sBannerText: // string text to populate the banner
+			sLightboxContent: // string - html content to populate the lightbox on click. Set to null to NOT add lightbox content.
+		});
+		*/
+
+		/* Flexible Dates Promotion */
+		/*  fnSetSingleSearchRepeaterSaleBanner({
+			 saSiteCodes: ['TALA', 'MULC', 'ATLA', 'HAWC', 'SUML', 'WSBY', 'CANB', 'WSID', 'KESW', 'NPIN'],
+			 sStyleClass: '',
+			 sUniqueClassName: 'flex-sale',
+			 sBannerText: 'Flexible arrival breaks – Choose any day to start your stay',
+			 sLightboxContent: "<p>Applies to breaks between 24/11/17 – 15/12/17, 05/01/18 – 29/01/18, 19/02/18 – 16/03/18. Applies to selected UK lodges and parks locations and accommodation types, accommodation only. Subject to availability. Booking conditions apply, see brochure or website.</p>"
+		 }); */
+
+	}
+	// -------------------------------------------------------------------------
+	// End Promotional Banner Handling
+
+	/* Manually add promotion banners using custom data */
+	function fnSetSingleSearchRepeaterSaleBanner(oProps) {
+
+		// Required properties
+		var saSiteCodes = oProps.saSiteCodes || null,
+			sStyleClass = oProps.sStyleClass || '',
+			sUniqueClassName = oProps.sUniqueClassName || '',
+			sBannerText = oProps.sBannerText || '',
+			sLightboxContent = oProps.sLightboxContent || null;
+
+		if (saSiteCodes && saSiteCodes.length > 0) {
+
+			// Create selector from site codes
+			var sSelector = '';
+			for (var i = 0; i < saSiteCodes.length; i++) {
+				if (i > 0) {
+					sSelector += ', ';
+				}
+				sSelector += '.products.' + saSiteCodes[i] + ' .sr-sale';
+			}
+
+			// Add the banner text and class names to the DOM element
+			var oaElement = $(sSelector).find('div').html(sBannerText).parent('.sr-sale').addClass(sStyleClass + ' ' + sUniqueClassName).show();
+
+			// Lightbox methods
+			if (sLightboxContent) {
+
+				// One-time methods (will not re-run after the first function call)
+				if (oaElement.length > 0 && m_saSaleBannersAdded.indexOf(sUniqueClassName) === -1) {
+
+					// Store a reference to the className
+					m_saSaleBannersAdded.push(sUniqueClassName);
+
+					// Append the lightbox content to the terms holder
+					var sTermsUniqueClassName = sUniqueClassName + '-terms';
+					$('#terms-holder').append('<div class="' + sTermsUniqueClassName + '" style="display:none;">' + sLightboxContent + '</div>');
+
+					// Add a click event to the banners
+					var oaBanners = document.getElementsByClassName(sUniqueClassName),
+						oLightboxTerms = $('.' + sUniqueClassName + '-terms');
+					for (var k = 0; k < oaBanners.length; k++) {
+						oaBanners[k].addEventListener('click', function(oEvent){
+							oEvent.stopPropagation();
+							oEvent.stopImmediatePropagation();
+							oEvent.preventDefault();
+							openSimpleLightbox(oLightboxTerms, false);
+						}, true);
+					}
+				}
+			}
+		}
+	}
+
+	// Private Methods
+	/* Dynamically add promotion banners based on STEP helper attributes */
+	function setSearchRepeaterBannersFromSTEP() {
+
+		killTermsHolderChildren();
+
+		var oaSaleBanners = document.querySelectorAll('.sr-sale .value-offer-text-helper');
+		for (var i = 0; i < oaSaleBanners.length; i++) {
+
+			var oBannerEM = oaSaleBanners[i].querySelector('em');
+			var oSaleBanner = oaSaleBanners[i].parentNode;
+			if (oBannerEM && !oSaleBanner.doneStepBanner) {
+				var sSupplierCode = oaSaleBanners[i].getAttribute('data-code'),
+					sBannerText = oBannerEM.innerHTML,
+					sLightboxText = oaSaleBanners[i].innerHTML.split('</em>')[1].trim().replace(/<br>/, ''),
+					oExpiryDate = oSaleBanner.querySelector('.value-offer-expiry-helper > span') || oSaleBanner.querySelector('.value-offer-expiry-helper'),
+					sExpiryDate = oExpiryDate.innerHTML.trim(),
+					bHasDateExpired = getHasDateExpired(sExpiryDate);
+
+				// If there is promo text, the expiry date has not been reached
+				if (sBannerText && !bHasDateExpired) {
+
+					// Show banner and update text
+					oSaleBanner.style.display = 'block';
+					oSaleBanner.querySelector('.sr-sale-text').innerHTML = sBannerText;
+
+					if (sLightboxText) {
+
+						// Append the lightbox content to the terms holder
+						var sTermsUniqueClassName = sSupplierCode + '-terms';
+						$('#terms-holder').append('<div class="' + sTermsUniqueClassName + '" style="display:none;"><p>' + sLightboxText + '</p></div>');
+
+						// Add a click event to the banners
+						addSaleBannerClickHandler(oSaleBanner, $('.' + sTermsUniqueClassName));
+					} else {
+						oSaleBanner.style.pointerEvents = 'none'
+					}
+				}
+				oSaleBanner.doneStepBanner = true;
+			}
+		}
+	}
+
+	function addSaleBannerClickHandler (oSaleBanner, oLightboxTerms) {
+		oSaleBanner.addEventListener('click', function(oEvent){
+			oEvent.stopPropagation();
+			oEvent.stopImmediatePropagation();
+			oEvent.preventDefault();
+			openSimpleLightbox(oLightboxTerms, false);
+		}, true);
+	}
+
+	function killTermsHolderChildren() {
+		document.getElementById('terms-holder').innerHTML = '';
+	}
+
+	function getHasDateExpired(sExpiryDate) {
+		var bHasDateExpired = true;
+		if (sExpiryDate) {
+			sExpiryDate = sExpiryDate.split('/');
+			var oExpiryDate = new Date(sExpiryDate[2], sExpiryDate[1] - 1, sExpiryDate[0], 23, 59, 59);
+			var oTodaysDate = new Date();
+			if (oTodaysDate < oExpiryDate) {
+				bHasDateExpired = false
+			}
+		}
+		return bHasDateExpired;
+	}
+
+	// Public object
+	return {
+		init: fnInit,
+		setSearchRepeaterPromotions: fnSetSearchRepeaterPromotions,
+		setSingleSearchRepeaterSaleBanner: fnSetSingleSearchRepeaterSaleBanner
+	};
+
+}();
+SRPromotions.init();
+
+$(document).ajaxComplete(function(event, request, settings) {
+	if (settings.url.indexOf('/HoseasonsSearchResultHandler') > -1) {
+		SRPromotions.setSearchRepeaterPromotions();
+	}
+});

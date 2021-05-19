@@ -1,0 +1,132 @@
+﻿document.addEventListener('DOMContentLoaded', function () {
+
+    function getProductInformation() {
+        var itemInformation = {
+            contentIdKey: "fcatalogproductid14446",
+            contentIdValue: ProductDetail.productObj.ProductId,
+            quantity: null,
+            ratingValue: null,
+            ratingComment: null,
+            price: parseFloat(ProductDetail.productObj.DefaultVariant.BasePrice),
+            discountedPrice: parseFloat(ProductDetail.productObj.DefaultVariant.Saleprice),
+            actionCause: null,
+            name: ProductDetail.productObj.ProductName,
+            categories: [],
+            brands: [ProductDetail.productObj.BrandName],
+            taxonomy: [[]],
+            cartId: null,
+            compareId: null,
+            store: null
+        };
+
+        if (ProductDetail.productObj.Store) {
+            itemInformation.store = ProductDetail.productObj.Store.Name;
+        }
+
+        return itemInformation;
+    };
+
+    function sendCommerceEvent(eventName, eventType, eventValue, itemInformation) {
+        var root = Coveo.$$(document).find(searchIterfaceId);
+        var eventInformation = {
+            name: eventName,
+            type: eventType,
+            eventValue: eventValue
+        };
+        Coveo.logCustomEvent(root, eventInformation, itemInformation);
+    };
+
+    // Commerce Events
+    var events = {
+        detailView: {
+            name: "Detail View",
+            type: "detailView",
+        },
+        addToCart: {
+            name: "Add To Cart",
+            type: "addToCart",
+        },
+        removeFromCart: {
+            name: "Revome From Cart",
+            type: "removeFromCart",
+        },
+        addPurchase: {
+            name: "Add Purchase",
+            type: "addPurchase",
+        },
+        removePurchase: {
+            name: "Remove Purchase",
+            type: "removePurchase",
+        },
+        addRating: {
+            name: "Add Rating",
+            type: "addRating",
+        },
+        removeRating: {
+            name: "Remove Rating",
+            type: "removeRating",
+        },
+        addBookmark: {
+            name: "Add Bookmark",
+            type: "addBookmark",
+        },
+        removeBookmark: {
+            name: "Remove Bookmark",
+            type: "removeBookmark",
+        },
+        addCompare: {
+            name: "Add Compare",
+            type: "addCompare",
+        },
+        removeCompare: {
+            name: "Remove Compare",
+            type: "removeCompare",
+        }
+    };
+
+    // Search interface ID (the one generated from by the search box)
+    var searchIterfaceId = "#NavSearchBox"
+
+    // Define all the events and data to be sent
+    function addBookmark() {
+        if (ProductDetail) {
+            var itemInformation = getProductInformation();
+            itemInformation.actionCause = "whislist";
+            sendCommerceEvent(events.addBookmark.name, events.addBookmark.type, itemInformation.contentIdValue, itemInformation);
+        };
+    };
+
+    function removeBookmark() {
+        if (ProductDetail) {
+            var itemInformation = getProductInformation();
+            itemInformation.actionCause = "whislist";
+            sendCommerceEvent(events.removeBookmark.name, events.removeBookmark.type, itemInformation.contentIdValue, itemInformation);
+        };
+    };
+
+    function addToCart() {
+        if (ProductDetail) {
+            var itemInformation = getProductInformation();
+            sendCommerceEvent(events.addToCart.name, events.addToCart.type, itemInformation.contentIdValue, itemInformation);
+        };
+    };
+
+    function removeFromCart() {
+        if (ProductDetail) {
+            var itemInformation = getProductInformation();
+            sendCommerceEvent(events.removeFromCart.name, events.removeFromCart.type, itemInformation.contentIdValue, itemInformation);
+        };
+    };
+
+    // Hook Coveo Commerce events on front end components
+    if (Coveo.$$(document).find(".addToFavPdp")) { Coveo.$$(document).find(".addToFavPdp").addEventListener("click", addBookmark); }
+    if (Coveo.$$(document).find(".addToFavPdpText")) { Coveo.$$(document).find(".addToFavPdpText").addEventListener("click", addBookmark); }
+
+    if (Coveo.$$(document).find(".remFromFavPdp")) { Coveo.$$(document).find(".remFromFavPdp").addEventListener("click", removeBookmark) };
+    if (Coveo.$$(document).find(".removeFromFavPdpText")) { Coveo.$$(document).find(".removeFromFavPdpText").addEventListener("click", removeBookmark) };
+
+    if (Coveo.$$(document).find(".add-cart-btn")) { Coveo.$$(document).find(".add-cart-btn").addEventListener("click", addToCart) };
+
+    //if (Coveo.$$(document).find(".remove-cart-item")) { Coveo.$$(document).find(".remove-cart-item").addEventListener("click", removeFromCart) };
+
+}, false);

@@ -1,0 +1,311 @@
+window.scrollData = {
+    whenToPrefetch: 5,
+    percentage: 0,
+    hasResults: 1,
+    items: {
+        total:0,
+        to: 0,
+        from:0
+    },
+    prefetched: {},
+    _throttle: [],
+    topPage: 0,
+    hasThrottle: (page) => {
+        return scrollData._throttle.indexOf(page) > -1;
+    },
+    throttle: (page) => {
+        if(scrollData.hasThrottle(page)){ return; }
+        scrollData._throttle.push(page);
+    },
+    clearThrottle: () => { scrollData._throttle = []; }
+};
+
+function urlHasher(s){
+    let hash = s.split("").reduce(function(a,b){a=((a<<5)-a)+b.charCodeAt(0);return a&a},0);              
+    if(hash < 0){ hash *= -1; }
+    return hash;
+}
+function prefetchExists(_in_url){
+    let url = urlPath(_in_url);
+    let hash = urlHasher(url);
+    return typeof scrollData.prefetched[hash] !== 'undefined';
+}
+function urlPath(_in_url) {
+    let href = location.href;
+    if(_in_url){
+        href = _in_url;
+    }
+    return href.replace(location.protocol,'').replace(/^\/{2}/,'').replace(location.host,'');
+}
+function storePrefetch(_in_url,results){
+    let url = urlPath(_in_url);
+    let hash = urlHasher(url);
+    /** Eliminate previously saved prefetches */
+    scrollData.prefetched = {};
+    scrollData.prefetched[hash] = results;
+}
+function getPrefetched(_in_url){
+    let url = urlPath(_in_url);
+    let hash = urlHasher(url);
+    return scrollData.prefetched[hash];
+}
+function processPrefetchedData(_in_url,results) {
+    let url = urlPath(_in_url);
+    if(functors.hooks.prefetchRequestResultsResolve !== null){
+        functors.hooks.prefetchRequestResultsResolve(url);
+    }
+    storePrefetch(url,results);
+    let images = results.products.match(/<img src="([^"]+)"/g);
+    images[0] = '';
+    for(let imgCtr =1; imgCtr < images.length; imgCtr++){
+        (new Image()).src = images[imgCtr].split('"')[1];
+
+    }
+}
+
+function alwaysExecuteOnFetchedData(_in_url,results){
+    let url = urlPath(_in_url);
+    App.shop.saveTitleAndPage(results.title,url);
+}
+
+async function requestResults (_in_url) {
+    let url = urlPath(_in_url)
+    if(functors.hooks.requestResultsEntry !== null){
+        functors.hooks.requestResultsEntry(url);
+    }
+    let pfExists = false;
+    if(functors.mockers.prefetchExists !== null){
+        pfExists = functors.mockers.prefetchExists(url);
+    }else{
+        pfExists = prefetchExists(url);
+    }
+    if(pfExists){
+        return new Promise((resolve,reject) => {
+            if(functors.hooks.requestResultsResolve !== null){
+                functors.hooks.requestResultsResolve(getPrefetched(url));
+            }
+            let results = getPrefetched(url);
+            alwaysExecuteOnFetchedData(url,results);
+            resolve(results);
+        });
+    }
+    return new Promise((resolve,reject) => {
+        $.post(url).done((results) => {
+            storePrefetch(url,results);
+            if(functors.hooks.requestResultsResolve !== null){
+                functors.hooks.requestResultsResolve(getPrefetched(url));
+            }
+            alwaysExecuteOnFetchedData(url,results);
+            resolve(results);
+        });
+    });
+}
+
+
+function showOverlay() {
+    $('.overlay').fadeIn();
+    $('[data-container=products]').css('min-height', $('[data-container=products]').height() + 'px');
+    $('[data-container=products]').empty();
+}
+
+function hideOverlay() {
+    $('[data-container=products]').css('min-height', 0);
+    $('.overlay').fadeOut();
+}
+
+window.addEventListener('popstate',(ev) => {
+    window.showOverlay();
+    if(window.functors){
+        window.functors.scrollToTop();
+    }
+    var state = History.getState();
+    if(typeof this['currentStateId'] === 'undefined'){
+        this['currentStateId'] = parseInt(state.id)
+    }
+    var url = state.url;
+    if(state.id < this['currentStateId']){
+        /** user hit the fwd button */
+        History.pushState({},state.title,url)
+    }else{
+        /** User hit the back button */
+        if(!functors.isSafari()){
+          History.savedStates.pop()
+        }
+    }
+    url = History.getState().url;
+    requestResults(url)
+        .then((results) => {
+        window.App.shop.parameters = results.parameters;
+        $('div.form-group span.page_view_options div.select-wrapper select[name=sort]')
+            .each((index,selectElement) => {
+                $(selectElement).val(window.App.shop.parameters.sort);
+        });
+        window.functors.defaultRequestHandler(url,results);
+        hideOverlay();
+        scrollData.clearThrottle();
+        resetChunkCounter();
+    }).catch(window.functors.defaultRequestCatcher);
+    this['currentStateId'] = parseInt(state.id);
+});
+function isInViewport(element) {
+    /** padding will be 500% */
+    const addedPadding = $(window).height() * 5.00;
+    const elementTop = $(element).offset().top;
+    const elementBottom = elementTop + $(element).outerHeight();
+    const viewportTop = $(window).scrollTop();
+    const viewportBottom = viewportTop + $(window).height(); 
+    return elementBottom > viewportTop && elementTop < (viewportBottom + addedPadding);
+}
+/** cache bust 09/09/2019 */
+window.functors = {
+    urlFix: (_in_url) => {
+        return _in_url.replace(/\/shop\/\?/,'/shop?');
+    },
+    initialized: 0,
+    start: ()  => {
+        window.App.shop.parameters.page =window.grabCurrentPage();
+        window.grabTopPage();
+        resetChunkCounter();
+    },
+    scrollToTop: () => {
+        if(functors.isSafari()){
+            $('body').scrollTop(0);
+            return document.getElementsByClassName('row-offcanvas')[0].scrollIntoView();
+        }
+        $("html, body").animate({ scrollTop: 0 }, "fast");
+    },
+    scrollDataPercentageMocker: null,
+    pushPage: (pageTitle,_in_url) => {
+        if(functors.isSafari()){ return; }
+        var url = _in_url;
+        if(url.match(/\/shop\/\?/)) {
+            url = url.replace(/\/shop\/\?/,'/shop?');
+        }
+        window.History.pushState({'page':App.shop.parameters.page,'parameters':App.shop.parameters}, pageTitle, url);
+    },
+    defaultRequestCatcher: (error) => {
+        hideOverlay(); 
+    },
+    defaultRequestHandler: (url,results) => {
+        if (typeof(window.ga) !== 'undefined') {
+            ga('set', 'page', window.location.href);
+            ga('send', 'pageview');
+        }
+        window.updateMetaDescription(results);
+        window.renderPageOptions(results.parameters);
+        window.renderShopResults(results);
+        hideOverlay();
+    },
+    percentageThreshold: 3.00,
+    imageList: null,
+    swapChunk: () => {
+        if(functors.imageList === null){
+            functors.imageList = $('img.product-image');
+        }
+        functors.imageList.each((i,element) => {
+            if(isInViewport($(element)) && typeof $(element).data('src') !== 'undefined' && $(element).data('src').length){
+                $(element)
+                    .attr('src',$(element).data('src'))
+                    .data('src','');
+            }
+        });
+    },
+    isSafari: function() {
+        return /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+    },
+    detectScrollPosition: {
+        byBody: () => {
+            functors.detectScrollPosition.detectUsing();
+            return true
+        },
+        byWindow: () => {
+            functors.detectScrollPosition.detectUsing();
+            return true
+        },
+        detectUsing: () => {
+            functors.swapChunk();
+            if(scrollData.hasThrottle(App.shop.parameters.page+1)){ return; }
+            let selector = '',url = '', pageNumber = App.shop.parameters.page =window.grabCurrentPage();
+            pageNumber += 1;
+            selector = ['a[data-page=', pageNumber,']'].join('');
+            url = $(selector).attr('href');
+            scrollData.throttle(pageNumber);
+            if(typeof url !== 'undefined'){
+                url = window.location.pathname + url;
+                if(functors.hooks.prefetchRequestResultsEntry !== null){
+                    functors.hooks.prefetchRequestResultsEntry(url);
+                }
+                requestResults(url).then((results) => {
+                    window.processPrefetchedData(url,results);
+                    window.storePrefetch(url,results);
+                }).catch(console.error);
+            }
+        }
+    },
+    /**
+     * These mockers and hooks make it easier for us to unit test our code.
+     */
+    mockers: {
+        /** Signature:
+         * @param url
+         * @example:
+         *  pfExists = functors.mockers.prefetchExists(url); 
+         */
+        prefetchExists: null,
+        /** Signature:
+         * @return floating point value between 0-100
+         */
+        scrollPercentage: null
+    },
+    hooks: {
+        /** Signature:
+         * @param url
+         * @example:
+         *  functors.hooks.prefetchRequestResultsEntry(url);
+         */
+        prefetchRequestResultsEntry: null,
+        /** Signature:
+         * @param url
+         * @param json object results
+         * @param prefetch-exists or new
+         * @example:
+         *  functors.hooks.prefetchRequestResultsResolve(url,'prefetch-exists');
+         */
+         prefetchRequestResultsResolve: null,
+        /** Signature:
+         * @param url
+         * @example:
+         *  functors.hooks.requestResultsEntry(url);
+         */
+        requestResultsEntry: null,
+        /** Signature
+         * @param json
+         * @example: 
+         *  functors.hooks.requestResultsResolve(getPrefetched(url));
+         */
+        requestResultsResolve: null
+    }
+};
+
+function grabCurrentPage() {
+     return App.shop.parameters.page = parseInt($('li[aria-current="page"] span.page-link').html());
+}
+function grabTopPage() {
+    $('a.page-link').each((index,element) => {
+        let pageNumber = parseInt($(element).text().replace(/[^\d]+/,''));
+        if(pageNumber > 0){
+            $(element).attr('data-page',pageNumber);
+            if(pageNumber > scrollData.topPage){
+                scrollData.topPage = pageNumber;
+            }
+        }
+    });
+    grabCurrentPage();
+}
+
+function resetChunkCounter(){
+    if(!window.functors){ return; }
+    window.functors.detectScrollPosition.detectUsing();
+    window.functors.imageList = $('img.product-image');
+    window.functors.swapChunk(window.functors.percentageThreshold);
+}

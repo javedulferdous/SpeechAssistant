@@ -1,0 +1,8 @@
+/**
+ * Copyright © Magento, Inc. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+
+
+define(["jquery","mageUtils"],function(e,t){"use strict";return function(r){e.ajax({method:"GET",url:r.url,data:{q:t.getUrlParameters(window.location.href).q}})}});
+//# sourceMappingURL=search-terms-log.js.map

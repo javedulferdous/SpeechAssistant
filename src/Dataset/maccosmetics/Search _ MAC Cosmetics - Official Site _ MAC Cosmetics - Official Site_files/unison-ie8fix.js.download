@@ -1,0 +1,116 @@
+Unison = (function() {
+
+  'use strict';
+
+  var win = window;
+  var doc = document;
+  var head = doc.head || document.getElementsByTagName("head")[0];
+  var eventCache = {};
+  var unisonReady = false;
+  var currentBP;
+
+  var util = {
+    parseMQ : function(el) {
+      var str;
+      if (win.getComputedStyle) {
+        str = win.getComputedStyle(el, null).getPropertyValue('font-family');
+      } else if (el.currentStyle) { // IE8
+        str = el.currentStyle["fontFamily"]; // @TODO returns regular font family value instead of unison descriptor. probably needs change in CSS for IE8
+      }
+      return str.replace(/"/g, '').replace(/'/g, '');
+    },
+    debounce : function(func, wait, immediate) {
+      var timeout;
+      return function() {
+        var context = this, args = arguments;
+        clearTimeout(timeout);
+        timeout = setTimeout(function() {
+          timeout = null;
+          if (!immediate) {
+            func.apply(context, args);
+          }
+        }, wait);
+        if (immediate && !timeout) {
+          func.apply(context, args);
+        }
+      };
+    },
+    isObject : function(e) { return typeof e === 'object'; },
+    isUndefined : function(e) { return typeof e === 'undefined'; }
+  };
+
+  var events = {
+    on : function(event, callback) {
+      if ( !util.isObject(eventCache[event]) ) {
+        eventCache[event] = [];
+      }
+      eventCache[event].push(callback);
+    },
+    emit : function(event, data) {
+      if ( util.isObject(eventCache[event]) ) {
+        var eventQ = eventCache[event].slice();
+        for ( var i = 0; i < eventQ.length; i++ ) {
+          eventQ[i].call(this, data);
+        }
+      }
+    }
+  };
+
+  var breakpoints = {
+    all : function() {
+      var BPs = {};
+      var allBP = util.parseMQ(doc.querySelector('title')).split(',');
+      for ( var i = 0; i < allBP.length; i++ ) {
+        var mq = allBP[i].trim().split(' ');
+        BPs[mq[0]] = mq[1];
+      }
+      return ( unisonReady ) ? BPs : null ;
+    },
+    now : function(callback) {
+      var nowBP = util.parseMQ(head).split(' ');
+      var now = {
+        name : nowBP[0],
+        width : nowBP[1]
+      };
+      return ( unisonReady ) ? (( util.isUndefined(callback) ) ? now : callback(now)) : null ;
+    },
+    update : function() {
+      breakpoints.now(function(bp) {
+        if ( bp.name !== currentBP ) {
+          events.emit(bp.name);
+          events.emit('change', bp);
+          currentBP = bp.name;
+        }
+      });
+    }
+  };
+
+  win.onresize = util.debounce(breakpoints.update, 100);  
+  var onContentLoaded = function () {
+    if (win.getComputedStyle) {
+      unisonReady = win.getComputedStyle(head, null).getPropertyValue('clear') !== 'none';
+    } else if (head.currentStyle) { // IE8
+      unisonReady = head.currentStyle["clear"] !== 'none';
+    } 
+    breakpoints.update();  
+  }
+  if (document.addEventListener) {
+    document.addEventListener( "DOMContentLoaded", onContentLoaded, false );
+  } else if ( document.attachEvent ) {  // IE
+    document.attachEvent( "onreadystatechange", onContentLoaded );
+  }  
+
+  return {
+    fetch : {
+      all : breakpoints.all,
+      now : breakpoints.now
+    },
+    on : events.on,
+    emit : events.emit,
+    util : {
+      debounce : util.debounce,
+      isObject : util.isObject
+    }
+  };
+
+})();

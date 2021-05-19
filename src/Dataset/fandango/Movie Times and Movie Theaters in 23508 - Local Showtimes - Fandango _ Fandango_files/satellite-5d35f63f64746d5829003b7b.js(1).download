@@ -1,0 +1,27 @@
+_satellite.pushAsyncScript(function(event, target, $variables){
+  //Harriet MSP Desktop 219554
+//PXL-223
+
+if(_satellite.getVar('Page Level 2') == 'movie times | by movie'){
+
+    if(_satellite.getVar('Movie ID') == '219554'){
+      
+       //PXL-225
+        _satellite.loadScript('https://www.googletagmanager.com/gtag/js?id=AW-770144236')
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'AW-770144236');
+        gtag('event', 'conversion', {'send_to': 'AW-770144236/S721CMK8m6YBEOzvne8C'});
+        //PXL-226
+        _satellite.loadScript('https://www.googletagmanager.com/gtag/js?id=AW-770112767')
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'AW-770112767');
+        gtag('event', 'conversion', {'send_to': 'AW-770112767/d5i9CNm4m6YBEP_5m-8C'});
+      
+      }
+    }
+
+});

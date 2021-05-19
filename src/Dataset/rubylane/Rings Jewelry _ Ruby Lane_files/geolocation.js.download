@@ -1,0 +1,239 @@
+define(['jquery'], function($){
+	'use strict';
+
+	var _localstorage_available;
+
+	function geotags(geocode_result) { //<<<<
+		var tags={}, taglist=[], e, i, j, k, result, address_component, type, may, must_not, ok, region, country;
+
+		may = {
+			country: true,
+			locality: true,
+			administrative_area_level_1: true,
+			administrative_area_level_2: true,
+			administrative_area_level_3: true,
+			administrative_area_level_4: true,
+			administrative_area_level_5: true
+		};
+
+		must_not = {
+			route: true,
+			street_number: true,
+			sublocality: true
+		};
+
+		for (i=0; i<geocode_result.results.length; i++) {
+			result = geocode_result.results[i];
+
+			for (j=0; j<result.address_components.length; j++) {
+				address_component = result.address_components[j];
+
+				ok = false;
+				for (k=0; k<address_component.types.length; k++) {
+					type = address_component.types[k];
+
+					if (country == null && type === 'country') {
+						country = address_component.long_name;
+					}
+
+					if (must_not.hasOwnProperty(type)) {
+						ok = false;
+						break;
+					}
+
+					if (may.hasOwnProperty(type)) {
+						ok = true;
+					}
+				}
+
+				if (ok) {
+					tags[address_component.long_name] = 1;
+				}
+			}
+		}
+
+		if (country != null) {
+			region = lookup_region(country);
+			if (region != null) {
+				tags[region] = 1;
+			}
+		}
+
+		for (e in tags) {
+			if (tags.hasOwnProperty(e)) {
+				taglist.push(e);
+			}
+		}
+
+		return taglist;
+	}
+
+	//>>>>
+	function lookup_region(country) { //<<<<
+		var regionmap = {
+			'Austria':			'EU',
+			'Belgium':			'EU',
+			'Bulgaria':			'EU',
+			'Croatia':			'EU',
+			'Cyprus':			'EU',
+			'Czech Republic':	'EU',
+			'Denmark':			'EU',
+			'Estonia':			'EU',
+			'Finland':			'EU',
+			'France':			'EU',
+			'Germany':			'EU',
+			'Greece':			'EU',
+			'Hungary':			'EU',
+			'Ireland':			'EU',
+			'Italy':			'EU',
+			'Latvia':			'EU',
+			'Lithuania':		'EU',
+			'Luxembourg':		'EU',
+			'Malta':			'EU',
+			'Netherlands':		'EU',
+			'Poland':			'EU',
+			'Portugal':			'EU',
+			'Romania':			'EU',
+			'Slovakia':			'EU',
+			'Slovenia':			'EU',
+			'Spain':			'EU',
+			'Sweden':			'EU',
+			'United Kingdom':	'EU'
+		};
+
+		return regionmap[country];
+	}
+
+	//>>>>
+	function geocode(loc, success, error) { // loc is "lat,lng" <<<<
+		$.ajax({
+			url: 'https://maps.googleapis.com/maps/api/geocode/json',
+			data: {
+				latlng: loc
+			},
+			dataType: "json",
+			error: error,
+			success: success
+		});
+	}
+
+	//>>>>
+	function geo_context(success, error) { //<<<<
+		var last = last_loc();
+
+		if (error == null) { error = function(err){console.error(err);}; }
+
+		if (navigator.geolocation == null) {
+			error('geolocation not supported');
+			return
+		}
+
+		if (last != null && last.coords != null && last.timestamp != null) {
+			// If there is a saved result less than an hour old, use that (to
+			// prevent spamming the user with permission prompts for those
+			// browsers that don't automatically store the user's choice
+			if ((new Date()).getTime() - last.timestamp < 3600 * 1000) {
+				success(last);
+				return;
+			}
+		}
+
+		navigator.geolocation.getCurrentPosition(function(loc){
+			if (last != null && last.coords != null) {
+				// If we have a saved context record within 30km, use that (google limits the geocode api)
+				if (dist(last.coords, loc.coords) < 30e3) {
+					success(last);
+					return;
+				}
+			}
+
+			geocode(loc.coords.latitude+','+loc.coords.longitude, function(geocode_res){
+				// Something strange with loc - JSON.stringify ignores most of
+				// the fields, so create a minimal, synthetic version to return
+				// and save
+				var res = {
+					coords: {
+						latitude: loc.coords.latitude,
+						longitude: loc.coords.longitude
+					},
+					geotags: geotags(geocode_res),
+					timestamp: (new Date()).getTime()
+				};
+
+				success(res);
+				save_loc(res);
+			}, error);
+		}, error);
+	}
+
+	//>>>>
+
+	// Helpers <<<<
+	function last_loc() {
+		var last_str;
+
+		if (!localStorage_available()) return null;
+
+		last_str = window.localStorage.getItem('rl_geolocation_last');
+		if (last_str == null) return null;
+
+		return JSON.parse(last_str);
+	}
+
+	function save_loc(loc) {
+		if (!localStorage_available()) return null;
+
+		window.localStorage.setItem('rl_geolocation_last', JSON.stringify(loc));
+	}
+
+	function localStorage_available() {
+		if (_localstorage_available !== undefined)
+			return _localstorage_available;
+
+		try {
+			window.localStorage.setItem('__rl_geolocation_test__', 'avail');
+			window.localStorage.removeItem('__rl_geolocation_test__');
+
+			_localstorage_available = true;
+		} catch(e) {
+			_localstorage_available = false;
+		}
+
+		return _localstorage_available;
+	}
+
+	function toRadians(degrees){
+		return degrees / (180/3.141592653589793);
+	}
+
+	function toDegrees(radians){
+		return radians * (180/3.141592653589793);
+    }
+
+	// from and to are objects containing "latitude" and "longitude", which are given in decimal degrees
+	// This implementation is based on the info in http://www.movable-type.co.uk/scripts/latlong.html
+	function dist(from, to) { // in metres
+		// Uses equirectangular approximation for speed, should be adequate for this use case as the distances are small
+		var R = 6371000, // metres
+			φ1 = toRadians(from.latitude),
+			φ2 = toRadians(to.latitude),
+			//Δφ = (to.latitude-from.latitude).toRadians(),
+			Δλ = toRadians(to.longitude-from.longitude),
+			x = Δλ * Math.cos((φ1+φ2)/2),
+			y = φ2 - φ1;
+
+		return Math.sqrt(x*x + y*y) * R;
+	}
+
+	// Helpers >>>>
+
+	return {
+		geocode: geocode,
+		geotags: geotags,
+		lookup_region: lookup_region,
+		geo_context: geo_context,
+		dist: dist
+	};
+});
+
+// vim: foldmethod=marker foldmarker=<<<<,>>>> ts=4 shiftwidth=4

@@ -1,0 +1,9 @@
+(function($) {
+
+// Non-interactive focus
+$(document).ready(function() {
+   $('.product-attribute').removeAttr('tabindex');
+   $('.product-grid__item--promo').removeAttr('tabindex');
+});
+
+})(jQuery);

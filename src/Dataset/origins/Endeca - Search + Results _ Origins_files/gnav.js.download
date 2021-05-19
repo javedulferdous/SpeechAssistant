@@ -1,0 +1,679 @@
+var site = site || {};
+var generic = generic || {};
+
+Drupal.behaviors.gnav = (function($) {
+  'use strict';
+
+  var active = false;
+  var bps = Unison.fetch.all();
+  var bp = Unison.fetch.now();
+  var isDesktop = parseInt(bp.width, 10) >= parseInt(bps.landscape, 10);
+  var closeOnHoverOff = true;
+
+  var $items = $();
+
+  // Detect transition end event: http://stackoverflow.com/a/25937118
+  var transEndEvent = (function() {
+    var el = document.createElement('div');
+
+    var transEndEventNames = {
+      WebkitTransition: 'webkitTransitionEnd',
+      MozTransition: 'transitionend',
+      OTransition: 'oTransitionEnd otransitionend',
+      transition: 'transitionend'
+    };
+
+    for (var name in transEndEventNames) {
+      if (el.style[name] !== undefined) {
+        return transEndEventNames[name];
+      }
+    }
+
+    return false;
+  })();
+
+  function _splitItems($originalList, itemClass, maxItems) {
+    var $listContainer = $originalList.clone().empty();
+    var $lists = $('<div />');
+    var i = 0;
+    var j = 0;
+
+    var $list = $listContainer.clone();
+
+    $('.' + itemClass, $originalList).each(function() {
+      if (j >= maxItems) {
+        i++;
+        j = 0;
+        $lists.append($list);
+        $list = $listContainer.clone();
+      }
+
+      $list.append(this);
+      j++;
+    });
+
+    $lists.append($list);
+    $lists.children().addClass('list-split list-split--' + (i + 1));
+
+    $originalList.after($lists.html()).remove();
+  }
+  function gdprRemInfoMessageBox() {
+    if ($('.info-msg-gdpr').get(0)) {
+      $('.info-msg-gdpr').remove();
+    }
+  }
+
+  function gdprSetInfoBoxPosition(infoLink, infoMessageBox, infoMsgArrow, isMobile) {
+    var infoLinkTop = infoLink.offset().top + infoLink.height() + infoMsgArrow.outerHeight(true);
+    var infoLinkLeft = infoLink.offset().left;
+    var infoMsgMaxWidth = parseInt(infoMessageBox.css('max-width').replace('px', ''));
+    var infoMsgArrowMidPoint = infoMsgArrow.outerWidth(true) / 2;
+
+    if (isMobile) {
+      // This is the gap between popup and page in mobile. Ideal is 10px.
+      var popupLeftPosMobile = 10;
+      infoMsgArrow.css({
+        left: (infoLinkLeft - infoMsgArrowMidPoint) + 'px'
+      });
+      infoLinkLeft = popupLeftPosMobile;
+    } else if ((infoMessageBox.outerWidth(true) === infoMsgMaxWidth) && ((infoLinkLeft + (infoMsgMaxWidth + 25)) > screen.width)) {
+      infoLinkLeft = infoLinkLeft - infoMessageBox.innerWidth() + infoMsgArrowMidPoint;
+      infoMsgArrow.addClass('top-right-arrow');
+    }
+    infoMessageBox.css({
+      top: infoLinkTop + 'px',
+      left: infoLinkLeft + 'px'
+    });
+  }
+
+  function appendLocale(url) {
+    if ($('.pg_wrapper').length) {
+      url = '/' + generic.cookie('LOCALE').toLowerCase().split('_').reverse().join('/') + url;
+    }
+    window.setTimeout(function() {
+      window.location = url;
+    }, 500);
+  }
+
+  function gdprToolTip(context) {
+    if (Drupal.settings.common.gdpr_compliant) {
+      var isMobile = Unison.fetch.now().name === 'small';
+      $('body', context).click(function(e) {
+        if (e.target.className !== 'info-msg-gdpr' && e.target.className !== 'info-msg-gdpr__txt') {
+          $('.info-msg-gdpr').addClass('hidden');
+        }
+      });
+      $('.js-info-link-gdpr', context).live('click', function(e) {
+        e.preventDefault();
+        var infoLink = $(e.currentTarget);
+
+        gdprRemInfoMessageBox();
+
+        $("<div class='info-msg-gdpr'><div class='info-msg-gdpr__arrow'></div><div class='info-msg-gdpr__txt js-info-msg-gdpr__txt'></div></div>").appendTo('body');
+        var infoBoxEle = $('#' + infoLink.attr('message-in'));
+        var infoMessageBox = $('.info-msg-gdpr');
+        var infoMsgArrow = $('.info-msg-gdpr__arrow');
+
+        $('.info-msg-gdpr__txt').html("<div class='info-msg-gdpr__close js-info-msg-gdpr__close'>X</div>" + infoBoxEle.html());
+
+        $('#cboxClose, .js-info-msg-gdpr__close', context).live('click', function(e) {
+          e.stopPropagation();
+          gdprRemInfoMessageBox();
+        });
+
+        gdprSetInfoBoxPosition(infoLink, infoMessageBox, infoMsgArrow, isMobile);
+        $(window).on('resize-debounced', gdprSetInfoBoxPosition(infoLink, infoMessageBox, infoMsgArrow, isMobile));
+
+        $('.js-info-msg-gdpr__txt span').live('mousedown', function() {
+          var url = $(this).attr('data-url');
+          appendLocale(url);
+        });
+      });
+    }
+  }
+
+  var behavior = {
+    attached: false,
+    attach: function(context) {
+      var self = this;
+      var expanded = false;
+      var to;
+
+      var $header = $('.page-header', context);
+      var $metaNav = $('.page-header__meta-nav', $header);
+      var $mainNav = $('.page-header__nav__main', $header);
+      var $mainMenu = $('.menu--lvl-1', $mainNav).first();
+      var $utilityNav = $('.page-header__utils', $metaNav);
+      var $utilContent = $('.gnav-util__content', $utilityNav);
+      var $primaryNavMenus = $('.menu__list', $mainNav);
+      var $utilityNavMenus = $('.menu__list', $utilityNav);
+      var $mainNavDropdownTriggers = $('.menu__link--has-children', $mainNav);
+      var $offersContainer = $('.gnav-offers-block', $metaNav);
+      var $offers = $('.gnav-offers-block__list__item', $offersContainer);
+      var $primaryItems = $primaryNavMenus.first().children().has('.menu');
+      var $primaryItemLinks = $primaryItems.children('.menu__link');
+      var $firstPrimaryDropdown = $('.menu--lvl-2', $mainNav).first();
+      var $gnavDropdownContent = $('.gnav-dropdown__content', context);
+      var $liveChatLink = $('.icon--livechat', context).parent();
+      var $menuCategory = $('.menu__item__hr', $mainMenu);
+      var $gnavMenu = $('.gnav-util__icon', $header).add('.menu__link', $utilityNav);
+      var $gnavMenuItem = $('.js-gnav-menu', $utilityNavMenus);
+      var $activeItem = $();
+      var $gnavOffersList = $('.js-gnav-offers-list', $metaNav);
+      var gnavTabRetainFocus = '';
+      var $gnavMiniFacialsBook = $('.js-facials-book', $utilityNavMenus);
+      var $utilityNavMob = $('.utility-nav-mob', $utilityNav).attr('data-nav-id') || '';
+      var iScrollPos = 0;
+
+      if ($utilityNavMob !== '') {
+        $header.addClass($utilityNavMob);
+      }
+
+      // Register utility nav items:
+      $items = $items.add($('.gnav-util', $header));
+      $items = $items.add($('.menu__item', $utilityNav));
+      gdprToolTip(context);
+
+      function _setFixed() {
+        var st = $(window).scrollTop();
+        var h = $offersContainer.outerHeight(false);
+        var f = !isDesktop && st >= h;
+        $header.toggleClass('page-header--fixed', f);
+
+        // For mobile, only when in the small window where offers are visible,
+        // update the 'top' property of sticky nav dropdowns
+        var top = isDesktop || st >= h ? '' : -st + h - 1;
+        if (!Drupal.settings.common.search_feature_revamp) {
+          $mainMenu.add($utilContent).css({
+            top: top
+          });
+        }
+
+        $header.toggleClass('auto-sticky-header', !isDesktop);
+        var stickyNav = !isDesktop && st > iScrollPos && st >= h;
+        stickyNav ? $header.removeClass('show-header') : $header.addClass('show-header');
+        iScrollPos = st;
+        if (!isDesktop && !stickyNav) {
+          self. close();
+        }
+      }
+
+      // Loop offers:
+      $offers.first().addClass('gnav-offers-block__list__item--active');
+      if ($offers.length > 1) {
+        setInterval(function() {
+          $offersContainer.addClass('gnav-offers-block--animated');
+          var $active = $offers.filter('.gnav-offers-block__list__item--active');
+          var $next = $active.next();
+          if (!$active.next().length) {
+            $next = $offers.first();
+          }
+          $active.removeClass('gnav-offers-block__list__item--active');
+          $next.addClass('gnav-offers-block__list__item--active');
+        }, 5000);
+      }
+
+      $gnavOffersList.on('focusin', function() {
+        $gnavOffersList.attr({'aria-live': 'polite', 'aria-hidden': 'false'});
+        $gnavOffersList.children().attr('aria-live', 'assertive');
+      });
+
+      $gnavOffersList.on('focusout', function() {
+        $gnavOffersList.attr({'aria-live': 'off', 'aria-hidden': 'true'});
+        $gnavOffersList.children().removeAttr('aria-live');
+      });
+
+      $gnavMiniFacialsBook.on('keydown', function(e) {
+        if (!e.shiftKey) {
+          $('.js-gnav-mini-facials-block').children('.js-close-nav').attr('tabindex', '0').focus();
+          return false;
+        }
+      });
+
+      // Live Link Update
+      if ($liveChatLink.length > 0 && !isDesktop) {
+        $liveChatLink.on('click', function(e) {
+          e.preventDefault();
+          var $chatLink = $('.live_chat', context);
+          if ($chatLink.length > 0) {
+            $chatLink.click();
+          }
+        });
+      }
+      // Add Navigation sub menu 'HR' tag with aria-hidden attribute.
+      $menuCategory.closest('li').attr('aria-hidden', 'true');
+      //Add ADA related attribute to links of gnav such as 'Find a Store'.
+      $gnavMenuItem.attr({'tabindex': '0', 'aria-expanded': 'false', 'role': 'dialog', 'aria-label': $gnavMenuItem.text()});
+
+      // Add arrows to the top-level menu dropdowns:
+      $primaryNavMenus.first().children().add($utilityNavMenus.first().children()).each(function() {
+        var $link = $(this).children('.menu__link--has-children');
+        $link.append('<div class="menu__link__arrow" />');
+      });
+
+      // Divide menu-ref menus into lists with no more than 11 items.
+      $('.gnav-dropdown .menuref__content .menu__list', $header).each(function() {
+        _splitItems($(this), 'menu__item', 11);
+      });
+
+      // Divide By Collection/Benefit lists into groups of no greater than 4 items.
+      $('.gnav-by-collection__items', $header).each(function() {
+        _splitItems($(this), 'gnav-by-collection__item', 4);
+      });
+
+      // collapse the menu for cases like anchors
+      $('.menu__link', $gnavDropdownContent).on('click', collapseMenu);
+      $gnavMenu.on({
+        keydown: function(e) {
+          if (site.getKeycode(e) === 13) {
+            gnavTabRetainFocus = site.getKeycode(e);
+          }
+        },
+        mouseover: function() {
+          if ($(this).hasClass('js-utility-nav-overlay') && !$(this).closest('.js-utility-nav-content').hasClass('active-util')) {
+            $(this).trigger('click');
+          }
+        },
+        click: function(e) {
+          // Ignore icons with this class, just allow the link to work like a link:
+          var accountLink = $(this).parents('.gnav-util--account').length;
+          accountLink = accountLink && $(this).hasClass('menu__link');
+          if ($(this).hasClass('js-gnav-util-icon--follow-link') || accountLink) {
+            return;
+          }
+          var $item = $(this).parents('.menu__item, .gnav-util').first();
+          if (!$(this).hasClass('js-utility-nav-link')) {
+            self.toggle($item);
+          }
+          if ($item.hasClass('gnav-util--hamburger')) {
+            $('body').toggleClass('gnav-active');
+          } else {
+            $('body').removeClass('gnav-active utility-nav-active');
+          }
+          // Invoke container/popup as an object to retain tab focus
+          var $childBlock = $(this).next('.menu');
+          var $gNavUtilContent = $(this).next('.gnav-util__content');
+          $childBlock = $gNavUtilContent.length !== 0 ? $gNavUtilContent : $childBlock;
+          if (accountLink !== 0) {
+            $childBlock = $gNavUtilContent;
+          }
+          // Invoke retain focus method for container/popup window
+          if (gnavTabRetainFocus === 13) {
+            $(this).attr('aria-expanded', $(this).attr('aria-expanded') === 'true' ? 'false' : 'true');
+            site.restrict_navigation($childBlock);
+          }
+          // To make embedded menu links accessible with container/popup
+          var preventDefault = true;
+          if ($(this).hasClass('menu__link') && ($(this).closest('.gnav-search__content').length) || $(this).hasClass('js-utility-nav-link')) {
+            preventDefault = false;
+          }
+          if (preventDefault) {
+            e.preventDefault();
+          }
+        }
+      });
+
+      // Add a global class to close gnav
+      $('.js-close-nav').on('click keydown', function(e) {
+        var keycode = site.getKeycode(e);
+        if (keycode === 1 || keycode === 13) {
+          e.preventDefault();
+          $(this).parents('.active-util').find('.menu__link--has-children').focus();
+          self.close();
+          $gnavMenu.attr('aria-expanded', 'false');
+        }
+      });
+
+      // Mobile gnav is click-to-expand. While the display logic is
+      // css/class-based, the animation is jQuery. This function is used to
+      // toggle the display and update the class/styles appropriately:
+      function slideToggle($item, $el, className) {
+        var show = !$el.is(':visible');
+        if (show) {
+          $item.toggleClass(className);
+          // Right here is a good place to trigger resize so things like hidden
+          // carousels can get laid out properly now that they're visible:
+          $(window).trigger('resize');
+          $el.toggle();
+        }
+        $el.slideToggle(200, function() {
+          $(this).css({ display: '', height: '', overflow: '' });
+          if (!show) {
+            $item.toggleClass(className);
+          }
+        });
+      }
+
+      $mainNavDropdownTriggers.on('click', function(event) {
+        // This only applies to the view below landscape:
+        if (isDesktop) {
+          return;
+        }
+
+        var $item = $(this).closest('.menu__item');
+        slideToggle($item, $('.menu', $item).first(), 'menu__item--selected');
+
+        event.preventDefault();
+      });
+
+      // The by category/benefit/collection titles on tablet portrait operate
+      // like mobile nav items:
+      $('.menuref__title', $mainNav).on('click', function() {
+        if (isDesktop) {
+          return;
+        }
+        var $item = $(this).parents('.menuref').first();
+        slideToggle($item, $('.menuref__content', $item).first(), 'menuref--selected');
+      });
+
+      $('.gnav-by-collection__title', $mainNav).on('click', function() {
+        if (isDesktop) {
+          return;
+        }
+        var $item = $(this).parents('.gnav-by-collection').first();
+        slideToggle($item, $('.gnav-by-collection__content', $item).first(), 'gnav-by-collection--selected');
+      });
+
+      $gnavDropdownContent.each(function() {
+        if ($(this).children('.product-grid').length) {
+          $(this).addClass('gnav-dropdown__content--no-table');
+        }
+      });
+
+      // Desktop logic for Primary Menu:
+
+      function expandActiveItem() {
+        collapseItems();
+        $activeItem.addClass('menu__item--expanded');
+      }
+
+      function collapseItems() {
+        $primaryItems.removeClass('menu__item--expanded');
+      }
+
+      function expandMenu() {
+        expanded = true;
+        $('body').addClass('main-nav-active');
+        expandActiveItem();
+      }
+
+      function collapseMenu() {
+        expanded = false;
+        $('body').removeClass('main-nav-active');
+        $activeItem = $();
+
+        if (!transEndEvent) {
+          collapseItems();
+        }
+      }
+
+      function _setPosition() {
+        if (isDesktop) {
+          var height = $header.outerHeight(false);
+          $('.page-wrapper', context).css('padding-top', height);
+        }
+      }
+
+      // Touch devices use click event for primary nav:
+      $primaryItemLinks.on('click', function(event) {
+        if (isDesktop) {
+          return;
+        }
+        event.preventDefault();
+
+        if ($(this).closest('.menu__item--expanded').length) {
+          collapseMenu();
+        } else {
+          $activeItem = $(this).parent();
+
+          if (expanded) {
+            expandActiveItem();
+          } else {
+            expandMenu();
+          }
+        }
+      });
+
+      $('body').on('click', function(event) {
+        if (isDesktop) {
+          return;
+        }
+        if (!$activeItem.length || $(event.target).closest('.page-header__nav__main').length) {
+          return;
+        }
+        collapseMenu();
+      });
+
+      // Non-touch devices use mouseenter/leave:
+      // On mouseenter, ALL of the children are faded in, but only the active one
+      // is positioned into view:
+      $primaryItemLinks.on('mouseenter', function() {
+        if (!isDesktop) {
+          return;
+        }
+        clearTimeout(to);
+
+        $activeItem = $(this).parent();
+        if (expanded) {
+          expandActiveItem();
+        } else {
+          to = setTimeout(expandMenu, 300);
+        }
+      });
+
+      // On mouseleave, ALL of the children are faded out, and only once that's
+      // complete will the items be positioned off screen:
+      $primaryItems.on('mouseleave', function() {
+        if (!isDesktop) {
+          return;
+        }
+        clearTimeout(to);
+        to = setTimeout(collapseMenu, 200);
+      });
+
+      $('.js-email-signup', context).closest('.js-utility-nav-content').on('mouseleave', function(e) {
+        if (e.relatedTarget === null || e.relatedTarget.nodeName.toLowerCase() === 'input') {
+          return;
+        }
+        if ($('.js-utility-nav-overlay', $(this)).length > 0 && closeOnHoverOff) {
+          self.close();
+        }
+      });
+
+      // All of them always animate at the same time, so only listen to the
+      // first one.
+      if (transEndEvent) {
+        $firstPrimaryDropdown.on(transEndEvent, function() {
+          // If the menu is not expanded, remove the expanded class from all items,
+          // positioning them back off screen.
+          if (!expanded) {
+            collapseItems();
+          }
+        });
+      }
+
+      // Global, non-contextual events go here.
+      if (!this.attached) {
+        Unison.on('change', function(bp) {
+          bp = Unison.fetch.now();
+          isDesktop = parseInt(bp.width, 10) >= parseInt(bps.landscape, 10);
+
+          if (isDesktop) {
+            _setPosition();
+            // Above landscape remove all instances of 'menu__item--selected'
+            $('.menu__item', $mainNav).removeClass('menu__item--selected');
+          } else {
+            // Below landscape collapse any active menus
+            collapseMenu();
+            collapseItems();
+          }
+
+          // Close active utility items:
+          Drupal.behaviors.gnav.close();
+
+          _setFixed();
+        });
+      }
+
+      if (isDesktop) {
+        $(window).on('groupBySearchForm.load gnavSearchForm.load', _setPosition);
+      }
+
+      $(window).on('scroll', _.debounce(_setFixed, 0));
+
+      // Collapse the primary menu on scroll
+      $(window).on('scroll', _.debounce(collapseMenu, 100));
+
+      _setFixed();
+      _setPosition();
+
+      this.attached = true;
+    },
+
+    open: function($item) {
+      if ($item.length > 1) {
+        throw new Error('Unable to open utility nav item - multiple DOM elements found');
+      }
+
+      // This is the old logic:
+      // var overlay = !$item.is('.gnav-util--hamburger, .gnav-util--account');
+
+      // But then they decided they do want this background on mobile, so
+      // 'overlay' is always true below landscape, and only false on desktop when
+      // for the account dropdown.
+      var overlay = !isDesktop;
+      overlay = overlay || !$item.hasClass('gnav-util--account');
+
+      this.close();
+      $item.addClass('active-util');
+      active = true;
+      if (overlay) {
+        $('body').addClass('utility-nav-active');
+      }
+      $(document).trigger('gnav-util.open', { $el: $item });
+    },
+
+    close: function($item) {
+      // If an item is passed, only close if the item is active.
+      if (!_.isUndefined($item) || !this.isActive($item)) {
+        return;
+      }
+
+      $items.removeClass('active-util');
+      $('body').removeClass('utility-nav-active');
+      $items.find('.success-email-signup').removeClass('success-email-signup');
+      active = false;
+      closeOnHoverOff = true;
+      $(document).trigger('gnav-util.close', { $el: $item });
+    },
+
+    isActive: function($item) {
+      return _.isUndefined($item) ? active : $item.hasClass('active-util');
+    },
+
+    toggle: function($item) {
+      if (this.isActive($item)) {
+        this.close();
+      } else {
+        this.open($item);
+      }
+    },
+
+    setLoyaltyPts: function(available_points, loyalty_level_name, lyl_gnav_curr_pts_rb) {
+      var curr_pts = generic.numberFormatWithCommas(available_points);
+      var signinLblTxt = $('.js-gnav-signin').attr('title');
+      $('.js-data_loyalty_tier').addClass(loyalty_level_name);
+      $('.js-data_loyalty_points').html(curr_pts);
+      $('.js-gnav_lyl_pts').html(curr_pts + ' ' + lyl_gnav_curr_pts_rb);
+      $('.js-gnav-signin').attr('title', signinLblTxt + ' ' + curr_pts + ' ' + lyl_gnav_curr_pts_rb);
+      $('.js-loyalty-pts').attr('aria-label', lyl_gnav_curr_pts_rb + ' ' + curr_pts);
+    }
+  };
+
+  // Close utility dropdowns by clicking anywhere in the document outside of the
+  // utility nav or standalone .gnav-util items:
+  $(document).on('click', function(event) {
+    var $target = $(event.target);
+    var isActive = behavior.isActive();
+
+    if (!isActive || $target.closest('.gnav-util, .page-header__utils, .page-header__nav__main, .js-ignore-gnav-close').length) {
+      return;
+    }
+
+    behavior.close();
+
+    // Hamburger:
+    $('body').removeClass('gnav-active');
+  });
+
+  // Close utility dropdowns when escape key is pressed:
+  $(document).on('keyup', function(event) {
+    if (event.keyCode === 27) {
+      behavior.close();
+    }
+  });
+
+  $('.js-signin-block__forgot-password').on('keydown', function(e) {
+    if (!e.shiftKey) {
+      $('.js-signin-block__forms').children('.js-close-nav').attr('tabindex', '0').focus();
+      return false;
+    }
+  });
+
+  // set any loyalty data content
+  $(document).on('user.loaded', function(evt, user) {
+    var $utilityNavOverlay = $('.js-utility-nav-overlay.utility-nav__loyalty-link', '.page-header__utils');
+    var cookieName = 'email_signup';
+    var $gnavMenuChild = $utilityNavOverlay.siblings('.menu--lvl-2').length;
+    var hasCookie = $.cookie(cookieName);
+    if (user.is_loyalty_member === 1) {
+      var lyl_gnav_curr_pts_rb = typeof site.translations.lang.gnav_lyl_reward_pts !== 'undefined' ? site.translations.lang.gnav_lyl_reward_pts : 'reward points';
+      behavior.setLoyaltyPts(site.userInfoCookie.getValue('available'), site.userInfoCookie.getValue('loyalty_level_name'), lyl_gnav_curr_pts_rb);
+    } else {
+      $('.js-data_loyalty_tier').addClass('not_lyl_enrolled');
+    }
+    if (!$utilityNavOverlay.closest('.js-utility-nav-content').hasClass('active-util') && !hasCookie && $gnavMenuChild !== 0) {
+      closeOnHoverOff = false;
+      $utilityNavOverlay.trigger('click');
+      $.cookie(cookieName, '1', {
+        expires: 10,
+        path: '/'
+      });
+    }
+  });
+
+  // set sign-in label
+  var gnav_signin = typeof (site.translations.lang && site.translations.lang.gnav_signin_lyl) !== 'undefined' ? site.translations.lang.gnav_signin_lyl : 'JOIN | SIGN IN';
+  $('.js-account-signin').html(gnav_signin);
+
+  // change Gnav background color based on what was chosen using gnav_offers_formatter_v1
+  var $gnav_offers_block = $('.gnav-offers-block');
+  var $gnav_wrapper = $('.page-header__meta-nav');
+  if ($gnav_offers_block.length > 0) {
+    var nav_color_class = $gnav_offers_block.attr('class').match(/nav-color[\w-]*\b/);
+    if (nav_color_class) {
+      var color_hex = nav_color_class[0].split('-').pop();
+      color_hex = '#' + color_hex;
+      if ($gnav_wrapper) {
+        $gnav_wrapper.css('background-color', color_hex);
+      }
+    }
+  }
+
+  // Allow other templates to open the gnav
+  $(document).on('gnav.open', function(event, $trigger) {
+    behavior.open($trigger);
+  });
+
+  // Allow other templates to close the gnav
+  $(document).on('gnav.close', function(event, $item) {
+    $item = typeof $item !== 'undefined' ? $item : false;
+    if (!!$item) {
+      behavior.close($item);
+    } else {
+      behavior.close();
+    }
+  });
+
+  return behavior;
+})(jQuery);

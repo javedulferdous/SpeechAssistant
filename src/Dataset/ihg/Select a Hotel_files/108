@@ -1,0 +1,22 @@
+
+    (function () {
+        var s = document.createElement('script');
+        var p = "var i = document.createElement('img');\
+    i.setAttribute('alt', '');\
+    i.setAttribute('height', '1');\
+    i.setAttribute('width', '1');\
+    i.setAttribute('style', 'display: none;');\
+    i.setAttribute('src', 'https://ad.doubleclick.net/ddm/activity/src=4832939;type=sales;cat=ogbtrjll;qty=1;cost=0;u1=;u4=2020-11-05;u5=2020-11-06;u10=NA;u11=US;u13=NA;u16=NA;u17=NA;dc_lat=;dc_rdid=;tag_for_child_directed_treatment=;ord=[OrderID]');\
+    document.body.appendChild(i);\
+    ";
+
+        s.type = 'text/javascript';
+        s.async = true;
+        if (s.textContent) {
+            s.textContent = p;
+        } else {
+            s.text = p;
+        }
+        document.getElementsByTagName('head')[0].appendChild(s);
+    })();
+    

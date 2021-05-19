@@ -1,0 +1,89 @@
+_satellite.pushAsyncScript(function(event, target, $variables){
+  // Media Math Tag
+  var title_mm = document.title.split("|")[0].trim();
+  var pageName_mm = title_mm;
+  var product_category_mm = title_mm;
+  var search_query = '';
+  
+  if(window.location.pathname.indexOf('-product') !== -1){
+    pageName_mm = "PPD";
+  }
+  if(window.location.pathname.indexOf('-tier3') !== -1){
+    pageName_mm = "Tier 3";
+  }
+  if(window.location.pathname.indexOf('-tier1') !== -1){
+    pageName_mm = "Tier 1";
+  } 
+  if(window.location.pathname.indexOf('-tier2general') !== -1){
+    pageName_mm = "Tier 2";
+  }
+  if(window.location.pathname.indexOf('/search/results.jsp') !== -1){
+    pageName_mm = "Search Results";
+    product_category_mm = '';
+    search_query = title_mm;
+  }
+  if(window.location.pathname === '/'){
+    pageName_mm = "Home Page";
+    product_category_mm = '';
+  }
+  if(window.location.pathname.indexOf('/topic/') !== -1){
+    pageName_mm = "Topic";
+  }
+
+  window.MathTag = {
+    version: "1.0",
+    previous_url: document.referrer,
+    industry: "retail",
+    mt_adid: "166508", // unique MediaMath ID for Walgreens
+    mt_id: "1137637", // unique MediaMath ID for event type
+    page_name : pageName_mm,
+    search_query: search_query,
+    product_category: product_category_mm
+  };
+
+  //$(window).on("load", function() {
+    setTimeout(function(){
+      var mm = document.createElement('script'); 
+      		mm.type = 'text/javascript'; 
+      		mm.async = true; 
+      		mm.src = document.location.protocol + '//pixel.mathtag.com/event/js?mt_pp=1&mt_adid=166508&mt_id=1137637'; 
+      var s = document.getElementsByTagName('script')[0]; 
+      		s.parentNode.insertBefore(mm, s); 
+    }, 500);
+
+    /* (function() { 
+				var mm = document.createElement('script'); 
+				mm.type = 'text/javascript'; 
+				mm.async = true; 
+				mm.src = document.location.protocol + '//pixel.mathtag.com/event/js?mt_pp=1&mt_adid=166508&mt_id=1137637'; 
+				var s = document.getElementsByTagName('script')[0]; 
+        s.parentNode.insertBefore(mm, s); 
+
+		})(); */
+    
+  //});
+  $( "#ShopProductsMenu" ).hover(
+  function() {
+		$( '#mega-menu-nav .navbar-nav li>ul' ).removeClass( "active");
+    $( '#mega-menu-nav .navbar-nav li>ul:first' ).addClass( "active");
+    setTimeout(function(){
+    	$( '#mega-menu-nav .navbar-nav li>ul' ).removeClass( "active");
+      $( '#mega-menu-nav .navbar-nav li>ul:first' ).addClass( "active");
+    }, 100);
+  }
+);
+ $( "#ShopProductsMenu" ).mouseover(
+  function() {
+		$( '#mega-menu-nav .navbar-nav li>ul' ).removeClass( "active");
+    $( '#mega-menu-nav .navbar-nav li' ).removeClass( "active");
+    $( '#mega-menu-nav .navbar-nav li>ul:first' ).addClass( "active");
+    $( '#mega-menu-nav .navbar-nav li:first' ).addClass( "active");
+    setTimeout(function(){
+    	$( '#mega-menu-nav .navbar-nav li>ul' ).removeClass( "active");
+    	$( '#mega-menu-nav .navbar-nav li' ).removeClass( "active");
+    	$( '#mega-menu-nav .navbar-nav li>ul:first' ).addClass( "active");
+    	$( '#mega-menu-nav .navbar-nav li:first' ).addClass( "active");
+    }, 40);
+  }
+);
+});

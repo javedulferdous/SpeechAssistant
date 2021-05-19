@@ -1,0 +1,91 @@
+/**
+ * Generic expander functionality
+ * case for basic expanding menu/ul
+ *
+ * Expanding Menu Usage / example markup:
+ *
+ *  <ul class="expando-menu">
+ *    <li class="expando-menu__parent">
+ *      <h3 class="expando-menu-trigger js-expando-menu-trigger">Parent Header</h3>
+ *      <div class="expando-sub-menu">
+ *        <ul class="">
+ *          <li class=""><a class="" href="#">Link 1</a></li>
+ *          <li class=""><a class="" href="#">Link 2</a></li>
+ *          <li class=""><a class="" href="#">Link 3</a></li>
+ *        </ul>
+ *      </div>
+ *    </li>
+ *  </ul>
+ *
+ * Styles applied:
+ * .expando-menu__parent - plus when closed, minus when open
+ * .expando-sub-menu - closed by default
+ * additional BEM classes can be added for styling
+ *
+ *
+ * Expanding Mobile Block Usage / example markup:
+ *  <section class="content-container expando-block">
+ *    <a class="expando-block__anchor" name="cs-orders-section1" id="cs-orders-section4"></a>
+ *
+ *    <header class="expando-block__header clearfix">
+ *      <h4 class="expando-block__title expando-block__title--pc mobile-hidden">Order Cancellations</h4>
+ *      <div class="expando-block__title expando-block__title--mobile pc-hidden js-expando-block-trigger">
+ *        <span>Order Cancellations</span>
+ *        <i class="expando-block__icon"></i>
+ *      </div>
+ *    </header>
+ *
+ *    <div class="expando-block__content">
+ *      <div class="clearfix"></div>
+ *      <div class="expando-block__content-tout clearfix">
+ *        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed non gravida quam. Ut sed ultricies neque. Quisque pulvinar turpis vel magna iaculis vestibulum. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Donec posuere interdum purus, quis porttitor dolor porta ac.
+ *      </div>
+ *
+ *    </div>
+ *  </section>
+ */
+
+(function($){
+  /**
+   * Expando-menu behavior.
+   */
+  Drupal.behaviors.expandoMenu = {
+    attach: function(context) {
+      $expandoMenuTrigger =  $('.js-expando-menu-trigger', context);
+      $expandoMenuTrigger.attr({'aria-expanded': 'false', 'role': 'button', 'tabindex': '0'});
+      $('.js-expando-menu-trigger', context).on('click', function() {
+        var $parentGrid = $(this).closest('.js-grid');
+        $(this).next('.expando-sub-menu').attr('tabindex', '0');
+        $(this).closest('.expando-menu__parent').toggleClass('expando-menu__parent--expanded');
+        $(this).attr('aria-label', $(this).text());
+        // set 'aria-expanded' attribute when collapsed content is expanded
+        $(this).attr('aria-expanded', $(this).attr('aria-expanded') === 'true' ? 'false' : 'true');
+        // if we are inside a grid, recalculate heights on click
+        if ($parentGrid.length) {
+          var $items = $parentGrid.find('.js-grid-item');
+          var colCountData = $parentGrid.data('grid-items-per-row');
+          Drupal.behaviors.grids.equalHeightsRows($items, colCountData);
+        }
+      });
+    }
+  };
+
+  /**
+   * Expando-block behavior.
+   */
+  Drupal.behaviors.expandoBlock = {
+    init: function(context) {
+      context = context || $(document);
+      context = context.currentTarget || context;
+      $('.js-expando-block-trigger', context).on('click', function() {
+        $(this).closest('.expando-block').toggleClass('expando-block--expanded');
+        $(document).trigger('expandoBlock.trigger', $(this));
+      });
+    },
+    attach: function(context) {
+      $(document).on('expandoBlock.refresh', $.proxy(this.init, this));
+      this.init(context);
+    }
+  };
+
+})(jQuery);

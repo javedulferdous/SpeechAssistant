@@ -1,0 +1,191 @@
+var skuId = skuId || '';
+var PRODUCT_ID = PRODUCT_ID || '';
+var site = site || '';
+var POWERREVIEWS = POWERREVIEWS || '';
+(function($) {
+  var pr_products = [], is_shaded = false, first_time_exec = true, spp_snippet_load = false, snippet_counter = 1;
+
+  // Set up PowerReviews data on product.init
+  $(document).on('product.init-pr', '.js-pr-product', function() {
+    var $productContainer = $(this);
+    if (typeof POWERREVIEWS !== 'undefined' && typeof Drupal.settings.power_reviews !== 'undefined' && $productContainer.data('pr-product-id') !== '' && typeof $productContainer.data('pr-product-id') !== 'undefined') {
+      var product = typeof page_data !== 'undefined' && typeof page_data['consolidated-products']['products'][0] !== 'undefined' ? page_data['consolidated-products']['products'][0] : '';
+      var product_id = $(this).data('pr-product-id');
+      var product_base_id = product_id.substring(4);
+      var skuId = $(this).data('product').sku;
+      var sku_base_id = skuId ? skuId.substring(3) : '';
+      var reviewsnippet_id = 'pr-reviewsnippet-' + product_base_id + '-' + sku_base_id + '-' + snippet_counter + '-' + (new Date()).getTime();
+      var $reviewsnippet = $('.review-snippet', this);
+      $reviewsnippet.attr('id', reviewsnippet_id);
+      snippet_counter++;
+
+      if (product_base_id && $reviewsnippet.length && !$reviewsnippet.hasClass('reviews-processed')) {
+        $reviewsnippet.addClass('reviews-processed');
+        $('.js-db-rating-star', this).addClass('hidden');
+        var page_id = Drupal.settings.power_reviews.page_id || product_base_id;
+        var query_string;
+        if (typeof product !== 'undefined' && product !== '' && product.shaded) {
+          query_string = '?pr_page_id=' + page_id + '&pr_skuId=' + skuId;
+        } else {
+          query_string = '?pr_page_id=' + page_id;
+        }
+        var review_wrapper_url = (Drupal.settings.power_reviews.review_wrapper_url || '/review/create') + query_string;
+        $('.js-war-link').attr('href', review_wrapper_url);
+
+        //Maccosmetics CA FR Config Changes
+        var pr_locale = document.location.hostname.search('fr.maccosmetics.ca') !== -1 ? Drupal.settings.power_reviews.locale_fr : Drupal.settings.power_reviews.locale;
+        var pr_merchant_id = document.location.hostname.search('fr.maccosmetics.ca') !== -1 ? Drupal.settings.power_reviews.merchant_id_fr : Drupal.settings.power_reviews.merchant_id;
+        var $prSppSnippet = $('.js-pr-spp-snippet');
+
+        var locales = $.cookie('LOCALE');
+        if (locales && locales !== '') {
+          locales = locales.toLowerCase();
+          if (typeof Drupal.settings.power_reviews[locales] !== 'undefined' && typeof Drupal.settings.power_reviews[locales]['merchant_id'] !== 'undefined' && typeof Drupal.settings.power_reviews[locales]['locale'] !== 'undefined') {
+            pr_merchant_id = Drupal.settings.power_reviews[locales]['merchant_id'];
+            pr_locale = Drupal.settings.power_reviews[locales]['locale'];
+          }
+        }
+
+        var pr_product = {
+          api_key: Drupal.settings.power_reviews.api_key,
+          locale: pr_locale,
+          merchant_group_id: Drupal.settings.power_reviews.merchant_group_id,
+          merchant_id: pr_merchant_id,
+          page_id: page_id,
+          review_wrapper_url: review_wrapper_url,
+          components: {
+          }
+        };
+
+        if ($(this).hasClass('product--full') && product !== '') {
+          $reviewsnippet.addClass('js-spp-review-snippet');
+          pr_product.on_read_reviews_click = function() {
+            $(document).trigger('anchor-review');
+            $('.js-pr-rating-tab', $('.responsive-tabs--powerreviews')).click();
+            if (typeof site !== 'undefined' && typeof site.track !== 'undefined') {
+              site.track.reviewRead();
+            }
+          };
+          pr_product.on_write_review_click = function(config, data) {
+            if (typeof site !== 'undefined' && typeof site.track !== 'undefined') {
+              site.track.reviewWriteStart();
+            }
+            var war_link = $('.pr-snippet-write-review-link').attr('href');
+            if (typeof war_link !== 'undefined' && war_link !== '') {
+              window.location.href = war_link;
+            }
+          };
+          pr_product.on_render = function(config, data) {
+            if (config.component === 'ReviewDisplay') {
+              $('.pr-review-snapshot-block-cons', $('.pr-review-snapshot-block-container')).append($('.pr-review-snapshot-snippets'));
+              $('.pr-review-snapshot-block-pros', $('.pr-review-snapshot-block-container')).append($('.pr-review-snapshot-msq', $('.pr-review-snapshot-msq-container')));
+              if (!$('#pr-review-snapshot').hasClass('pr-snapshot-mobile')) {
+                $('.pr-rd-review-header-contents', $('.pr-rd-main-header-with-filters')).prepend($('#pr-rd-filter-variant-by'), $('.pr-rd-review-header-sorts'));
+              }
+              $prSppSnippet.html($('.pr-review-snapshot-snippets').html());
+              $prSppSnippet.find('.pr-snippet-write-review-link').attr('data-test-id', 'spp_write_review_link');
+              first_time_exec = false;
+            }
+
+            // Add review data in slash form for mobile
+            if (navigator.userAgent.match(site.client.isMobileRegex) && $('.pr-slash-rating').length !== 0) {
+              if (data.hasOwnProperty('average_rating') && !isNaN(data.average_rating)) {
+                $('.pr-slash-rating').html('<span class = "rating">' + data.average_rating + '/5' + '</span>');
+              }
+            }
+          };
+          pr_product.strip_html_tags = function(str) {
+            if (str === null || str === '') {
+              return false;
+            } else {
+              str = str.toString();
+              return str.replace(/<[^>]*>/g, '');
+            }
+          };
+          var variants = [];
+          if (product.shaded) {
+            is_shaded = true;
+            var skus = product.skus, sku_count = skus.length;
+            for (var s = 0; s < sku_count; s++) {
+              variants.push({
+                'name': pr_product.strip_html_tags(skus[s].SHADENAME),
+                'description': pr_product.strip_html_tags(skus[s].SHADENAME),
+                'upc': skus[s].UPC_CODE,
+                'page_id_variant': skus[s].SKU_ID
+              });
+            }
+          }
+          pr_product.structured_data_product_id = 'pr_seo_snippet';
+          pr_product.components.ReviewSnippet = reviewsnippet_id;
+          pr_product.components.ReviewDisplay = 'pr-reviewdisplay';
+          var image_url = typeof product.skus[0].LARGE_IMAGE === 'object' ? product.skus[0].LARGE_IMAGE[0] : product.skus[0].LARGE_IMAGE;
+          var url = encodeURI(product.url);
+          var base_url = window.location.protocol + '//' + document.location.hostname;
+
+          pr_product.product = {
+            name: pr_product.strip_html_tags(product.PROD_RGN_NAME),
+            url: base_url + url,
+            image_url: base_url + image_url,
+            description: pr_product.strip_html_tags(product.DESCRIPTION),
+            category_name: product.DEFAULT_CAT_ID,
+            upc: product.skus[0].UPC_CODE,
+            brand_name: 'MAC',
+            price: product.skus[0].PRICE,
+            in_stock: product.isShoppable ? true : false,
+            variants: variants
+          };
+        } else {
+          pr_product.components.CategorySnippet = reviewsnippet_id;
+        }
+        pr_products.push(pr_product);
+      }
+    }
+  });
+
+  // Render power reviews after products have been initialized
+  $(document).on('products.init-start', function() {
+    pr_products = [];
+  });
+
+  // Render power reviews after products have been initialized
+  $(document).on('products.init-finish', function() {
+    if (typeof POWERREVIEWS !== 'undefined' && typeof Drupal.settings.power_reviews !== 'undefined') {
+      POWERREVIEWS.display.render(pr_products);
+    }
+  });
+
+  $(document).on('powerreviews-init', function() {
+    $(document).trigger('products.init-start');
+    $('.js-pr-product', document).trigger('product.init-pr');
+    $(document).trigger('products.init-finish');
+  });
+  $(window).on('l2_re-render:complete', function() {
+    $(document).trigger('powerreviews-init');
+    spp_snippet_load = true;
+  });
+
+  $(document).on('anchor-review', function() {
+    $('html, body').animate({
+      'scrollTop': $('#pr-reviewdisplay').offset().top - 150
+    }, 1000);
+  });
+
+  $(document).on('product:change_shade', function(e) {
+    if (!first_time_exec) {
+      var $sppSnippet = $('.review-snippet', $('.product--full'));
+      $sppSnippet.html($('.js-pr-spp-snippet').html());
+      $('.pr-snippet-review-count', $sppSnippet).click(function() {
+        $(document).trigger('anchor-review');
+      });
+      var query_string = '?pr_page_id=' + PRODUCT_ID.substring(4) + '&pr_skuId=' + skuId;
+      var review_wrapper_url = (Drupal.settings.power_reviews.review_wrapper_url || '/review/create') + query_string;
+      $('.pr-snippet-write-review-link').attr('href', review_wrapper_url);
+    }
+    var $pr_reviews_container = $('#pr-reviewdisplay');
+    var $pr_no_reviews = $('.pr-rd-no-reviews', $pr_reviews_container);
+    if (spp_snippet_load && $pr_no_reviews.length > 0) {
+      $pr_reviews_container.empty();
+      $(document).trigger('powerreviews-init');
+    }
+  });
+})(jQuery);

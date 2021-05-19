@@ -1,0 +1,203 @@
+/*
+    Endeca control class for the search page endeca instance.
+
+*/
+
+var site = site || {};
+site.endeca = site.endeca || {};
+site.endeca.instances = site.endeca.instances || {};
+site.endeca.instances.search = site.endeca.instances.search || {};
+
+site.endeca.instances.search.control = site.endeca.generic.Class.create( site.endeca.control, {
+    initialize: function( args ) {
+        this._super( args );
+
+        if ( jQuery.address ) {
+            var that = this;
+            jQuery.address.bind( 'change', that, function( event ) {
+                that.search( { queryString: $H(event.parameters).toQueryString() } );
+            });
+
+            // IE has issues with jQuery Address' initialize because of conflicts with iframes included on the page
+            // The following will search unless it has already searched.
+            window.setTimeout( function() {
+                if ( !that.hasSearched ) {
+                    that.search( { queryString: $H(event.parameters).getQueryString() } );
+                }
+            }, 100);
+        } else {
+            this.search();
+        }
+
+    },
+    
+    search: function( args ) {
+        this._super( args );
+        
+        if ( this.nodes.searchInput && this.nodes.searchInput.length && !this.wildcardSearch ) {
+            this.nodes.searchInput.attr( 'placeholder', this.queries.product.searchTerm );
+        }
+    },    
+    
+    searchCompleted: function() {
+        if ( !this._super() ) { return; }
+        
+        if ( this.searchTerm ) {
+            
+            this.results.products.resultData = this.catalogs.product.resultList;
+            this.results.products.summaryResultData = this.meta.searchInfo;
+            this.results.products.displayResults();
+            this.results.products.show();
+            this.results.products.contentNode.find('.product__restricted-eligible').removeClass('hidden');
+
+            if ( this.results.products.resultData.length ) {
+                this.hasResults = true;
+            } else {
+                this.results.products.hide();
+            }
+          
+            this.results.pagination.resultData = this.meta.pagination;
+            this.results.pagination.displayResults();
+            this.results.pagination.show();
+            
+            this.results.content.contentzones = this.configuration.contentzones;
+            this.results.content.resultData = this.meta.supplementalContent;
+            this.results.content.displayResults();
+            
+            if ( !jQuery.isEmptyObject( this.results.content.resultData ) ) {    
+                this.meta.processSearchInfo({ totalContentRecords: this.results.content.totalResults });
+                
+                if (  this.results.content.contentzones && 
+                      this.results.content.contentzones["Discontinued Products"] && 
+                      this.results.content.contentzones["Discontinued Products"].resultNode && 
+                      this.results.content.contentzones["Discontinued Products"].resultNode.totalProductResults ) {
+                        
+                    this.meta.searchInfo.totalDiscontinuedProductRecords = this.results.content.contentzones["Discontinued Products"].resultNode.totalProductResults;
+                } else {
+                    this.meta.searchInfo.totalDiscontinuedProductRecords = 0;
+                }
+                
+                this.results.content.show();
+                if ( this.results.content.totalResults || this.results.content.hasSoloResults ) { this.hasResults = true; }
+            } else {
+                this.results.content.hide(); 
+            }           
+          
+            if ( this.meta.dimensions.breadcrumbs ) {
+                this.results.breadcrumbs.resultData = this.meta.dimensions.breadcrumbs;
+                this.results.breadcrumbs.displayResults();
+                this.results.breadcrumbs.show();
+            } else {
+                this.results.breadcrumbs.hide();
+            }
+    
+            if ( this.meta.dimensions.refinements ) {
+                this.results.refinements.resultData = this.meta.dimensions.refinements;
+                this.results.refinements.displayResults();
+                this.results.refinements.show();
+            } else {
+                this.results.refinements.hide();
+            }
+
+            jQuery(document).trigger('endeca.search.results.loaded', [ this ]);
+
+        }
+        
+        if ( this.hasResults ) {
+            this.results.summary.resultData = jQuery.extend( this.meta.searchInfo, { breadcrumbs: this.meta.dimensions.breadcrumbs } );
+            this.results.summary.hasResults = this.hasResults;
+            this.results.summary.displayResult();
+        }
+        
+        var that = this;
+        jQuery('.search-again').bind( 'submit', that, that.searchAgain );
+        
+        this.displayResults();
+        var productResults = jQuery('#product-results');
+        Drupal.behaviors.favToolTips.attach(productResults);
+    },
+
+    searchAgain: function( event ) {
+        var that = event.data;
+        var form = event.target;
+        var within = jQuery(form).find('.within')[0] || { checked: false };
+        var searchTerm = jQuery(form).find('.search-term')[0] || { value: '' };
+        var queryString = jQuery(form).find('.query-string')[0] || { value: '' };
+        
+        if ( within.checked ) {
+            searchTerm.value = that.meta.searchInfo.searchTerm + '+' + searchTerm.value;
+            
+            that.queries.product.setupDimensionSearch({ searchTerm: searchTerm.value });
+            that.queries.product.setupSearch({ searchTerm: searchTerm.value });
+                        
+            queryString.value = encodeURIComponent( that.queries.product.toQueryString() );
+        }
+        
+        if ( searchTerm.value == "" ) { event.preventDefault(); }
+    },
+    
+    
+    processOmniture: function() {
+        // this should be called from your searchCompleted in your instance's control subclass.
+        if ( this.configuration.omnitureEnabled ) {
+            site.endeca.omniture.reset();
+
+            // Will use tms_page_data instead of site.endeca because that brings this data under the helm of the Generic
+            // Data Dictionary for tagging.
+            site.endeca.omniture.productCount = this.meta.searchInfo.totalProductRecords + ( this.meta.searchInfo.totalDiscontinuedProductRecords ? this.meta.searchInfo.totalDiscontinuedProductRecords : 0 );
+            site.endeca.omniture.contentCount = this.meta.searchInfo.totalContentRecords;
+            
+            site.endeca.omniture.searchTerm = this.meta.searchInfo.correctedTerms && this.meta.searchInfo.correctedTerms.length ? this.meta.searchInfo.correctedTerms[0] : this.queries.product.parsedSearchTerm();
+            
+            if ( this.meta.searchInfo.totalDiscontinuedProductRecords ) {
+                site.endeca.omniture.searchTerm = '^' + site.endeca.omniture.searchTerm;
+            }
+            
+            site.endeca.omniture.numberOfPages = this.meta.pagination ? this.meta.pagination.numberOfPages : 1;
+            site.endeca.omniture.currentPage = this.meta.pagination ? this.meta.pagination.numberOfCurrentPage : 1;
+
+            if ( this.meta.dimensions.breadcrumbs ) {
+                var lastBC = this.meta.dimensions.breadcrumbs[ this.meta.dimensions.breadcrumbs.length - 1 ];
+                var lastBCVal = lastBC["Dimension Values"][ lastBC["Dimension Values"].length - 1 ];
+                site.endeca.omniture.refineSearch( lastBCVal["Dim Value Name"] );
+            } else {
+                site.endeca.omniture.searchResults();
+            }
+        }
+    },
+    
+    
+    displayResults: function() {
+        if ( this.hasResults ) {
+            if ( this.nodes.resultsContainer ) { this.nodes.resultsContainer.show(); }
+            if ( this.nodes.noResultsContainer ) { this.nodes.noResultsContainer.hide(); }
+            
+            this.processOmniture();
+            this.wildcardSearch = false;
+            
+            return true;
+        } else {
+            if ( this.wildcardSearch ) {
+                if ( this.nodes.resultsContainer ) { this.nodes.resultsContainer.hide(); }
+                if ( this.nodes.noResultsContainer ) { this.nodes.noResultsContainer.show(); }
+                
+                this.results.content.contentzones = this.configuration.noResultsContentZone;
+                this.results.content.resultData = this.meta.supplementalContent;
+                this.results.content.displayResults();
+                this.results.content.show();
+                
+                this.processOmniture();
+                this.wildcardSearch = false;
+                
+                return true;
+            } else {
+                this.wildcardSearch = true;
+                this.search({ searchTerm: this.searchTerm + '*' });
+                
+                return false;
+            }
+        }
+    }
+    
+    
+});

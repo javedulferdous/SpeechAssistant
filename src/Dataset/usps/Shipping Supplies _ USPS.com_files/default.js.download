@@ -1,0 +1,1 @@
+define(["exports","require","../has"],function(c,e,a){var d=a("config-requestProvider"),b;a("host-browser")?b="./xhr":a("host-node")&&(b="./node");d||(d=b);c.getPlatformDefaultId=function(){return b};c.load=function(a,c,f,g){e(["platform"==a?b:d],function(a){f(a)})}});

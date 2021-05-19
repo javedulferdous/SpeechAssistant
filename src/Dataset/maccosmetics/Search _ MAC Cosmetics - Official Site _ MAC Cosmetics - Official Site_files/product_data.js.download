@@ -1,0 +1,188 @@
+var prodcat = prodcat || {};
+prodcat.ui = prodcat.ui || {};
+prodcat.data = prodcat.data || {};
+
+var site = site || {};
+site.onLoadRpc = site.onLoadRpc || {};
+site.onLoadRpc.requests = site.onLoadRpc.requests || [];
+
+
+(function($, Drupal, _) {
+
+  prodcat.data.collectProductIds = function($context) {
+    var prodIds = [];
+    $('[data-product-id]', $context).each( function() {
+      var $this = $(this);
+      var prodId = $this.attr('data-product-id');
+      var insert = true;
+      for (var i=prodIds.length-1; i>-1; i--) {
+        if (prodIds[i] === prodId) {
+          insert = false;
+          break;
+        }
+      }
+      if (insert) {
+        prodIds.push({'prodId':prodId, $element: $this});
+      }
+      insert = true;
+    });
+    return prodIds;
+  };
+
+  /**
+   * Retrieves product data from data store. Folds full sku data into product.skus array
+   * @param {String} prodId
+   */
+  prodcat.data.getProduct = function(prodId) {
+    if (!prodcat.data.store.products[prodId]) {
+      return null;
+    }
+    var prodData = $.extend( true, {}, prodcat.data.store.products[prodId] );
+    var sLen = prodData.skus.length;
+    if (sLen > 0) {
+      // _.each(prodData.skus, function(skuId, idx, skus) {
+      //    prodData.skus[idx] = prodcat.data.getSku(skuId);
+      // });
+      for (var i = 0; i < sLen; i++) {
+        skuId = prodData.skus[i];
+        prodData.skus[i] = prodcat.data.getSku(skuId);
+      }
+    }
+    return prodData;
+  };
+
+  prodcat.data.getSku = function(skuId) {
+    skuId = skuId + ''; // Has to be a string to run indexOf
+    skuId = skuId.indexOf('SKU') === 0 ? skuId : 'SKU' + skuId;
+    var skuData = prodcat.data.store.skus[skuId];
+    if (!skuData){
+      return null;
+    }
+    return skuData;
+  };
+
+  prodcat.data.updateProducts = function(productsArray, responseDate) {
+    _.each(productsArray, function(newProd) {
+      //if (typeof(newProd) === 'undefined' || newProd === null) return 1;
+      var targetProd = $.extend(true, {}, newProd);
+      var oldProd = prodcat.data.store.products[newProd.PRODUCT_ID];
+      if (_.isArray(newProd.skus)) {
+
+        // Remove any "product" keys from the sku object to prevent recursion errors down the road.
+        // _.each(targetProd.skus, function(newSku, index) {
+        //   targetProd.skus[index].product = undefined;
+        // });
+        for (var i = 0, len = targetProd.skus.length; i < len; i++) {
+          targetProd.skus[i].product = undefined;
+        }
+
+        prodcat.data.updateSkus(targetProd.skus, responseDate);
+        targetProd.skus = _.map(targetProd.skus, function(sku) {
+          return sku.SKU_ID;
+        });
+      }
+      prodcat.data.store.products[targetProd.PRODUCT_ID] = _.isObject(oldProd) ? _.extend(oldProd, targetProd) : targetProd;
+    });
+  };
+
+  prodcat.data.updateSkus = function(skusArray, responseDate) {
+    // _.each(skusArray, function(newSku) {
+    //   var oldSku = prodcat.data.store.skus[newSku.SKU_ID];
+    //   prodcat.data.store.skus[newSku.SKU_ID] = _.isObject(oldSku) ? _.extend(oldSku, newSku) : newSku;
+    // });
+    var newSku, oldSku;
+    for (var i = 0, j = skusArray.length; i < j; i++) {
+      newSku = skusArray[i];
+      newSku['responseDate'] = responseDate;
+      oldSku = prodcat.data.store.skus[newSku.SKU_ID];
+      prodcat.data.store.skus[newSku.SKU_ID] = _.isObject(oldSku) ? _.extend(oldSku, newSku) : newSku;
+    }
+  };
+
+  prodcat.data.init = function() {
+    prodcat.data.store = {
+      categories: {},
+      products: {},
+      skus: {}
+    };
+
+    if (!page_data || typeof page_data === "undefined") {
+      return null;
+    }
+
+    for (var key in page_data) {
+      if (!page_data[key]) {
+        continue;
+      }
+
+      if (page_data[key].categories && _.isArray(page_data[key].categories)) {
+        _.each(page_data[key].categories, function(newCat) {
+          var oldCat = prodcat.data.store.categories[newCat.CATEGORY_ID];
+          var targetCat = $.extend(true, {}, newCat);
+          if (_.isArray(targetCat.products)) {
+            prodcat.data.updateProducts(targetCat.products);
+          }
+          targetCat.products = _.map(targetCat.products, function(prod) {
+            return prod.PRODUCT_ID;
+          });
+          prodcat.data.store.categories[targetCat.CATEGORY_ID] = _.isObject(oldCat) ? _.extend(oldCat, targetCat) : targetCat;
+        });
+      }
+      if (page_data[key].products && _.isArray(page_data[key].products)) {
+        prodcat.data.updateProducts(page_data[key].products);
+      }
+      if (page_data[key].product && _.isObject(page_data[key].product)) {
+        prodcat.data.updateProducts([page_data[key].product]);
+      }
+    }
+  };
+
+  var prods = prodcat.data.collectProductIds(),
+      pids = _.pluck(prods, "prodId");
+
+  if (!_.isEmpty(pids)) {
+    pids = _.uniq(pids);
+    site.onLoadRpc.requests.push({
+      "method":   "prodcat.querykey",
+      "getParams" : function() {
+        return [{
+          products: pids,
+          query_key: 'catalog-mpp-volatile'
+        }];
+      },
+      "onSuccess": function (r) {
+        if (
+            !r ||
+            !r.result ||
+            !r.result.value ||
+            !r.result.value.products
+            ) return null;
+
+        var prods = r.result.value.products;
+        prodcat.data.updateProducts(prods, r.result.data.responseDate); // include response date for calculation of pre-order status
+
+        _.each(prods, function(prod) {
+          // Run these event triggers asyncronously
+          setTimeout(function() {
+            var prodSlctr = "[data-product-id='" + prod.PRODUCT_ID + "']";
+            $(prodSlctr).trigger("inv_status_data:updated");
+          }, 0);
+        });
+
+        // notify $(window) of L2 inventory status update
+        // note: does this /need/ to happen after all individual product elements have completed?
+        $(window).trigger('l2_inv_status:updated', r);
+      }
+    });
+  }
+
+  /**
+   * Pull data from page_data and store internally.
+   */
+  Drupal.behaviors.prodcatDataInit = {
+    attach: function() {
+      prodcat.data.init();
+    }
+  };
+
+})(jQuery, Drupal, _);

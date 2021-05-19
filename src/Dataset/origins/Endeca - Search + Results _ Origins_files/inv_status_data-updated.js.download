@@ -1,0 +1,11 @@
+(function($) {
+
+$(document).on('inv_status_data:updated', '.js-product', function() {
+  $(this).trigger('product.updateInvStatus');
+  // multi skus // add-all-to-cart button
+  if ($('.js-add-all-to-cart', this).length) {
+    $(this).trigger('product.updateMultiSkuInvStatus');
+  }
+});
+
+})(jQuery);

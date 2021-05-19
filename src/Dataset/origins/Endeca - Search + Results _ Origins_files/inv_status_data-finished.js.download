@@ -1,0 +1,7 @@
+(function($) {
+
+$(document).on('inv_status_data:finished', function() {
+  $(this).trigger('product.updateInvStatusFinished');
+});
+
+})(jQuery);

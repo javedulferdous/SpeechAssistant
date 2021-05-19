@@ -1,0 +1,105 @@
+@import url(https://fonts.googleapis.com/css?family=Titillium+Web);
+
+#bx-viewport, .bx_viewport
+{
+    position:fixed;
+    display:none;
+    left: 0;
+    top:0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(238, 238, 238, 0.85);
+    z-index: 9999;
+}
+
+#bx-viewport iframe, .bx_viewport
+{
+    display: none;
+    width:100%;
+    height:100%;
+    border-width: 0;
+}
+
+
+#bx-viewport[data-is-open=true], #bx-viewport[data-is-open=loading], .bx_viewport[data-is-open=true], .bx_viewport[data-is-open=loading]
+{
+    display: block;
+}
+
+#bx-viewport[data-is-open=true] iframe, .bx_viewport[data-is-open=true] iframe
+{
+    display: block;
+}
+
+#bx-viewport[data-is-open=true] .loading_bar, .bx_viewport[data-is-open=true] .loading_bar
+{
+    display: none;
+}
+
+.loading_bar
+{
+    width: 100%;
+    height:100%;
+
+    background-repeat: no-repeat;
+    background-position: center;
+    background-image: url('https://site.booxi.com/img/icons/gif/loading_green_circle.gif');
+}
+
+
+/*
+.bxe_book_button
+{
+    transition: color 0.4s ease 0s, border-color 0.4s ease 0s, background-color 0.4s ease 0s;
+}
+*/
+
+
+.bx_bn_button
+{
+    font-family: 'Titillium Web', sans-serif;
+    display: inline-block;
+    width:auto;
+    border: 1px solid #308c42;
+    background: #4ed066;
+    color: #FFFFFF;
+    border-radius: 3px;
+    vertical-align: top;
+    cursor: pointer;
+    padding: 10px 20px 10px 20px;
+    text-align: center;
+
+    font-size: 17px;
+    font-weight: 400;
+}
+
+.bx_bn_button.use_bx_ico
+{
+    position: relative;
+    padding: 10px 60px 10px 20px;
+}
+
+.bx_bn_button.use_bx_ico::after
+{
+    content: '';
+    position: absolute;
+    display: inline-block;
+    height:100%;
+    width: 60px;
+    top: 0;
+    right: 0;
+    background-position: center center;
+    background-repeat: no-repeat;
+    background-image: url('https://site.booxi.com/img/icons/svg/book_w.svg');
+}
+
+.bx_bn_button[data-bn-state=inactive]
+{
+    opacity: 0.3 !important;
+}
+
+
+#bx-viewport[data-is-open=true] .loading_bar
+{
+    display: none;
+}

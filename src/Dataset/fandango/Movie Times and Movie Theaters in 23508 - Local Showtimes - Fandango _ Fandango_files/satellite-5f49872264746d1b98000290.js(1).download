@@ -1,0 +1,24 @@
+_satellite.pushAsyncScript(function(event, target, $variables){
+  //The Broken Hearts Gallery
+if(_satellite.getVar('Movie ID') == '223123'){
+  //pxl-602
+//mop
+ if(_satellite.getVar('Page Level 2') == 'movie | overview'){
+ (function(e,t,n){if(e.snaptr)return;var a=e.snaptr=function(){a.handleRequest?a.handleRequest.apply(a,arguments):a.queue.push(arguments)};a.queue=[];var s='script';r=t.createElement(s);r.async=!0;r.src=n;var u=t.getElementsByTagName(s)[0];u.parentNode.insertBefore(r,u);})(window,document,'https://sc-static.net/scevent.min.js');
+
+snaptr('init', 'e0b9709d-3a7b-4462-a455-793a26ad6dd8', {'user_email': '_INSERT_USER_EMAIL_'});
+snaptr('track', 'e0b9709d-3a7b-4462-a455-793a26ad6dd8', 'VIEW_CONTENT');
+
+
+}
+//msp
+  if(_satellite.getVar('Page Level 2') == 'movie times | by movie'){
+  //MSP
+    (function(e,t,n){if(e.snaptr)return;var a=e.snaptr=function(){a.handleRequest?a.handleRequest.apply(a,arguments):a.queue.push(arguments)};a.queue=[];var s='script';r=t.createElement(s);r.async=!0;r.src=n;var u=t.getElementsByTagName(s)[0];u.parentNode.insertBefore(r,u);})(window,document,'https://sc-static.net/scevent.min.js');
+
+snaptr('init', 'e0b9709d-3a7b-4462-a455-793a26ad6dd8', {'user_email': '_INSERT_USER_EMAIL_'});
+snaptr('track', 'e0b9709d-3a7b-4462-a455-793a26ad6dd8', 'PAGE_VIEW');
+
+}
+}
+});

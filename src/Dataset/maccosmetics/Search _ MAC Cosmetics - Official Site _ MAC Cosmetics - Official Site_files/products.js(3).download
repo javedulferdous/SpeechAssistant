@@ -1,0 +1,44 @@
+site.endeca.results.contentzone.products = jQuery.extend( true, {}, generic.endeca.results.contentzone.products, {
+    
+    displayResults: function ( args ) {
+        var args = args || {};
+        
+        // give the container template the data for the first product as well as any properties from Endeca.
+        jQuery.extend( this.resultData, args.resultData[0], this.resultData[0].Properties );
+        
+        this._super( args );
+        
+    },
+
+    createResult: function( args ) {
+        var args = args || {};
+        
+        if ( args.index == 0 && this.node.find('.first-result').length ) {
+            args.contentNode = this.node.find('.first-result');
+        }
+        
+        var styleName = ( args.result.Properties && args.result.Properties.Style ) ? args.result.Properties.Style : this.styleName;
+        
+        if ( this.configuration.styles && this.configuration.styles[ styleName ] && this.configuration.styles[ styleName ].displaySku ) { 
+            
+            var product = jQuery.extend( {}, args.result );
+            var skus = args.result.skus;
+            for ( var i = 0; i < skus.length; i++ ) {
+                
+                if ( i > 0 ) {
+                    args.contentNode = null;
+                }
+                
+                product['skus'] = [skus[i]];
+                args.result = jQuery.extend( {}, product );
+                
+                this._super( args );
+            }
+            
+        } else {
+            this._super( args );
+        }
+        
+    }
+    
+});

@@ -1,0 +1,64 @@
+//tealium universal tag - utag.777 ut4.0.202009081923, Copyright 2020 Tealium.com Inc. All Rights Reserved.
+try{(function(id,loader){var u={"id":id};utag.o[loader].sender[id]=u;if(utag.ut===undefined){utag.ut={};}
+var match=/ut\d\.(\d*)\..*/.exec(utag.cfg.v);if(utag.ut.loader===undefined||!match||parseInt(match[1])<35){u.loader=function(o){var b,c,l,a=document;if(o.type==="iframe"){b=a.createElement("iframe");o.attrs=o.attrs||{"height":"1","width":"1","style":"display:none"};for(l in utag.loader.GV(o.attrs)){b.setAttribute(l,o.attrs[l]);}b.setAttribute("src",o.src);}else if(o.type=="img"){utag.DB("Attach img: "+o.src);b=new Image();b.src=o.src;return;}else{b=a.createElement("script");b.language="javascript";b.type="text/javascript";b.async=1;b.charset="utf-8";for(l in utag.loader.GV(o.attrs)){b[l]=o.attrs[l];}b.src=o.src;}if(o.id){b.id=o.id};if(typeof o.cb=="function"){if(b.addEventListener){b.addEventListener("load",function(){o.cb()},false);}else{b.onreadystatechange=function(){if(this.readyState=='complete'||this.readyState=='loaded'){this.onreadystatechange=null;o.cb()}};}}l=o.loc||"head";c=a.getElementsByTagName(l)[0];if(c){utag.DB("Attach to "+l+": "+o.src);if(l=="script"){c.parentNode.insertBefore(b,c);}else{c.appendChild(b)}}}}else{u.loader=utag.ut.loader;}
+if(utag.ut.typeOf===undefined){u.typeOf=function(e){return({}).toString.call(e).match(/\s([a-zA-Z]+)/)[1].toLowerCase();};}else{u.typeOf=utag.ut.typeOf;}
+u.ev={"view":1,"link":1};u.clearEmptyKeys=function(object){for(var key in object){if(object[key]===""||object[key]===undefined){delete object[key];}}
+return object;};u.map={"PageType":"pdata.PageType","UserId":"pdata.UserId","UserStatus":"pdata.UserStatus","RetailerName":"pdata.RetailerName","ContentType":"pdata.ContentType","EventType":"pdata.EventType","ProgramBrand":"pdata.ProgramBrand","ProgramDivision":"pdata.ProgramDivision","SocialNetwork":"pdata.SocialNetwork","LRFranchise":"pdata.Franchise","LRKeyIngredient":"pdata.KeyIngredient","LRFlavor":"pdata.Flavor","LRMarketingImpressionSubCat":"pdata.MarketingImpressionSubCat","LRMealType":"pdata.MealType","LRDishType":"pdata.DishType","LROccasion":"pdata.Occassion","LRPrepMethod":"pdata.PrepMethod","LRCookware":"pdata.Cookware","LRHolidays":"pdata.Holidays","LRCuisine":"pdata.Cuisine","dom.domain":"pdata.Domain","LRTheme":"pdata.Theme","ContentTitle":"pdata.ContentTitle","LRcookiebrownie":"pdata.LRcookiebrownie","LRDessert":"pdata.LRDessert","LRMexican":"pdata.LRMexican","LRQuickEasy":"pdata.LRQuickEasy"};u.extend=[function(a,b){if(typeof window.lv_fire_val=="undefined"){window.lv_fire_val="false";}
+if(document.URL.indexOf("pillsbury")>-1&&window.lv_fire_val=="false"){if(a!=="link"){window.first_view_flag="true";}
+window.lv_fire_val="true";function fireLV(){utag.view(utag.data,null,[703])}
+setTimeout(fireLV,2000);}
+if(document.URL.indexOf("pillsbury")>-1&&b.EventType=="MaxyMbrandImpression"){return false;}
+if(document.URL.indexOf("pillsbury")>-1&&b.EventType=="MadeWithMetadataImpression"){return false;}
+if(a=="view"&&window.first_view_flag=="true"){window.first_view_flag="false";return false;}},function(a,b){if(b.MetadataLabel instanceof Array&&b.MetadataValue instanceof Array&&b.MetadataLabel.length==b.MetadataValue.length){for(var i=0;i<b.MetadataLabel.length;i++){var l=b.MetadataLabel[i],v=b.MetadataValue[i];if("Key Ingredient"==l){if(typeof b.LRKeyIngredient=='undefined'){b.LRKeyIngredient="";}
+b.LRKeyIngredient=b.LRKeyIngredient+v+"|";}
+else if("Submitted by Members"==l){if(typeof b.LRSubmittedByMembers=='undefined'){b.LRSubmittedByMembers="";}
+b.LRSubmittedByMembers=b.LRSubmittedByMembers+v+"|";}
+else if("Visual Badges - Tablespoon"==l){if(typeof b.LRVisualBadges=='undefined'){b.LRVisualBadges="";}
+b.LRVisualBadges=b.LRVisualBadges+v+"|";}
+else if("Visual Tags"==l){if(typeof b.LRVisualTags=='undefined'){b.LRVisualTags="";}
+b.LRVisualTags=b.LRVisualTags+v+"|";}
+else if("Prep Method"==l){if(typeof b.LRPrepMethod=='undefined'){b.LRPrepMethod="";}
+b.LRPrepMethod=b.LRPrepMethod+v+"|";}
+else if("Recurring Features"==l){if(typeof b.LRRecurringFeatures=='undefined'){b.LRRecurringFeatures="";}
+b.LRRecurringFeatures=b.LRRecurringFeatures+v+"|";}
+else if("Cuisine"==l){if(typeof b.LRCuisine=='undefined'){b.LRCuisine="";}
+b.LRCuisine=b.LRCuisine+v+"|";}
+else if("Flavor"==l){if(typeof b.LRFlavor=='undefined'){b.LRFlavor="";}
+b.LRFlavor=b.LRFlavor+v+"|";}
+else if("Division"==l){if(typeof b.LRDivision=='undefined'){b.LRDivision="";}
+b.LRDivision=b.LRDivision+v+"|";}
+else if("Cookware"==l){if(typeof b.LRCookware=='undefined'){b.LRCookware="";}
+b.LRCookware=b.LRCookware+v+"|";}
+else if("Dish Type"==l){if(typeof b.LRDishType=='undefined'){b.LRDishType="";}
+b.LRDishType=b.LRDishType+v+"|";}
+else if("Holiday"==l){if(typeof b.LRHoliday=='undefined'){b.LRHoliday="";}
+b.LRHoliday=b.LRHoliday+v+"|";}
+else if("Collections"==l){if(typeof b.LRCollections=='undefined'){b.LRCollections="";}
+b.LRCollections=b.LRCollections+v+"|";}
+else if("Occasion"==l){if(typeof b.LROccasion=='undefined'){b.LROccasion="";}
+b.LROccasion=b.LROccasion+v+"|";}
+else if("Marketing Impression SubCat"==l){if(typeof b.LRMarketingImpressionSubCat=='undefined'){b.LRMarketingImpressionSubCat="";}
+b.LRMarketingImpressionSubCat=b.LRMarketingImpressionSubCat+v+"|";}
+else if("Diet Nutrition"==l){if(typeof b.LRDietNutrition=='undefined'){b.LRDietNutrition="";}
+b.LRDietNutrition=b.LRDietNutrition+v+"|";}
+else if("Meal Type"==l){if(typeof b.LRMealType=='undefined'){b.LRMealType="";}
+b.LRMealType=b.LRMealType+v+"|";}
+else if("Mobile Apps"==l){if(typeof b.LRMobileApps=='undefined'){b.LRMobileApps="";}
+b.LRMobileApps=b.LRMobileApps+v+"|";}
+else if("Franchise"==l){if(typeof b.LRFranchise=='undefined'){b.LRFranchise="";}
+b.LRFranchise=b.LRFranchise+v+"|";}
+else if("Season"==l){if(typeof b.LRSeason=='undefined'){b.LRSeason="";}
+b.LRSeason=b.LRSeason+v+"|";}
+else if("Bake Off"==l){if(typeof b.LRBakeOff=='undefined'){b.LRBakeOff="";}
+b.LRBakeOff=b.LRBakeOff+v+"|";}
+else if("Theme"==l){if(typeof b.LRTheme=='undefined'){b.LRTheme="";}
+b.LRTheme=b.LRTheme+v+"|";}
+else if("Product"==l){if(typeof b.LRProduct=='undefined'){b.LRProduct="";}
+b.LRProduct=b.LRProduct+v+"|";}}}
+b.LRKeyIngredient=b.LRKeyIngredient.replace(/,/g,'');var a=b.ContentTitle
+if(a.includes('cookie')||a.includes('brownie')||a.includes('Cookie')||a.includes('Brownie')){b.LRcookiebrownie="true";}
+var a=b._MealType
+if(a.includes('dessert')||a.includes('Dessert')){b.LRDessert="true";}}];u.send=function(a,b){if(u.ev[a]||u.ev.all!==undefined){utag.DB("send:777");utag.DB(b);var c,d,e,f;u.data={"base_url":"//di.rlcdn.com/","tag_id":"710501","pdata":{"timestamp":"","repeat_visitor":"","domain":"","device_type":"","traffic_source":"","referral_channel":"","referral_source":"","search_group":"","key_act_1":"","key_act_2":"","key_act_3":"","key_act_4":"","key_act_5":"","key_act_6":"","key_act_7":"","url_path":""}};for(c=0;c<u.extend.length;c++){try{d=u.extend[c](a,b);if(d==false)return}catch(e){if(typeof utag_err!='undefined'){utag_err.push({e:'extension error:'+e,s:utag.cfg.path+'utag.'+id+'.js',l:c,t:'ex'})}}};utag.DB("send:777:EXTENSIONS");utag.DB(b);c=[];for(d in utag.loader.GV(u.map)){if(b[d]!==undefined&&b[d]!==""){e=u.map[d].split(",");for(f=0;f<e.length;f++){if(e[f].indexOf("pdata.")===0){u.data.pdata[e[f].substr(6)]=b[d];}else{u.data[e[f]]=b[d];}}}}
+utag.DB("send:777:MAPPINGS");utag.DB(u.data);if(!u.data.tag_id){utag.DB(u.id+": Tag not fired: Required attribute not populated");return;}
+u.data.pdata.timestamp=u.data.timestamp;u.data.pdata.repeatvisitor=u.data.repeat_visitor;u.data.pdata.domain=u.data.domain;u.data.pdata.devicetype=u.data.device_type;u.data.pdata.trafficsource=u.data.traffic_source;u.data.pdata.refferalchannel=u.data.referral_channel;u.data.pdata.refferalsource=u.data.referral_source;u.data.pdata.searchgroup=u.data.search_group;u.data.pdata.keyact1=u.data.key_act_1;u.data.pdata.keyact2=u.data.key_act_2;u.data.pdata.keyact3=u.data.key_act_3;u.data.pdata.keyact4=u.data.key_act_4;u.data.pdata.keyact5=u.data.key_act_5;u.data.pdata.keyact6=u.data.key_act_6;u.data.pdata.keyact7=u.data.key_act_7;u.data.pdata.urlpath=u.data.url_path;u.data.pdata=u.clearEmptyKeys(u.data.pdata);var paramstr="";for(key in u.data.pdata){paramstr+=(key+"="+u.data.pdata[key]+",");}
+paramstr=paramstr.slice(0,-1);paramstr=encodeURIComponent(paramstr);u.data.base_url=u.data.base_url+u.data.tag_id+".html?pdata="+paramstr;u.loader({"type":"iframe","src":u.data.base_url,"cb":null,"loc":"body","id":"utag_777","attrs":{"width":0,"height":0,"style":"display:none","frameborder":0}});utag.DB("send:777:COMPLETE");}};utag.o[loader].loader.LOAD(id);}("777","generalmills.bettycrocker.com"));}catch(error){utag.DB(error);}

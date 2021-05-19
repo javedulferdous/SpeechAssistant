@@ -1,0 +1,3286 @@
+﻿﻿/** submit可能かどうかのフラグ */
+var submitableFlg = true;
+
+/**
+ * submitableFlgをクリアする
+ */
+function clearSubmitFlg() {
+	submitableFlg = true;
+}
+
+// 以下APで利用可能な共通関数群
+/******************************************************************************
+関数名前		：	ComAddConfirm
+処理機能		：	追加時にconfirmを表示する際に使用する.
+					引数が指定されない場合はMS7503を表示する.
+引数			：	メッセージ
+戻り値			：	なし
+作成日			：	2004/05/14
+修正日--------概要--------------------------
+******************************************************************************/
+function ComAddConfirm(message){
+	var defaultMessage = MS7503;
+	if((message==null)||(message=="")) {message = defaultMessage};
+	return confirm(message);
+}
+/******************************************************************************
+関数名前		：	ComUpdateConfirm
+処理機能		：	更新時にconfirmを表示する際に使用する.
+					引数が指定されない場合はMS7506を表示する.
+引数			：	メッセージ
+戻り値			：	なし
+作成日			：	2004/05/14
+修正日--------概要--------------------------
+******************************************************************************/
+function ComUpdateConfirm(message){
+	var defaultMessage = MS7506;
+	if((message==null)||(message=="")) {message = defaultMessage};
+	return confirm(message);
+}
+/******************************************************************************
+関数名前		：	ComDeleteConfirm
+処理機能		：	削除時にconfirmを表示する際に使用する.
+					引数が指定されない場合はMS7507を表示する.
+引数			：	メッセージ
+戻り値			：	なし
+作成日			：	2004/05/14
+修正日--------概要--------------------------
+******************************************************************************/
+function ComDeleteConfirm(message){
+	var defaultMessage = MS7507;
+	if((message==null)||(message=="")) {message = defaultMessage};
+	return confirm(message);
+}
+/******************************************************************************
+関数名前		：	ComConfirm
+処理機能		：	共通のconfirm関数.各confirm関数が呼び出す.念のため作っておく。
+引数			：	メッセージ
+戻り値			：	なし
+作成日			：	2004/05/14
+修正日--------概要--------------------------
+******************************************************************************/
+function ComConfirm(message){
+	return confirm(message);
+}
+var COM_BASE_PATH;
+/******************************************************************************
+関数名前		：	ComSetBasePath
+処理機能		：	ベースパスのセット.ベースパスとはコンテキストパスに
+					サーブレットパスを追加したものである。
+引数			：	ベースパス
+戻り値			：	なし
+作成日			：	2004/05/05
+修正日--------概要--------------------------
+******************************************************************************/
+function ComSetBasePath(path){
+    COM_BASE_PATH = path;
+}
+/******************************************************************************
+関数名前		：	ComGetBasePath
+処理機能		：	doInitでセットされたベースパスを返す.
+引数			：	なし
+戻り値			：	ベースパス
+作成日			：	2004/05/05
+修正日--------概要--------------------------
+******************************************************************************/
+function ComGetBasePath(){
+    return COM_BASE_PATH;
+}
+
+/*****************************************************************************
+関数名前	：ComCheckAscii
+処理機能			：Asciiチェック
+引数		：チェック対象, エラーメッセージを出さないかどうか
+作成日				：2000/10/03
+修正日--------概要--------------------------
+******************************************************************************/
+function ComCheckAscii(sCheck, nFlg) {
+	if((sCheck=="")||(sCheck==null)) {
+		return ComTrue();
+	}
+	var asciiStr = ' !"#$%&\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~';
+	var result = true;
+	for(cnt=0;cnt<sCheck.length;cnt++){
+		chktarget = sCheck.substring(cnt,cnt+1);
+		if(asciiStr.indexOf(chktarget) < 0){
+			result = false;
+			break;
+		}
+	}
+	if(!result) {
+		return ComFalse();
+	}
+	return ComTrue();
+}
+
+/*****************************************************************************
+関数名前	：ComCheckAsciiAndSetSelect
+処理機能			：Asciiチェック&エラー時に選択状態にする
+引数		：チェック対象textfield(またはtextarea)
+作成日				：2004/04/09
+修正日--------概要--------------------------
+******************************************************************************/
+function ComCheckAsciiAndSetSelect(field) {
+	if (!ComCheckAscii(field.value)) {
+	 	ComSetFocusSelect(field);
+		return ComFalse();
+	}
+	return ComTrue();
+}
+/*****************************************************************************
+関数名前	：ComToAlphabetToZ（直接使用は不可）
+処理機能			：アルファベット26字 → Z 変換
+引数		：変換対象
+作成日				：2004/08/16
+修正日--------概要--------------------------
+******************************************************************************/
+function ComToAlphabetToZ(chkstr){
+	var zenkaku = "ABCDEFGHIJKLMNOPQRSTUVWXY";
+	var hankaku = "ZZZZZZZZZZZZZZZZZZZZZZZZZ";
+	for(cnt=0;cnt<zenkaku.length;cnt++){
+		chktarget = zenkaku.substring(cnt,cnt+1);
+		while(chkstr.indexOf(chktarget) >= 0){
+			chkstr = chkstr.substring(0,chkstr.indexOf(chktarget))
+							 + hankaku.charAt(cnt)
+							 + chkstr.substring(chkstr.indexOf(chktarget)
+							 + 1,chkstr.length);
+		}
+	}
+	return chkstr;
+}
+/*****************************************************************************
+関数名前	：ComToNumberToZero（直接使用は不可）
+処理機能			：数字10種 → 0 変換
+引数		：変換対象
+作成日				：2004/08/17
+修正日--------概要--------------------------
+******************************************************************************/
+function ComToNumberToZero(chkstr){
+	var zenkaku = "123456789";
+	var hankaku = "000000000";
+	for(cnt=0;cnt<zenkaku.length;cnt++){
+		chktarget = zenkaku.substring(cnt,cnt+1);
+		while(chkstr.indexOf(chktarget) >= 0){
+			chkstr = chkstr.substring(0,chkstr.indexOf(chktarget))
+							 + hankaku.charAt(cnt)
+							 + chkstr.substring(chkstr.indexOf(chktarget)
+							 + 1,chkstr.length);
+		}
+	}
+	return chkstr;
+}
+/*****************************************************************************
+関数名前	：ComToAlphaNumToZero（直接使用は不可）
+処理機能			：アルファベット26字+数字10種 → 0 変換
+引数		：変換対象
+作成日				：2000/12/08
+修正日--------概要--------------------------
+******************************************************************************/
+function ComToAlphaNumToZero(chkstr){
+	var zenkaku = "ABCDEFGHIJKLMNOPQRSTUVWXYZ123456789";
+	var hankaku = "00000000000000000000000000000000000";
+	for(cnt=0;cnt<zenkaku.length;cnt++){
+		chktarget = zenkaku.substring(cnt,cnt+1);
+		while(chkstr.indexOf(chktarget) >= 0){
+			chkstr = chkstr.substring(0,chkstr.indexOf(chktarget))
+							 + hankaku.charAt(cnt)
+							 + chkstr.substring(chkstr.indexOf(chktarget)
+							 + 1,chkstr.length);
+		}
+	}
+	return chkstr;
+}
+
+/*****************************************************************************
+関数名前	：ComCheckAlphabet
+処理機能			：アルファベット26字チェック
+引数		：チェック対象, エラーメッセージを出さないかどうか
+作成日				：2004/08/16
+修正日--------概要--------------------------
+2006/02/23    エラーメッセージを出さないかどうかの引数を追加
+******************************************************************************/
+function ComCheckAlphabet(sCheck, nFlg) {
+	if((sCheck=="")||(sCheck==null)) return ComTrue();
+	//ascii check!
+	if(!ComCheckAscii(sCheck, true)) {
+		return ComFalse();
+	}
+
+	var chkstr1 = sCheck.toUpperCase();
+	var chkstr2 = ComToAlphabetToZ(chkstr1);
+
+	var cnt;
+	for(cnt=0;cnt<chkstr2.length;cnt++) {
+		if (chkstr2.substring(cnt,cnt+1) != 'Z') {
+			return ComFalse();
+		}
+	}
+	return ComTrue();
+}
+/*****************************************************************************
+関数名前	：ComCheckAlphabetAndSetSelect
+処理機能			：英字チェック&エラー時に選択状態にする
+引数		：チェック対象textfield(またはtextarea)
+作成日				：2004/08/16
+修正日--------概要--------------------------
+******************************************************************************/
+function ComCheckAlphabetAndSetSelect(field) {
+	if (!ComCheckAlphabet(field.value)) {
+	 	ComSetFocusSelect(field);
+		return ComFalse();
+	}
+	return ComTrue();
+}
+/*****************************************************************************
+関数名前	：ComCheckNumber
+処理機能			：数字10種チェック
+引数		：チェック対象, エラーメッセージを出さないかどうか
+作成日				：2004/08/17
+修正日--------概要--------------------------
+2006/02/23    エラーメッセージを出さないかどうかの引数を追加
+******************************************************************************/
+function ComCheckNumber(sCheck, nFlg) {
+	if((sCheck=="")||(sCheck==null)) return ComTrue();
+	//ascii check!
+	if(!ComCheckAscii(sCheck, true)) {
+		return ComFalse();
+	}
+
+	var chkstr1 = sCheck.toUpperCase();
+	var chkstr2 = ComToNumberToZero(chkstr1);
+
+	var cnt;
+	for(cnt=0;cnt<chkstr2.length;cnt++) {
+		if (chkstr2.substring(cnt,cnt+1) != '0') {
+			return ComFalse();
+		}
+	}
+	return ComTrue();
+}
+/*****************************************************************************
+関数名前	：ComCheckNumberAndSetSelect
+処理機能			：数字チェック&エラー時に選択状態にする
+引数		：チェック対象textfield(またはtextarea)
+作成日				：2004/08/17
+修正日--------概要--------------------------
+******************************************************************************/
+function ComCheckNumberAndSetSelect(field) {
+	if (!ComCheckNumber(field.value)) {
+	 	ComSetFocusSelect(field);
+		return ComFalse();
+	}
+	return ComTrue();
+}
+/*****************************************************************************
+関数名前	：ComCheckAlphaNum
+処理機能			：アルファベット26字+数字10種チェック
+引数		：チェック対象, エラーメッセージを出さないかどうか
+作成日				：2000/12/08
+修正日--------概要--------------------------
+2006/02/23    エラーメッセージを出さないかどうかの引数を追加
+******************************************************************************/
+function ComCheckAlphaNum(sCheck, nFlg) {
+	if((sCheck=="")||(sCheck==null)) return ComTrue();
+	//ascii check!
+	if(!ComCheckAscii(sCheck, true)) {
+		return ComFalse();
+	}
+
+	var chkstr1 = sCheck.toUpperCase();
+	var chkstr2 = ComToAlphaNumToZero(chkstr1);
+
+	var cnt;
+	for(cnt=0;cnt<chkstr2.length;cnt++) {
+		if (chkstr2.substring(cnt,cnt+1) != '0') {
+			return ComFalse();
+		}
+	}
+	return ComTrue();
+}
+/*****************************************************************************
+関数名前	：ComCheckAlphaNumAndSetSelect
+処理機能			：英数字チェック&エラー時に選択状態にする
+引数		：チェック対象textfield(またはtextarea)
+作成日				：2004/04/09
+修正日--------概要--------------------------
+******************************************************************************/
+function ComCheckAlphaNumAndSetSelect(field) {
+	if (!ComCheckAlphaNum(field.value)) {
+	 	ComSetFocusSelect(field);
+		return ComFalse();
+	}
+	return ComTrue();
+}
+/*****************************************************************************
+関数名前	：ComCheckDecnum
+処理機能			：小数チェック
+引数				：チェック対象文字列,小数桁数,正数(0:負数可,1:負数不可),エラーメッセージを出さないか.
+					　小数点桁数がマイナス値の場合は小数点桁数チェックを実施しない.
+作成日				：1999/11/27
+修正日--------概要--------------------------
+******************************************************************************/
+function ComCheckDecnum(sNum,m,s,nFlg){
+	if( sNum == null || sNum == "" ) {
+		return ComTrue();
+	}
+
+	if ((sNum.indexOf('-0') != -1 && Number(sNum) == 0) || sNum.indexOf('+') == 0) {
+		return ComFalse();
+	}
+	//2003/12/09 指数チェックを追加
+	if (sNum.indexOf("e") != -1 || sNum.indexOf("E") != -1) {
+		return ComFalse();
+	}
+
+	if( (isNaN( sNum )) || (sNum.indexOf(" ") != -1) || (!ComCheckAscii(sNum, true)) ) {
+		return ComFalse();
+	}
+	if( s == '1' & sNum < 0) {
+		return ComFalse();
+	}
+
+	var nIndex = sNum.indexOf( "." );
+	if ( nIndex == -1 ) {
+		var sShosu = "";
+	}
+	else {
+		var sShosu = sNum.substring( nIndex+1, sNum.length );
+	}
+	// 2004/12/02 小数点桁数指定が0の時、11. のようにピリオドで終了している
+	// 数字はエラーとするように修正。
+	if(m == 0 && nIndex != -1) {
+		return ComFalse();
+	}
+	// 小数桁チェック
+	// 2005/03/03 小数点桁数指定がマイナス値の場合はチェックを実施しない
+	if( ( m >= 0 ) && ( sShosu.length >  m ) ) {
+		if ( m == 0) {
+			return ComFalse();
+		}
+		else {
+			return ComFalse();
+		}
+	}
+	return ComTrue();
+}
+/*****************************************************************************
+関数名前	：ComCheckNecessary
+処理機能	：必須入力チェック
+引数		：チェック対象文字列
+作成日		：1999/09/27
+修正日--------概要--------------------------
+******************************************************************************/
+function ComCheckNecessary(sCheck){
+	if ( sCheck == "" ) {
+		return ComFalse();
+	}
+	return ComTrue();
+}
+/******************************************************************************
+関数名前		：	ComCheckNecessaryAndSetSelect
+処理機能		：	必須入力チェック&エラー時に選択状態にする
+引数			：	チェック対象textfield(またはtextarea)
+戻り値			：	編集結果
+作成日			：	2001/11/19
+修正日--------概要--------------------------
+******************************************************************************/
+function ComCheckNecessaryAndSetSelect(field) {
+	if (!ComCheckNecessary(field.value)) {
+	 	ComSetFocusSelect(field);
+		return ComFalse();
+	}
+	return ComTrue();
+}
+/******************************************************************************
+関数名前		：	ComArrayCheckNecessaryAndSetSelect
+処理機能		：	必須チェック：複数項目をチェックする.エラーの場合は最初のフィールドを選択状態にする.
+
+				例：field1とfield2が必須項目の場合
+					var nameString = "field1,field2";
+					ComArrayCheckNecessaryAndSetSelect(nameString, フォーム);
+
+引数				：	nameString:必須項目の名前をカンマ','（必ず半角）を挟んで結合したもの
+								フォームオブジェクト
+戻り値			：	OK:true NG:false
+作成日			：	2003/03/14
+修正日--------概要--------------------------
+2003/03/26		nameStringの区切り文字をパイプ'|'からカンマに変更
+******************************************************************************/
+function ComArrayCheckNecessaryAndSetSelect(nameString, form) {
+
+	var fieldName = nameString.split(",");
+	for (var i = 0 ; i < fieldName.length ; i++) {
+		if (!ComCheckNecessary(form.all(fieldName[i]).value)) {
+			ComSetFocusSelect(form.all(fieldName[i]));
+			return ComFalse();
+		}
+	}
+	return ComTrue();
+}
+/******************************************************************************
+関数名前		：	ComArrayCheckOneNecessaryAndSetSelect
+処理機能		：	複数項目のどれかに値が存在するかチェック：複数項目のどれかに値があるかチェックする.
+					エラーの場合は最初のフィールドを選択状態にする.
+
+				例：field1とfield2が必須項目の場合
+					var nameString = "field1,field2";
+					ComArrayCheckOneNecessaryAndSetSelect(nameString, フォーム);
+
+引数				：	nameString:チェックする項目の名前をカンマ','（必ず半角）を挟んで結合したもの
+								フォームオブジェクト
+戻り値			：	OK:true NG:false
+作成日			：	2003/06/13
+******************************************************************************/
+function ComArrayCheckOneNecessaryAndSetSelect(nameString, form) {
+	var errorArray = new Array();
+	var fieldName = nameString.split(",");
+	var currentField;
+	var checkFlg = false;
+	for (var i = 0 ; i < fieldName.length ; i++) {
+		currentField = form.all(fieldName[i]);
+		var emptyFlg = ComIsEmpty(currentField.value);
+		if (emptyFlg) {
+			errorArray[i] = currentField;
+
+		}
+		checkFlg = checkFlg || !emptyFlg;
+	}
+	if(!checkFlg) {
+		ComSetFocusSelect(errorArray[0]);
+		return ComFalse();
+	}
+	return ComTrue();
+}
+var COM_BG_COLOR = 'white';
+/***************************************************************************
+関数名前 ：ComOnFocus
+処理機能		：フォーカス設定時の共通処理を行う。各オブジェクトのonFocus時に呼んで下さい。
+引数		：	対象オブジェクト
+作成日			：2003/03/24
+修正日--------概要--------------------------
+****************************************************************************/
+function ComOnFocus(obj) {
+	if (!obj) {
+		COM_BG_COLOR = 'white';
+		return false;
+	}
+
+	if (obj.type != "button") {
+		if (obj.style.backgroundColor!="#ccff99") {
+			COM_BG_COLOR = obj.style.backgroundColor;
+		}
+		obj.style.backgroundColor="#ccff99";
+		//obj.style.backgroundColor="lightblue";
+
+	}
+	return true;
+}
+
+/***************************************************************************
+関数名前 ：ComOnBlur
+処理機能		：フォーカスが外れた時の共通処理を行う。各オブジェクトのonFocus時に呼んで下さい。
+引数		：	対象オブジェクト
+作成日			：2003/03/24
+修正日--------概要--------------------------
+****************************************************************************/
+function ComOnBlur(obj) {
+	if (!obj) {
+		return false;
+	}
+	if (obj.style.backgroundColor) {
+		if (COM_BG_COLOR != null) {
+			obj.style.backgroundColor = COM_BG_COLOR;
+		}
+		else {
+			obj.style.backgroundColor = 'white';
+		}
+	}
+	/*
+	if (obj.type == "button") {
+		obj.style.backgroundColor="lightgrey";
+	}
+	else if (obj.type == "select-one" || obj.type =="select-mutipulple") {
+		obj.style.backgroundColor="lightblue";
+	}
+	else {
+		obj.style.backgroundColor="white";
+	}
+	*/
+	return true;
+}
+
+/***************************************************************************
+関数名前 ：ComSetFocus
+処理機能		：フォーカスを設定する
+引数		：	対象オブジェクト
+作成日			：2003/03/13
+修正日--------概要--------------------------
+2003/06/13 	select-one, select-multipleの時にフォーカスが当たらない不具合を修正.
+2003/11/04	disabledの場合、先頭行固定でなく、次行に遷移するよう修正.
+2006/02/21  typeがhiddenの場合にフォーカスを当てないように修正。
+****************************************************************************/
+function ComSetFocus(obj) {
+	if (COM_UNLOAD_FLG) {
+		return false;
+	}
+	if (!obj) {
+		return false;
+	}
+	if (!obj.length) {
+		if (!obj.disabled && obj.type != "hidden") {
+			obj.focus();
+		}
+	}
+	// 配列の場合
+	else {
+		if( obj.type == "select-one" || obj.type == "select-mutipulple") {
+			if (!obj.disabled) {
+				obj.focus();
+			}
+		}
+		else {
+			for (var i = 0 ; i < obj.length ; i++) {
+				if (!obj[i].disabled && obj[i].type != "hidden") {
+					obj[i].focus();
+					break ;
+				}
+			}
+		}
+	}
+
+	return true;
+}
+/***************************************************************************
+関数名前 ：ComSetFocusSelect
+処理機能		：フォーカスを設定及び選択状態にする
+引数		：	対象オブジェクト
+作成日			：1999/12/05
+修正日--------概要--------------------------
+2003/06/13 	text, password, textarea以外の時は obj.select()をしない
+****************************************************************************/
+function ComSetFocusSelect(obj) {
+	if (!ComSetFocus(obj)) {
+		return false;
+	}
+
+	if(!obj || !obj.type) {
+		return false;
+	}
+	if(obj.type == "text" || obj.type == "password" || obj.type == "textarea") {
+		obj.select();
+	}
+	return true;
+}
+/***********************************************************
+関数名前	：	ComCheckSglDate(YYYYMMDD、YYYY/MM/DDでチェック)
+処理機能	：	日付妥当性チェック(年、月、日が一つのテキストボックスにある)
+引数		：	チェック対象文字列
+戻り値	：	true：正しい日付である場合
+		false：正しくない日付である場合
+作成日	：	2003/03/14
+修正日--------概要--------------------------
+***********************************************************/
+function ComCheckSglDate(sDate) {
+	if(sDate == null || sDate == "") {
+		return ComTrue();
+	}
+	var intLen = sDate.length;
+	if(intLen != 8 && intLen != 10) {
+		return ComFalse();
+	}
+	var sDate1;
+	if (intLen == 10) {
+		if ((sDate.substring(4,5) != '/') || (sDate.substring(7,8) != '/')) {
+			return ComFalse();
+		}
+		sDate1 = sDate.substring(0,4) + sDate.substring(5,7) + sDate.substring(8,10);
+	}
+	else if(intLen == 8) {
+		sDate1=sDate;
+	}
+	if(!ComCheckDecnum(sDate1,0,1,true)) {
+		return ComFalse();
+	}
+	dateArray = new Array(sDate1.substring(0,4), sDate1.substring(4,6), sDate1.substring(6,8));
+	sDay = dateArray[2];
+	sMonth = dateArray[1] - 1;
+	sYear = dateArray[0];
+
+	var tmpDate = new Date(sYear,sMonth,sDay);
+	// 2004/11/24 サーバ側で下限値、上限値を合わせるため、
+	// 0011/12/11や0001/12/11を通すように、以下の4行をコメントアウト、
+	//if(tmpDate.getFullYear() != sYear)	{
+	//	return ComFalse();
+	//}
+	if(tmpDate.getMonth() != sMonth) {
+		return ComFalse();
+	}
+	return ComTrue();
+}
+/***********************************************************
+関数名前	：	ComCheckSglTime(HH:mm)
+処理機能	：	時間妥当性チェック
+引数		：	チェック対象文字列
+戻り値	：	true：正しい日付である場合
+			false：正しくない日付である場合
+作成日	：	2003/07/31
+修正日--------概要--------------------------
+***********************************************************/
+function ComCheckSglTime(sTime) {
+	if((sTime==null) || (sTime=="")) {
+		return ComTrue();
+	}
+	var intLen = sTime.length;
+	// HH:mm またはHHmmでない場合はエラー
+	if(intLen != 5 && intLen != 4) {
+		return ComFalse();
+	}
+	var sTime1;
+	if (intLen == 5) {
+		if (sTime.substring(2,3) != ':') {
+			return ComFalse();
+		}
+		sTime1 = sTime.substring(0,2) + sTime.substring(3,5);
+	}
+	else if(intLen == 4) {
+		sTime1=sTime;
+	}
+	if(!ComCheckDecnum(sTime1,0,1,true)) {
+		return ComFalse();
+	}
+
+	sHour = Number(sTime1.substring(0,2));
+	sMinute = Number(sTime1.substring(2,4));
+
+	if (sHour < 0 || sHour > 23) {
+		return ComFalse();
+	}
+	if (sMinute < 0 || sMinute > 59) {
+		return ComFalse();
+	}
+	return ComTrue();
+}
+/***********************************************************
+関数名前	：	ComDateConvert
+処理機能	：	日付変換 (YYYYMMDD → YYYY/MM/DD)
+引数		：	変換対象文字列
+戻り値	：	変換済日付
+作成日	：	2003/03/14
+修正日--------概要--------------------------
+***********************************************************/
+function ComDateConvert(sDate)
+{
+	var intLen = sDate.length;
+	if(intLen == 8) {
+		rDate=sDate.substring(0,4) + '/' + sDate.substring(4,6) + '/' + sDate.substring(6,8);
+	}
+	else{
+		rDate=sDate;
+	}
+	return rDate;
+}
+/***********************************************************
+関数名前	：	ComTimeConvert
+処理機能	：	時間変換 (HHmm → HH:mm または HHmmss → HH:mm:ss)
+引数		：	変換対象文字列
+戻り値	：	変換済時間
+作成日	：	2003/07/31
+修正日--------概要--------------------------
+***********************************************************/
+function ComTimeConvert(aString) {
+	aString = "" + aString;
+	var aStringLength = aString.length;
+	if (aStringLength != 4 && aStringLength != 6) {
+		return aString;
+	}
+
+	var newString;
+	if (aStringLength == 4) {
+		newString = aString.substring(0, 2) + ":" + aString.substring(2, 4);
+	}
+	else if (aStringlength == 6) {
+		newString = aString.substring(0, 2) + ":" + aString.substring(2, 4) + ":" + aString.substring(4, 6);
+	}
+	return newString;
+}
+
+/******************************************************************************
+関数名前		：	ComCheckAndFormatDate
+処理機能		：	日付チェック＆日付フォーマット：エラー時は選択状態にする
+引数			：	チェック対象オブジェクト
+戻り値			：	OK:true NG:false
+作成日			：	2001/11/21
+修正日--------概要--------------------------
+******************************************************************************/
+function ComCheckAndFormatDate(text){
+	// 日付チェックでNGの場合フォーカスを戻す
+	if (!ComCheckSglDate(text.value)) {
+		ComSetFocusSelect(text);
+		return ComFalse();
+	}
+	// '/'を付加
+	text.value = ComDateConvert(text.value);
+	return ComTrue();
+}
+/******************************************************************************
+関数名前		：	ComCheckAndFormatTime
+処理機能		：	時間チェック＆時間フォーマット：エラー時は選択状態にする
+引数				：	チェック対象オブジェクト
+戻り値			：	OK:true NG:false
+作成日			：	2001/11/21
+修正日--------概要--------------------------
+******************************************************************************/
+function ComCheckAndFormatTime(text){
+	// 時間チェックでNGの場合フォーカスを戻す
+	if (!ComCheckSglTime(text.value)) {
+		ComSetFocusSelect(text);
+		return ComFalse();
+	}
+	// ':'を付加
+	text.value = ComTimeConvert(text.value);
+	return ComTrue();
+}
+/******************************************************************************
+関数名前		：	ComCheckAndFormatDateYM
+処理機能		：	日付チェック（YYYYMM用）＆日付フォーマット：エラー時は選択状態にする
+引数				：	チェック対象オブジェクト
+戻り値			：	OK:true NG:false
+作成日			：	2003/05/25
+修正日--------概要--------------------------
+******************************************************************************/
+function ComCheckAndFormatDateYM(text) {
+	if (text.value == "") {
+		return ComTrue();
+	}
+	var sValue = "";
+	if (text.value.length == 6) {
+		sValue = "01";
+	}
+	else if (text.value.length == 7 && text.value.indexOf('/') == 4) {
+		sValue = "/01";
+	}
+	if (!ComCheckSglDate(text.value + sValue)) {
+		ComSetFocusSelect(text);
+		return ComFalse();
+	}
+	// '/'を付加
+	sValue = ComDateConvert(text.value + sValue);
+	// YYYY/MM/DDのはずなので/DDを除く
+	text.value = sValue.substring(0,7);
+	return ComTrue();
+}
+
+/***********************************************************
+関数名前	：	ComAddCharBefore
+処理機能	：	入力対象の前に文字追加する
+引数		：	入力対象文字列,文字、長さ
+戻り値	：	出力対象
+作成日	：	1999/12/09
+修正日--------概要--------------------------
+***********************************************************/
+function ComAddCharBefore(sIntStr,c,intLen) {
+	if((sIntStr == null) || (sIntStr == "")) {
+		return "";
+	}
+	var intStrLen = sIntStr.length;
+	if(intStrLen < intLen) {
+		for(intLoop=0;intLoop<(intLen-intStrLen);intLoop++) {
+			sIntStr = c + sIntStr;
+		}
+	}
+	return sIntStr ;
+}
+/***********************************************************
+関数名前	：	ComAddCharAfter
+処理機能	：	入力対象の後に文字追加する
+引数		：	入力対象文字列,文字、長さ
+戻り値	：	出力対象
+作成日	：	1999/12/09
+修正日--------概要--------------------------
+***********************************************************/
+function ComAddCharAfter(sIntStr,c,intLen) {
+	if((sIntStr == null) || (sIntStr == "")) {
+		return "";
+	}
+	var intStrLen = sIntStr.length;
+	if(intStrLen < intLen) {
+		for(intLoop=0;intLoop<(intLen-intStrLen);intLoop++) {
+			sIntStr = sIntStr + c;
+		}
+	}
+	return sIntStr ;
+}
+/***********************************************************
+関数名前	：	ComIsEmpty
+処理機能	：	空文字チェック
+引数		：	チェック対象文字列
+戻り値	：	true：空文字である場合
+			false：空文字でない場合
+作成日	：	2003/03/15
+修正日--------概要--------------------------
+***********************************************************/
+function ComIsEmpty(sCheck) {
+	if(sCheck == "" || sCheck == null) {
+		///チェック対象がスペースである場合
+		return true ;
+	}
+	else {
+		///チェック対象がスペースでない場合
+		return false ;
+	}
+}
+
+/***********************************************************
+関数名前	：	ComIsSpace
+処理機能	：	スペースチェック
+引数		：	チェック対象文字列
+戻り値	：	true：スペースまたは全角スペースである場合
+			false：スペースでない場合
+作成日	：	2004/04/09
+修正日--------概要--------------------------
+***********************************************************/
+function ComIsSpace(sCheck) {
+	if (ComIsEmpty(sCheck)) {
+		return ComFalse();
+	}
+	if (sCheck == " " || sCheck == "&nbsp;" || sCheck == "　") {
+		return ComTrue();
+	}
+	return ComFalse();
+}
+/***********************************************************
+関数名前	：	ComSubSlashAndSetSelect
+処理機能	：	スラッシュ削除と選択状態にする
+引数		：	対象オブジェクト
+戻り値	：	なし
+作成日	：	2000/07/31
+修正日--------概要--------------------------
+***********************************************************/
+function ComSubSlashAndSetSelect(text) {
+	text.value = ComSubChar(text.value, '/');
+	ComSetFocusSelect(text);
+}
+/***********************************************************
+関数名前	：	ComSubComma
+処理機能	：	数値のカンマ削除
+引数		：	数値文字列
+戻り値	：	出力対象
+作成日	：	2000/09/26
+修正日--------概要--------------------------
+***********************************************************/
+function ComSubComma(aString) {
+	return ComSubChar(aString, ',');
+}
+/***********************************************************
+関数名前	：	ComSubDot
+処理機能	：	ドットのカンマ削除
+引数		：	数値文字列
+戻り値	：	出力対象
+作成日	：	2003/09/09
+修正日--------概要--------------------------
+***********************************************************/
+function ComSubDot(aString) {
+	return ComSubChar(aString, '.');
+}
+/***********************************************************
+関数名前	：	ComSubCommaAndSetSelect
+処理機能	：	カンマ削除と選択状態にする
+引数		：	対象オブジェクト
+戻り値	：	なし
+作成日	：	2000/09/26
+修正日--------概要--------------------------
+***********************************************************/
+function ComSubCommaAndSetSelect(text) {
+	text.value = ComSubComma(text.value);
+	ComSetFocusSelect(text);
+}
+/***********************************************************
+関数名前	：	ComAddComma
+処理機能	：	数値のカンマ編集（小数以下０埋め）
+引数		：	数値文字列、小数桁数（小数点桁数がマイナスの場合は、小数部については何もしない）
+戻り値	： 	編集結果
+作成日	：	2000/09/26
+修正日--------概要--------------------------
+***********************************************************/
+function ComAddComma(aString,sDotlen)
+{	aString = "" + aString;
+	var number = aString.indexOf(',');
+	var sNewString, DotString;
+	var DotString = "";
+	var Dot = "";
+				var blnMinus = false;
+	if(number == -1){
+		if (aString.substring(0, 1) == "-"){
+			aString = aString.substring(1);
+			blnMinus = true;
+		}
+		Dot = aString.indexOf('.');
+		if(Dot != -1){
+			Len = aString.length;
+			// 2005/03/04 小数点桁数が0以下でかつ数値文字列の最後の文字が"."の場合は
+			// "."を除去するように変更
+			if ((sDotlen <= 0) && ((Dot + 1) == Len)) {
+				aString = aString.substring(0,Dot);
+			}
+			DotString = aString.substring(Dot,Len);
+			aString = aString.substring(0,Dot);
+		}
+		// 2005/03/04 小数桁数が0以上でかつ数値文字列に小数が存在しない場合は、
+		// DotStringを"."にすることで、小数文字列が生成されるようにする
+		if (sDotlen >0 && Dot == -1) DotString = ".";
+		if (sDotlen !=0 ) {DotString = ComAddCharAfter(DotString,'0',sDotlen+1);Dot = 1;}
+ 		var aStringLength = aString.length;
+		if(aStringLength >3){
+			first = aStringLength%3;
+			if(first !=0)
+				sNewString = aString.substring(0,first) + "," + aString.substring(first,parseInt(first)+3);
+			else
+				sNewString = aString.substring(0,3);
+			num = (aStringLength -first)/3;
+
+			for(i=0;i< num-1;i++){
+				Begin = first + parseInt((i+1)*3);
+				End = Begin + parseInt(3);
+				sNewString = sNewString + "," + aString.substring(Begin,End);
+			}
+			if(Dot ==-1)
+																sNewString = sNewString;
+			else
+				sNewString = sNewString +DotString;
+		}else{
+			if(Dot ==-1)
+				sNewString = aString;
+			else
+				sNewString = aString +DotString;
+		}
+
+		if (blnMinus) sNewString = "-" + sNewString;
+	}else{
+		sNewString = aString;
+	}
+	return sNewString;
+}
+/***********************************************************
+関数名前	：	ComSubStr
+処理機能	：	指定された文字列の削除
+引数		：	対象文字列
+				削除文字列
+戻り値	：	出力対象
+作成日	：	2003/07/31
+修正日--------概要--------------------------
+***********************************************************/
+function ComSubChar(aString, delStr) {
+	var index = aString.indexOf(delStr);
+	while(index != -1){
+		var aStringLength = aString.length;
+		var newString = aString.substring(0,index) + aString.substring(index+1,aStringLength);
+		aString = newString;
+		index = aString.indexOf(delStr);
+	}
+	return aString;
+}
+/***********************************************************
+関数名前	：	ComSubColon
+処理機能	：	時間のコロン削除
+引数		：	時間文字列(HH:mm)
+戻り値	：	出力対象
+作成日	：	2000/09/26
+修正日--------概要--------------------------
+***********************************************************/
+function ComSubColon(aString) {
+	return ComSubChar(aString, ':');
+}
+/******************************************************************************
+関数名前		：	ComSubColonAndSetSelect
+処理機能		：	コロン削除と選択状態にする
+引数			：	対象オブジェクト
+戻り値			：	なし
+作成日			：	2003/07/31
+修正日--------概要--------------------------
+******************************************************************************/
+function ComSubColonAndSetSelect(text) {
+	text.value = ComSubColon(text.value);
+	ComSetFocusSelect(text);
+}
+/***********************************************************
+関数名前	：	ComCutUp
+処理機能	：	切り上げ
+引数		：	数値文字列、小数位
+戻り値	：	出力対象
+作成日	：	2000/09/28
+修正日--------概要--------------------------
+***********************************************************/
+function ComCutUp(aString,Dotlen)
+{
+	var iNumber = Number(aString);
+	var chKeta = Math.pow(10,Dotlen)
+	var tmp_num = iNumber*chKeta
+	var tmp_result = Math.ceil(tmp_num)
+	var result = tmp_result/chKeta
+	return result
+}
+/***********************************************************
+関数名前	：	ComCutDot
+処理機能	：	切り捨て
+引数		：	数値文字列、小数位
+戻り値	：	出力対象
+作成日	：	1999/12/09
+修正日--------概要--------------------------
+***********************************************************/
+function ComCutDot(aString,Dotlen)
+{
+	aString = "" + aString;
+	Dot = aString.indexOf('.');
+	var iNumber = Number(aString);
+	if(Dot != -1){
+		aString = "" + iNumber;
+		if(Dotlen != 0){
+			newString = aString.substring(0,Dot +1) + aString.substring(Dot+1, Dot + 1 +Dotlen);
+			return newString;
+		}else{
+			newString = aString.substring(0,Dot);
+			return newString;
+		}
+
+	}else{
+		return aString;
+	}
+}
+/***********************************************************
+関数名前	：	ComCutRound
+処理機能	：	四捨五入
+引数		：	数値文字列、小数位
+戻り値	：	出力対象
+作成日	：	2000/09/28
+修正日--------概要--------------------------
+***********************************************************/
+function ComCutRound(aString,Dotlen)
+{
+	var iNumber = Number(aString);
+	var chKeta = Math.pow(10,Dotlen)
+	var tmp_num = iNumber*chKeta
+	var tmp_result = Math.round(tmp_num)
+	var result = tmp_result/chKeta
+	return result
+}
+/***********************************************************
+関数名前	：	ComCurrency
+処理機能	：	金額編集
+引数		：	丸め方（０：四捨五入、１：切り捨て、２：切り上げ）、小数桁数、値
+戻り値	：	編集後の金額
+作成日	：	2000/10/12
+修正日--------概要--------------------------
+***********************************************************/
+function ComCurrency(sMtd,iDPlace,iValue) {
+	var iWork = 0;
+	if ( sMtd == '0' )
+		iWork = ComAddComma(ComCutRound(iValue,iDPlace),iDPlace);
+	if ( sMtd == '1' )
+		iWork = ComAddComma(ComCutDot(iValue,iDPlace),iDPlace);
+	if ( sMtd == '2' )
+		iWork = ComAddComma(ComCutUp(iValue,iDPlace),iDPlace);
+	return iWork;
+}
+/*****************************************************************************
+関数名前	：ComRTrim
+処理機能	：右空白削除
+引数		：対象文字列
+戻り値		：操作値
+作成日				：2000/11/01
+修正日--------概要--------------------------
+******************************************************************************/
+function ComRTrim(sCheck) {
+	var sOut = ''; var i = 0; var j = '';var k='';
+	for(i = sCheck.length; i > 0; i--) {
+		j  = sCheck.substring(i-1,i);
+		if	 ( j	==	' ')
+			 k='';
+		 else
+			 { sOut = j +  sOut ;break;}
+	}
+	for(h=i-1;h > 0; h--) {
+			j  = sCheck.substring(h-1,h);
+			sOut = j +	sOut;
+	}
+	return sOut;
+}
+/*****************************************************************************
+関数名前	：ComLTrim
+処理機能	：左空白削除
+引数		：対象文字列
+戻り値		：操作値
+作成日		：2000/11/01
+修正日--------概要--------------------------
+******************************************************************************/
+function ComLTrim(sCheck) {
+	var sOut = ''; var i = 0; var j = '';var k='';
+	for(i = 0; i < sCheck.length; i++) {
+			 j	= sCheck.substring(i,i+1);
+	if	 ( j	==	' ')
+		 k='';
+	 else
+		{ sOut = sOut + j ;break;}
+	}
+	 for(h=i+1;h < sCheck.length; h++) {
+			 j	= sCheck.substring(h,h+1);
+			sOut = sOut + j;
+	}
+	return sOut;
+}
+/*****************************************************************************
+関数名前	：ComTrim
+処理機能	：左右空白削除
+引数		：対象文字列
+戻り値		：操作値
+作成日		：2000/11/01
+修正日--------概要--------------------------
+******************************************************************************/
+function ComTrim(sCheck) {
+	var sOut = ComLTrim(ComRTrim(sCheck));
+	return sOut;
+}
+/*****************************************************************************
+関数名前	：ComRTrimAt
+処理機能	：右@→&nbsp;（直接使用は不可）
+引数		：対象文字列
+戻り値		：操作値
+作成日		：2000/11/13
+修正日--------概要--------------------------
+******************************************************************************/
+function ComRTrimAt(sCheck) {
+	var sOut = ''; var i = 0; var j = '';var k='';
+	for(i = sCheck.length; i > 0; i--) {
+			j  = sCheck.substring(i-1,i);
+	if	 ( j	==	'@' )
+		 { sOut=sOut + '&nbsp;'; }
+	 else
+		 { sOut = j +  sOut ;break;}
+	}
+	for(h=i-1;h > 0; h--) {
+			j  = sCheck.substring(h-1,h);
+			sOut = j +	sOut;
+	}
+	return sOut;
+}
+/*****************************************************************************
+関数名前	：ComLPad
+処理機能	：指定された桁数まで指定された文字を左パディングする
+引数		：対象文字列
+			：パディング後の桁数
+			：パディング文字(１文字)
+戻り値		：変換値
+作成日		：2003/08/21
+修正日--------概要--------------------------
+******************************************************************************/
+function ComLPad(sCheck, length, padChar) {
+	if (!sCheck || ComTrim(sCheck) == '') {
+		return sCheck;
+	}
+	var sOut = '' + sCheck;
+	var len = length - sCheck.length;
+	if (len <= 0) {
+		return sCheck;
+	}
+	var i = 0;
+	for(i = 0; i < len; i++) {
+		sOut = padChar + sOut;
+	}
+	return sOut;
+}
+/*****************************************************************************
+関数名前	：ComRPad
+処理機能	：指定された桁数まで指定された文字を右パディングする
+引数		：対象文字列
+			：パディング後の桁数
+			：パディング文字(１文字)
+戻り値		：変換値
+作成日		：2003/08/21
+修正日--------概要--------------------------
+******************************************************************************/
+function ComRPad(sCheck, length, padChar) {
+	if (!sCheck || ComTrim(sCheck) == '') {
+		return sCheck;
+	}
+	var sOut = '' + sCheck;
+	var len = length - sCheck.length;
+	if (len <= 0) {
+		return sCheck;
+	}
+	var i = 0;
+	for(i = 0; i < len; i++) {
+		sOut = sOut + padChar;
+	}
+	return sOut;
+}
+/******************************************************************************
+関数名前	：	ComSelectAllCheckBox
+処理機能	：	対象チェックボックスを全選択/全非選択にする。
+引数		：	cbox1:全選択のON/OFFスイッチを行うチェックボックス、cbox2:対象チェックボックス
+戻り値		： 	編集結果
+作成日		：	2001/11/16
+修正日--------概要--------------------------
+******************************************************************************/
+function ComSelectAllCheckBox(cbox1, cbox2) {
+	var i;
+
+	if (cbox2 != null) {
+		if (cbox2[0] != null) {
+				var ch = cbox1.checked;
+				for (i = 0; i < cbox2.length; i++) {
+					cbox2[i].checked = ch;
+				}
+		}
+		else	{
+			cbox2.checked = cbox1.checked;
+		}
+	}
+}
+/******************************************************************************
+関数名前	：	ComResetAllCheckBox
+処理機能	：	対象チェックボックスを全非選択にする。
+引数		：	cbox:チェックボックス配列
+戻り値		： 	編集結果
+作成日		：	2003/03/25
+修正日--------概要--------------------------
+******************************************************************************/
+function ComResetAllCheckBox(cbox) {
+	var i;
+	if (!cbox) {
+		return ComFalse();
+	}
+	else if (!cbox.length) {
+		cbox.checked = false;
+	}
+	else {
+		for (i = 0; i < cbox.length; i++) {
+			cbox[i].checked = false;
+		}
+	}
+
+	return ComTrue();
+}
+/******************************************************************************
+関数名前	：	ComSetAllCheckBox
+処理機能	：	対象チェックボックスを全選択にする。
+引数		：	cbox:チェックボックス配列
+戻り値		： 	編集結果
+作成日		：	2003/03/25
+修正日--------概要--------------------------
+******************************************************************************/
+function ComSetAllCheckBox(cbox) {
+	var i;
+	if (!cbox) {
+		return ComFalse();
+	}
+	else if (!cbox.length) {
+		cbox.checked = true;
+	}
+	else {
+		for (i = 0; i < cbox.length; i++) {
+			cbox[i].checked = true;
+		}
+	}
+
+	return ComTrue();
+}
+/******************************************************************************
+関数名前	：	ComSubmit
+処理機能	：	サブミット
+引数		：	フォーム、アクション名、ターゲット名、２重リクエストチェックをするかどうか
+戻り値		： 	なし
+作成日		：	2003/03/14
+修正日--------概要--------------------------
+******************************************************************************/
+function ComSubmit(formObj, actionName, target, checkFlg) {
+	/*
+	if (COM_ERROR_FLG) {
+		return;
+	}
+	if (COM_SUB_WIN_FLG) {
+		return;
+	}
+	*/
+	if (target == null || target == "") {
+		target = "_self";
+	}
+	if (checkFlg == null || checkFlg == "undefined") {
+		checkFlg = true;
+	}
+
+	if (checkFlg) {
+		if (!ComCheckSubmit(formObj, actionName, target)) {
+			return;
+		}
+	}
+
+	actionName = ComAddJunctionPath(actionName);
+
+	formObj.method = 'POST';
+	formObj.target = target;
+	formObj.action = actionName;
+	formObj.submit();
+}
+
+/******************************************************************************
+関数名前	：	ComAddJunctionPath
+処理機能	：	ジャンクションパスを付加する
+引数		：	パス
+戻り値		： 	なし
+作成日		：	2006/06/02
+修正日--------概要--------------------------
+******************************************************************************/
+function ComAddJunctionPath(path) {
+	// ジャンクションの付与処理開始
+	if(path) {
+		var firstStr = path.charAt(0);
+		if(firstStr == "/") {
+			path = ComGetJunctionPath() + path;
+		}
+	}
+	return path;
+}
+/******************************************************************************
+関数名前	：	ComDownload
+処理機能	：	ダウンロード
+引数		：	フォーム、アクション名、２重リクエストチェックをするかどうか
+戻り値		： 	なし
+作成日		：	2004/06/21
+修正日--------概要--------------------------
+******************************************************************************/
+function ComDownload(formObj, actionName, checkFlg, width, height) {
+	/*
+	if (COM_ERROR_FLG) {
+		return;
+	}
+	*/
+	var target = 'top';
+	ComSubmit(formObj, actionName, target);
+}
+/******************************************************************************
+関数名前		：	ComModalOpenImpl
+処理機能		：	指定された引数に基づいてポップアップを表示する.(内部関数)
+					共通関数内で呼ばれる関数.直接呼ばないで下さい.
+					詳細はComModalOpenを参照して下さい.
+作成日			：	2003/07/28
+修正日--------概要--------------------------
+******************************************************************************/
+function ComModalOpenImpl(url, name, width, height, byWindow) {
+	/*
+	if (COM_ERROR_FLG) {
+		return;
+	}
+	*/
+	// メッセージを消去
+	//ComDeleteId('jalanMessage');
+
+	var isModal = true;
+	if (byWindow != null && byWindow) {
+		isModal = false;
+	}
+	if (!isModal) {
+		// 2005/05/20 noto modify window.openをComWindowOpenImplに集約する.
+		// window.open(url, name, "scrollbars=yes, status=no, width=" + width + ", height=" + height);
+		ComWindowOpenImpl(url, name, width, height, "scrollbars=yes, status=no");
+
+		// ポップアップを開いたときに選択されていたエレメントにフォーカスを戻す.
+		var e = COM_SRC_ELEMENT;
+		if (event.altKey && e && e.type != 'hidden' && !e.disabled) {
+			ComSetFocus(e);
+		}
+		// ダミーを返す.
+		return new Array("", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "");
+	}
+	// キャッシュさせないために現在時間をパラメータに付加
+	var date = new Date();
+	var sep = '?';
+	if (url.lastIndexOf(sep) >= 0) {
+		sep = '&'
+	}
+	var action = url + sep + "ComTime=" + date.getTime();
+
+	action = ComAddJunctionPath(action);
+
+	COM_IS_MODAL_OPEN = true;
+	var returnValue=window.showModalDialog(action, name, "dialogWidth:" + width + "px;" + "dialogHeight:" + height + "px");
+
+	COM_IS_MODAL_OPEN = false;
+	// ポップアップを開いたときに選択されていたエレメントにフォーカスを戻す.
+	var e = COM_SRC_ELEMENT;
+	if (event && event.altKey && e && e.type && e.type != 'hidden' && !e.disabled) {
+		ComSetFocus(e);
+	}
+	if (!returnValue) {
+		return null;
+	}
+
+	// モーダルオープン画面で、システムエラー、セッションタイムアウト画面になった場合
+	var systemErrorHappend = returnValue["systemErrorHappend"];
+	if(systemErrorHappend != undefined && systemErrorHappend != null && systemErrorHappend == true) {
+		window.top.NFSHeaderFrame.ComLogout();
+		return null;
+	}
+
+	return returnValue;
+}
+
+var COM_IS_MODAL_OPEN = null;
+/******************************************************************************
+関数名前		：	ComIsModalOpen
+処理機能		：	モーダルダイアログが開いている状態かどうかを判定する.
+					引数
+						判定するWindowオブジェクト
+
+戻り値			：	モーダルダイアログが開いていればtrue.それ以外はfalse.
+作成日			：	2005/01/07
+修正日--------概要--------------------------
+******************************************************************************/
+function ComIsModalOpen(win) {
+	if (!win) {
+		win = window;
+	}
+	var isOpen = win.COM_IS_MODAL_OPEN;
+	if (isOpen == null) {
+		return false;
+	}
+	if (isOpen == true) {
+		return true;
+	}
+	else {
+		return false;
+	}
+}
+
+/******************************************************************************
+関数名前		：	ComModalOpen
+処理機能		：	指定された引数に基づいてポップアップを表示する.
+					デフォルトはModalDialogですが、byWindow引数をtrueにするとWindowを開きます.
+
+								ComPopup("/displayCalendar?defaultDate=2004/06/21", "NFSChild", 750, 700)
+
+引数				url：呼び出しURL（値をつける場合はGETで指定して下さい）
+						name：ダイアログ名称
+						width：モーダルダイアログの幅
+						height：モーダルダイアログの高さ
+						byWindow : Windowで開くかどうかのフラグ, テスト用
+
+戻り値			：	モーダルダイアログの返り値(型はArrayオブジェクト)
+作成日			：	2004/06/21
+修正日--------概要--------------------------
+******************************************************************************/
+function ComModalOpen(url, name, width, height, byWindow) {
+	return ComModalOpenImpl(url, name, width, height, byWindow);
+
+}
+/******************************************************************************
+関数名前		：	ComWindowOpenImpl
+処理機能		：	指定された引数に基づいてウィンドウを表示する.(内部関数)
+					共通関数内で呼ばれる関数.直接呼ばないで下さい.
+					詳細はComWindowOpenを参照して下さい.
+作成日			：	2003/07/28
+修正日--------概要--------------------------
+2005/05/23    一度開いた子画面は全て配列で管理するように変更.
+******************************************************************************/
+var COM_SUB_WINDOW = null;
+var CHILD_WINDOW_ARRAY = new Array();
+function ComWindowOpenImpl(url, name, width, height, option) {
+	/*
+	if (COM_ERROR_FLG) {
+		return null;
+	}
+	*/
+	// メッセージを消去
+	//ComDeleteId('jalanMessage');
+
+	//var openOption = "scrollbars=yes,status=yes,location=yes,directories=yes,menubar=yes,toolbar=yes,width=" + width + ",height=" + height;
+	var openOption = "scrollbars=no,status=yes,location=no,directories=no,menubar=no,toolbar=no,resizable=false,width=" + width + ",height=" + height;
+	if(option != null) {
+		openOption += ", " + option;
+	}
+	var sep = '?';
+	if (url.lastIndexOf(sep) >= 0) {
+		sep = '&'
+	}
+	// セッションタイムアウト時に、WindowOpenする場合のセッションアウト画面で利用する値を設定
+	url = url + sep + "PopupMode=window";
+	url = ComAddJunctionPath(url);
+
+	var newWin = window.open(url, name, openOption);
+	top.COM_SUB_WINDOW = newWin;
+
+	// 2005/05/23 noto add
+	// ComCheckSubmit時に子画面も含めたreadyStateのチェックを実施するため、ウインドウを全て親画面のtopフレームで管理する.
+	// （モーダルダイアログで開いた子画面は、モーダルダイアログを親画面として管理する）
+	// 無効になった子画面をtopフレームのArrayオブジェクトから破棄する処理はComCheckSubmitで実施している.
+	var parentWin = ComGetTopFrame();
+	// 親画面（モーダルダイアログ）の配列にpushする。
+	// 例外処理を入れているのは、モーダルダイアログの場合にtopフレームのJSP内でComGeneral.jsを読み込んでいない場合があるため。
+	try {
+		parentWin.CHILD_WINDOW_ARRAY.push(newWin);
+	} catch (e) {
+//		alert(e);
+	}
+
+	/*
+	var e = COM_SRC_ELEMENT;
+	if (event && e && e.type && e.type != 'hidden' && !e.disabled) {
+		ComSetFocus(e);
+	}
+	*/
+	return newWin;
+
+}
+
+/******************************************************************************
+関数名前		：	ComWindowOpen
+処理機能		：	指定された引数に基づいてウィンドウを表示する.
+使用例			：	通常利用
+						ComWindowOpen("/displayCalendar?defaultDate=2004/06/21", "NFSChild", 750, 700)
+					横幅，高さ以外の指定が必要な場合は，最後の引数optionに追加する．
+					scrollbars,status,width,height以外のウィンドウのOpenメソッドのオプションが追加可能である．
+					書式は，ウィンドウのOpenメソッドのオプションと同じである．
+						ComWindowOpen("/displayCalendar?defaultDate=2004/06/21", "NFSChild", 750, 700, "resizable=yes")
+引数				url：呼び出しURL（値をつける場合はGETで指定して下さい）
+						name：ダイアログ名称
+						width：ウィンドウの幅
+						height：ウィンドウの高さ
+						option : Openメソッドのオプション，
+
+戻り値			：	なし
+作成日			：	2004/06/21
+修正日--------概要--------------------------
+******************************************************************************/
+function ComWindowOpen(url, name, width, height, option) {
+	return ComWindowOpenImpl(url, name, width, height, option);
+}
+
+
+/******************************************************************************
+関数名前		：	ComChildWindowOpen
+処理機能		：	擬似的なモーダル処理がかかった子画面を表示する.
+使用例			：	通常利用
+						ComChildWindowOpen(""/displayCalendar?defaultDate=2004/06/21", "Child", 750, 700)
+					横幅，高さ以外の指定が必要な場合は，最後の引数optionに追加する．
+					scrollbars,status,width,height以外のウィンドウのOpenメソッドのオプションが追加可能である．
+					書式は，ウィンドウのOpenメソッドのオプションと同じである．
+						ComWindowOpen("/displayCalendar?defaultDate=2004/06/21", "Child", 750, 700, "resizable=yes")
+引数				url：呼び出しURL（値をつける場合はGETで指定して下さい）
+						width：ウィンドウの幅
+						height：ウィンドウの高さ
+						option : Openメソッドのオプション，
+
+戻り値			：	なし
+作成日			：	2004/06/21
+修正日--------概要--------------------------
+******************************************************************************/
+function ComChildWindowOpen(url, width, height, option) {
+	return ComWindowOpenImpl(url, "COM_CHILD_WINDOW", width, height, option);
+}
+
+/******************************************************************************
+関数名前		：	ComCheckAndCommaFormatNum
+処理機能		：	数値チェック＆数値フォーマット（カンマ編集）
+引数			：	チェック対象オブジェクト,小数桁数,正数(0:負数可,1:負数不可)
+					小数点桁数がマイナス値の場合は小数点桁数チェックを実施しない.
+戻り値			：	編集結果
+作成日			：	2001/11/21
+修正日--------概要--------------------------
+******************************************************************************/
+function ComCheckAndCommaFormatNum(text, m, s){
+	var text2 = '';
+	var tmp = text.value;
+	var opr = '';
+	if	(text.value != '') {
+		// 初めが-だったら外す。
+		if(tmp.charAt(0) == '-') {
+			tmp = tmp.substring(1, tmp.length);
+			opr = '-';
+		}
+		while (tmp.charAt(0) == '0' && tmp.length > 0) {
+			tmp = tmp.substring(1, tmp.length);
+		}
+		if (tmp == '' || tmp.charAt(0) == '.') {
+			tmp = "0" + tmp;
+		}
+		// 外していた-を付加
+		if(opr != '') {
+			tmp = opr + tmp;
+		}
+		// カンマ除去
+		text2 = ComSubComma(tmp);
+		// 数値チェックでNGの場合フォーカスを戻す
+		if (!ComCheckDecnum(text2, m, s)) {
+			ComSetFocusSelect(text);
+			return ComFalse();
+		}
+		// カンマを付加
+		text.value = ComAddComma(text2, m);
+		return ComTrue();
+	}
+	else {
+		return ComTrue();
+	}
+}
+/******************************************************************************
+関数名前		：	ComClearFormText
+処理機能		：	全テキストフィールド＆テキストエリアの値を空にする。
+引数				：	対象フォーム
+戻り値			：	編集結果
+作成日			：	2001/11/20
+修正日--------概要--------------------------
+******************************************************************************/
+function ComClearFormText(form) {
+	for (i=0; i<form.elements.length; i++) {
+		if (form.elements[i].type == 'text' || form.elements[i].type == 'textarea') {
+			form.elements[i].value = '';
+		}
+	}
+}
+/******************************************************************************
+関数名前		：	ComDeleteId
+処理機能		：	IDに指定されたオブジェクトを非表示にする。
+引数				：	表示するオブジェクトのID
+								表示されているドキュメントオブジェクト（別フレーム時必要）
+戻り値			：	なし
+作成日			：	2001/11/30
+
+例					：	HTML書き方
+								<div id="id1">
+									メッセージ
+								</div>
+								関数の呼出し方
+								ComDeleteId("id1");
+
+修正日--------概要--------------------------
+******************************************************************************/
+function ComDeleteId(id, documentName) {
+	if (documentName) {
+		if (documentName.all(id)) {
+			documentName.all(id).style.visibility = "hidden";
+		}
+	} else {
+		if (document.getElementById(id)) {
+			document.getElementById(id).style.visibility = "hidden";
+		}
+	}
+}
+
+/******************************************************************************
+関数名前		：	ComCheckChecked
+処理機能		：	チェックボックス/ラジオボタンチェック確認
+引数			：	チェックボックスオブジェクトまたはラジオボタンオブジェクト
+戻り値			：	１つでもチェックされている:true 何もチェックされていない:false
+作成日			：	2001/12/12
+修正日--------概要--------------------------
+******************************************************************************/
+function ComCheckChecked(obj) {
+	var msg = "";
+
+	// １行しかない
+	if (!obj.length) {
+		if (obj.type == 'checkbox') {
+			msg = MS8011;
+		}
+		else if (obj.type == 'radio'){
+			msg = MS8012;
+		}
+		if (obj.checked) {
+			return ComTrue();
+		}
+	}
+	else {
+		// 複数行
+		for (var i = 0 ; i < obj.length ; i++) {
+			if (obj[i].type == 'checkbox') {
+				msg = MS8011;
+			}
+			else if (obj[i].type == 'radio'){
+				msg = MS8012;
+			}
+			if (obj[i].checked) {
+				return ComTrue();
+			}
+		}
+	}
+
+	ComSetFocusSelect(obj);
+	return ComFalse();
+}
+/******************************************************************************
+関数名前		：	ComFilter
+処理機能		：	特殊文字変換
+引数				：	対象文字列
+戻り値			：	特殊文字変換後の文字列
+作成日			：	2001/12/14
+修正日--------概要--------------------------
+******************************************************************************/
+function ComFilter(value) {
+	var changeValue = "";
+	for (var i = 0 ; i < value.length ; i++) {
+		switch (value.charAt(i)) {
+			case "\"" :
+				changeValue = changeValue + "&quot;";
+				break;
+			case "&" :
+				changeValue = changeValue + "&amp;";
+				break;
+			case "<" :
+				changeValue = changeValue + "&lt;";
+				break;
+			case ">" :
+				changeValue = changeValue + "&gt;";
+				break;
+			default :
+				changeValue = changeValue + value.charAt(i);
+		}
+	}
+	return changeValue;
+}
+
+/******************************************************************************
+関数名前		：	ComFilter2
+処理機能		：	特殊文字変換とシングルクォーテーションをエスケープする
+								※HTMLタグ内に記述するイベントで指定するfunctionの引数値を
+								JavaScriptで埋め込む場合に使用します。
+引数				：	対象文字列
+戻り値			：	変換後の文字列
+作成日			：	2001/12/20
+修正日--------概要--------------------------
+******************************************************************************/
+function ComFilter2(value) {
+	var changeValue = "";
+	for (var i = 0 ; i < value.length ; i++) {
+		switch (value.charAt(i)) {
+			case "\"" :
+				changeValue = changeValue + "&quot;";
+				break;
+			case "&" :
+				changeValue = changeValue + "&amp;";
+				break;
+			case "<" :
+				changeValue = changeValue + "&lt;";
+				break;
+			case ">" :
+				changeValue = changeValue + "&gt;";
+				break;
+			case "'" :
+				changeValue = changeValue + "\\'";
+				break;
+			case "\\" :
+				changeValue = changeValue + "\\\\";
+				break;
+			default :
+				changeValue = changeValue + value.charAt(i);
+		}
+	}
+	return changeValue;
+}
+
+/******************************************************************************
+関数名前		：	ComClose
+処理機能		：	画面を閉じます。
+引数				：	確認ダイアログを出すか出さないか(true or false)
+								※メッセージファイルをインクルードする必要あり
+戻り値			：	なし
+作成日			：	2003/03/13
+修正日--------概要--------------------------
+******************************************************************************/
+function ComClose(showMessage) {
+	var closeFlg = true;
+	if (showMessage) {
+		closeFlg = window.confirm(MS7501);
+	}
+	if (closeFlg) {
+		COM_UNLOAD_FLG = true;
+		window.top.close();
+	}
+}
+/******************************************************************************
+関数名前		：	ComDisable
+処理機能		：	引数の名称から取得したオブジェクトのdisabledを設定する。
+					例：field1とfield2が必須項目の場合
+					var disableName = "btnRegister,btnDelete";
+					ComDisable(DisableName,form,true);
+
+引数			：	nameString：対象オブジェクト名称
+					form：フォーム名称
+					disabledFlg：disabled属性（disableにしたい場合はtrue、enableにしたい場合はfalse）
+戻り値			：	なし
+作成日			：	2003/03/26
+修正日--------概要--------------------------
+2003/03/28	引数にdisabledFlgを追加
+******************************************************************************/
+function ComDisable(nameString,form,disabledFlg) {
+	var flg = disabledFlg;
+	if (flg == undefined || flg == null) {
+		flg = true;
+	}
+	var objName = nameString.split(",");
+	for (var i = 0 ; i < objName.length ; i++) {
+		var obj = form.all(objName[i]);
+		if (obj) {
+			obj.disabled = flg;
+		}
+	}
+}
+/******************************************************************************
+関数名前		：	ComErrorMsg
+処理機能		：	アラートを表示に設定する.
+					エラーメッセージをアラート表示する場合はこの関数を呼んで下さい.
+引数			：	メッセージコード
+戻り値			：	なし
+作成日			：	2003/06/17
+修正日--------概要--------------------------
+******************************************************************************/
+function ComErrorMsg(message) {
+	/*
+	if (COM_ERROR_FLG) {
+		return;
+	}
+	*/
+	alert(message);
+}
+
+// エラー状態かどうかを表すフラグ
+var COM_ERROR_FLG=false;
+/******************************************************************************
+関数名前		：	ComTrue
+処理機能		：	Trueを返す＆COM_ERROR_FLG=falseに設定する.
+								Javascriptチェック関数でチェックOKの場合はこの関数を呼んで下さい.
+引数				：	なし
+戻り値			：	true
+作成日			：	2003/06/17
+修正日--------概要--------------------------
+******************************************************************************/
+function ComTrue() {
+	COM_ERROR_FLG=false;
+	return true;
+}
+/******************************************************************************
+関数名前		：	ComFalse
+処理機能		：	Falseを返す＆COM_ERROR_FLG=trueに設定する.
+								Javascriptチェック関数でチェックNGの場合はこの関数を呼んで下さい.
+引数				：	なし
+戻り値			：	true
+作成日			：	2003/06/17
+修正日--------概要--------------------------
+******************************************************************************/
+function ComFalse() {
+	if (!COM_CLOSE_FLG) {
+		COM_ERROR_FLG=true;
+	}
+	return false;
+}
+/******************************************************************************
+関数名前		：	ComInit
+処理機能		：	共通の初期化処理を行う。
+引数			：	なし
+戻り値			：	なし
+作成日			：	2003/05/28
+修正日--------概要--------------------------
+2005/05/20    <a>タグのhref属性の置換処理追加.
+2005/05/30    コンテキストメニューの初期化処理を追加.
+******************************************************************************/
+function ComInit() {
+
+	// <a>タグのhref属性の置換処理追加.
+	// "javascript:void(0)"の場合は、documetオブジェクトのreadyStateが
+	// "complete"になってしまい、二重サブミット禁止が出来ないため、
+	// 存在しないアンカー名"#noMove"に変更することで、
+	// readyStateの未変更と画面上端へのスクロール未実施を実現している。
+	var tags = document.getElementsByTagName("A");
+	for (i = 0; i < tags.length; i++) {
+		var aTag = tags(i);
+		if (aTag.href.toLowerCase() == "javascript:void(0)") {
+			aTag.href = "#noMove";
+		}
+	}
+
+	// コンテキストメニューの初期化
+	// この関数を呼ばなければ通常のコンテキストメニューが表示される
+	initContextMenu();
+}
+
+window.document.onkeydown = ComEvent;
+window.document.onclick = ComEvent;
+window.document.ondblclick = ComEvent;
+//window.document.onmouseover = ComMouseOver;
+//window.document.onmousedown = ComMouseDown;
+
+//window.document.onmouseout = ComMouseOut;
+
+// onloadで呼ぶ
+window.onbeforeunload = ComBeforeUnload;
+//ComOnload();
+
+// イベント発生元のオブジェクト
+var COM_SRC_ELEMENT;
+// アンロード状態かどうかのフラグ
+var COM_UNLOAD_FLG = false;
+// クローズしようとしているかどうかのフラグ
+var COM_CLOSE_FLG = false;
+
+/******************************************************************************
+関数名前		：	ComOnload
+処理機能		：	onload時の共通関数.
+引数			：	なし
+戻り値			：	なし
+作成日			：	2003/06/24
+修正日--------概要--------------------------
+******************************************************************************/
+function ComOnload() {
+
+}
+/******************************************************************************
+関数名前		：	ComUnload
+処理機能		：	unload時の共通関数.
+引数			：	なし
+戻り値			：	なし
+作成日			：	2003/06/24
+修正日--------概要--------------------------
+******************************************************************************/
+function ComUnload(flg) {
+	if (!flg) {
+		COM_UNLOAD_FLG = true;
+		COM_CLOSE_FLG = true;
+		return;
+	}
+	COM_UNLOAD_FLG = flg;
+	COM_CLOSE_FLG = flg;
+}
+/******************************************************************************
+関数名前		：	ComBeforeUnload
+処理機能		：	unload前の共通関数.
+引数			：	なし
+戻り値			：	なし
+作成日			：	2003/09/29
+修正日--------概要--------------------------
+******************************************************************************/
+function ComBeforeUnload() {
+
+	/*
+	COM_CLOSE_FLG = true;
+	if (!ComIsClosed(top.COM_SUB_WINDOW)) {
+		top.COM_SUB_WINDOW.close();
+	}
+	top.COM_SUB_WINDOW = null;
+	*/
+	try {
+		if (!ComIsClosed(COM_CAL_WIN)) {
+			COM_CAL_WIN.close();
+		}
+	}
+	catch (ex) {
+	}
+	ComUnload(true);
+}
+
+/******************************************************************************
+関数名前		：	ComEvent
+処理機能		：	イベント発生時の共通処理を行う.
+					基本的に各APが意識することはない.
+引数			：	なし
+戻り値			：	なし
+作成日			：	2003/06/18
+修正日--------概要--------------------------
+2005/03/30　　子画面を開いている際に、親画面での入力を無効にする処理を除去。
+2005/05/26　　BackSpace(keyCode=8)無効化処理追加。
+2005/06/07　　ショートカットキー無効化処理追加。
+******************************************************************************/
+var COM_SUB_WIN_FLG = false;
+// ショートカットキー無効フラグ.BodyのonLoad時にFWにより設定される.
+// 設定の実装はBodyTagタグライブラリに記述.
+var COM_SHORTCUT_KEY_DISABLED = true;
+function ComEvent() {
+/*
+	if (COM_SHORTCUT_KEY_DISABLED) {
+		// 2005/06/07 Ohkawa add. ショートカットキー制御追加
+		// ALTキーの制御
+		if ( window.event.altKey ){
+			switch ( window.event.keyCode ) {
+				//←		→
+				case 37 : case 39 :
+					alert('指定されたキー操作は無効です。');
+					window.event.keyCode = 0;
+					return false;
+				//BS		Home
+				case 8 : case 36 :
+					alert('指定されたキー操作は無効です。');
+					window.event.keyCode = 0;
+					return false;
+				// F4
+				case 115 :
+					//実装しているがイベントを止められない.
+					//alert('指定されたキー操作は無効です。')
+					window.event.keyCode = 0;
+					return false;
+			}
+		}
+		// CTRLキーの制御.CTRL+Pは無効にしない
+		else if ( window.event.ctrlKey ) {
+			switch ( window.event.keyCode ) {
+				//F4		F5			F10
+				case 115 : case 116 : case 121 :
+				//B			D		E			H		I
+				case 66 : case 68 : case 69 : case 72 :case 73 :
+				//L			M		N			O			R		W
+				case 76 : case 77 : case 78 : case 79 : case 82 : case 87 :
+					window.event.keyCode = 0;
+					return false;
+			}
+		}
+		// SHIFTキーの制御
+		else if ( window.event.shiftKey ) {
+			switch ( window.event.keyCode ) {
+				//F4		F10
+				case 115 : case 121 :
+					window.event.keyCode = 0;
+					return false;
+			}
+		}
+		// その他(Fキー)の制御
+		else {
+			switch ( window.event.keyCode ) {
+				//F3		F4			F5
+				case 114 : case 115 : case 116 :
+				//F10		F11
+				case 121 : case 122 :
+					window.event.keyCode = 0;
+					return false;
+			}
+		}
+	}
+
+	// BackSpace(keyCode=8)無効化処理
+	// text,textarea,password領域の場合はBackSpaceは有効にする.
+	//if (document.activeElement.type == "text" || document.activeElement.type == "textarea" || document.activeElement.type == "password") {
+	//	if (document.activeElement.disabled == true || document.activeElement.readOnly == true) {
+	//		if (event.keyCode == 8) {
+	//			event.keyCode = 0;
+	//			event.returnValue=false;
+	//		}
+	//	}
+	//}
+	//else {
+	//	if (event.keyCode == 8) {
+	//		event.keyCode = 0;
+	//		event.returnValue=false;
+	//	}
+	//}
+
+	if (event.type && event.type=='change') {
+		return false;
+	}
+
+	// イベント元のエレメントを設定
+	COM_SRC_ELEMENT = event.srcElement;
+	COM_ERROR_FLG = false;
+	COM_UNLOAD_FLG = false;
+
+	if (!top.COM_SUB_WINDOW || top.COM_SUB_WINDOW == null || ComIsClosed(top.COM_SUB_WINDOW)) {
+		top.COM_SUB_WINDOW = null;
+		COM_SUB_WIN_FLG = false;
+		return true;
+	}
+	//else if (!top.COM_SUB_WINDOW.document.hasFocus()) {
+	else {
+		COM_SUB_WIN_FLG = true;
+*/
+		/*
+		try {
+			if (COM_SRC_ELEMENT != window) {
+				//COM_SRC_ELEMENT.blur();
+			}
+			top.COM_SUB_WINDOW.focus();
+			//top.COM_SUB_WINDOW.alert("子画面の操作を終了して下さい。");
+			top.COM_SUB_WINDOW.doInit();
+		}
+		catch (e) {
+			alert(e.toString());
+		}
+		*/
+
+		/* delete 20005/03/03 noto
+		NFSではキュー画面が存在するため、
+		子画面を開いている際も親画面で入力できるように
+		入力を破棄する以下の処理をコメントアウトにする。
+		return false; // 入力は無視される
+		*/
+/*	}
+
+	COM_CLOSE_FLG = false;
+*/
+}
+
+/*****************************************************************************
+関数名前	：ComIsAlphaNum
+処理機能	：アルファベット26字+数字10種チェック.共通関数内部のみで使用する関数です.
+引数		：チェック対象文字列(1文字)
+作成日		：2003/09/26
+修正日--------概要--------------------------
+******************************************************************************/
+function ComIsAlphaNum(sCheck) {
+	if((sCheck=="")||(sCheck==null)) return false;
+	var numStr = "0123456789";
+	var alphaStr = "abcdefghijklmnopqrstuvwxyz";
+
+	return (numStr.indexOf(sCheck) != -1 || alphaStr.indexOf(sCheck.toLowerCase()) != -1)
+}
+/******************************************************************************
+関数名前		：	ComRecordAllRequired
+処理機能		：	レコード必須チェック：現在のレコード全ての項目が存在するかをチェックする.
+
+				例：field1とfield2の２行目が存在するかチェック
+					var nameString = "field1,field2";
+					ComRecordAllEmpty(nameString, 2);
+
+引数			：	nameString:必須項目の名前をカンマ','（必ず半角）を挟んで結合したもの
+								フォームオブジェクト
+					form：フォーム名称
+					index:フィールド配列の現在の位置
+戻り値			：	OK:true NG:false
+作成日			：	2003/06/27
+修正日--------概要--------------------------
+******************************************************************************/
+function ComRecordAllRequired(nameString, form, index) {
+	var oneRecordFlg = ComIsOneRecord(nameString, form);
+	var checkFlg = true;
+	var field;
+	var fieldName = nameString.split(",");
+	for (var i = 0 ; i < fieldName.length ; i++) {
+		if(oneRecordFlg) {
+			field = form.all(fieldName[i]);
+			checkFlg = checkFlg && ComCheckNecessary(ComTrim(field.value));
+		} else {
+			field = form.all(fieldName[i])[index];
+			checkFlg = checkFlg && ComCheckNecessary(ComTrim(field.value));
+		}
+		if(!checkFlg) {
+			ComSetFocusSelect(field);
+			return ComFalse();
+		}
+	}
+	return ComTrue();
+}
+/******************************************************************************
+関数名前		：	ComRecordAllEmpty
+処理機能		：	レコードが空かチェック：現在のレコード項目が全てnull,空文字，空白かをチェックする.
+
+				例：field1とfield2が空かチェック
+					var nameString = "field1,field2";
+					ComRecordAllEmpty(nameString, domument.myform)
+					field1とfield2の2行目が空かチェック
+					ComRecordAllEmpty(nameString, domument.myform, 2);
+引数			：	nameString:項目の名前をカンマ','（必ず半角）を挟んで結合したもの
+								フォームオブジェクト
+					form：フォーム名称
+					index:フィールド配列の現在の位置
+戻り値			：	OK:true NG:false
+作成日			：	2003/06/17
+修正日--------概要--------------------------
+******************************************************************************/
+function ComRecordAllEmpty(nameString, form, index) {
+	var oneRecordFlg = ComIsOneRecord(nameString, form);
+	var checkFlg = true;
+	var fieldValue;
+	var fieldName = nameString.split(",");
+	if(oneRecordFlg) {
+		for (var i = 0 ; i < fieldName.length ; i++) {
+			fieldValue = ComTrim(form.all(fieldName[i]).value);
+			checkFlg = checkFlg && ComIsEmpty(fieldValue);
+		}
+	} else {
+		for (var i = 0 ; i < fieldName.length ; i++) {
+			fieldValue = ComTrim(form.all(fieldName[i])[index].value);
+			checkFlg = checkFlg && ComIsEmpty(fieldValue);
+		}
+	}
+	//return checkFlg;
+	if (checkFlg) {
+		return ComTrue();
+	}
+	return ComFalse();
+}
+/******************************************************************************
+関数名前		：	ComTableAllEmpty
+処理機能		：	テーブルの項目が空かチェック：テーブルの項目が全てnull,空文字，
+					空白かをチェックする.
+
+				例：テーブルに存在する全ての項目が空かチェック
+				field1とfield2が空かチェック
+					var nameString = "field1,field2";
+					ComRecordAllEmpty(nameString, domument.myform)
+引数			：	nameString:項目の名前をカンマ','（必ず半角）を挟んで結合したもの
+					form:フォームオブジェクト
+戻り値			：	OK:true NG:false
+作成日			：	2003/06/28
+修正日--------概要--------------------------
+******************************************************************************/
+function ComTableAllEmpty(nameString, form) {
+	var oneRecordFlg = ComIsOneRecord(nameString, form);
+	if(oneRecordFlg) {
+		return ComRecordAllEmpty(nameString, form);
+	}
+	var fieldName = nameString.split(",");
+	var checkFlg = true;
+	var fieldArray = form.all(fieldName[0]);
+	for (var i = 0; i < fieldArray.length ; i++) {
+		checkFlg = checkFlg && ComRecordAllEmpty(nameString, form, i);
+	}
+	//return checkFlg;
+	if (checkFlg) {
+		return ComTrue();
+	}
+	return ComFalse();
+}
+/******************************************************************************
+関数名前		：	ComNotAllEmpty
+処理機能		：	nameStringの項目が全て空でないかチェック
+
+				例：nameStringに存在する全ての項目が全て空でないかチェック
+				field1とfield2が空かチェック
+					var nameString = "field1,field2";
+					ComNotAllEmpty(nameString, domument.myform)
+引数			：	nameString:項目の名前をカンマ','（必ず半角）を挟んで結合したもの
+					form:フォームオブジェクト
+戻り値			：	OK:true NG:false
+作成日			：	2003/06/28
+修正日--------概要--------------------------
+******************************************************************************/
+function ComNotAllEmpty(nameString, form) {
+	var oneRecordFlg = ComIsOneRecord(nameString, form);
+	var checkFlg;
+	checkFlg = ComTableAllEmpty(nameString, form);
+	if(checkFlg) {
+		var field;
+		var fieldName = nameString.split(",");
+		if(oneRecordFlg) {
+			field = form.all(fieldName[0]);
+		} else {
+			field = form.all(fieldName[0])[0];
+		}
+		ComSetFocusSelect(field);
+		alert(MS8010);
+		return !checkFlg;
+	}
+	//return !checkFlg;
+	if (!checkFlg) {
+		return ComTrue();
+	}
+	return ComFalse();
+}
+/******************************************************************************
+関数名前		：	ComIsOneRecord
+処理機能		：	nameStringの項目が1行かどうかを判定する.
+
+引数			：	nameString:項目の名前をカンマ','（必ず半角）を挟んで結合したもの
+					form:フォームオブジェクト
+戻り値			：	OK:true NG:false
+作成日			：	2003/06/28
+修正日--------概要--------------------------
+******************************************************************************/
+function ComIsOneRecord(nameString, form) {
+	var fieldName = nameString.split(",");
+	var checkFlg = true;
+	var first = 0;
+	//return !form.all(fieldName[first]).length;
+	if (!form.all(fieldName[first]).length) {
+		return ComTrue();
+	}
+	return ComFalse();
+}
+
+/******************************************************************************
+関数名前		：	ComCheckUpdated
+処理機能		：	更新画面で画面遷移を行う前に利用します
+					nameStringの項目が更新されているかをチェックし
+					画面表示時のデフォルト値との比較でチェックします.
+					更新されている場合は画面遷移を行ってよいか確認するconfirmを表示します.
+					nameStringの指定なし、または空文字の場合はformの全エレメント
+					に対して更新チェックを行います.
+					ただし、エレメントのタイプ属性がないものや、'hidden', 'button'は
+					チェックしません.
+				例：field1とfield2が更新されているかチェック
+					var nameString = "field1,field2";
+					ComCheckUpdated(nameString, domument.myform)
+引数			：	nameString:項目の名前をカンマ','（必ず半角）を挟んで結合したもの
+					form:フォームオブジェクト
+戻り値			：	全て更新されていなかった場合,もしくは
+					１つでも更新されていてconfirmでOKを選んだ場合:true
+					１つでも更新されていてconfirmでキャンセルを選んだ場合:false
+作成日			：	2004/05/09
+修正日--------概要--------------------------
+******************************************************************************/
+function ComCheckUpdated(nameString, form) {
+	if(ComArrayIsUpdated(nameString, form)) {
+		if (!confirm(MS7500)) {
+			// ユーザーがconfirmでキャンセルを選んだ場合はfalseを返す
+			return false;
+		}
+	}
+	// 指定項目が変更されていない、
+	// もしくは変更されていてもユーザーがconfirmでOKを選んだ場合はtrueを返す
+	return true;
+}
+/******************************************************************************
+関数名前		：	ComArrayIsUpdated
+処理機能		：	nameStringの項目が更新されているかをチェック
+					画面表示時のデフォルト値との比較でチェックします
+					nameStringの指定なし、または空文字の場合はformの全エレメント
+					に対して更新チェックを行います.
+					ただし、エレメントのタイプ属性がないものや、'hidden', 'button'は
+					チェックしません.
+				例：field1とfield2が更新されているかチェック
+					var nameString = "field1,field2";
+					ComArrayIsUpdated(nameString, domument.myform)
+引数			：	nameString:項目の名前をカンマ','（必ず半角）を挟んで結合したもの
+					form:フォームオブジェクト
+戻り値			：	１つでも更新されていた場合:true 全て更新されていなかった場合:false
+作成日			：	2003/07/03
+修正日--------概要--------------------------
+******************************************************************************/
+function ComArrayIsUpdated(nameString, form) {
+
+	var isEdited = false;
+	if (!nameString || nameString == "") {
+		var objs = form.all;
+		for (var i = 0 ; i < objs.length ; i++) {
+			var field = objs[i];
+			if (!field.type || field.type == 'hidden' || field.type == 'button') {
+				continue;
+			}
+			isEdited = ComIsUpdated(field);
+			if (isEdited) {
+				return true;
+			}
+		}
+	}
+	else {
+		var fieldName = nameString.split(",");
+		for (var i = 0 ; i < fieldName.length ; i++) {
+			var field = form.all(fieldName[i]);
+			isEdited = ComIsUpdated(field);
+			if (isEdited) {
+				return true;
+			}
+		}
+	}
+	return false;
+}
+/******************************************************************************
+関数名前		：	ComIsUpdated
+処理機能		：	targetの値が更新されているかをチェック
+					画面表示時のデフォルト値との比較でチェックします
+
+				：	target:チェック対象
+戻り値			：	更新されていた場合:true 更新されていなかった場合:false
+作成日			：	2003/07/03
+修正日--------概要--------------------------
+******************************************************************************/
+function ComIsUpdated(target) {
+	var isEdited = false;
+	if (!target) {
+		return false;
+	}
+	if (!target.length) {
+		var field = target;
+		var type = field.type;
+		if (type == 'select-one' || type == 'select-multiple') {
+			var defaultSelectedFlg = false;
+			for (i=0; i<field.length; i++) {
+				defaultSelectedFlg = field.options[i].defaultSelected;
+				if (defaultSelectedFlg) {
+					break;
+				}
+			}
+			if (target.type == 'select-one' && !defaultSelectedFlg && target.options.selectedIndex == 0) {
+				return false;
+			}
+
+			for (i=0; i<field.length; i++) {
+				if (field.options[i].selected != field.options[i].defaultSelected) {
+					if (COM_SRC_ELEMENT) {
+						ComSetFocusSelect(COM_SRC_ELEMENT);
+					}
+					else {
+						ComSetFocusSelect(field);
+					}
+					return true;
+				}
+			}
+			return false;
+		}
+		else if (type == 'checkbox' || type == 'radio') {
+			isEdited = (field.checked != field.defaultChecked);
+		}
+		else {
+			isEdited = (field.value != field.defaultValue);
+		}
+		if (isEdited) {
+			if (COM_SRC_ELEMENT) {
+				ComSetFocusSelect(COM_SRC_ELEMENT);
+			}
+			else {
+				ComSetFocusSelect(field);
+			}
+			return true;
+		}
+	}
+	else {
+
+		if (target.type == 'select-one' || target.type == 'select-multiple') {
+			var defaultSelectedFlg = false;
+			for (i=0; i<target.length; i++) {
+				defaultSelectedFlg = target.options[i].defaultSelected;
+				if (defaultSelectedFlg) {
+					break;
+				}
+			}
+
+			if (target.type == 'select-one' && !defaultSelectedFlg && target.options.selectedIndex == 0) {
+				return false;
+			}
+
+			for (i=0; i<target.length; i++) {
+				if (target.options[i].selected != target.options[i].defaultSelected) {
+					if (COM_SRC_ELEMENT) {
+						ComSetFocusSelect(COM_SRC_ELEMENT);
+					}
+					else {
+						ComSetFocusSelect(target);
+					}
+					return true;
+				}
+			}
+			return false;
+		}
+		for (var j = 0 ; j < target.length ; j++) {
+			var field = target[j];
+			var type = field.type;
+			if (type == 'select-one' || type == 'select-multiple') {
+				var defaultSelectedFlg = false;
+				for (i=0; i<field.length; i++) {
+					defaultSelectedFlg = field.options[i].defaultSelected;
+					if (defaultSelectedFlg) {
+						break;
+					}
+				}
+				if (field.type == 'select-one' && !defaultSelectedFlg && field.options.selectedIndex == 0) {
+					continue;
+				}
+				for (i=0; i<field.length; i++) {
+					if (field.options[i].selected != field.options[i].defaultSelected) {
+						if (COM_SRC_ELEMENT) {
+							ComSetFocusSelect(COM_SRC_ELEMENT);
+						}
+						else {
+							ComSetFocusSelect(field);
+						}
+						return true;
+					}
+				}
+			}
+			else if (type == 'checkbox' || type == 'radio') {
+				isEdited = (field.checked != field.defaultChecked);
+			}
+			else {
+				isEdited = (field.defaultValue != null && field.value != field.defaultValue);
+			}
+			if (isEdited) {
+				if (COM_SRC_ELEMENT) {
+					ComSetFocusSelect(COM_SRC_ELEMENT);
+				}
+				else {
+					ComSetFocusSelect(field);
+				}
+				return true;
+			}
+		}
+
+	}
+	return false;
+}
+/******************************************************************************
+関数名前	：	ComCreateQueryString
+処理機能	：	サーバへのリクエストパラメータ文字列を作成する
+				paramNameArray - パラメータ名の配列
+				paramValueArray - パラメータ値の配列
+戻り値		：	項目名=値の形式を連結したパラメータ文字列
+修正日--------概要--------------------------
+******************************************************************************/
+function ComCreateQueryString(paramNameArray, paramValueArray) {
+	var queryString = "", paramName;
+
+	// パラメータなし
+	if (!paramValueArray) {
+		// 明示的に定義するか？
+	}
+	else {
+		var i=0;
+		// パラメータ文字列作成
+		while (paramNameArray.length > 0) {
+			// パラメータ名取得
+			paramName = paramNameArray.shift();
+			// パラメータ名定義
+			queryString += paramName + "=";
+
+			// 該当する値が存在する場合のみ連結
+			//if (paramValueArray[paramName]) {
+				//queryString += paramValueArray[paramName];
+			//}
+			if (paramValueArray[i]) {
+				queryString += paramValueArray[i];
+			}
+			queryString += "&";
+			i++;
+		}
+		// 最後の "&" を削除
+		queryString = queryString.substring(0, queryString.length-1);
+	}
+	return queryString;
+}
+
+//---------2004/07/09 ono add
+/******************************************************************************
+関数名前		：	ComGetValidationLine
+処理機能		：	入力値検証でチェックするレコードの文字列を取得する。
+引数			：	対象チェックボックスもしくはラジオボタン、入力値検証するレコードをチェック
+戻り値			：	入力値検証するレコードのインデックス文字列（複数の場合カンマ区切り）
+作成日			：	2004/05/14
+修正日--------概要--------------------------
+******************************************************************************/
+function ComGetValidationLine(obj, checkIsValidationFlg) {
+	var i;
+	if (!obj) {
+		return "";
+	}
+	if (!obj.length) {
+		var strValidationLine = "";
+		// チェックボックスかラジオのみ入力値検証する行を指定
+		if (obj.type == 'checkbox' || obj.type == 'radio') {
+			if(checkIsValidationFlg == true && obj.checked == true) {
+				strValidationLine = "0";
+			}
+			if(checkIsValidationFlg == false && obj.checked == false) {
+				strValidationLine = "0";
+			}
+		}
+		return strValidationLine;
+	}
+	else {
+		var strValidationLines = "";
+		for (i = 0; i < obj.length; i++) {
+			// チェックボックスかラジオのみ入力値検証する行を指定
+			if (obj[i].type == 'checkbox' || obj[i].type == 'radio') {
+				if(checkIsValidationFlg == true && obj[i].checked == true) {
+					if(strValidationLines == "") {
+						strValidationLines = strValidationLines + i;
+					} else {
+						strValidationLines = strValidationLines + "," + i;
+					}
+				}
+				if(checkIsValidationFlg == false && obj[i].checked == false) {
+					if(strValidationLines == "") {
+						strValidationLines = strValidationLines + i;
+					} else {
+						strValidationLines = strValidationLines + "," + i;
+					}
+				}
+			}
+		}
+		return strValidationLines;
+	}
+}
+
+//---------2005/04/13 noto add
+/******************************************************************************
+関数名前		：	ComCheckCurrectWindow
+処理機能		：	自分がどの画面のどのフレームであるかチェックする。
+引数			：	なし。
+戻り値			：	以下の通り。
+				 		現在のウインドウ			戻り値
+				 		親画面（NFSFrame）				COM_WINDOW_TYPE_NFSFrame
+				 		親画面（NFSHeaderFrame）		COM_WINDOW_TYPE_NFSHeaderFrame
+				 		親画面（NFSMainFrame）			COM_WINDOW_TYPE_NFSMainFrame
+				 		親画面（NFSDownloadFrame）		COM_WINDOW_TYPE_NFSDownloadFrame
+				 		子画面（window.open)			COM_WINDOW_TYPE_CHILD_WINDOW
+				 		子画面（モーダルウインドウ）	COM_WINDOW_TYPE_MODAL_CHILD_WINDOW
+作成日			：	2005/04/13
+修正日--------概要--------------------------
+******************************************************************************/
+var COM_WINDOW_TYPE_NFSFrame = 1;
+var COM_WINDOW_TYPE_NFSHeaderFrame = 2;
+var COM_WINDOW_TYPE_NFSMainFrame = 3;
+var COM_WINDOW_TYPE_NFSDownloadFrame = 4;
+var COM_WINDOW_TYPE_CHILD_WINDOW = 5;
+var COM_WINDOW_TYPE_MODAL_CHILD_WINDOW = 6;
+
+function ComCheckCurrectWindow() {
+	// 子画面（モーダルウインドウ）
+	if (window.dialogArguments != null) {
+		return COM_WINDOW_TYPE_MODAL_CHILD_WINDOW;
+	}
+	// 子画面（window.open)
+	if (window.opener != null) {
+		return COM_WINDOW_TYPE_CHILD_WINDOW;
+	}
+	// 親画面（NFSDownloadFrame）
+	if (window.name == "NFSDownloadFrame") {
+		return COM_WINDOW_TYPE_NFSDownloadFrame;
+	}
+	// 親画面（NFSMainFrame）
+	if (window.name == "NFSMainFrame") {
+		return COM_WINDOW_TYPE_NFSMainFrame;
+	}
+	// 親画面（NFSHeaderFrame）
+	if (window.name == "NFSHeaderFrame") {
+		return COM_WINDOW_TYPE_NFSHeaderFrame;
+	}
+	// 親画面（NFSFrame）
+	return COM_WINDOW_TYPE_NFSFrame;
+}
+
+/******************************************************************************
+関数名前		：	ComLogout
+処理機能		：	ログアウト処理を実施する。
+					ヘッダーフレーム、システムエラー、セッションタイムアウトエラー画面から呼ばれる。
+					※　この関数はNFSHeaderFrameもしくはNFSMainFrameのみ呼び出せます。
+					　　その他から呼び出した場合は何もしません。
+引数			：	なし。
+戻り値			：	なし。
+作成日			：	2005/04/13
+修正日--------概要--------------------------
+******************************************************************************/
+function ComLogout() {
+	var current = ComCheckCurrectWindow();
+	if (!((current == COM_WINDOW_TYPE_NFSHeaderFrame) || (current == COM_WINDOW_TYPE_NFSMainFrame))) {
+		return;
+	}
+    var menuCd = window.parent.menuCd;
+    var actionName = ComGetBasePath() + "/common/fcnfc00002/scnfc003Logout.do?menuCd=" + menuCd;
+	ComSubmit(document.myform, actionName, "_top");
+}
+
+/******************************************************************************
+関数名前	：	ComCheckSubmit
+処理機能	：	サブミットしてもいいかどうかを判定する.２重リクエスト防止のための関数です.
+				GETの場合はこの関数でチェックを行って下さい.
+引数		：	フォーム、アクション名、ターゲット名
+戻り値		：	２重リクエストの場合はfalse.それ以外はtrue.
+作成日		：	2003/05/12
+^修正日--------概要--------------------------
+******************************************************************************/
+function ComCheckSubmit(formObj, actionName, target) {
+	// formObjが渡された場合は、処理効率の観点からまずは自フォームの所属するdocumentの状態を確認する
+	if (formObj) {
+		var targetDoc = formObj.document;
+		try {
+			if (targetDoc.readyState != "complete") {
+				// ２重リクエスト防止をreadyState属性で行う.
+//				alert("Self Dual request!");
+				return ComFalse();
+			}
+		} catch (e) {
+			if (!submitableFlg) {
+				return ComFalse();
+			}
+
+			submitableFlg = false;
+			setTimeout(clearSubmitFlg, 10000);
+		}
+	}
+
+	// 親画面の取得
+	var parentWin = ComGetTopFrame();
+
+	// 親画面の全フレームのチェック
+	if (!ComCheckAllFrameState(parentWin)) {
+		return ComFalse();
+	}
+	// 子画面の全フレームのチェック
+	// 親画面の配列で子画面を管理しているため、親画面のメソッド内で子画面の配列を確認するよう実装しないと、以下のエラーが表示されてしまう。
+	// 「呼び出し先（サーバーアプリケーションではなく、サーバー）は消失し、利用できません。全ての接続は無効です。呼び出しは実行されていません。」
+	// また、モーダルダイアログの場合は、モーダルダイアログが親画面となるが、モーダルダイアログの標準であるフレームのJSP内で、
+	// ComGeneral.jsを呼んでいない場合があるので例外処理を入れている。
+	// この場合は、子画面の二重リクエストチェックは実施できない
+	try {
+		if (!parentWin.ComCheckChildWindowSubmit()) {
+			return ComFalse();
+		}
+	} catch (e) {
+//		alert(e);
+	}
+
+	return ComTrue();
+}
+
+/******************************************************************************
+関数名前	：	ComGetTopFrame
+処理機能	：	現在のウインドウから見た一番親画面のtopフレームを返す。
+				モーダルダイアログがある場合は、直近のモーダルダイアログのtopフレームを返す。(内部関数)
+引数		：	なし
+戻り値		：	一番親の画面のtopフレーム
+作成日		：	2005/05/23
+修正日--------概要--------------------------
+******************************************************************************/
+
+function ComGetTopFrame() {
+	var breakFlg = false;
+	var parentWin;
+	var childWin = window.self;
+	while (!breakFlg) {
+		try {
+			parentWin = childWin.top.opener;
+		} catch (e) {
+			return childWin.top;
+		}
+		//if (parentWin && !parentWin.closed) {
+		// 2005/06/07 Ohkawa mod.
+		if (!ComIsClosed(parentWin)) {
+			// 親画面が存在すれば更に親を取得
+			childWin = parentWin;
+		} else {
+			// 親画面もしくはモーダルダイアログを見つけた時点で処理終了
+			// （モーダルダイアログはopenerが"unidentified"となる）
+			breakFlg = true;
+			parentWin = childWin.top;
+		}
+	}
+	return parentWin;
+}
+
+/******************************************************************************
+関数名前	：	ComCheckAllFrameState
+処理機能	：	引数で与えられたウインドウもしくはフレーム内のフレームの
+				readyStateをチェックする。(内部関数)
+引数		：	ウインドウもしくはフレーム
+戻り値		：	readyStateが"complete"以外のフレームが存在すればfalse.それ以外はtrue.
+作成日		：	2005/05/23
+修正日--------概要--------------------------
+******************************************************************************/
+
+function ComCheckAllFrameState(winObj) {
+	// ウインドウが保持する全フレームを走査し、readyStateを確認する
+
+	// 2005/07/13 noto add.
+	// BGPR080対応。
+	// 名古屋海販部でダウンロード後にJavaScriptエラーとなり、NFSが利用できなくなる障害の対応。
+	// ダウンロード後にダウンロード用のフレームのセキュリティコンテキストが、
+	// 他のNFSのフレームと異なるようになることが原因と推測される。
+	// 初台からでは再現できない現象で、名古屋海販部でのみセキュリティコンテキストが異なった原因は不明。
+	// しかし、この対応で障害が発生しなくなったため、原因の追究は断念。
+	// 子画面に外部システムを表示した場合にも同様のエラーが発生することが予想されるが、
+	// その場合は以下と同様の処理を該当個所に入れることで回避することが出来る。
+	// （windowもしくはframeの属性を操作する処理の前にtry-catchを入れて、アクセス可能が確認する）
+	// セキュリティコンテキストについては以下を参照。
+	// http://support.microsoft.com/default.aspx?scid=kb;ja;167796
+	//
+	// アクセス可能なフレームであるかチェックする。
+	try {
+		winObj.name;
+		winObj.document.readyState;
+	} catch (e) {
+//		alert(e);
+		return true;
+	}
+
+	// readyStateのチェック
+	// ただし、ダウンロード専用フレームに関しては以下の理由からチェックしない
+	// 　・一度ダウンロードするとreadyStateが"interactive"から変化しなくなるためチェックできない
+	// 　・NFSDownloadFrameはdoInit関数でのみ呼び出され、二重リクエストになることはない
+	if (winObj.name != "NFSDownloadFrame") {
+		if (typeof(winObj.document.readyState) != "undefined") {
+			if (winObj.document.readyState != "complete") {
+//			alert("Dual request!");
+				return false;
+			}
+		}
+	}
+
+	// 更に内部にフレームがある場合は再帰して調査する
+	/* var frm = winObj.frames;
+	var i;
+	for (i = 0; i < frm.length; i++) {
+		if (!ComCheckAllFrameState(frm[i])) {
+			return false;
+		}
+	}*/
+
+	return true;
+}
+
+/******************************************************************************
+関数名前	：	ComCheckChildWindowSubmit
+処理機能	：	この画面が保持する子画面の全フレームの
+				readyStateをチェックする。(内部関数)
+引数		：	なし
+戻り値		：	readyStateが"complete"以外のフレームが存在すればfalse.それ以外はtrue.
+作成日		：	2005/05/23
+修正日--------概要--------------------------
+******************************************************************************/
+
+function ComCheckChildWindowSubmit() {
+	// 子画面のreadyStateの走査
+	var oldWinArray = CHILD_WINDOW_ARRAY;
+	var newWinArray = new Array();
+	var i;
+	for (i = 0; i < oldWinArray.length; i++) {
+		try {
+			var childWin = oldWinArray[i];
+			if (!ComIsClosed(childWin)) {
+				newWinArray.push(childWin);
+				if (!ComCheckAllFrameState(childWin)) {
+					return false;
+				}
+			}
+		} catch (e) {
+			// 何もしない
+//			alert(e);
+		}
+	}
+	// 無効なWindowを破棄する
+	CHILD_WINDOW_ARRAY = newWinArray;
+
+	return true;
+}
+
+/******************************************************************************
+ * 以下は、コンテキストメニュー（右クリックメニュー）用のJavaScript
+******************************************************************************/
+
+/******************************************************************************
+関数名前	：	showContextMenu.
+処理機能	：	コンテキストメニュー初期化
+				画面上にvisibility:hiddenの状態でメニュー用のテーブルを予め記述しておき、
+				右クリックが押された際にそのメニュー用のテーブルを表示する。
+引数		：	なし
+戻り値		：	なし
+作成日		：	2005/05/23
+修正日--------概要--------------------------
+******************************************************************************/
+// コンテキストメニュー無効フラグ.BodyのonLoad時にFWにより設定される.
+// 設定の実装はBodyTagタグライブラリに記述.
+var COM_CONTEXT_MENU_DISABLED = true;
+function initContextMenu() {
+	if (!COM_CONTEXT_MENU_DISABLED) {
+		return;
+	}
+	// コンテキストメニュー用のHTML要素記述
+	var menu = ""
+	+ '<TABLE id="contextMenu"'
+	+ 'onclick="clickMenu()"'
+	+ 'onmouseover="toggleMenu()" '
+	+ 'onmouseout="toggleMenu()" '
+	+ 'style="VISIBILITY: hidden; POSITION: absolute" cellSpacing=0 '
+	+ 'cellPadding=5 bgColor=#ddffff border=2>'
+	+ '<TBODY>'
+	+ '<TR>'
+	+ '<TD bgColor=#ddffff>'
+	+ '<div class="menuItem" doFunction="doPrint();">印刷</div> '
+	+ '</TD>'
+	+ '</TR>'
+	+ '</TBODY>'
+	+ '</TABLE>';
+
+	document.body.insertAdjacentHTML("AfterBegin", menu);
+
+	// 右クリック押下時にshowContextMenu関数を呼ぶように設定
+	window.document.oncontextmenu=showContextMenu;
+}
+
+/******************************************************************************
+関数名前	：	showContextMenu.
+処理機能	：	コンテキストメニュー表示
+				initContextMenuで作成したメニュー用のレイヤーを表示する。
+引数		：	なし
+戻り値		：	なし
+作成日		：	2005/05/23
+修正日--------概要--------------------------
+******************************************************************************/
+function showContextMenu() {
+	// text,textarea,password領域の場合は通常のコンテキストメニューを表示する
+	if (document.activeElement.type == "text" || document.activeElement.type == "textarea" || document.activeElement.type == "password") {
+		return true;
+	}
+	var tmenu = document.getElementById("contextMenu");
+	var x,y;
+	x = window.event.clientX;
+	y = window.event.clientY;
+	if(document.body.clientWidth - x < tmenu.offsetWidth){ //右端過ぎる
+		//カーソルの位置がメニューの右端になるように
+		x = document.body.scrollLeft + x - tmenu.offsetWidth;
+	} else {
+		x = document.body.scrollLeft + x;
+	}
+	if(document.body.clientHeight - y < tmenu.offsetHeight){ //下過ぎる
+		y = document.body.scrollTop + y - tmenu.offsetHeight;
+	} else {
+		y = document.body.scrollTop + y;
+	}
+	tmenu.style.left = x;
+	tmenu.style.top = y;
+	tmenu.style.visibility = "visible";
+	tmenu.setCapture(); // コンテキストメニュー用のテーブルにマウスキャプチャーをセット
+	return false; // 通常のコンテキストメニューをキャンセル
+}
+/******************************************************************************
+関数名前	：	clickMenu
+処理機能	：	コンテキストメニューの各アイテム押下時に呼び出される関数
+引数		：	なし
+戻り値		：	なし
+作成日		：	2005/05/23
+修正日--------概要--------------------------
+******************************************************************************/
+function clickMenu() {
+  var tmenu = document.getElementById("contextMenu");
+  tmenu.releaseCapture(); // showMenuでセットしたマウスキャプチャーを解除
+  tmenu.style.visibility="hidden";
+  var el=event.srcElement;
+  if (el.doFunction != null) {
+    eval(el.doFunction);
+  }
+}
+/******************************************************************************
+関数名前	：	toggleMenu
+処理機能	：	メニューの各項目の選択状態制御
+引数		：	なし
+戻り値		：	なし
+作成日		：	2005/05/23
+修正日--------概要--------------------------
+******************************************************************************/
+function toggleMenu() {
+  var el=event.srcElement;
+  if (el.className=="menuItem") {
+     el.className="highlightItem";
+  } else if (el.className=="highlightItem") {
+     el.className="menuItem";
+  }
+}
+/******************************************************************************
+関数名前	：	doPrint
+処理機能	：	印刷
+引数		：	なし
+戻り値		：	なし
+作成日		：	2005/05/23
+修正日--------概要--------------------------
+******************************************************************************/
+function doPrint(){
+	window.print();
+	return false;
+}
+
+/******************************************************************************
+関数名前	：	ComIsClosed
+処理機能	：	指定されたWindowが閉じているかどうかを調べる.
+				IEの場合、window.closedを利用すると、opener.opener.closedのように
+				親の親を見るような場合、エラーが発生する場合があるので、それを回避する関数.
+引数		：	Windowオブジェクト
+戻り値		：	閉じている場合はtrue.それ以外はfalse.
+作成日		：	2005/06/06
+作成日		：	2016/05/11
+修正日--------概要--------------------------
+******************************************************************************/
+function ComIsClosed(winVar) {
+	var ua = navigator.userAgent;
+	if(winVar) {
+		if( ( ua.indexOf('Gecko') != -1 || ua.indexOf('MSIE 4') != -1 )
+			&& ( ua.indexOf('Win') != -1 || ua.indexOf('Mac') != -1 || ua.indexOf('Linux') != -1 ) ){
+				return winVar.closed;
+		}
+		else {
+			// IE5.5, 6はこちら.
+			return typeof winVar.document != 'object';
+		}
+	}
+	else {
+		return true;
+	}
+}
+/******************************************************************************
+関数名前	：	ComSetInitFlg
+処理機能	：	初期制御フラグを設定する.
+				本関数はページ表示時にフレームワークが自動で設定する.
+				これ以外の用途では使用しないで下さい.
+引数		：	コンテキストメニュー無効フラグ
+				ショートカットキー無効フラグ
+戻り値		：	なし.
+作成日		：	2005/06/14
+修正日--------概要--------------------------
+******************************************************************************/
+function ComSetInitFlg(contextMenuDisabled, shortcutKeyDisabled) {
+	COM_CONTEXT_MENU_DISABLED = contextMenuDisabled;
+	COM_SHORTCUT_KEY_DISABLED = shortcutKeyDisabled;
+}
+/******************************************************************************
+関数名前	：	ComScroll
+処理機能	：	指定されたオブジェクトの位置にスクロールバーを合わせ、
+　　　　　　　　フォーカスを当てる。
+				　・同名のオブジェクトが複数存在する場合は、何もしない。
+引数		：	scrollTargetID:スクロールバーを合わせるターゲット名
+				focusTargetID:フォーカスを合わせるターゲット名
+戻り値		：	なし
+作成日		：	2005/09/14
+修正日--------概要--------------------------
+******************************************************************************/
+function ComScroll(scrollTargetID, focusTargetID) {
+    // スクロールバーの制御
+    var scrollTarget = document.getElementById(scrollTargetID);
+    if (scrollTarget) {
+	   	if (scrollTarget.length) {
+			return;
+		}
+		scroll(0, ComGetHeightPos(scrollTarget));
+
+		// フォーカスの制御
+		var focusTarget = document.getElementById(focusTargetID);
+		if (focusTarget) {
+		   	if (focusTarget.length) {
+				return;
+			}
+			ComSetFocus(focusTarget);
+		}
+	}
+}
+/******************************************************************************
+関数名前	：	ComGetHeightPos
+処理機能	：	指定されたエレメントの位置(高さ)を取得する。(内部関数)
+引数		：	ターゲット(オブジェクト)
+戻り値		：	エレメントの位置(高さ)
+作成日		：	2005/09/14
+修正日--------概要--------------------------
+******************************************************************************/
+function ComGetHeightPos(elm) {
+	var target = elm;
+	var height = 0;
+	while(target){
+		height += target.offsetTop;
+		target = target.offsetParent;
+	}
+	return height;
+}
+var COM_JUNCTION_PATH = "";
+/******************************************************************************
+関数名前		：	ComSetJunctionPath
+処理機能		：	ジャンクションパスのセット.
+                    ジャンクションパスはコンテキストパスの前に
+					ジャンクション名を付与するものである。
+引数			：	ジャンクションパス
+戻り値			：	なし
+作成日			：	2006/06/02
+修正日--------概要--------------------------
+******************************************************************************/
+function ComSetJunctionPath(path){
+    COM_JUNCTION_PATH = path;
+}
+/******************************************************************************
+関数名前		：	ComGetJunctionPath
+処理機能		：	セットされたジャンクションパスを返す.
+引数			：	なし
+戻り値			：	ジャンクションパス
+作成日			：	2006/06/02
+修正日--------概要--------------------------
+******************************************************************************/
+function ComGetJunctionPath(){
+    return COM_JUNCTION_PATH;
+}
+
+/******************************************************************************
+関数名前		：	ComCheckTelFormat
+処理機能		：	半角数字、'-'（ハイフン）のみで構成されているかチェック。半角数字のみ、ハイフンのみ、空文字はOK
+引数			：	電話番号
+戻り値			：	boolean
+作成日			：	2006/10/19
+******************************************************************************/
+function ComCheckTelFormat(str) {
+
+	if (str == "") {
+		return true;
+	}
+	if (!str.match(/^[0-9]+-[0-9]+-[0-9]+$|^[0-9]+$|^-+$/)) {
+		return false;
+	}
+	return true;
+}
+
+/******************************************************************************
+関数名前		：	ComCheckWorldTelFormat
+処理機能		：	半角数字、'-'（ハイフン）、'+'（プラス）のみで構成されているかチェック。
+					空文字はOK
+引数			：	国際電話番号
+戻り値			：	boolean
+作成日			：	2008/05/09
+******************************************************************************/
+function ComCheckWorldTelFormat(str) {
+	if (str == "") {
+		return true;
+	}
+	if (!str.match(/^[0-9\-\+]*$/)) {
+		return false;
+	}
+	return true;
+}
+
+/******************************************************************************
+関数名前		：	ComCheckPostCodeFormat
+処理機能		：	半角数字、'-'（ハイフン）のみで構成されているかチェック。半角数字のみ、ハイフンのみ、空文字はOK
+引数			：	郵便番号
+戻り値			：	boolean
+作成日			：	2006/12/1
+******************************************************************************/
+function ComCheckPostCodeFormat(str) {
+
+	if (str == "") {
+		return true;
+	}
+	if (!str.match(/^[0-9]+-[0-9]+$|^[0-9]+$/)) {
+		return false;
+	}
+	return true;
+}
+
+/******************************************************************************
+関数名前		：	ComCheckOnlyWhiteSpace
+処理機能		：	以下の文字のみで構成されていないかチェック。半角SP/全角SP/TAB文字/改行文字
+引数			：	文字列
+戻り値			：	ホワイトスペースのみで構成されている場合はfalse
+作成日			：	2006/10/19
+******************************************************************************/
+function ComCheckOnlyWhiteSpace(str) {
+
+	if (str.match(/^(\t|\r|\n| |　)+$/)) {
+		return false;
+	}
+	return true;
+}
+
+/******************************************************************************
+関数名前		：	ComCheckOnlyAllHalfWidth
+処理機能		：	半角文字のみで構成されているかをチェック
+引数			：	文字列
+戻り値			：	半角文字のみで構成されている場合はtrue
+作成日			：	2006/10/19
+******************************************************************************/
+function ComCheckOnlyAllHalfWidth(str) {
+	for (var i = 0; i < str.length; i++) {
+		var c = str.charCodeAt(i);
+		// Shift_JIS: 0x0 ～ 0x80, 0xa0 , 0xa1 ～ 0xdf , 0xfd ～ 0xff
+		// Unicode : 0x0 ～ 0x80, 0xf8f0, 0xff61 ～ 0xff9f, 0xf8f1 ～ 0xf8f3
+		if (!(c >= 0x0 && c < 0x81) || (c == 0xf8f0) || (c >= 0xff61 && c < 0xffa0) || (c >= 0xf8f1 && c < 0xf8f4)) {
+			return false;
+		}
+	}
+	return true;
+}
+
+/******************************************************************************
+関数名前		：	ComCheckOnlyAllFullWidth
+処理機能		：	全角文字のみで構成されているかをチェック
+引数			：	文字列
+戻り値			：	全角文字のみで構成されている場合はtrue
+作成日			：	2006/10/19
+******************************************************************************/
+function ComCheckOnlyAllFullWidth(str) {
+	for (var i = 0; i < str.length; i++) {
+		var c = str.charCodeAt(i);
+		// Shift_JIS: 0x0 ～ 0x80, 0xa0 , 0xa1 ～ 0xdf , 0xfd ～ 0xff
+		// Unicode : 0x0 ～ 0x80, 0xf8f0, 0xff61 ～ 0xff9f, 0xf8f1 ～ 0xf8f3
+		if ((c >= 0x0 && c < 0x81) || (c == 0xf8f0) || (c >= 0xff61 && c < 0xffa0) || (c >= 0xf8f1 && c < 0xf8f4)) {
+			return false;
+		}
+	}
+	return true;
+}
+
+/******************************************************************************
+関数名前		：	ComCheckOnlyAllFullWidth
+処理機能		：	全角カタカナ文字のみで構成されているかをチェック
+引数			：	文字列
+戻り値			：	全角カタカナ文字のみで構成されている場合はtrue
+作成日			：	2006/10/25
+******************************************************************************/
+function ComCheckOnlyAllFullWidthKatakana(str) {
+	checkStr = new String('アイウエオァィゥェォカキクケコガギグゲゴサシスセソザジズゼゾタチツテトッダヂヅデドナニヌネノハヒフヘホパピプペポバビブベボマミムメモヤユヨャュョラリルレロワヲンヴ゜゛ー―ゝゞ');
+	for (var i = 0; i < str.length; i++) {
+		var c = str.charAt(i);
+		if(checkStr.indexOf(c, 0) == -1) {
+			return false;
+		}
+	}
+	return true;
+}
+
+/******************************************************************************
+関数名前		：	ComToHankakuAlpha
+処理機能		：	全角英字 → 半角英字 変換
+引数			：	変換前文字列
+戻り値			：	変換後文字列
+作成日			：	2010/11/30
+******************************************************************************/
+function ComToHankakuAlpha(str) {
+	var hankaku = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+	var zenkaku = "ａｂｃｄｅｆｇｈｉｊｋｌｍｎｏｐｑｒｓｔｕｖｗｘｙｚＡＢＣＤＥＦＧＨＩＪＫＬＭＮＯＰＱＲＳＴＵＶＷＸＹＺ";
+	for (i=0; i < str.length; i++) {
+		chknum = str.charAt(i);
+		zennum = zenkaku.indexOf(chknum);
+		if (zennum >= 0){
+			han = hankaku.charAt(zennum);
+			str = str.replace(chknum, han);
+		}
+	}
+	return str;
+}
+
+/******************************************************************************
+関数名前		：	ComToZenNumToHanNum
+処理機能		：	全角数字 → 半角数字 変換
+引数			：	変換前文字列
+戻り値			：	変換後文字列
+作成日			：	2009/09/11
+******************************************************************************/
+function ComToZenNumToHanNum(str) {
+	var zenkaku = "０１２３４５６７８９";
+	var hankaku = "0123456789";
+	for (i=0; i < str.length; i++) {
+		chknum = str.charAt(i);
+		zennum = zenkaku.indexOf(chknum);
+		if (zennum >= 0){
+			han = hankaku.charAt(zennum);
+			str = str.replace(chknum, han);
+		}
+	}
+	return str;
+}
+
+/******************************************************************************
+関数名前		：	ComToZenHyphToHanHyph
+処理機能		：	全角－（マイナス）―（ダッシュ）‐（ハイフン）ー（長音） → 半角ハイフン 変換
+引数			：	変換前文字列
+戻り値			：	変換後文字列
+作成日			：	2009/09/11
+******************************************************************************/
+function ComToZenHyphToHanHyph(str) {
+	var hanhyphen = "----";
+	var zenhyphen = "ー‐―－";
+	for (i=0; i < str.length; i++) {
+		chknum = str.charAt(i);
+		zennum = zenhyphen.indexOf(chknum);
+		if (zennum >= 0){
+			han = hanhyphen.charAt(zennum);
+			str = str.replace(chknum, han);
+		}
+	}
+	return str;
+}
+
+/******************************************************************************
+関数名前		：	ComToZenNumHyphToHalf
+処理機能		：	全角数字 → 半角数字 変換
+				：	全角－（マイナス）―（ダッシュ）‐（ハイフン）ー（長音） → 半角ハイフン 変換
+引数			：	変換前文字列
+戻り値			：	変換後文字列
+作成日			：	2009/09/11
+******************************************************************************/
+function ComToZenNumHyphToHalf(str){
+	var tmp1 = ComToZenNumToHanNum(str);
+	var str = ComToZenHyphToHanHyph(tmp1);
+	return str;
+}

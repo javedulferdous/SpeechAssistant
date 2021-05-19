@@ -1,0 +1,62 @@
+_satellite.pushAsyncScript(function(event, target, $variables){
+  //MOP Mulan Live 219442
+if(_satellite.getVar('Movie ID') == '219442'){
+//Desktop MOP
+if(_satellite.getVar('Page Level 2') == 'movie | overview'){
+
+ _satellite.addImage('https://d.agkn.com/iframe/7043/?che=%n&uid=[third_party_user_id]&type=5842500&ouid='+_satellite.getVisitorId().getMarketingCloudVisitorID());
+
+
+  //pxl-490
+  _satellite.loadScript('https://www.googletagmanager.com/gtag/js?id=AW-709805659')
+  window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'AW-709805659');
+gtag('event', 'conversion', { 'send_to': 'AW-709805659/TUBaCKDnlsMBENuMu9IC', 'transaction_id': '' });
+
+
+  //pxl-490
+  _satellite.loadScript('https://www.googletagmanager.com/gtag/js?id=AW-737840267')
+  window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'AW-737840267');
+gtag('event', 'conversion', {'send_to': 'AW-737840267/H1RECKjdlsMBEIuZ6t8C'});
+
+
+
+}
+}
+
+//MSP Mulan Live 219442
+if(_satellite.getVar('Movie ID') == '219442'){
+//Desktop MSP
+if(_satellite.getVar('Page Level 2') == 'movie times | by movie'){
+  
+   _satellite.addImage('https://d.agkn.com/iframe/7043/?che=%n&uid=[third_party_user_id]&type=58425000&ouid='+_satellite.getVisitorId().getMarketingCloudVisitorID());
+
+
+  //pxl-490
+  _satellite.loadScript('https://www.googletagmanager.com/gtag/js?id=AW-709805659')
+  window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'AW-709805659');
+gtag('event', 'conversion', { 'send_to': 'AW-709805659/TUBaCKDnlsMBENuMu9IC', 'transaction_id': '' });
+
+
+  //pxl-490
+  _satellite.loadScript('https://www.googletagmanager.com/gtag/js?id=AW-737840267')
+  window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'AW-737840267');
+gtag('event', 'conversion', {'send_to': 'AW-737840267/S79YCJjflsMBEIuZ6t8C'});
+
+
+
+
+
+  }}
+});

@@ -1,0 +1,36 @@
+//The Bootstrap for RequireJS Modules + R.JS
+//Using the Bootstrap, all module paths are correctly mapped.
+require.config({
+    paths: {
+
+        // Javascript Paths
+        'containers': 'containers',
+        'pods': 'pods',
+        'features': 'features',
+        'pages': 'pages',
+        'modules': 'js/modules',
+
+        /* Javascript jQuery */
+        'jquery': 'js/lib/jq/jquery-3.4.1.slim.min',
+        'bootstrap': 'js/lib/bs/bootstrap.bundle.min',
+
+        // Global Objects
+        'global': 'js/global.sz'
+
+    }
+});
+
+require(['require'], function (require) {
+
+    var moduleFinalPath = document.getElementById('RequireJS').getAttribute('data-page');
+
+    moduleFinalPath = moduleFinalPath+'.js';
+
+    if (moduleFinalPath) {
+
+        require([moduleFinalPath], function (startModule) {
+            var fn = startModule;
+        });
+    }
+
+});

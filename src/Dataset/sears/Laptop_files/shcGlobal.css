@@ -1,0 +1,494 @@
+/* shcGlobal.css
+
+Centralized CSS Reset styles
+New global CSS3 button stylings and new widget CSS
+No page specific overrides and no !important allowed.
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+TO MAKE ANY UPDATES TO THIS FILE PLEASE CONTACT THE BELOW
+Ryan, Tim <tryan11@searshc.com>
+Scott J Sullivan <ssulli4@searshc.com>
+Changes must be synced between ASAP/GIT and WCS/SVN versions of this file
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+*/
+
+/* Generic global CSS Reset */
+html {
+	background:#FFF none repeat scroll 0 0;
+	color:#000;
+	-ms-text-size-adjust:100%;
+}
+
+html, body, div, span, applet, object, iframe, h1, h2, h3, h4, h5, h6, p, blockquote, pre, a, abbr, acronym, address,
+big, button, caption, cite, code, del, dfn, em, font, img, ins, kbd, q, s, samp, small, strike, strong, sub, tt, var, b, u, i, center,
+dl, dt, dd, ol, ul, li, fieldset, form, label, legend, textarea, table, tbody, tfoot, thead, tr, th, td {
+    border: 0 none;
+    outline: 0;
+    vertical-align: baseline;
+    background: transparent;
+    margin: 0;
+    padding: 0;
+	-webkit-text-size-adjust:none;  /*override the chrome default 11px */
+	font-family: 'Open Sans', Arial,Helvetica,sans-serif;
+	font-size:100%;
+}
+
+/**Responsive Design Rework Required**/
+body {width:100%;min-width: 785px;}
+sup {
+	border: 0 none;
+    outline: 0;
+    background: transparent;
+    margin: 0;
+    padding: 0;
+	-webkit-text-size-adjust:none;  /*override the chrome default 11px */
+	font-family: 'Open Sans', Arial,Helvetica,sans-serif;
+	top:-0.5em;
+}
+
+/* pulling this out of the above - border should be on for an INPUT by default - need to look for other entries that unneccesarily add it back */
+input {
+	vertical-align: baseline;
+	background-color: #fff;
+    margin: 0; padding: 0;
+	-webkit-text-size-adjust:none;  /*override the chrome default 11px; */
+}
+
+/*To disable textarea resizing*/
+textarea {
+	resize: none;
+}
+
+/* let the default button border styling apply */
+button {
+	color:#000; background-color:#ccc; padding:2px;
+}
+
+a {cursor:pointer; text-decoration:none;}
+
+table {border-collapse:collapse; border-spacing:0;}
+address, caption, cite, code, dfn, em, th, var, optgroup, input, button, textarea, select, optgroup, option  {
+	font-style:inherit; font-weight:inherit;
+}
+del {text-decoration:line-through;}
+ins {text-decoration:none;}
+ol, ul {list-style:none;}
+caption, th {text-align:left;}
+h1, h2, h3, h4, h5, h6 {font-weight:normal;}
+:focus {outline: 0;}
+
+abbr, acronym {font-variant:normal;}
+sup {vertical-align:text-top;}
+sub {vertical-align:text-bottom;}
+legend {color:#000;}
+blockquote, q {quotes: none;}
+blockquote:before, blockquote:after, q:before, q:after {
+     content: none;
+}
+/* hide the close button in IE10 text fields */
+input[type=text]::-ms-clear {display: none;}
+
+strong {font-weight: bold;}
+/* End CSS Reset */
+
+.clearfix:before {
+	display:table;
+	content:"";
+	line-height:0;
+}
+.clearfix:after {
+	clear: both;
+	content: '.';
+	display: block;
+	font-size: 0;
+	line-height: 0;
+	height: 0; width: 0;
+	visibility: hidden;
+}
+
+.kioskHide {
+	display:none;
+}
+
+/* Global buttons */
+.shcBtn, .sears .shcBtn {
+	font-size: 11px;
+	color: #4577A3;
+	text-decoration: none;
+	font-weight: bold;
+	cursor: pointer;
+	display: inline-block;
+	padding: 3px 20px;
+	border-color: rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.25);
+	border-width: 1px; border-style: solid; 
+	border-color: #D3E1EF #8293A4 #8293A4 #D3E1EF;
+	-webkit-border-radius: 3px;
+	-moz-border-radius: 3px;
+	border-radius: 3px;
+	background: #e5f5ff;
+	background: -moz-linear-gradient(top, #fff 0%, #e5f5ff 100%);
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#fff), color-stop(100%,#e5f5ff));
+	background: -webkit-linear-gradient(top, #fff 0%,#e5f5ff 100%);
+	background: -o-linear-gradient(top, #fff 0%,#e5f5ff 100%);
+	background: -ms-linear-gradient(top, #fff 0%,#e5f5ff 100%);
+	background: linear-gradient(top, #fff 0%,#e5f5ff 100%);
+	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ffffff', endColorstr='#e5f5ff',GradientType=0 );
+}
+.shcBtn:hover, .sears .shcBtn:hover {
+	/*padding: 4px 21px 2px 19px; supressed look*/
+	text-decoration: none;
+	background: #dbecf7;
+	background: -moz-linear-gradient(top, #e5f5ff 0%, #fff 100%);
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#e5f5ff), color-stop(100%,#fff));
+	background: -webkit-linear-gradient(top, #e5f5ff 0%,#fff 100%);
+	background: -o-linear-gradient(top, #e5f5ff 0%,#fff 100%);
+	background: -ms-linear-gradient(top, #e5f5ff 0%,#fff 100%);
+	background: linear-gradient(top, #e5f5ff 0%,#fff 100%);
+	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#e5f5ff', endColorstr='#ffffff',GradientType=0 );
+}
+.sears a.shcBtn:hover, .kmart a.shcBtn:hover, .craftsman a.shcBtn:hover, .kenmore a.shcBtn:hover { text-decoration: none; }
+.shcBtnInfo, .sears .shcBtnInfo {
+	font-size: 11px;
+	color: #FFF;
+	text-decoration: none;
+	font-weight: bold;
+	cursor: pointer;
+	display: inline-block;
+	padding: 3px 20px;
+	border-width: 1px; border-style: solid;
+	border-color: #98C2E7 #4B73A7 #4B73A7 #98C2E7;
+	-webkit-border-radius: 3px;
+	-moz-border-radius: 3px;
+	border-radius: 3px;
+	background: #0F51A1;
+	background: -moz-linear-gradient(top, #7DABDC 0%, #0F51A1 100%);
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#7DABDC), color-stop(100%,#0F51A1));
+	background: -webkit-linear-gradient(top, #7DABDC 0%,#0F51A1 100%);
+	background: -o-linear-gradient(top, #7DABDC 0%,#0F51A1 100%);
+	background: -ms-linear-gradient(top, #7DABDC 0%,#0F51A1 100%);
+	background: linear-gradient(top, #7DABDC 0%,#0F51A1 100%);
+	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#7DABDC', endColorstr='#0F51A1',GradientType=0 );
+}
+.shcBtnInfo:hover, .sears .shcBtnInfo:hover {
+	/*padding: 4px 21px 2px 19px; supressed look*/
+	text-decoration: none;
+	background: #7DABDC;
+	background: -moz-linear-gradient(top, #0F51A1 0%, #7DABDC 100%);
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#0F51A1), color-stop(100%,#7DABDC));
+	background: -webkit-linear-gradient(top, #0F51A1 0%,#7DABDC 100%);
+	background: -o-linear-gradient(top, #0F51A1 0%,#7DABDC 100%);
+	background: -ms-linear-gradient(top, #0F51A1 0%,#7DABDC 100%);
+	background: linear-gradient(top, #0F51A1 0%,#7DABDC 100%);
+	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#0F51A1', endColorstr='#7DABDC',GradientType=0 );
+}
+.shcBtn.shcBtnCTA, .shcBtn.shcBtnOrange, .shcBtn.shcOrangeBtn, .sears .shcBtn.shcBtnCTA, .sears .shcBtn.shcBtnOrange, .sears .shcBtn.shcOrangeBtn, .kenmore .shcBtn.shcBtnCTA, .kenmore .shcBtn.shcBtnOrange, .kenmore .shcBtn.shcOrangeBtn {
+	color: white;
+	text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+	border-color: #fdb173 #a4502c #a4502c #fdb173;
+	display: inline-block;
+	background: #fe9e43;
+	background: -moz-linear-gradient(top, #fe9e43 0%, #ff7341 100%);
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#fe9e43), color-stop(100%,#ff7341));
+	background: -webkit-linear-gradient(top, #fe9e43 0%,#ff7341 100%);
+	background: -o-linear-gradient(top, #fe9e43 0%,#ff7341 100%);
+	background: -ms-linear-gradient(top, #fe9e43 0%,#ff7341 100%);
+	background: linear-gradient(top, #fe9e43 0%,#ff7341 100%);
+	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#fe9e43', endColorstr='#ff7341',GradientType=0 );
+}
+.shcBtn.shcBtnCTA:hover, .shcBtn.shcBtnOrange:hover, .shcBtn.shcOrangeBtn:hover, .sears .shcBtn.shcBtnCTA:hover, .sears .shcBtn.shcBtnOrange:hover, .sears .shcBtn.shcOrangeBtn:hover {
+	text-decoration: none;
+	background: #f4963d;
+	background: -moz-linear-gradient(top, #ff7341 0%, #fe9e43 99%);
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#ff7341), color-stop(99%,#fe9e43));
+	background: -webkit-linear-gradient(top, #ff7341 0%,#fe9e43 99%);
+	background: -o-linear-gradient(top, #ff7341 0%,#fe9e43 99%);
+	background: -ms-linear-gradient(top, #ff7341 0%,#fe9e43 99%);
+	background: linear-gradient(top, #ff7341 0%,#fe9e43 99%);
+	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ff7341', endColorstr='#fe9e43',GradientType=0 );
+}
+.kmart .shcBtn, .craftsman .shcBtn {
+	background: -moz-linear-gradient(center top , #FFFFFF 0%, #E7E2D9 100%) repeat scroll 0 0 transparent;
+	border-color: #C0BBB3;
+    color: #D2011C
+}
+.kmart .shcBtn:hover {
+	color: #D2011C;
+	text-decoration: none;
+	background: #edece7;
+	background: -moz-linear-gradient(top, #E7E2D9 0%, #fff 100%);
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#E7E2D9), color-stop(100%,#fff));
+	background: -webkit-linear-gradient(top, #E7E2D9 0%,#fff 100%);
+	background: -o-linear-gradient(top, #E7E2D9 0%,#fff 100%);
+	background: -ms-linear-gradient(top, #E7E2D9 0%,#fff 100%);
+	background: linear-gradient(top, #E7E2D9 0%,#fff 100%);
+	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#E7E2D9', endColorstr='#ffffff',GradientType=0 );
+}
+.kmart .shcBtn.shcBtnCTA, .kmart .shcBtn.shcBtnOrange, .kmart .shcBtn.shcOrangeBtn, .craftsman .shcBtn.shcBtnCTA, .craftsman .shcBtn.shcBtnOrange, .craftsman .shcBtn.shcOrangeBtn {
+	color: white;
+	text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+	border-color: #b0251c #8f1d0b #8f1d0b #b0251c;
+	background: #fe9e43;
+	background: -moz-linear-gradient(top, #e43025 0%, #b0251c 100%);
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#e43025), color-stop(100%,#b0251c));
+	background: -webkit-linear-gradient(top, #e43025 0%,#b0251c 100%);
+	background: -o-linear-gradient(top, #e43025 0%,#b0251c 100%);
+	background: -ms-linear-gradient(top, #e43025 0%,#b0251c 100%);
+	background: linear-gradient(top, #e43025 0%,#b0251c 100%);
+	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#e43025', endColorstr='#b0251c',GradientType=0 );
+}
+.kmart .shcBtn.shcBtnCTA:hover, .kmart .shcBtn.shcBtnOrange:hover, .kmart .shcBtn.shcOrangeBtn:hover, .craftsman .shcBtn.shcBtnCTA:hover, .craftsman .shcBtn.shcBtnOrange:hover, .craftsman .shcBtn.shcOrangeBtn:hover {
+	background: #ef943d;
+	background: -moz-linear-gradient(top, #b0251c 0%, #e43025 99%);
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#b0251c), color-stop(99%,#e43025));
+	background: -webkit-linear-gradient(top, #b0251c 0%,#e43025 99%);
+	background: -o-linear-gradient(top, #b0251c 0%,#e43025 99%);
+	background: -ms-linear-gradient(top, #b0251c 0%,#e43025 99%);
+	background: linear-gradient(top, #b0251c 0%,#e43025 99%);
+	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#b0251c', endColorstr='#e43025',GradientType=0 );
+}
+.sears .shcBtn.shcBtnLarge, .kmart .shcBtn.shcBtnLarge, .kenmore .shcBtn.shcBtnLarge, .craftsman .shcBtn.shcBtnLarge {
+	font-size: 14px;
+    padding: 5px 25px;
+}
+
+/* Global Disabled Button */
+.sears button.shcButton:disabled,
+.sears button.shcBtnOrange.shcButton:disabled,
+.kmart button.shcButton:disabled,
+.kmart button.shcBtnOrange.shcButton:disabled {
+	-ms-filter:"progid:DXImageTransform.Microsoft.Alpha(Opacity=50)";
+	filter: alpha(opacity=50);
+	-moz-opacity:0.5;
+	-khtml-opacity: 0.5;
+	opacity: 0.5;
+	cursor: default;
+}
+
+/* Global tooltips - GenericLayer/shcGenericTip can go away once we standardize */
+.shcGenericTip, .shcTooltip, .shcGenericLayer, .shcLayer, .shcZipLayer {
+	-webkit-border-radius: 3px;
+	-moz-border-radius: 3px;
+	border-radius: 3px;
+	-moz-box-shadow: -1px 2px 8px #CCC;
+	-webkit-box-shadow: -1px 2px 8px #CCC;
+	box-shadow: -1px 2px 8px #CCC;
+	background: none repeat scroll 0 0 white;
+	border: 1px solid #CCC;
+	color: #666;
+	font-weight: normal;
+	position: absolute;
+	display:none;
+	text-align: left;
+	z-index: 999999;
+	width: 250px
+}
+
+.shcGenericTip, .shcGenericLayer, .shcLayer, .shcZipLayer  {
+	font-size: 12px; padding: 30px 20px 20px;
+}
+
+.shcTooltip {
+	font-size: 11px; padding:10px;
+}
+
+/* wrapper for the blue CLOSE for tooltip/layer */
+.shcLayer .closeWrp, .shcZipLayer .closeWrp {
+	float:right; padding:0 5px 0 0;
+	color: #067BB5;
+    cursor: pointer;
+}
+
+.shcLayer .layer, .shcZipLayer .layer {
+	clear:both;
+	padding-top:5px;
+	word-wrap:break-word;
+}
+
+/* blue CLOSE for layer - NO close button for tooltip */
+.shcLayer .shcLayerCloseSpan, .shcZipLayer .shcLayerCloseSpan, .shcCloseBlue  {
+    font-size: 7px;
+    font-weight: normal;
+    letter-spacing: 1px;
+    padding: 0 5px 0 0;
+	vertical-align:middle;
+}
+
+/* blue X for CLOSE */
+.shcLayer .shcLayerCloseXSpan, .shcZipLayer .shcLayerCloseXSpan, .shcCloseBlue  span {
+    font-size: 9px;
+    font-weight: bold;
+}
+
+/* odd legacy layer should be fixed */
+.shcLayer > span.shclClose {
+    color: #067BB5;
+    cursor: pointer;
+    font-size: 7px;
+    font-weight: normal;
+    letter-spacing: 1px;
+    padding: 0 9px 0 0;
+    position: absolute;
+    right: 25px;
+    text-transform: uppercase;
+    top: 10px;
+}
+
+/* blue X for CLOSE */
+.shcLayer > span.shclClose > span {
+    font-size: 9px;
+    font-weight: bold;
+    position: absolute;
+    right: 0;
+    top: -1px;
+}
+
+.shcLayer, .shcLayer .layer  {
+	padding: 10px;
+}
+
+/* tooltip and layer carrots */
+.shcTip {
+  display: block;
+  position: absolute;
+  z-index: 9;
+  width: 0;
+  height: 0;
+  border-right: 8px solid transparent;
+  border-left: 8px solid transparent;
+}
+.shcTip > span {
+  display: block;
+  position: absolute;
+  left: -7px;
+  z-index: 1;
+  width: 0;
+  height: 0;
+  border-right: 7px solid transparent;
+  border-left: 7px solid transparent;
+}
+
+.shcTipTopLeft {
+	left: 25px;
+	border-bottom: 8px solid #A6A5A5;
+	top: -8px;
+}
+
+.shcTipTopRight {
+	right: 25px;
+	border-bottom: 8px solid #A6A5A5;
+	top: -8px;  
+}
+
+.shcTipTopLeft > span, .shcTipTopRight > span {
+	border-bottom: 7px solid #FFFFFF;
+	top: 1px;
+}
+
+.shcTipBottomLeft {
+	border-top: 8px solid #A6A5A5;
+	bottom: -8px;
+}
+
+.shcTipBottomRight {
+	right: 25px;
+	border-top: 8px solid #A6A5A5;	
+	bottom: -8px;
+}
+
+.shcTipBottomLeft > span, .shcTipBottomRight > span {
+	border-top: 7px solid #FFFFFF;
+	bottom: 1px;
+}
+
+/* Standard Modal */
+#shcCurtain {
+	background: black;
+	background: rgba(0, 0, 0, 0.5);
+	position: fixed;
+	right: 0px;
+	left: 0px;
+	top: 0px;
+	bottom: 0px;
+	width: 100%; height:100%;
+	opacity: .5;
+	z-index: 999980;
+	display: none;
+}
+.ie #shcCurtain {
+	-ms-filter:"progid:DXImageTransform.Microsoft.Alpha(Opacity=50)";
+	filter: alpha(opacity=50);
+}
+#shcModal {
+	position: absolute;
+	overflow: hidden;
+	z-index: 999990;
+	font-size: 12px;
+	max-width: 600px;
+	display: none;
+}
+#universalModal.USiActiaveLogin .shcModal { 
+	padding:15px; 
+	min-height: 505px;
+}
+#shcModal > div {
+	padding: 30px 18px 30px 18px;
+	overflow: hidden;
+	background: #ffffff;
+	font-size: 14px;
+	color: #333333;
+}
+
+#shcModal div#modalButtonContainer {
+	float: right;
+	margin: 10px 5px;
+}
+ 
+#shcModal div p {
+    margin: 10px;
+}
+
+/* end Standard Modal */
+
+/* Sears theming - preface all styles with .sears */
+.sears a {color:#067BB5;}
+.sears a:hover {color:#304e88; text-decoration:underline;}
+
+/* Kmart theming - preface all styles with .kmart */
+.kmart a {color: #b10017;}
+.kmart a:hover {color:#cc0033; text-decoration:underline;}
+
+/* Kmart alternate color links  */
+.kmart .ac a, .kmart a.ac {color: #333; text-decoration: none;}
+.kmart .ac a:hover, .kmart a.ac:hover {color:#cc0033; text-decoration:underline;}
+.kmart .ac a:visited, .kmart a.ac:visited {color:#333; text-decoration: none;}
+
+/* Kenmore theming - preface all styles with .kenmore */
+
+
+/* Craftsman theming  - preface all styles with .craftsman */
+
+
+/* MyGofer theming - preface all styles with .mygofer */
+
+.shcBtn, .sears .shcBtn {
+    background: -moz-linear-gradient(center top , #FFFFFF 0%, #E5F5FF 100%) repeat scroll 0 0 transparent;
+    border-color: #D3E1EF #8293A4 #8293A4 #D3E1EF;
+    border-radius: 3px 3px 3px 3px;
+    border-style: solid;
+    border-width: 1px;
+    color: #4577A3;
+    cursor: pointer;
+    display: inline-block;
+    font-size: 11px;
+    font-weight: bold;
+    padding: 3px 20px;
+    text-decoration: none;
+}
+/* ss: standardize breadcrumb styling */
+.sears .breadcrumb a, .sears .breadcrumb span {font-size: 14px; font-weight: normal; color:#666;}
+.sears .breadcrumb a, .sears .breadcrumb a:visited {color: #067bb5;}
+.sears .breadcrumb .location, .sears .breadcrumb .vertical {font-size: 11px; font-weight: bold; color:#fff;}
+#breadcrumbs .level1 a, #breadcrumbs .level1 a:visited {color: #FFF;}
+
+
+

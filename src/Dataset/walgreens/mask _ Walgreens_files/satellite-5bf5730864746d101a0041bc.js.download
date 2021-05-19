@@ -1,0 +1,272 @@
+_satellite.pushBlockingScript(function(event, target, $variables){
+  
+if(window.location.href.indexOf('/health/quit-smoking/') > -1){
+	$('<style>img.wag-pharmacy-chat-landing-mobile-logo {display: block;}.col-sm-offset-2 {margin-left: 16.66666667%;}img.wag-pharmacy-chat-landing-mobile-logo {display: none;}</style>').appendTo('head');
+}
+// Hide promo banner in SEM page https://www.walgreens.com/topic/promotion/contacts_promo.jsp
+if( window.location.pathname === '/topic/promotion/contacts_promo.jsp' ) {
+  $('<style>#promoForExpAB  .wag-header-promo-wrapper .gbl-nav {display:none !important}</style>').appendTo('head');
+}
+// Hide promo banner ends
+
+
+// Add CL promo in CL pages
+/*function updatePromoRibbon(res){
+    $('div [contenttype="Default_Left_Slot_New_a"], #promoForExpAB .wag-header-promo-wrapper').html(res.contents[0].contentData);
+}
+var cuPath = window.location.href;
+var clIds = ['361205','361203','361207','360307','360305','350006','310765','310764','310767','304447','352184','307635','307634','520837','308085','304451','307637','304458','304487','364041','310766'];
+var clIdsExists = false;
+for( var ci=0; ci < clIds.length; ci++){
+    if( cuPath.indexOf(clIds[ci]) > -1 ) {
+        clIdsExists = true
+    }
+}
+
+if( clIdsExists && ( cuPath.indexOf('/store/c/') || cuPath.indexOf('/store/store/') ) ) {
+  $.ajax({
+    url: "/svc/contents",
+    type: "post",
+    data: JSON.stringify({"contentTypeNames":["ContactLens Header Ribbon Slot new_a"]}),
+    dataType: 'json',
+    contentType: 'application/json; charset=utf-8',
+    success: function(res) {
+      var promoTimerCount = 0;
+      var promoTimer = setInterval(function(){
+        promoTimerCount += 1;
+        if( $('div [contenttype="Default_Left_Slot_New_a"]').length > 0 || $('#promoForExpAB .wag-header-promo-wrapper').length > 0 ){
+          updatePromoRibbon(res);
+          clearInterval(promoTimer);
+        }
+        if(promoTimerCount > 10){
+          clearInterval(promoTimer);
+        }
+      },500);
+    }
+  });
+}*/
+// End of Add CL promo in CL pages
+
+
+
+//SR-7411 adding delayed shipping banner on search results, plp and buy again pages.
+//var isPLPPage = ($('#searchHeader').length === 0) ? false : true;
+//var isBAPage = ($('#BuyAgainContainer').length === 1) ? true : false;
+//var isTier3CL = (window.location.href.indexOf('350006') !== -1 || window.location.href.indexOf('360305') !== -1 || window.location.href.indexOf('360307') !== -1  || window.location.href.indexOf('361205') !== -1  || window.location.href.indexOf('360509') !== -1 || window.location.href.indexOf('304447') !== -1 || window.location.href.indexOf('352184') !== -1 || window.location.href.indexOf('307635') !== -1 || window.location.href.indexOf('307634') !== -1 || window.location.href.indexOf('520837') !== -1 || window.location.href.indexOf('308085') !== -1 || window.location.href.indexOf('304451') !== -1 || window.location.href.indexOf('307637') !== -1 || window.location.href.indexOf('304458') !== -1 || window.location.href.indexOf('304487') !== -1 || window.location.href.indexOf('364041') !== -1 ) ? true : false;
+//var banner = '<div id="shippingDelayedBanner"><div class="container"><div class="alert alert__yellow mb20"><span class="alert__text-contain" style="width:100%"><span class="icon icon__alert"><svg alt=""><use xlink:href="/images/adaptive/livestyleguide/walgreens.com/v3.0/themes/images/icons/symbol-defs.svg#icon__alert"></use></svg></span><span><p>Due to unusually high demand, we\'re experiencing significant delays and limited item availability that will affect your delivery date.</p></span></span></div></div></div>';
+
+//if( isPLPPage && !isTier3CL){
+//	$('#page-content > div').prepend(banner);
+//}
+//if(isBAPage){
+//	$('#pagecontent > div').prepend(banner);
+//}
+
+
+
+function changeThanksGiving() {
+	var taskInterval = setInterval(function(){
+		if(window.location.href.indexOf("storelocator/find.jsp") > -1) {
+			$("div .wag-stores-hours p").text(function () {
+				return $(this).text().replace("Thanksgiving Day Hours", "Today's Hours"); 
+			});
+		}
+	},700);
+	setTimeout(function(){clearInterval(taskInterval);},5000);
+}
+changeThanksGiving();
+$('#detailsPageTextFieldMob').on('keydown', function(e){
+	if(e.keyCode == 13) {
+		changeThanksGiving();
+	}
+});
+
+$('#searchHandler').click(function(){
+	changeThanksGiving();
+});
+document.cookie = "USER_GEO_LOCATION=;expires=Sat, 17 Nov 2017 07:41:35 GMT;path=/";
+// remove unwanted cookies
+var cookiesToDelete = ['ownBrands', 'brandlight', 'loadmore', 'badging', 'anonymousPastSearchData', 'searchStoreRadioBtn', 'storeOffersId', 'searchStoreRadioBtnBa', 'compareProducts', 'compareProductsPtype', 'enablePastPurchase', 'splitTier3', 'findinstore_location', 'USER_GEO_LOCATION', 'preferredStore', 'filterApplied', 'filterAppliedForPP', 'pastpurchase', 'promoCpnsAtTClp', 'promoCpnsAtTClpd', '_hp2_id.3984223766', '_hp2_ses_props.3984223766', '_hp2_props.3984223766', '_hp2_hld.3984223766', 'fmly'];
+for (var i = 0; i < cookiesToDelete.length; i++) {
+	document.cookie = cookiesToDelete[i]+"=;expires=Sat, 17 Nov 2017 07:41:35 GMT;path=/;domain=.walgreens.com";
+  document.cookie = cookiesToDelete[i]+"=;expires=Sat, 17 Nov 2017 07:41:35 GMT;path=/;";
+}
+var css = '.wag-ownbrands-animationup { width: 100%; } .wag-ownbrands-animationdown { width: 100%; }',
+    head = document.head || document.getElementsByTagName('head')[0],
+    style = document.createElement('style');
+style.type = 'text/css';
+style.appendChild(document.createTextNode(css));
+head.appendChild(style);
+
+
+//turn on 100% ACS traffic to shop by brands page
+/*var pageURL = window.location.href;
+if(pageURL.indexOf('/store/store/brands/brand.jsp') >= 0 && pageURL.indexOf('o=acs') == -1) {
+  var checkForParam = "?";
+  if (pageURL.indexOf("?") >= 0) {
+    checkForParam = "&";
+  }
+  var newtier3URL = pageURL + checkForParam + "o=acs";
+  window.location.href = newtier3URL;
+}*/
+
+
+// New update
+// Stopping the prerender traffic to tier3 and search results
+
+/*var pageURL = window.location.href;
+if(((pageURL.indexOf('/store/c') >= 0 && pageURL.indexOf('-tier3') >= 0) || pageURL.indexOf('/store/c/productlist/') >= 0 || pageURL.indexOf('/category/productlist.jsp') >= 0) && pageURL.indexOf('o=acs') == -1  && window && window.navigator && window.navigator.userAgent && window.navigator.userAgent.indexOf('prerender') == -1){
+  var checkForParam = "?";
+  if (pageURL.indexOf("?") >= 0) {
+    checkForParam = "&";
+  }
+  var newtier3URL = pageURL + checkForParam + "o=acs";
+  window.location.href = newtier3URL;
+}
+
+if(pageURL.indexOf('/search/results.jsp') >= 0 && pageURL.indexOf('o=acs') == -1 && window && window.navigator && window.navigator.userAgent && window.navigator.userAgent.indexOf('prerender') == -1) {
+  var checkForParam = "?";
+  if (pageURL.indexOf("?") >= 0) {
+    checkForParam = "&";
+  }
+  var newtier3URL = pageURL + checkForParam + "o=acs";
+  window.location.href = newtier3URL;
+}
+
+if((pageURL.indexOf('/store/store/save/') >= 0 || pageURL.indexOf('/store/xpo_products.jsp') >= 0 || pageURL.indexOf('balance-rewards-offer.jsp') >= 0 || pageURL.indexOf('/store/family_products.jsp') >= 0) && pageURL.indexOf('o=acs') == -1 && window && window.navigator && window.navigator.userAgent && window.navigator.userAgent.indexOf('prerender') == -1){
+  var checkForParam = "?";
+  if (pageURL.indexOf("?") >= 0) {
+    checkForParam = "&";
+  }
+  var newplpURL = pageURL + checkForParam + "o=acs";
+  window.location.href = newplpURL;
+}
+
+
+$(".wag-header-search-btn").click(function(){
+  window.location = window.location.origin + '/search/results.jsp?Ntt='+ $("#ntt-placeholder").val() +'&o=acs';
+  return false;
+});
+$("#ntt-placeholder").keypress(function(e){
+  if(e.key == 'Enter'){
+    window.location = window.location.origin + '/search/results.jsp?Ntt='+ $("#ntt-placeholder").val() +'&o=acs';
+    return false;
+  } else {
+    $("#ntt-placeholder").keypress(function(e){ 
+      var intervalTyAhd = setInterval(function(){
+        if($('#wag-typeaheadlists li a:eq(0)').attr('href') && $('#wag-typeaheadlists li a:eq(0)').attr('href').indexOf('acs') !== -1) clearInterval(intervalTyAhd); $('#wag-typeaheadlists li a').each(function() 
+        {
+          if($(this).attr('href') && $(this).attr('href').indexOf('acs') === -1) $(this).attr('href', $(this).attr('href')+'&o=acs');
+        });
+      },100);
+    });
+  }
+  }); */
+
+//Fixing the empty promo banner issue
+if($('.row.mb20.banners').text() === 'false'){
+  setTimeout(function(){
+			$('.row.mb20.banners').hide();
+		},1500);
+}
+
+//Adding conversion pixel to search results page with mucinex search term
+
+let url = window.location.href.indexOf('Ntt=mucinex');
+if(url > -1){
+  $('head').append('<script async src="https://www.googletagmanager.com/gtag/js?id=AW-777109562"></script> <script> window.dataLayer = window.dataLayer || []; function gtag(){dataLayer.push(arguments);} gtag("js", new Date()); gtag("config", "AW-777109562"); </script>');
+  $('head').append("<script> function gtag_report_conversion(url) { var callback = function () { if (typeof(url) != 'undefined') { window.location = url; } }; gtag('event', 'conversion', { 'send_to': 'AW-777109562/_8ToCOD8zZMBELqAx_IC', 'event_callback': callback }); return false; } </script>");
+  $('head').append("<script> gtag('event', 'conversion', {'send_to': 'AW-1053606420/_8mACOLJvZYBEJSEs_YD'}); </script>");
+}
+
+
+  // Turn off point simplification for CAC ATG BR Page
+sessionStorage.setItem('displayNewBRTemplate',true);
+
+//to enable pastsearch
+document.cookie = 'pst=true; path=/; domain=.walgreens.com;';
+
+
+/*
+var storePageURL = window.location.href;
+if((storePageURL.indexOf('/search/topSearchResults.jsp') >= 0) && storePageURL.indexOf('o=acs') == -1){
+    var checkForParam = "?";
+    if (storePageURL.indexOf("?") >= 0) {
+      checkForParam = "&";
+    }
+    var newstorePageURL = storePageURL + checkForParam + "o=acs";
+    window.location.href = newstorePageURL;
+}*/
+
+/*if(window.location.href.indexOf('304447') !== -1 || window.location.href.indexOf('352184') !== -1 || window.location.href.indexOf('307635') !== -1 || window.location.href.indexOf('307634') !== -1 || window.location.href.indexOf('520837') !== -1 || window.location.href.indexOf('308085') !== -1 || window.location.href.indexOf('304451') !== -1 || window.location.href.indexOf('307637') !== -1 || window.location.href.indexOf('304458') !== -1 || window.location.href.indexOf('304487') !== -1 || window.location.href.indexOf('364041') !== -1 ){
+  setTimeout(function(){
+			  var content1 = '<div class="row mb20 banners" data-reactid="360"><section class=\"col-sm-12 hidden-xs\"><a href=\"/topic/contacts/deals.jsp?ban=contacts_mfb_a\"><img class=\"img-responsive center-block\" src=\"/images/adaptive/sp/1158601_Contacts25tierBanner_v2.jpg\" alt=\"FSA approved. Contact Lenses 20% OFF. Restrictions apply. Free standard shipping on Contact Lens Orders.&deg; Get code.\"/></img></a></section></div>';
+        $('.col-xl-9.col-lg-9.col-md-8.col-sm-8.col-8.wag-product-container').prepend(content1);
+		},1500);
+  }*/
+
+/*if(window.location.href.indexOf('350006') !== -1 || window.location.href.indexOf('360305') !== -1 || window.location.href.indexOf('360307') !== -1  || window.location.href.indexOf('361205') !== -1  || window.location.href.indexOf('360509') !== -1 || window.location.href.indexOf('304447') !== -1 || window.location.href.indexOf('352184') !== -1 || window.location.href.indexOf('307635') !== -1 || window.location.href.indexOf('307634') !== -1 || window.location.href.indexOf('520837') !== -1 || window.location.href.indexOf('308085') !== -1 || window.location.href.indexOf('304451') !== -1 || window.location.href.indexOf('307637') !== -1 || window.location.href.indexOf('304458') !== -1 || window.location.href.indexOf('304487') !== -1 || window.location.href.indexOf('364041') !== -1 ){
+  setTimeout(function(){
+			  var content1 = '<div class="row mb20 banners" data-reactid="360"><section class=\"col-sm-12 hidden-xs\"><a href=\"/topic/contacts/deals.jsp?ban=contacts_mfb_a\"><img class=\"img-responsive center-block\" src=\"/images/adaptive/sp/921988_SEARCH_1446X421.jpg\" alt=\"FSA approved. Contact Lenses 20% OFF. Restrictions apply. Free standard shipping on Contact Lens Orders.&deg; Get code.\"/></img></a></section></div>';
+        $('.col-xl-9.col-lg-9.col-md-8.col-sm-8.col-8.wag-product-container').prepend(content1);
+		},1500);
+  }*/
+
+
+/*hiding the unwanted text on tier3 and search results pages*/
+if($('#qPageSeoContent > .container > .row').html() === "[object Object]"){
+  $('#qPageSeoContent > .container > .row').hide()
+}
+
+var content = '@media(max-width: 767px) { #wag-typeaheadcontainer { opacity: 1; } }';
+var style = document.createElement('style');
+style.innerHtml = content;
+style.type = 'text/css';
+style.appendChild(document.createTextNode(content));
+
+document.getElementsByTagName('body')[0].appendChild(style);
+
+if($('.select__contain .icon__arrow-down').length > 0){
+  $('.select__contain .icon__arrow-down').css('pointer-events','none');
+}
+
+function getCookie(cookiename) {
+    let cookiestring = RegExp('[; ]' + cookiename + '[^;]+').exec('; ' + document.cookie);
+	return unescape(!!cookiestring ? cookiestring.toString().replace(/^[^=]+./, '') : '');
+}
+
+
+var gstCookie = getCookie('gstPS');
+if(gstCookie) {
+    var gstPS = JSON.parse(gstCookie);
+    let gstPSST = gstPS.ST;
+    let UpdatedST = gstPSST.map(function(item) {
+        return item.replace("%", "");
+    })
+    let updatedgstPS = {"ST": UpdatedST};
+    if(updatedgstPS) {
+        var curr_date = new Date();
+	    curr_date.setTime(curr_date.getTime() + (30 * 24 * 60 * 60 * 1000));
+	    document.cookie = 'gstPS'+'='+JSON.stringify(updatedgstPS)+ ';expires=' + curr_date + '; path=/; domain=.walgreens.com;';
+    }
+}
+
+function addStyle(styles) { 
+    var css = document.createElement('style'); 
+    css.type = 'text/css'; 
+    if (css.styleSheet)  
+        css.styleSheet.cssText = styles; 
+    else  
+        css.appendChild(document.createTextNode(styles)); 
+    document.getElementsByTagName("head")[0].appendChild(css); 
+} 
+var styles = '#changeStoreHeader .modal__content-inner, #changeStoreOverlay .change-store-message, .alert.alert__red.mt10.ml10.mr10 { display:none; }'; 
+    styles += ' button#closeoverlayBtn { top: 30px }';
+
+addStyle(styles);
+
+
+
+
+
+});

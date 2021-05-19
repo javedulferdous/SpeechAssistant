@@ -1,0 +1,266 @@
+
+body,div{display:block;margin:0;padding:0;position:absolute;}
+body #ad *.In{opacity:1}
+body{
+	font-family: "Open+Sans", Arial, Helvetica, sans-serif;
+	height:250px;
+	left:0;
+	top:0;
+	width:300px;
+}
+#ad{
+	background: #ffffff;
+	border: black 1px solid;
+	box-sizing: border-box;
+	color: #1e6db6;
+	display: block;
+	font-size: 15px;
+	height: 250px;
+	left: 0;
+	overflow: hidden;
+	top: 0;
+	width: 300px;
+}
+
+#bgExitArea { 
+	cursor:pointer;
+	height:250px; 
+	left:0;
+	opacity:0;
+	top:0; 
+	width:300px;  
+	z-index: 1200;
+}
+
+/* begin custom code */
+body div div *{
+	opacity: 0;
+}
+#bg{
+	height: 250px;
+	left: 0;
+	opacity: 1;
+	top: 0;
+	transition: all .8s linear;
+	width: 300px;
+}
+#bg div{
+	height: 250px;
+	opacity: 1;
+	top: 0;
+}
+#bg .b1{
+	background: url(bg1.jpg) no-repeat;
+	left: 0;
+	width: 700px;
+}
+#bg .b2{
+	background: url(bg2.jpg) no-repeat;
+	left: 700px;
+	width: 570px;
+}
+#bg.p1{
+	left: -400px;
+}
+#bg.p2{
+	left: -700px;
+}
+#bg.p3{
+	left: -970px;
+}
+
+#flo{
+	background-position: -0px -240px; 
+	height: 115px;
+	left: 300px;
+	opacity: 1;
+	top: 133px;
+	width: 191px;
+}
+#flo.in{
+	left: 109px;
+	transition: all .25s ease-out;
+}
+#logo{
+	background: url(logo.svg) no-repeat;
+	height: 46px;
+	left: -100px;
+	opacity: 1;
+	top: 0px;
+	transition: all .5s;
+	width: 350px;
+	-ms-transform: scale(.36); 
+    -webkit-transform: scale(.36); 
+    transform: scale(.36);
+}
+#trex,.s1 #trex div,.s2 .body{opacity: 1;}
+#trex{
+	left: -610px;
+	top: 85px;
+}
+#trex.in{
+	animation: bob .15s infinite alternate; 
+	left: -330px;
+	transition: left .75s linear;
+}
+#trex.out{
+	left: -50px;
+}
+#trex.out2{
+	left: 300px;
+	transition: left .4s linear;
+}
+.s2 #trex{
+	left: 900px;
+	opacity: 0;
+	transition: none;
+}
+.s2 #trex div{
+	animation: none; 
+}
+.s2 #trex.end{
+	left: 765px;
+	opacity: 1;
+	top: 225px;
+	transform: rotate(22deg) scaleX(-1);
+	transition: left .25s linear;
+}
+
+/*sprites*/
+#flo, #trex div, .flying{ 
+	background-image: url('sprites.png');
+	background-repeat: no-repeat; 
+	overflow: hidden; 
+} 
+.body { background-position: -0px -0px; width: 609px; height: 178px; }
+.t1 { background-position: -0px -178px; width: 267px; height: 62px; }
+.t2 { background-position: -267px -178px; width: 245px; height: 62px; }
+.flo { background-position: -0px -240px; width: 191px; height: 115px; }
+
+.leg-f { background-position: -512px -178px; width: 91px; height: 168px; }
+.flying { background-position: -367px -240px; width: 63px; height: 49px; }
+.jaw { background-position: -430px -240px; width: 62px; height: 53px; }
+.leg-b { background-position: -367px -289px; width: 48px; height: 80px; }
+
+/* Positioning separated in case sprite sheet changes */
+.leg-b{animation: swing .2s infinite ease alternate; left: 390px; top: 85px; transform-origin: 60% -20%; transform: rotate(-25deg);}
+.jaw{
+	left: 537px; 
+	opacity: 1; 
+	top: 46px; 
+	transform: rotate(-10deg);
+	transform-origin: 5% 20%;
+	transition: all .25s;
+}
+.roar .jaw{
+	transform: rotate(5deg);
+}
+.leg-f{animation: swing .2s .15s infinite ease alternate; left: 303px; top: 20px; transform-origin: 60% 20%; transform: rotate(-25deg);}
+#text{opacity: 1;}
+#text .out{opacity: 0; transition: all .2s;}
+.roar #text{animation: shake .1s 8 linear;}
+
+
+.t1{transform: scale(0)}
+.t1.in{transform: scale(1); transition: all .35s linear; }
+.s2 .t1{left: -300px; transition: all .8s linear;}
+.t2.in,.t3.in{opacity: 1; }
+.t1{left: 15px; opacity: 1; top: 90px;}
+.t2{left: 25px; top: 90px; transition: all .5s 1s;}
+.t3{/*left: 5px; top: 56px;*/ transition: all .5s;}
+#swoop{
+	height: 200px;
+	left: 0px;
+	opacity: 1;
+	top: 0px;
+	transform: rotate(25deg);
+	transform-origin: 50% 10%;
+	transition: all 1.5s 1s linear;
+	width: 63px;	
+}
+.s2 #swoop{
+	left: 50px;
+	top: -150px;
+	transform: rotate(-65deg);
+}
+.flying{
+	left: 0px;
+	opacity: 1;
+	top: 150px;
+	transform: scale(.5,.8) rotate(-10deg);
+	transition: all 1s 1s linear;
+}
+.s2 .flying{
+	transform: scale(1,1) rotate(20deg);
+}
+
+.t1{
+	background: url(jurassic_highRates_300x250.svg) no-repeat;
+	background-size: contain;
+	height: 70px;
+	left: 11.565px; 
+	opacity: 1;
+	position: absolute;
+	top: 90px; 
+	transition: all .5s;
+	width: 276.87px;
+	z-index: 1001;
+}
+.t2{
+	background: url(jurassic_saveOsaurus_300.svg) no-repeat;
+	background-size: contain;
+	height: 70px;
+	left: 21px; 
+	opacity: 0;
+	position: absolute;
+	top: 90px; 
+	transition: all .5s;
+	width: 255px;
+	z-index: 1001;
+}
+
+
+.t3{
+	background: url(savings_jurassic_300x250.svg) no-repeat;
+	background-size: contain;
+	height: 166px;
+	left: -22px; 
+	opacity: 0;
+	position: absolute;
+	top: 32px; 
+	transition: all .5s;
+	width: 238px;
+	transform: scale(.74);
+}
+
+#quote{
+	background: url(button_ff8a39_134x36.svg) no-repeat;
+	top: 200px;
+	height: 36px;
+	left: -3px;
+	opacity: 0;
+	position: absolute;
+	transition: all .5s;
+	width: 134px; 
+	-ms-transform: scale(.8); 
+    -webkit-transform: scale(.8); 
+    transform: scale(.8); 
+}
+#quote.in {
+	opacity: 1;
+	position: absolute;
+	transition: all .5s;
+}
+
+@keyframes swing{
+	0%		{transform: rotate(-25deg);}
+	95%,100%{transform: rotate(25deg);}
+}
+@keyframes bob{
+	0%		{transform: translateY(0px)}
+	100%	{transform: translateY(5px)}
+}
+@keyframes shake{
+	from	{transform: translateX(0px)}
+	to		{transform: translateX(2px)}
+}

@@ -1,0 +1,60 @@
+// add those every time the script is loaded
+document.body.setAttribute("class", "kaxsdc " + document.body.getAttribute("class"));
+document.body.setAttribute("data-event", "load");
+
+// get the cart cookie value
+// its value will be null until the first item added to cart
+// it will change after checkout (or session restart)
+var sessionId = getCookie("cart");
+if(sessionId) {
+	
+	// if the cart token is different we need to fire up data collection
+    if(sessionId !== getCookie("KountCookie")) {
+        setCookie("KountCookie", sessionId);
+    	
+    	// values here are filled in by the server
+        var url = "https://ssl.kaptcha.com/collect/sdk?m=171474&s=" + sessionId;
+        
+        // ensuring that the ka script is running after the dc script has been fetched and loaded
+        var loadSecondScript = function () {
+        	var kclient = new ka.ClientSDK();
+        	kclient.autoLoadEvents();
+        }
+
+        loadScript(url, loadSecondScript);
+    }
+}
+
+function loadScript(url, callback) {
+	var head = document.getElementsByTagName('head')[0];
+	var adapterScript = document.createElement('script');
+	adapterScript.src =  url;
+	adapterScript.type = "text/javascript";
+	adapterScript.onreadystatechange = callback;
+	adapterScript.onload = callback;
+	head.appendChild(adapterScript);
+}
+
+function getCookie(cname) {
+    var name = cname + "=";
+    var decodedCookie = decodeURIComponent(document.cookie);
+    var ca = decodedCookie.split(';');
+    for(var i = 0; i <ca.length; i++) {
+        var c = ca[i];
+        while (c.charAt(0) == ' ') {
+            c = c.substring(1);
+        }
+        if (c.indexOf(name) == 0) {
+            return c.substring(name.length, c.length);
+        }
+    }
+    return "";
+}
+
+function setCookie(cname, cvalue) {
+    var d = new Date();
+    // 1-day expire time for the cookie /it will, however, change at every new checkout/
+    d.setTime(d.getTime() + (24*60*60*1000));
+    var expires = "expires="+ d.toUTCString();
+    document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
+}

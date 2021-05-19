@@ -1,0 +1,46 @@
+_satellite.pushAsyncScript(function(event, target, $variables){
+  //Desktop MOP Template
+//Frozen 2 185800, 221135, 221146
+if(_satellite.getVar('Movie ID') == '185800' || _satellite.getVar('Movie ID') == '221135' || _satellite.getVar('Movie ID') == '221146'){
+  if(_satellite.getVar('Page Level 2') == 'movie | overview'){
+//pxl-349
+_satellite.loadScript('https://www.googletagmanager.com/gtag/js?id=DC-3944448');
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'DC-3944448');
+  gtag('config', 'AW-779913759');
+  gtag('config', 'AW-1003221998');
+gtag('event', 'conversion', { 'send_to': 'AW-1003221998/3MifCOOYprEBEO7nr94D', 'transaction_id': '' });
+gtag('event', 'conversion', {'send_to': 'AW-779913759/4QVuCJfHprEBEJ-U8vMC'});  
+_satellite.addImage('https://www.facebook.com/tr?id=2064018563831124&ev=PageView&noscript=1');
+_satellite.addImage('https://www.facebook.com/tr?id=2064018563831124&ev=PageView&cd'+_satellite.getVisitorId().getMarketingCloudVisitorID());
+_satellite.addImage('https://d.agkn.com/iframe/10253/?che=%n&ouid='+_satellite.getVisitorId().getMarketingCloudVisitorID());
+
+
+}
+}
+//Desktop MSP Template
+
+//Frozen 2 185800, 221135, 221146
+if(_satellite.getVar('Movie ID') == '185800' || _satellite.getVar('Movie ID') == '221135' || _satellite.getVar('Movie ID') == '221146'){
+  if(_satellite.getVar('Page Level 2') == 'movie times | by movie'){
+//pxl-349
+_satellite.loadScript('https://www.googletagmanager.com/gtag/js?id=DC-3944448');
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'DC-3944448');
+  gtag('config', 'AW-779913759');
+  gtag('config', 'AW-1003221998');
+gtag('event', 'conversion', { 'send_to': 'AW-1003221998/3MifCOOYprEBEO7nr94D', 'transaction_id': '' });
+ gtag('event', 'conversion', {'send_to': 'AW-779913759/L9qZCKa-prEBEJ-U8vMC'});
+_satellite.addImage('https://www.facebook.com/tr?id=2064018563831124&ev=PageView&noscript=1');
+_satellite.addImage('https://www.facebook.com/tr?id=2064018563831124&ev=PageView&cd'+_satellite.getVisitorId().getMarketingCloudVisitorID());
+_satellite.addImage('https://d.agkn.com/iframe/10254/?che=%n&ouid'+_satellite.getVisitorId().getMarketingCloudVisitorID());
+}
+}
+
+});

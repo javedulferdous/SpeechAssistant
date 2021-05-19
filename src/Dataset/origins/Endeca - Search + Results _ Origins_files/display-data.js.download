@@ -1,0 +1,79 @@
+(function($, prodcat) {
+/*
+ ***********************
+ * display text fields (price, shade name, etc)
+ ***********************
+ */
+  $(document).on('product.skuSelect product.skuDisplay', '.js-product', function(e, skuBaseId) {
+    $(this).trigger('product.updateText', [skuBaseId]);
+    $(this).trigger('product.updateRoute', [skuBaseId]);
+  });
+
+  $(document).on('product.updateText', '.js-product', function(e, skuBaseId) {
+    var textFields = [
+      { selector: 'js-product-size', field: 'PRODUCT_SIZE' },
+      { selector: 'js-product-price', field: 'formattedPrice' },
+      { selector: 'js-sku-shade-name', field: 'SHADENAME' },
+      { selector: 'js-sku-shade-description', field: 'SHADE_DESCRIPTION' }
+    ];
+    var skuData = prodcat.data.getSku(skuBaseId);
+    var $productEl = $(this);
+
+    _.each(textFields, function(el) {
+      var $el = $('.' + el.selector, $productEl);
+      if ($el.length < 1) {
+        return;
+      }
+      $el.html(skuData[el.field]);
+    });
+  });
+
+  $(document).on('product.updateRoute', '.js-product', function(e, skuBaseId) {
+    var $product = $(this);
+    var routePrefix = '';
+    var prodFieldName = '';
+    var skuData = prodcat.data.getSku(skuBaseId);
+    var prodId = !!skuData ? skuData.PRODUCT_ID : $product.attr('data-product-id');
+    var prodData = prodcat.data.getProduct(prodId);
+
+    if (!!prodData && prodData.sized) {
+      routePrefix = '#/sku/';
+      prodFieldName = 'SKU_BASE_ID';
+    }
+    if (!!prodData && prodData.shaded) {
+      routePrefix = '#/shade/';
+      prodFieldName = 'SHADENAME';
+    }
+    var routeString;
+    if (skuData && !!routePrefix) {
+      routeString = _.result(skuData, prodFieldName);
+    } else {
+      routeString = $product.attr('data-product-route') || '';
+    }
+
+    // include reserved characters missing from encodeURIComponent()
+    function _fixedEncodeURIComponent(str) {
+      return encodeURIComponent(str).replace(/[!'()*]/g, function(c) {
+        return '%' + c.charCodeAt(0).toString(16);
+      });
+    }
+
+    if (!!routeString) {
+      var $sppLinks = $('.js-spp-link', $product);
+      prodcat.ui.routeNoSpaces = _fixedEncodeURIComponent(routeString.toString().split(' ').join('_'));
+
+      $sppLinks.each(function() {
+        var url = prodData ? prodData.url : $(this).attr('href');
+        $(this).attr('href', url + routePrefix + prodcat.ui.routeNoSpaces);
+      });
+
+      if ($product.hasClass('product-full')) {
+        var routeWithQueryString = window.location.hash;
+        if (routeWithQueryString.indexOf('?') >= 0) {
+          prodcat.ui.routeNoSpaces += '?' + routeWithQueryString.split('?')[1];
+        }
+        history.replaceState({}, routeString, routePrefix + prodcat.ui.routeNoSpaces);
+      }
+    }
+  });
+})(jQuery, window.prodcat = window.prodcat || {});

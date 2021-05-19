@@ -1,0 +1,151 @@
+(function () {
+
+  var UST_NAME = 'dx_upx_0D4hgmHRMJ.js';
+  var CONSENT_PARAMETER = 'cs';
+  var urlMap;
+  var urlPartialMap;
+  /** get the value of any key passed to a query string that links this script *
+   *  E.G <script type='text/javascript' 
+   *            src='cti.w55c.net/ct/dx_upx_0D4hgmHRMJ.js?dx_UST_stage=TD_[stage]&dx_UST_model=[model]'>
+   *      </script> 
+   */
+  var getScriptLinkQueryParameters = function (name) {
+    var scripts = document.getElementsByTagName('script');
+    var dxScript = '';
+    var scriptTokens = [];
+
+    for (var i = 0; i < scripts.length; i++) {
+      if (scripts[i].src && scripts[i].src.indexOf(UST_NAME) > -1) {
+        dxScript = scripts[i];
+
+        scriptTokens = dxScript.src.split('?');
+
+        if (scriptTokens.length > 1) {
+          break;
+        }
+      }
+    }
+
+    if (dxScript === '' || scriptTokens.length < 2) {
+      return '';
+    }
+
+    var scriptQueryString = scriptTokens[1];
+    var queryStringValues = scriptQueryString.split('&');
+
+    for (var j = 0; j < queryStringValues.length; j++) {
+      if (queryStringValues[j].toLowerCase().indexOf(name.toLowerCase()) !== -1) {
+        return queryStringValues[j].split('=')[1];
+      }
+    }
+
+    return '';
+  };
+
+  var getUSPS = function () {
+    var uspsConsentString = '';
+
+    var ccpaCallback = function (uspData, success) {
+      if (success) {
+        uspsConsentString = uspData.uspString;
+      }
+    };
+
+    // Get CCPA consent string if API is available
+    if (typeof __uspapi === typeof (Function)) {
+      __uspapi('getUSPData', 1, ccpaCallback); // jshint ignore:line
+    }
+
+    return uspsConsentString;
+  };
+
+  var addUrlParams = function (url, paramMap) {
+    for (var param in paramMap) {
+      if (paramMap.hasOwnProperty(param) && paramMap[param] !== '') {
+        url += '&' + param + '=' + paramMap[param];
+      }
+    }
+
+    return url;
+  };
+
+  var firePixel = function (pixelIds, price, sku, tx) {
+    if (pixelIds === '') {
+      return;
+    }
+
+    var consentString = getScriptLinkQueryParameters(CONSENT_PARAMETER);
+    var uspsConsentString = getUSPS();
+    var dxDomain = '//tags.w55c.net/rs?id=';
+    var pixels = pixelIds.split(',');
+
+    for (var i = 0; i < pixels.length; i++) {
+      var dxPixelId = pixels[i];
+      var cb = Math.floor(Math.random() * 99999);
+      var pixelSrc = dxDomain + dxPixelId + '&rnd=' + cb;
+      var paramMap = {
+        'cs': consentString,
+        'us_privacy': uspsConsentString,
+        'price': price,
+        'sku': sku,
+        'tx': tx
+      };
+
+      pixelSrc = addUrlParams(pixelSrc, paramMap);
+
+      var img = document.createElement('img');
+      img.src = pixelSrc;
+    }
+  };
+
+  var normalizeUrl = function (normURL) {
+    var replacedURL = normURL.replace(/^https?:\/\//, '');
+
+    if (replacedURL.substr(-1) === '/') {
+      replacedURL = replacedURL.substr(0, replacedURL.length - 1);
+    }
+
+    return replacedURL;
+  };
+
+  /* Main function to fire pixel based on matching the current URL to the URL Map */
+  var dxUpx = function () {
+    //js parameters to pull in.
+    var price = getScriptLinkQueryParameters('price');
+    var sku = getScriptLinkQueryParameters('sku');
+    var tx = getScriptLinkQueryParameters('tx');
+    // This represents a list of pixel ids to fire.  The default is the diagnostic pixel.
+    var dxPixelIds = 'b6a9801fa4f144028102e7ac006e99e6';
+    var normalizedUrl = normalizeUrl(window.location.host + window.location.pathname);
+
+    if (urlMap.hasOwnProperty(normalizedUrl)) {
+      // If we find a match, replace the diagnostic pixel with those associated with the URL.
+      dxPixelIds = urlMap[normalizedUrl];
+    }
+    for (var key in urlPartialMap) {
+      if (urlPartialMap.hasOwnProperty(key) && normalizedUrl.indexOf(key) !== -1) {
+          dxPixelIds =  urlPartialMap[key];
+        }
+      }
+
+    firePixel(dxPixelIds, price, sku, tx);
+  };
+
+  urlMap = {
+    'www.mercari.com': 'bbfaebb410334d0d8f147972921af223'
+  };
+
+  urlPartialMap = {
+    'www.mercari.com/transaction/buy/done': '93a295488c40413daf2508c7620637dd'
+  };
+
+  // be sure page loads before running
+  if (document.readyState !== 'loading') {
+    dxUpx();
+  } else {
+    document.addEventListener('DOMContentLoaded', function () {
+      dxUpx();
+    });
+  }
+
+})();

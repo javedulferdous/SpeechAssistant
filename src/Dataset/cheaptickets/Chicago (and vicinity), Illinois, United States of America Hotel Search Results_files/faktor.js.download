@@ -1,0 +1,81 @@
+var cmp = document.createElement('script');
+cmp.async = true;
+cmp.defer = true;
+
+if (!window.__cmp || typeof window.__cmp !== 'function') {
+    var faktorCmpStart = window.__cmp ? window.__cmp.start : {};
+
+    window.__cmp = function () {
+        var listen = window.attachEvent || window.addEventListener;
+        listen('message', function(event) {
+            window.__cmp.receiveMessage(event);
+        });
+
+        function addLocatorFrame() {
+            if (!window.frames['__cmpLocator']) {
+                if (document.body) {
+                    var frame = document.createElement('iframe');
+                    frame.style.display = 'none';
+                    frame.name = '__cmpLocator';
+                    document.body.appendChild(frame);
+                }
+                else {
+                    setTimeout(addLocatorFrame, 5);
+                }
+            }
+        }
+    
+        addLocatorFrame();
+
+        var commandQueue = [];
+        var cmp = function (command, parameter, callback) {
+            if (command === 'ping') {
+                if (callback) {
+                    callback({
+                        gdprAppliesGlobally: !!(window.__cmp && window.__cmp.config && window.__cmp.config.storeConsentGlobally),
+                        cmpLoaded: false
+                    }); 
+                }
+            } else {
+                commandQueue.push({
+                    command: command,
+                    parameter: parameter,
+                    callback: callback
+                });
+            }
+        }
+        cmp.commandQueue = commandQueue;
+        cmp.receiveMessage = function (event) {
+            var data = event && event.data && event.data.__cmpCall;
+            if (data) {
+                commandQueue.push({
+                    callId: data.callId,
+                    command: data.command,
+                    parameter: data.parameter,
+                    event: event
+                });
+            }
+        };
+
+        return cmp;
+    }();
+
+    window.__cmp.start = faktorCmpStart;
+}
+
+cmp.onload = function () {
+    window.__cmp.start({"loggingConsentExternally":true,"storePublisherConsentGlobally":false,"faktorId":null,"enableAcceptAll":true,"groupId":"0e16e784-167b-49ee-b1ac-0ff7866eb4fb","storePublisherData":false,"loggingConsentURL":"https://logs.choice.faktor.io/dev/streams/faktor-data-stream/records","allowedAcceptAllUrls":".*","customPurposeListLocation":null,"restrictForEU":false,"storeConsentGlobally":false,"enableRevokeAll":true,"configurationVersion":10,"allowedRevokeAllUrls":".*","useSecondLevelDomain":false,"additionalVendorIds":[],"syncWithGlobalCookies":false,"vendorIds":[32,10,69,52,76,13,21,79,25,91,23,11,264,565,71,16,338,130,12,24,144,156,469,50,68],"gdprApplies":true,"siteId":"f46972db-72e8-4c9b-b806-3ed58d139f02","logging":false,"configVersion":10});
+
+    
+};
+
+cmp.onerror = function (e) {
+    console.log('Script not loaded due to: ', e);
+};
+
+
+      cmp.src = 'https://www.uciservice.com/assets/meso-faktor-loader/cmp.bundle.gz';
+    
+
+var node = document.getElementsByTagName('script')[0];
+node.parentNode.insertBefore(cmp, node);

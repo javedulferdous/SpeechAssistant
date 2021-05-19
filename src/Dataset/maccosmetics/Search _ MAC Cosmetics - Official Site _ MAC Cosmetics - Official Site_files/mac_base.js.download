@@ -1,0 +1,695 @@
+var generic = generic || {};
+(function(Drupal) {
+  "use strict";
+
+  // A nice global object to store MAC-specific stuff
+  Drupal.MAC = {
+    /**
+     * Helper function to return TRUE or FALSE based on whether the personalization engine is enabled.
+     * We know this to be true or not based on personal_block being loaded in Drupal.settings.
+     */
+    hasPersonalization: function() {
+      var settings        = Drupal || {};
+          settings        = settings.settings || {};
+      var personalization = settings.personal_block;
+      return personalization ? 1 : 0;
+    },
+    ui: {
+      back_top_duration: 800 // default scroll to top value, components/_scroll_to_top.scss
+    }
+  };
+})(Drupal);
+
+// @TODO move everything below into separate libraries, see MAC-735
+(function($, Drupal, Modernizr) {
+  "use strict";
+
+  /**
+   * Expando-block behavior. See molecules/blocks/expando-block.mustache for html
+   */
+  Drupal.behaviors.expandoBlock = {
+    attach: function(context) {
+      $('.js-expando-block-trigger', context).on('click', function() {
+        $(this).closest('.expando-block').toggleClass('expando-block--expanded');
+      });
+    }
+  };
+
+  Drupal.behaviors.siteWideBanner = {
+    attach: function(context) {
+      if ($(".basic-submenu-formatter-v1, .sec-nav, .submenu").length) {
+        $("body").addClass("has-subnav");
+      }
+      $(window).trigger("loadSitewideBanner");
+
+      if (! $(".site-banner").length){
+        $(window).trigger('sidewideBanner:disabled');
+      }
+    }
+  };
+
+  /**
+  * Custom forms (selectboxes, checkboxes, and radio buttons)
+  */
+
+  Drupal.behaviors.forms = {
+    attach: function(context) {
+      // http://ivaynberg.github.io/select2/
+      // Ignoring .product--full spps to use dynamic data for sorting instead
+      //$('select:not(".no-js, .shade-picker-dropdown__colors")', context).select2({
+      if ($('html').hasClass('no-touch')) {  // disabled selectbox for mobile
+        $('select:not(".no-js")', context).select2({
+          width: "100%",
+          adaptDropdownCssClass: function(c) {
+            if (c.indexOf("s2-dropdown") === 0) {
+              return c;
+            }
+          },
+          minimumResultsForSearch: -1
+        });
+      }
+
+      $("input:not('.no-js-element')[type=radio], input:not('.no-js-element')[type=checkbox]", context).picker();
+
+      $('.picker a', context).click(function(e) {
+        e.stopPropagation();
+      });
+    }
+  };
+
+  /**
+   * Quick plugin to set any element div height to that of the window
+   */
+  Drupal.behaviors.elementWindowHeight = {
+    attach: function (context) {
+      $('.js-element-window-height', context).elementWindowSize();
+    }
+  };
+
+  /**
+   * Flexbox fallback
+   */
+  Drupal.behaviors.no_flexbox_match_height = {
+    attach: function(context) {
+      $('.no-flexbox .artistry--mosaic-tile', context).matchHeight(true);
+    }
+  };
+
+  /**
+   * Modernizr Media Query Test
+   */
+  Drupal.behaviors.modernizr_mq_test = {
+    attach: function() {
+      if (Modernizr.mq('(min-width: 0px)') === false) {
+        $('html').addClass('no-mq');
+      } else {
+        $('html').addClass('mq');
+      }
+    }
+  };
+
+  /**
+   * Kill picker for product shde picker filter checkboxes
+   */
+  Drupal.behaviors.sppShadeFilterPickerNuke = {
+    attach: function(context) {
+      $("#filter-grid-switch, .view-all-shades__wrapper input[type=checkbox]", context).picker('destroy');
+    }
+  };
+
+  Drupal.behaviors.displayToggle = {
+    //Generic helper for clicking something and having it toggle something elses visibility
+    //Markup this works on; remove `hidden` class to have visible initially
+    //<div class="js-display-toggle">
+    //  <div class="js-display-toggle__trigger"></div>
+    //  <div class="js-display-toggle__target hidden"></div>
+    //</div>
+    attach: function(context) {
+      $(".js-display-toggle__trigger", context).on("click", function(e) {
+        e.preventDefault();
+        $(this)
+          .parents(".js-display-toggle")
+          .find(".js-display-toggle__target")
+          .toggleClass("hidden");
+        if($('.js-display-toggle__trigger').hasClass("search-active")){
+          $('#search').trigger('focus');
+        }
+      });
+    }
+  };
+
+  /**
+   * Background Image Helper
+   */
+  Drupal.behaviors.imgToBG = {
+    attach: function (context) {
+
+      var $wrapper = $('.js-turn-img-to-bg', context);
+      var debounceDelay = 300;
+
+      (function imgToBG() {
+        $wrapper.each(function () {
+          $(this).find('img').not('.default-size').each(function() {
+            var $img = $(this);
+            var src = '';
+            var $wrapMe;
+
+            if ($img.closest('picture').length && window.HTMLPictureElement) {
+              // using responsive images with native support
+              src = getCurrentResponsiveImage($img.closest('picture'));
+              $wrapMe = $img.closest('picture');
+            } else if ($img.closest('picture').length && !window.HTMLPictureElement) {
+              // using responsive images with polyfill
+              src = getCurrentResponsiveImage($img.closest('picture'));
+              $wrapMe = $img.closest('picture');
+            } else {
+              // no responsive images
+              src = $img.attr('src') || $img.attr('data-lazy');
+              $wrapMe = $img;
+            }
+            // settings complete
+            if (src && src.length) {
+              // we have a value
+
+              if ($wrapMe.parent().hasClass('bg-img') === false) {
+                // first run
+                $wrapMe
+                  .hide() // @ todo use CSS class to hide instead
+                  .wrap('<div></div>')
+                  .parent()
+                  .attr('style', 'background-image: url(' + src + ');')
+                  .addClass('bg-img bg-img--expand');
+
+                // certain components want a class so the styles can accomodate
+                $img.parents('.media-block').addClass('has-bg-img');
+              }
+
+            } else {
+              // error; no `src` found
+              console.log("img src wasn't found, so it wasn't turned into a background image.", $img);
+            }
+          });
+        });
+
+      })();
+
+      function getCurrentResponsiveImage($picture) {
+
+        // get all paths and media queries from `picture > source`
+        var images = [];
+        $picture.find('source, img').each(function () {
+          var $thisImage = $(this);
+          var image = {};
+          image.srcset = $thisImage.attr('srcset');
+          if ($thisImage[0].localName === 'source') {
+            // <source>
+            image.media = $thisImage.attr('media');
+          } else {
+            // <img>
+            image.media = "(min-width: 1px)";
+          }
+          images.push(image);
+        });
+
+
+        // get a list of all images that satisfy their media query from the `media` attribute of `<source>`
+        var possibleImages = [];
+        _.each(images, function (image) {
+          if (Modernizr.mq(image.media) === true) {
+            possibleImages.push(image);
+            //console.log("going over: image.srcset", image);
+          }
+        });
+
+        // since they are ordered from biggest to smallest; we want the biggest qualifying image
+        return _.first(possibleImages).srcset;
+
+      }
+
+      // on resize, wait a sec, then update the background image
+      $(window).resize(_.debounce(function () {
+        Drupal.behaviors.imgToBG.attach();
+        $wrapper.each(function () {
+          //console.log('updateResponsiveBG began', $(this));
+          var $picture = $(this).find('.bg-img > picture');
+          if ($picture.length) {
+            var src = getCurrentResponsiveImage($picture);
+            $picture.parent().attr('style', 'background-image: url(' + src + ');');
+            //console.log('updateResponsiveBG ran');
+          }
+        });
+      }, debounceDelay));
+
+    }
+  };
+
+  /**
+   * FAQ behavior
+   */
+  Drupal.behaviors.faqBlock = {
+    attach: function(context) {
+      $('.mac-faq__q', context).on('click keydown', function(e) {
+        var keyCode = site.getKeycode(e);
+        if (keyCode === 13 || keyCode === 1) {
+          $(this).attr('aria-expanded', $(this).attr('aria-expanded') === 'true'? 'false': 'true');
+          $(this).closest('.mac-faq').toggleClass('mac-faq--expanded');
+        }
+      });
+    }
+  };
+
+  /**
+   * Simple expanding-text
+   */
+  Drupal.behaviors.simpleExpandingText = {
+    attach: function(context) {
+      $('.expanding-text__handle', context).on('click', function() {
+        $(this).closest('.expanding-text').toggleClass('expanding-text--expanded');
+      });
+    }
+  };
+
+  /**
+   * Slidein clickaway behavior
+   */
+  Drupal.behaviors.slideinClickaway = {
+    setWidth: function(context) {
+      var elemwidth = $('.slidein-clickaway').width();
+
+      // Since both our divs need to float left in their rail, they need a width
+      $('.slidein-clickaway__content, .slidein-clickaway__starting').width(elemwidth);
+
+      // The rail should full contain both our elements
+      $('.slidein-clickaway__rail').width(elemwidth * 2);
+
+    },
+    attach: function(context) {
+
+      var setWidth = this.setWidth;
+      setWidth(context);
+
+      var everythingLoaded = setInterval(function() {
+        if (/loaded|complete/.test(document.readyState)) {
+          clearInterval(everythingLoaded);
+          $(document).trigger('document:readyState:complete');
+        }
+      }, 10);
+
+      // When clicking the starting text
+      $('.slidein-clickaway__starting', context).on('click', function() {
+        // use css3 transforms to slide left
+        $(this).parent('.slidein-clickaway__rail').css('transform', 'translate3d(-50%,0,0)');
+      });
+      $('.slidein-clickaway__close', context).on('click', function(e) {
+        // use css3 transforms to slide right
+        $(this).parents('.slidein-clickaway__rail').css('transform', 'translate3d(0,0,0)');
+      });
+
+      // Resize the calcs above in a performant way
+      var bounceWidth = _.debounce(setWidth, 300);
+      $(window).resize(bounceWidth);
+
+      // Start open based on if .slidein-clickaway has data-start-open="true"
+      $('.slidein-clickaway', context).each(function() {
+        if ($(this).data('start-open')) {
+          $('.slidein-clickaway__starting', $(this)).click();
+        }
+      });
+
+      $(document).on('document:readyState:complete', function () {
+        var anchorArray = window.location.hash.replace('#', '').split('&');
+        var $tabContent = $('.js-tab-content', context);
+
+        anchorArray.forEach(function(anchorValue) {
+
+          // To ensure that SPPs are never affected in the future (there could potentially be a shade called "show-something" or "tab-something")
+          // you should check that the hash doesn't begin with a slash (#/shade/Amorous) which denotes an SPP shade route.
+          if ((anchorValue.indexOf('show-') < 0 && anchorValue.indexOf('tab-') < 0) || anchorValue.indexOf('/') === 1) {
+            return;
+          }
+
+          if (anchorValue.indexOf('show-') === 0) {
+            var $scrollToContainer = $('a[data-scrollto=' + anchorValue + ']');
+            if ($scrollToContainer.length === 0) {
+              return;
+            }
+
+            var scrollCount = 0;
+            var scrollInterval = setInterval(function() {
+              $('html, body').animate({scrollTop: $scrollToContainer.offset().top - $('.site-header__fixed-wrapper').height() + 'px'}, 100, function() {
+                if ($(window).scrollTop() === ceil($scrollToContainer.offset().top - $('.site-header__fixed-wrapper').height())) {
+                  scrollCount++;
+                }
+                if (scrollCount === 10) { //this is a failsafe just to make sure that all images have lazyloaded.  Just incase there is a delay in the loading time longer than 1 cycle of the interval.
+                  clearInterval(scrollInterval);
+                }
+              });
+            }, 120);
+          }
+
+          if (anchorValue.indexOf('tab-') === 0) {
+            var clickClass = '.js-' + anchorValue;
+            $(clickClass).trigger('click');
+          }
+        });
+        $tabContent.on('click', function() {
+          var hrefValue = $(this).attr('href').replace('#', '');
+          var clickTab = '.js-' + hrefValue;
+          $(clickTab).trigger('click');
+        });
+      });
+      
+    }
+  };
+
+  /**
+   * Overlay clickaway
+   * Clicking this element hides this element and shows content underneathe
+   */
+  Drupal.behaviors.overlayClickaway = {
+    attach: function(context) {
+
+      $('.overlay-clickaway', context).on('click', '.overlay-clickaway__starting', function(e) {
+        $(this).fadeOut(300);
+      });
+    }
+  };
+
+  /**
+   * Footer Nav
+   */
+  Drupal.behaviors.footerNav = {
+    attach: function(context) {
+      $(".footer-menu--mobile .field-menu >.menu >li >a").click(function() {
+        var $wrapper = $(this).parent();
+        if ($wrapper.hasClass("expanded")) {
+          // this has a submenu
+          $wrapper.toggleClass("submenu-visible");
+          // we don't want the click to go to another page, we want it open the submenu
+          return false;
+        }
+      });
+    }
+  };
+
+  /**
+   * Spredfast Social Media Integration
+   * Deprecated Feb 2016
+   */
+  Drupal.behaviors.socialMedia = {
+    //attach: function (context) {
+    //},
+    linkify: function(text) {
+      return text.replace(/http\S*/g, function(match) {
+        return '<a target="_blank" href="' + match + '">' + match + '</a>';
+      });
+    },
+    linkTwitterUser: function(text) {
+      return text.replace(/@\w*/g, function (match) {
+        return '<a target="_blank" href="http://twitter.com/' + match + '">' + match + '</a>';
+      });
+    },
+    twitter: function(context) {
+      function injectTwitter($block, post) {
+        var text = post.text;
+        var name = post.user.screen_name;
+        var id = post.entity_id;
+        var dateString = moment(post.created_at);
+        var date = '';
+        if (dateString.isValid()) {
+          date = dateString.format("MMMM D, YYYY") + " AT " + dateString.format("h:mm a");
+        }
+        text = Drupal.behaviors.socialMedia.linkify(text);
+        text = Drupal.behaviors.socialMedia.linkTwitterUser(text);
+
+        $block.find(".js-twitter-block__tweet").html(text);
+        $block.find(".js-twitter-block__user").text("@" + name).attr("href", "http://twitter.com/" + name);
+        $block.find(".js-twitter-block__time").text(date).wrapInner('<a href="http://twitter.com/' + name + '/status/' + id + '" target="_blank" class="link-unset-underline-extend"></a>');
+      }
+      //console.log("Twitter Request Started", context);
+      $.ajax({
+        url: "//api.massrelevance.com/maconlinefeed/twitter_sr-artists.json?network=twitter",
+        type: "GET",
+        success: function (data, textStatus, jqXHR) {
+          //console.log("HTTP Request Succeeded: " + jqXHR.status);
+          //console.log(data);
+          var posts = data;
+          $(".js-twitter-block[data-twitter-username]", context).each(function (i) {
+            var $this = $(this);
+            var username = $this.attr("data-twitter-username");
+            console.log(username);
+            //console.log(posts);
+            var post = _.find(posts, function (post) {
+              return post.user.screen_name.toLowerCase() === username.toLowerCase();
+            });
+            if (post) {
+              injectTwitter($this, post);
+              posts = _.without(posts, post);
+            } else {
+              $this.removeAttr("data-twitter-username");
+              console.warn("The given Twitter username was not found in the feed, so the first available post was used instead. Username entered: " + username, $this);
+            }
+          });
+          $(".js-twitter-block:not([data-twitter-username])", context).each(function (i) {
+            injectTwitter($(this), posts[i]);
+          });
+        },
+        error: function (jqXHR, txtStatus, errorThrown) {
+          console.log("HTTP Request Failed");
+        }
+      });
+    }
+  };
+
+  // Quick Windows check (windows has different sized scrollbars)
+  Drupal.behaviors.oSCheck = {
+    attach: function(context) {
+      var OSName="Unknown OS";
+      if (navigator.appVersion.indexOf("Win")!=-1) {
+        OSName="Windows";
+      }
+      if (navigator.appVersion.indexOf("Mac")!=-1) {
+        OSName="MacOS";
+      }
+      if (navigator.appVersion.indexOf("X11")!=-1) {
+        OSName="UNIX";
+      }
+      if (navigator.appVersion.indexOf("Linux")!=-1) {
+        OSName="Linux";
+      }
+
+      $('body', context).addClass('os--' + OSName);
+
+      // adds attributes identifing IE versions for styling overrides
+      var doc = document.documentElement;
+      doc.setAttribute('data-useragent', navigator.userAgent);
+
+    }
+  };
+
+  /**
+   * Clickable blocks - entire block will be clickable
+   * Styles are in _links.scss under .clickable-processed
+   *
+   * Usage:
+   * {{#link}} data-clickable="{{link_path}}"{{/link}}
+   * {{#url}} data-clickable="{{href}}"{{/url}}
+   */
+  Drupal.behaviors.clickable = {
+    makeClickable: function(context) {
+      $('[data-clickable!=""][data-clickable]', context).once('clickable').on('click', function() {
+        if (window.location.hash && window.location.hash.indexOf('show-') < 0 && window.location.hash.indexOf('#/shade') < 0) {
+          history.replaceState('', '', $(this).data('clickable')); // fix for hitchhiking hashes
+        }
+        window.location.href = $(this).data('clickable');
+      });
+    },
+    attach: function(context, settings) {
+      var self = this;
+      self.makeClickable(context);
+
+      $(window).on('window::clickable', function() {
+        self.makeClickable(context);
+      });
+    }
+  };
+
+  /**
+   * Generic back to top functionality
+   */
+  Drupal.behaviors.backToTop = {
+    attach: function(context) {
+      $('.js-back-to-top', context).once('back-to-top').on('click', function() {
+        $('html, body').animate({ scrollTop: 0 }, 500);
+      });
+    }
+  };
+
+  /**
+   * back to top: floating button at bottom of viewport
+   */
+  Drupal.behaviors.backToTopFooter = {
+    attach: function(context, settings) {
+
+      var $backTopEl = $('.back-to-top', context);
+      if ( !$backTopEl || $backTopEl.length < 1 || $backTopEl.is(':hidden') ) {
+        return;
+      }
+
+      var heightToNegate = $('.site-header').height() || 0;
+      var offsetScrollDistance = -100;
+
+      var setBackToTop = function() {
+        offsetScrollDistance = (( ($(window).height() - heightToNegate) * 3) * 0.85);
+        var contentHeight = ( $('.site-container').height() * 0.75 );
+        if (contentHeight < offsetScrollDistance) offsetScrollDistance = contentHeight; // if content is shorter than 3 window heights, use content height as default
+        offsetScrollDistance = (offsetScrollDistance * -1);
+      };
+
+      setBackToTop();
+      // on resize, pause, then re-check height variables
+      $(window).resize(_.debounce(function () {
+        setBackToTop();
+      }, 500));
+      $('body').waypoint(function(direction) {
+        $backTopEl.toggleClass('back-to-top-show');
+        },
+        { offset: function() {
+          return offsetScrollDistance;
+        }
+      });
+
+      // scroll to top
+      $backTopEl.on('click', function(event){
+        $.scrollTo('0px', Drupal.MAC.ui.back_top_duration);
+      });
+
+      // hide/show when nav is open/closed
+      $(document).on('navOpen', function(event, category) {
+        $backTopEl.addClass('hidden');
+      });
+      $(document).on('navClose', function(event, category) {
+        $backTopEl.removeClass('hidden');
+      });
+    } // attach
+  }
+
+  /**
+   * Generic back to top functionality
+   */
+  Drupal.behaviors.placeholderPolyfill = {
+    attach: function(context) {
+      if (navigator.appVersion.indexOf("Win")!=-1) {
+        $('input, textarea', context).placeholder();
+      }
+    }
+  };
+
+  /**
+   * Mac Pro Functionalty to make MacPro Specific elements visible to macpro users.
+   */
+  Drupal.behaviors.macproMakeVisible = {
+
+    attach: function(context) {
+      var self = this;
+      self.showHideMacPro();
+
+      $(window).on("macproMakeVisible", function(){
+        self.showHideMacPro();
+      });
+
+      // LOYAL-1090: MAC US & CA / 'My MAC select' link is displayed in the My MAC overlay for MAC pro users
+      $('#site-my-mac', context).on('click', function() {
+        self.showHideMacPro();
+      });
+    },
+
+    showHideMacPro: function() {
+      var is_mac_pro_member = ($.cookie('MACUSERTYPE') == 'PRO') ? 1 : 0;
+      if (is_mac_pro_member){
+        $('.js-is-macpro').once().toggleClass('hidden');
+        $('.display_pro_user').removeClass('hidden');
+        $('.display_non_pro_user').remove()
+      } else {
+        $('.display_non_pro_user').removeClass('hidden');
+        $('.display_pro_user').remove();
+      }
+    }
+  };
+
+  /**
+   * JS Fixes for pages with sticky submenus
+   */
+  Drupal.behaviors.initStickyMenus = {
+    attach: function(context) {
+      if ($(".submenu--sticky")) {
+        $(".mpp-custom__anchor").addClass("mpp-custom__anchor--sticky_menu");
+        $($(".mpp-custom__header")[0]).addClass("mpp-custom__header--top")
+      }
+    }
+  };
+
+  /**
+   * MPP sticky elements
+   */
+  Drupal.behaviors.initStickyMPPElements = {
+    attach: function(context) {
+      $(document).on('mpp-sticky-element-ready', function() {
+        var mppse = $(".mpp-sticky-element", context);
+        var se = 'is-mpp-sticky';
+        var hdr = $('.site-header__fixed-wrapper', context).height() || 0;
+        var hdrSec = $('.sec-nav', context).height() || 0;
+        var hdrAll = hdr + hdrSec;
+        if (!mppse) {
+          return;
+        }
+        $(window).scroll(_.debounce(function() {
+          if ( $(this).scrollTop() > hdrAll ) {
+            mppse.addClass(se);
+            mppse.css('top', hdrAll);
+          }
+          else {
+            mppse.removeClass(se);
+            mppse.css('top', '0');
+          }
+        }, 10));
+      });
+
+    }
+  };
+
+  /**
+   * Detect IE and inject class to body tag
+   */
+  Drupal.behaviors.ieDetect = {
+    attach: function(context) {
+      function detectIE() {
+        var ua = window.navigator.userAgent;
+        var msie = ua.indexOf('MSIE ');
+        var trident = ua.indexOf('Trident/');
+
+        if (msie > 0) {
+          // IE 10 or older => return version number
+          return parseInt(ua.substring(msie + 5, ua.indexOf('.', msie)), 10);
+        }
+
+        if (trident > 0) {
+          // IE 11 (or newer) => return version number
+          var rv = ua.indexOf('rv:');
+          return parseInt(ua.substring(rv + 3, ua.indexOf('.', rv)), 10);
+        }
+
+        // other browser
+        return false;
+      }
+
+      if (detectIE()) {
+        var ieVersion = 'ie-' + detectIE();
+        $('body').addClass('ie').addClass(ieVersion);
+      } else {
+        $('body').addClass('not-ie');
+      }
+    }
+  };
+
+})(jQuery, Drupal, Modernizr);

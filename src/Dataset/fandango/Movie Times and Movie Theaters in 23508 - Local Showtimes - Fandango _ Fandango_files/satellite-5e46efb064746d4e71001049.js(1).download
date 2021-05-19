@@ -1,0 +1,49 @@
+_satellite.pushAsyncScript(function(event, target, $variables){
+  //Wendy 221315 MOP
+  if(_satellite.getVar('Page Level 2') == 'movie | overview'){
+if(_satellite.getVar('Movie ID') == '221315'){
+  
+    _satellite.addImage('https://d.agkn.com/iframe/7043/?che=%n&uid=[third_party_user_id]&type=8010300&ouid='+_satellite.getVisitorId().getMarketingCloudVisitorID());
+
+  //pxl-492
+  _satellite.loadScript('https://www.googletagmanager.com/gtag/js?id=AW-693161363')
+  window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'AW-693161363');
+gtag('event', 'conversion', { 'send_to': 'AW-693161363/V3yWCLqK3sMBEJObw8oC', 'transaction_id': '' });
+//pxl-492
+  _satellite.loadScript('https://www.googletagmanager.com/gtag/js?id=AW-722357408')
+  window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'AW-722357408');
+gtag('event', 'conversion', {'send_to': 'AW-722357408/WfG4CJ22zsMBEKCZudgC'});
+}
+}
+
+
+
+//Wendy 221315 MSP
+if(_satellite.getVar('Movie ID') == '221315'){
+  if(_satellite.getVar('Page Level 2') == 'movie times | by movie'){
+    
+      _satellite.addImage('https://d.agkn.com/iframe/7043/?che=%n&uid=[third_party_user_id]&type=80103000&ouid='+_satellite.getVisitorId().getMarketingCloudVisitorID());
+
+  //pxl-492
+  _satellite.loadScript('https://www.googletagmanager.com/gtag/js?id=AW-693161363')
+  window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'AW-693161363');
+gtag('event', 'conversion', { 'send_to': 'AW-693161363/V3yWCLqK3sMBEJObw8oC', 'transaction_id': '' });
+//pxl-492
+  _satellite.loadScript('https://www.googletagmanager.com/gtag/js?id=AW-722357408')
+  window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'AW-722357408');
+gtag('event', 'conversion', {'send_to': 'AW-722357408/o17oCPyN3sMBEKCZudgC'});
+}
+}
+});

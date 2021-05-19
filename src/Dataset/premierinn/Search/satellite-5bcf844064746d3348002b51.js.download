@@ -1,0 +1,25 @@
+_satellite.pushAsyncScript(function(event, target, $variables){
+  try {
+    if (window.location.href.indexOf("/business-booker/") == -1){
+  if (/(gb)\/(en)\/home.html/ig.test(window.location.pathname)) {
+    var script = document.createElement('script');
+    script.onload = function() {
+      ttd_dom_ready(function() {
+        if (typeof TTDUniversalPixelApi === 'function') {
+          var universalPixelApi = new TTDUniversalPixelApi();
+          universalPixelApi.init("gp3ufed", ["1p4soql"], "https://insight.adsrvr.org/track/up");
+        }
+        if (typeof TTDUniversalPixelApi === 'function') {
+          var universalPixelApi = new TTDUniversalPixelApi();
+          universalPixelApi.init("gp3ufed", ["g3ao7bk"], "https://insight.adsrvr.org/track/up");
+        }
+      });
+    };
+    script.src = "https://js.adsrvr.org/up_loader.1.1.0.js";
+    document.body.appendChild(script);
+  }
+    }
+} catch(err) {
+  _satellite.notify("Direct Call Rule Error - pageLoaded TradeDesk Homepage Tag: " + err.message,[3]);
+}
+});

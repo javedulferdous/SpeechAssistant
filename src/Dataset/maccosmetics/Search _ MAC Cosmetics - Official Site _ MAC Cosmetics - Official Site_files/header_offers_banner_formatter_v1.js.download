@@ -1,0 +1,83 @@
+var site = site || {};
+site.userInfoCookie = site.userInfoCookie || {};
+(function($) {
+  Drupal.behaviors.headerOffersBannerFormatterV1 = {
+    attached: false,
+    attach: function(context) {
+      if (this.attached) {
+        return;
+      }
+      this.attached = true;
+      var $formatter = $('.js-header-offers-banner-formatter-v1', context);
+      var $carousel = $('.js-header-offers-banner-formatter-carousel', $formatter);
+      var $slides = $carousel.find('.header-offers-banner-item').not('.hidden');
+      var $close = $('.js-header-offers-banner-formatter__close', $formatter);
+      var $arrow = $('.js-header-offers-banner-formatter-carousel-arrow', $carousel);
+      var slideIndex = 1;
+      var timer = null;
+      var autoplay = $carousel.data('slides-autoplay');
+      var speed = parseInt($carousel.data('speed'));
+
+      displayOfferBasedOnUserType();
+      showSlides(slideIndex);
+
+      $(document).on('user.loaded', function() {
+        displayOfferBasedOnUserType();
+      });
+
+      if ($.cookie('hide_header_offer_banner')) {
+        $('body').addClass('gnav-offers-hidden');
+        return;
+      }
+
+      $formatter.addClass('offers-banner-initialized');
+
+      // Next/previous controls
+      $arrow.once().on('click', function() {
+        var newIndex = $(this).data('index');
+        clearTimeout(timer);
+        showSlides(slideIndex += newIndex);
+      });
+
+      $close.once().on('click', function() {
+        $.cookie('hide_header_offer_banner', '1', { path: '/', expires: 60 });
+        $(document).trigger('hide_header_offer_banner');
+        $('body').addClass('gnav-offers-hidden');
+      });
+
+      function showSlides(n) {
+        if (n === undefined) {
+          n = ++slideIndex;
+        }
+        if (n > $slides.length) {
+          slideIndex = 1;
+        }
+        if (n < 1) {
+          slideIndex = $slides.length;
+        }
+        $slides.removeClass('item-active');
+        $slides.eq(slideIndex - 1).addClass('item-active');
+        if (autoplay) {
+          timer = setTimeout(showSlides, speed);
+        }
+      }
+
+      function displayOfferBasedOnUserType() {
+        var signedIn = parseInt(site.userInfoCookie.getValue('signed_in'));
+        var is_mac_pro_member = $.cookie('MACUSERTYPE') === 'PRO' ? 1 : 0;
+        var is_loyalty_member = parseInt(site.userInfoCookie.getValue('is_loyalty_member')) ? 1 : 0;
+        var loyaltyLevel = parseInt(site.userInfoCookie.getValue('loyalty_level'));
+        $carousel.find('.header-offers-banner-item').addClass('hidden');
+        if (is_mac_pro_member && signedIn) {
+          $carousel.find('.header-offers-banner-item.pro-user-offer').removeClass('hidden');
+          $slides = $carousel.find('.header-offers-banner-item').not('.hidden');
+        } else if (is_loyalty_member && loyaltyLevel && signedIn) {
+          $carousel.find('.header-offers-banner-item.' + 'level' + loyaltyLevel).removeClass('hidden');
+          $slides = $carousel.find('.header-offers-banner-item').not('.hidden');
+        } else {
+          $carousel.find('.header-offers-banner-item').not('.pro-user-offer, .loyalty-tier-offer').removeClass('hidden');
+        }
+      }
+    },
+  };
+})(jQuery);

@@ -1,0 +1,117 @@
+function groupByType(array){
+	var toReturn = {}
+	if(array != null)
+		for(var i=0; i<array.length; i++){
+			var entry = array[i]
+			var type = entry._type
+			if(typeof toReturn[type] === "undefined")
+				toReturn[type] = []
+			toReturn[type].push(entry)
+		}
+	return toReturn
+}
+
+function toProductNode(values){
+	var tr = document.createElement("tr")
+	if(typeof values !== "undefined")
+		for(var i=0; i<values.length; i++){
+			var offer = values[i].offer
+			var itemOffered = offer.itemOffered
+			var name = itemOffered.name
+
+			var img = document.createElement("img")
+			img.alt = name
+			img.src = itemOffered.image.contentUrl
+
+			var td = document.createElement("td")
+			td.appendChild(img)
+			td.appendChild(document.createElement("br"))
+			td.appendChild(document.createTextNode("Ad"))
+			td.appendChild(document.createElement("br"))
+			td.appendChild(document.createTextNode(name))
+			td.appendChild(document.createElement("br"))
+			td.appendChild(document.createTextNode(offer.priceCurrency + offer.price))
+			td.appendChild(document.createElement("br"))
+			td.appendChild(document.createTextNode(offer.seller.name))
+
+			tr.appendChild(td)
+		}
+
+	var tbody = document.createElement("tbody")
+	tbody.appendChild(tr)
+
+	var table = document.createElement("table")
+	table.appendChild(tbody)
+	return table
+}
+
+function toRatingsNode(ratings){
+	var span = document.createElement("span")
+
+	for(var i=0; i<ratings.length; i++){
+		var rating = ratings[i]
+
+		span.appendChild(document.createElement("br"))
+		span.appendChild(document.createTextNode(rating.domain + " is rated " + rating.rating + " (" + rating.numberOfRatings + " reviews)"))
+	}
+
+	return span
+}
+
+function toLinksNode(links){
+	var ul = document.createElement("ul")
+
+	for(var i=0; i<links.length; i++){
+		var siteLinks = links[i].siteLinks
+		for(var j=0; j<siteLinks.length; j++){
+			var siteLink = siteLinks[j]
+
+			var a = document.createElement("a")
+			a.innerHTML = siteLink.text
+			a.href = siteLink.link
+
+			var li = document.createElement("li")
+			li.appendChild(a)
+
+			ul.appendChild(li)
+		}
+	}
+
+	return ul
+}
+
+function toTextNode(values){
+	var ul = document.createElement("ul")
+
+	if(typeof values !== "undefined")
+	    for(var i=0; i<values.length; i++){
+    		var value = values[i]
+
+    		var a = document.createElement("a")
+    		a.innerHTML = value.title
+    		a.href = value.url
+
+    		var span = document.createElement("span")
+    		span.innerHTML = value.description
+
+    		var li = document.createElement("li")
+    		li.appendChild(a)
+    		li.appendChild(document.createElement("br"))
+    		li.appendChild(document.createTextNode(value.displayUrl))
+    		li.appendChild(document.createElement("br"))
+    		li.appendChild(span)
+
+    		var extensions = groupByType(value.extensions)
+    		var ratings = extensions["Ads/MerchantRatingExtension"]
+    		if(typeof ratings !== "undefined")
+    			li.appendChild(toRatingsNode(ratings))
+    		var links = extensions["Ads/SiteLinkExtension"]
+    		if(typeof links !== "undefined")
+    			li.appendChild(toLinksNode(links))
+
+    		ul.appendChild(li)
+    	}
+
+
+	return ul
+}

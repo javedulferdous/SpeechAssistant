@@ -1,0 +1,2 @@
+!function(t){Drupal.behaviors.toutCarouselFormatterV1={attach:function(r){var o=t(".js-tout-carousel-formatter-v1",r),s=t(".js-tout-carousel-formatter__grid",o).filter(".js-tout-carousel-formatter__grid--items");t(".js-tout-carousel-formatter_items",s).each((function(){var r={appendArrows:t(this).parent().find(".carousel-controls"),arrows:!0,dots:!1,infinite:!0,slidesToShow:4,slidesToScroll:1};t(this).slick(r)}))}}}(jQuery);
+//# sourceMappingURL=tout_carousel_formatter_v1.js.map

@@ -1,0 +1,242 @@
+
+<!-- saved from url=(0113)https://td.yieldify.com/0.0.1/campaign_overlays/131393/1.201.2/overlay_eb1dfa95-9d51-5cc9-b21e-57cb3727e12f.html# -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+      
+      <meta name="robots" content="noindex">
+      <meta name="format-detection" content="telephone=no">
+      <meta name="format-detection" content="date=no">
+      <meta name="format-detection" content="address=no">
+      <meta name="format-detection" content="email=no">
+      <link href="./css" rel="stylesheet">
+      <style>
+        body{
+          overflow: hidden;
+        }
+        html, body {
+          margin: 0;
+        }
+        fieldset {
+          border: 0;
+        }
+        button {
+          padding: 0;
+        }
+        @font-face {font-family: 'Soft'; src: url('https://fonts.yieldify-production.com/fonts/791/e44ee594-5613-4ee5-86ac-a187b30fea37.otf'), url('https://fonts.yieldify-production.com/fonts/791/ccc79289-cc2d-4eb9-8b43-244c08c42236.ttf'), url('https://fonts.yieldify-production.com/fonts/791/93d7f168-807d-446e-8297-56856ffdebcd.woff');}
+        
+      input {
+        padding: 0 0.8em;
+      }
+
+      
+    
+        
+      
+      .checkbox {
+        position: absolute;
+        left: 0px;
+        margin: 0px;
+        padding: 0px;
+        line-height: 0;
+      }
+    
+      
+      .checkbox-input {
+        position: absolute;
+        z-index: -1;
+        opacity: 0;
+        top: 0;
+        left: 0;
+      }
+    
+      
+      .checkbox-indicator {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        cursor: pointer;
+        border-radius: 2px;
+        box-sizing: border-box;
+        background-color: #fff;
+        border: 1px solid #bbb;
+      }
+    
+      
+      .checkbox-indicator:after {
+        content: '';
+        position: absolute;
+        display: block;
+        left: 38%;
+        top: 17%;
+        width: 19%;
+        height: 48%;
+        border: solid #fff;
+        transition: border-color 0.05s linear;
+        border-width: 0 0.1em 0.1em 0;
+        -ms-transform: rotate(45deg);
+        transform: rotate(45deg);
+      }
+    
+      
+      .checkbox-input:hover ~ .checkbox-indicator:after {
+        border-color: #ddd;
+      }
+    
+      
+      .checkbox-input:checked ~ .checkbox-indicator:after {
+        border-color: #07c;
+      }
+    
+    
+        
+      .dropdown::after {
+        content: url('data:image/svg+xml; utf8, <svg aria-hidden="true" focusable="false" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path fill="currentColor" d="M441.9 167.3l-19.8-19.8c-4.7-4.7-12.3-4.7-17 0L224 328.2 42.9 147.5c-4.7-4.7-12.3-4.7-17 0L6.1 167.3c-4.7 4.7-4.7 12.3 0 17l209.4 209.4c4.7 4.7 12.3 4.7 17 0l209.4-209.4c4.7-4.7 4.7-12.3 0-17z"></path></svg>');
+        pointer-events: none;
+        position: absolute;
+        top: calc(50% - 7px);
+        right: 0.8em;
+        width: 14px;
+        height: 14px;
+      }
+
+      .dropdown select {
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        appearance: none;
+        border-radius: 0;
+        padding-left: 0.8em;
+      }
+
+      .dropdown select::-ms-expand {
+        display: none;
+      }
+    
+        
+      
+      .radio-input {
+        position: absolute;
+        top: 0;
+        left: 0;
+        opacity: 0;
+        z-index: -1;
+      }
+    
+      
+      .radio-indicator {
+        position: absolute;
+        top: 0;
+        left: 0;
+        cursor: pointer;
+        border-radius: 50%;
+        box-sizing: border-box;
+        background-color: #fff;
+        border: 1px solid #bbb;
+      }
+    
+      
+      .radio-indicator-circle {
+        display: block;
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        margin: auto;
+        background-color: #fff;
+        width: 35%;
+        height: 35%;
+        border-radius: 50%;
+        cursor: pointer;
+      }
+    
+      
+      .radio {
+        position: relative;
+        display: inline-block;
+        vertical-align: top;
+        margin-right: 5px;
+      }
+    
+      
+      .radio-input:checked ~ .radio-indicator {
+        background-color: #07c;
+      }
+    
+      
+      .radio-input:hover ~ .radio-indicator > .radio-indicator-circle {
+        background-color: #ddd;
+      }
+    
+      
+      .radio-container {
+        width: 100%;
+        margin-bottom: 5px;
+        display: -webkit-box; /* Chrome 4-20 */
+        display: -webkit-flex; /* Chrome 21-28 */
+        display: -moz-box; /* Firefox 2-21 */
+        display: -ms-flexbox; /* IE 10+ */
+        display: flex;
+
+        -webkit-box-align: center; /* Chrome 4-20 */
+        -webkit-flex-align: center; /* Chrome 21-28 */
+        -moz-box-align: center; /* Firefox 2-21 */
+        -ms-flex-align: center; /* IE 10+ */
+        align-items: center;
+      }
+    
+    
+        
+      
+      .checkbox-element {
+        position: relative;
+        display: inline-block;
+        vertical-align: top;
+        line-height: 0;
+        margin-right: 5px;
+      }
+    
+      
+      .checkbox-container {
+        width: 100%;
+        margin-bottom: 5px;
+
+        display: -webkit-box; /* Chrome 4-20 */
+        display: -webkit-flex; /* Chrome 21-28 */
+        display: -moz-box; /* Firefox 2-21 */
+        display: -ms-flexbox; /* IE 10 */
+        display: flex;
+
+        -webkit-box-align: center; /* Chrome 4-20 */
+        -webkit-flex-align: center; /* Chrome 21-28 */
+        -moz-box-align: center; /* Firefox 2-21 */
+        -ms-flex-align: center; /* IE 10 */
+        align-items: center;
+      }
+    
+    
+        .image-element {
+      max-height: 100%;
+      max-width: 100%;
+      height: auto;
+      width: auto;
+    }
+        
+      
+      .checkable-column {
+        display: inline-block;
+        vertical-align: top;
+        box-sizing: border-box;
+        padding-right: 10px;
+      }
+    
+      
+      .checkable-label-container {
+        display: inline-block;
+        width: 80%;
+      }
+    
+    
+      </style>
+    </head><body data-new-gr-c-s-check-loaded="14.982.0" marginwidth="0" marginheight="0"><form novalidate="" style="margin: 0; overflow: hidden"><div id="element-1895" y-id="element-1895" y-type="body" style="left: 0px;overflow: visible;position: absolute;top: 0px;height: 500px;width: 500px;z-index: 0;border-radius: 0px 0px 0px 0px;box-sizing: border-box;background: rgba(237,237,237,0) url(&#39;https://assets-v2.yieldify.com/images/131393/2020/2/28/85a3cb71-b67c-48bf-9125-53e0452e4964.png&#39;) no-repeat center center;border: 0px solid rgba(13,152,235,1);outline: none;color: initial;cursor: auto;font-family: initial;font-size: 12px;font-style: initial;font-weight: initial;text-align: initial;text-decoration: initial"><img src="./85a3cb71-b67c-48bf-9125-53e0452e4964.png" style="position: absolute; visibility: hidden;"></div><div id="element-87352" y-id="element-87352" y-type="text" style="left: 91px;overflow: visible;position: absolute;top: 124px;height: 15px;width: 315px;z-index: 2;border-radius: 0px 0px 0px 0px;box-sizing: border-box;background: transparent ;border: 0px solid transparent;outline: none;white-space: pre-wrap;color: #94b2c3;cursor: default;font-family: Soft, Open Sans;font-size: 38px;font-style: initial;font-weight: normal;text-align: center;text-decoration: initial">SCORE A DEAL!</div><div id="element-56904" y-id="element-56904" y-type="text" style="left: 122px;overflow: visible;position: absolute;top: 198px;height: 95px;width: 264px;z-index: 2;border-radius: 0px 0px 0px 0px;box-sizing: border-box;background: transparent ;border: 0px solid transparent;outline: none;white-space: pre-wrap;color: #94b2c3;cursor: default;font-family: Soft, Open Sans;font-size: 21px;font-style: initial;font-weight: normal;text-align: center;text-decoration: initial">Check out our special offers page for exclusive online offers and discounts </div><button type="submit" role="link" id="element-81158" y-id="element-81158" y-type="cta" style="left: 150.5px;overflow: visible;position: absolute;top: 321px;height: 43px;width: 197px;z-index: 3;border-radius: 0px 0px 0px 0px;box-sizing: border-box;background: rgba(0,119,204,0) ;border: 0px solid transparent;outline: none;white-space: pre-wrap;color: #fff;cursor: pointer;font-family: Soft, Open Sans;font-size: 17px;font-style: initial;font-weight: normal;text-align: center;text-decoration: initial" aria-label="SAVE NOW">SAVE NOW</button><script>var OVERLAY_SETTINGS = {"componentId":103365984663,"url":"https://td.yieldify.com/0.0.1/campaign_overlays/131393/1.201.2/overlay_eb1dfa95-9d51-5cc9-b21e-57cb3727e12f.html","dimensions":{"width":"500px","height":"500px"},"overlayElements":[{"id":"element-1895","text":"","type":"body","color":"initial","fontSize":0,"position":{"top":0,"left":0},"fontStyle":"initial","textAlign":"initial","borderSize":0,"dimensions":{"width":500,"height":500},"fontFamily":"initial","fontWeight":"initial","borderColor":"rgba(13,152,235,1)","borderRadius":{"unit":"px","topLeft":0,"topRight":0,"bottomLeft":0,"bottomRight":0},"textDecoration":"initial","backgroundColor":"rgba(237,237,237,0)","backgroundImage":"https://assets-v2.yieldify.com/images/131393/2020/2/28/85a3cb71-b67c-48bf-9125-53e0452e4964.png"},{"id":"element-87352","text":"SCORE A DEAL!","type":"text","color":"#94b2c3","fontSize":38,"position":{"top":124,"left":91},"alignment":"none","fontStyle":"initial","textAlign":"center","borderSize":0,"dimensions":{"width":315,"height":15},"fontFamily":"Soft, Open Sans","fontWeight":"normal","borderColor":"transparent","borderRadius":{"unit":"px","topLeft":0,"topRight":0,"bottomLeft":0,"bottomRight":0},"textDecoration":"initial","backgroundColor":"transparent","backgroundImage":"none"},{"id":"element-56904","text":"Check out our special offers page for exclusive online offers and discounts ","type":"text","color":"#94b2c3","fontSize":21,"position":{"top":198,"left":122},"alignment":"none","fontStyle":"initial","textAlign":"center","borderSize":0,"dimensions":{"width":264,"height":95},"fontFamily":"Soft, Open Sans","fontWeight":"normal","borderColor":"transparent","borderRadius":{"unit":"px","topLeft":0,"topRight":0,"bottomLeft":0,"bottomRight":0},"textDecoration":"initial","backgroundColor":"transparent","backgroundImage":"none"},{"id":"element-81158","text":"SAVE NOW","type":"cta","color":"#fff","onClick":{"type":"redirect","target":"https://www.neutrogena.com/offers.html","countAsClick":true},"fontSize":17,"position":{"top":321,"left":150.5},"alignment":"none","fontStyle":"initial","textAlign":"center","borderSize":0,"dimensions":{"width":197,"height":43},"fontFamily":"Soft, Open Sans","fontWeight":"normal","borderColor":"transparent","borderRadius":{"unit":"px","topLeft":0,"topRight":0,"bottomLeft":0,"bottomRight":0},"textDecoration":"initial","backgroundColor":"rgba(0,119,204,0)","backgroundImage":"none"}],"closeButton":{"position":{"top":0,"right":0},"iconUrl":"https://assets.yieldify.com/global/close-button/close-button-shadow.svg"},"format":"Overlay","displayOrder":0,"accessibility":{"ariaLabel":"","defaultFocusStyles":false},"position":"Centre"};
+var ADVANCED_COMPONENTS = {};</script><script src="./main-ec.js.download"></script></form></body></html>

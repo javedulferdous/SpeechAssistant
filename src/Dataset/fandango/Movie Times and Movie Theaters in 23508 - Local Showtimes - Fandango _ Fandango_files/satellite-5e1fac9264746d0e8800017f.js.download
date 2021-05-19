@@ -1,0 +1,50 @@
+_satellite.pushAsyncScript(function(event, target, $variables){
+  // I still Believe 220007
+if(_satellite.getVar('Movie ID') == '220007'){
+//Desktop MOP
+if(_satellite.getVar('Page Level 2') == 'movie | overview'){
+  //pxl-440
+!function(e,t,n,s,u,a){e.twq||(s=e.twq=function(){s.exe?s.exe.apply(s,arguments):s.queue.push(arguments);
+},s.version='1.1',s.queue=[],u=t.createElement ,u.async=!0,u.src='//static.ads-twitter.com/uwt.js',
+a=t.getElementsByTagName [0],a.parentNode.insertBefore(u,a))}(window,document,'script');
+// Insert Twitter Pixel ID and Standard Event data below
+twq('init','o2bjt');
+twq('track','PageView');
+
+//pxl-441
+(function(e,t,n){if(e.snaptr)return;var a=e.snaptr=function(){a.handleRequest?a.handleRequest.apply(a,arguments):a.queue.push(arguments)};a.queue=[];var s='script';r=t.createElement(s);r.async=!0;r.src=n;var u=t.getElementsByTagName(s)[0];u.parentNode.insertBefore(r,u);})(window,document,'https://sc-static.net/scevent.min.js');
+snaptr('init', 'f82e1d40-21cb-4ab3-a22b-a0b03b1c7eab', {'user_email': '_INSERT_USER_EMAIL_'});
+snaptr('track', 'f82e1d40-21cb-4ab3-a22b-a0b03b1c7eab', 'PAGE_VIEW');
+
+
+
+    }
+
+}
+
+// I still Believe 220007
+if(_satellite.getVar('Movie ID') == '220007'){
+//Desktop MSP
+if(_satellite.getVar('Page Level 2') == 'movie times | by movie'){
+
+  //pxl-440
+!function(e,t,n,s,u,a){e.twq||(s=e.twq=function(){s.exe?s.exe.apply(s,arguments):s.queue.push(arguments);
+},s.version='1.1',s.queue=[],u=t.createElement ,u.async=!0,u.src='//static.ads-twitter.com/uwt.js',
+a=t.getElementsByTagName [0],a.parentNode.insertBefore(u,a))}(window,document,'script');
+// Insert Twitter Pixel ID and Standard Event data below
+twq('init','o2bjt');
+twq('track','PageView');
+
+//pxl-441
+(function(e,t,n){if(e.snaptr)return;var a=e.snaptr=function(){a.handleRequest?a.handleRequest.apply(a,arguments):a.queue.push(arguments)};a.queue=[];var s='script';r=t.createElement(s);r.async=!0;r.src=n;var u=t.getElementsByTagName(s)[0];u.parentNode.insertBefore(r,u);})(window,document,'https://sc-static.net/scevent.min.js');
+snaptr('init', 'f82e1d40-21cb-4ab3-a22b-a0b03b1c7eab', {'user_email': '_INSERT_USER_EMAIL_'});
+snaptr('track', 'f82e1d40-21cb-4ab3-a22b-a0b03b1c7eab', 'PAGE_VIEW');
+
+
+
+
+
+      }
+
+}
+});

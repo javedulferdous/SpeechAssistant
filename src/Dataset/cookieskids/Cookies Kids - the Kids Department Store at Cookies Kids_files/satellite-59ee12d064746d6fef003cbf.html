@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<!-- saved from url=(0204)https://assets.adobedtm.com/1c6d57bc944cf3bd14e32069fadf516eb1771763/scripts/satellite-59ee12d064746d6fef003cbf.html?26m=undefined&26type=undefined&3D1.0=undefined&3D4534743680301=undefined&3Fid=undefined -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=windows-1252"></head><body data-new-gr-c-s-check-loaded="14.982.0">
+    <script>
+      (function(){
+        function escapeForHtml(str){
+          if (!str) return str
+          return str
+            .replace(/\&/g, '&amp;')
+            .replace(/\</g, '&lt;')
+            .replace(/\>/g, '&gt;')
+            .replace(/\"/g, '&quot;')
+            .replace(/\'/g, '&#x27;')
+            .replace(/\//g, '&#x2F;')
+        }
+
+        var regexChars = /[.*+?^${}()|[\]\\]/g;
+        function escapeForRegex(str) {
+          return str.replace(regexChars, "\\$&");
+        }
+
+        function parseQueryString(){
+          var ret = {}, parts = location.search.substring(1).split('&');
+          for (var i = parts.length; i--;) {
+            var vardef = parts[i].split('='), varname = vardef[0], value = vardef[1];
+            ret[varname] = unescape(value);
+          }
+          return ret;
+        }
+
+        var queryParams = parseQueryString();
+
+        var markup = "<!-- Use of this pixel is subject to the Amazon ad specs and policies at http://www.amazon.com/b/?&node=7253015011 --><img height='1' width='1' border='0' alt='' src='https://s.amazon-adsystem.com/iui3?d=forester-did&ex-fargs=%3Fid%3D8bff99a3-008c-f7ac-6453-5721bb34361d%26type%3DUNKNOWN%26m%3D1&ex-fch=416613&ex-src=www.cookieskids.com&ex-hargs=v%3D1.0%3Bc%3D4534743680301%3Bp%3D8BFF99A3-008C-F7AC-6453-5721BB34361D' />";
+
+        for (var name in queryParams){
+          var regex = new RegExp('%' + escapeForRegex(name) + '%', 'ig');
+          markup = markup.replace(regex, 
+            escapeForHtml(queryParams[name]));
+        }
+
+        document.write(markup)
+      })();
+    </script><!-- Use of this pixel is subject to the Amazon ad specs and policies at http://www.amazon.com/b/?&node=7253015011 --><img height="1" width="1" border="0" alt="" src="./iui3">
+  
+
+</body></html>

@@ -1,0 +1,16 @@
+_satellite.pushAsyncScript(function(event, target, $variables){
+  try{
+  //SessionCam Custom Variables must be set in the direct call rules
+  //This is because they need to access the data layer which isn't available yet on page load
+  if (!window.sessioncamConfiguration)
+  window.sessioncamConfiguration = new Object();
+  if (!window.sessioncamConfiguration.customDataObjects)
+  window.sessioncamConfiguration.customDataObjects = [];
+  var item1 = {key:"pagename",value: _satellite.getVar("pageName")};
+  var item2 = {key:"datacentre",value: _satellite.getVar("dataCentre")};
+  window.sessioncamConfiguration.customDataObjects.push(item1,item2);	
+}
+catch(err) {
+  _satellite.notify("Direct Call Rule Error - pageLoaded SessionCam Custom Variables: " + err.message,[3]);
+}
+});

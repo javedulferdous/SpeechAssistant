@@ -1,0 +1,58 @@
+_satellite.pushAsyncScript(function(event, target, $variables){
+  //Onward 219053
+if(_satellite.getVar('Movie ID') == '219053'){
+//Desktop MOP
+if(_satellite.getVar('Page Level 2') == 'movie | overview'){
+  
+  
+//pxl-479 Onward MOP
+  _satellite.addImage('https://d.agkn.com/iframe/7043/?che=%n&uid=[third_party_user_id]&type=512790&ouid='+_satellite.getVisitorId().getMarketingCloudVisitorID())
+
+
+  //pxl-463
+  _satellite.loadScript('https://www.googletagmanager.com/gtag/js?id=AW-709805659')
+  window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'AW-709805659');
+gtag('event', 'conversion', { 'send_to': 'AW-709805659/OzTbCOHBh8ABENuMu9IC', 'transaction_id': '' }); 
+ 
+   _satellite.loadScript('https://www.googletagmanager.com/gtag/js?id=AW-722357378')
+  window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'AW-722357378');
+ gtag('event', 'conversion', {'send_to': 'AW-722357378/OZUiCPfJ7L8BEIKZudgC'}); 
+ 
+
+    }
+
+}
+
+//Onward 219053
+if(_satellite.getVar('Movie ID') == '219053'){
+//Desktop MSP
+if(_satellite.getVar('Page Level 2') == 'movie times | by movie'){
+  
+  //pxl-479 Onward MSP
+ _satellite.addImage('https://d.agkn.com/iframe/7043/?che=%n&uid=[third_party_user_id]&type=5127900&ouid='+_satellite.getVisitorId().getMarketingCloudVisitorID())
+    //pxl-463
+  _satellite.loadScript('https://www.googletagmanager.com/gtag/js?id=AW-709805659')
+  window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'AW-709805659');
+gtag('event', 'conversion', { 'send_to': 'AW-709805659/OzTbCOHBh8ABENuMu9IC', 'transaction_id': '' });
+
+  _satellite.loadScript('https://www.googletagmanager.com/gtag/js?id=AW-722357378')
+  window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'AW-722357378');
+ gtag('event', 'conversion', {'send_to': 'AW-722357378/pyT_CIfO7L8BEIKZudgC'});
+
+
+      }
+
+}
+});

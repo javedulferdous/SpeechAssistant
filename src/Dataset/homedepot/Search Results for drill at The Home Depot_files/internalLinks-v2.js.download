@@ -1,0 +1,35 @@
+/* eslint-disable indent */
+var internalLinks = {
+  init: function init() {
+    var il = document.getElementsByClassName("internalLinks");
+    if (il.length) {
+      this.drawToggle(il[0]);
+    }
+  },
+
+  drawToggle: function drawToggle(wrapper) {
+    var overlay = document.createElement('div');
+    var icon = document.createElement('img');
+    var link = document.createElement('a');
+    overlay.setAttribute('class', 'internalLinks__more__overlay');
+    icon.setAttribute('class', 'internalLinks__more__icon');
+    icon.setAttribute('src', 'https://assets.homedepot-static.com/images/v1/caret-orange.svg')
+    link.innerHTML = 'See More';
+    link.setAttribute('class', 'internalLinks__more__toggle');
+    link.addEventListener('click', function(e) {
+      e.preventDefault();
+      wrapper.classList.toggle('collapsed');
+      if (link.innerHTML == 'See More') {
+        link.innerHTML = 'See Less';
+      } else {
+        link.innerHTML = 'See More';
+      }
+    });
+    overlay.appendChild(icon);
+    overlay.appendChild(link);
+    wrapper.appendChild(overlay);
+    wrapper.classList.toggle('collapsed');
+  }
+}
+
+internalLinks.init();

@@ -1,0 +1,288 @@
+!function () {
+	//#region common functions
+	function deferWait(callback, test) {
+		if (test()) {
+			callback();
+			return;
+		}
+		var _interval = 10;
+		var _spin = function () {
+			if (test()) {
+				callback();
+			}
+			else {
+				_interval = _interval >= 1000 ? 1000 : _interval * 2;
+				setTimeout(_spin, _interval);
+			}
+		};
+		setTimeout(_spin, _interval);
+	}
+
+	function escapeHtml(str) {
+		var div = document.createElement('div');
+		div.appendChild(document.createTextNode(str));
+		return div.innerHTML;
+	}
+
+	function htmlEscape(str) {
+		return str
+			.replace(/&/g, '&amp;')
+			.replace(/"/g, '&quot;')
+			.replace(/'/g, '&#39;')
+			.replace(/</g, '&lt;')
+			.replace(/>/g, '&gt;');
+	}
+	//#endregion common functions
+
+	//#region Initialization
+	var $;
+	function waitForInside() {
+		if (_insideGraph.jQuery && insideAPI && insideFrontInterface && insideFrontInterface.bind && insideFrontInterface.chat && insideFrontInterface.chat.settings) {
+			$ = _insideGraph.jQuery;
+			$.fn.clickableByKeyboard = function () {
+				if (!$(this).attr('role')) $(this).attr('role', 'button');
+				$(this).keydown(function (e) {
+					if (e.keyCode == 32 || e.keyCode == 13) {
+						e.preventDefault();
+						this.click();
+					}
+				});
+				return this;
+			};
+
+			customizeWebsiteElements();
+
+			// event handler
+			function processMessages(messages) {
+				if(messages) {
+					for (var i = 0; i < messages.length; i++) {
+						var msg = messages[i];
+						$('[mid="' + msg.id + '"]').attr('role', 'alert');
+					}
+				}
+
+				setTimeout(function() {
+					$('#inside_chatWindow [role="alert"]').removeAttr('role'); // remove the alert so it will not be read again by screen reader
+				}, 1000);
+				
+				$('.inside_messageText, .inside_systemMessage').removeAttr('tabindex');
+				$('.inside_messageText .staples-bot-action-button').attr('tabindex', 1).clickableByKeyboard();
+			}
+			// chat received callback
+			$.inside.bind("chat", function (messages) {
+				processMessages(messages);
+			});
+			$.inside.bind("queuePos", function(response) {
+				processMessages();
+			});
+			processMessages();
+			setTimeout(processMessages, 1000);
+
+			$('#inside_holder').on('click', '#inside_liveChatTab', customizeChatPane);
+			var openPane = insideFrontInterface.openChatPane;
+			insideFrontInterface.openChatPane = function (force) {
+				openPane(force);
+				customizeChatPane();
+			}
+
+			$('#inside_holder').on('click keyup', '.inside_chatPane', function () {
+				$('#inside_holder .inside_chatPane').addClass('chatInputEnabled');
+			});
+
+			$('#inside_holder').on('keyup', '#inside_chatInput', function () {
+				if (this.value.length > 0) {
+					$('#inside_chat_input_cell .cross').show();
+				} else {
+					$('#inside_chat_input_cell .cross').hide();
+				}
+			});
+
+			deferWait(function () {
+				$('#inside_chat_input_cell').append('<div class="cross" aria-label="clear chat input box" role="button" tabindex="1"></div>');
+				$('#inside_chat_input_cell .cross').click(function () {
+					$('#inside_chatInput').val('')
+					$('#inside_chatSendButton').focus();
+					setTimeout(function() {
+						$('#inside_chatInput').focus().trigger('keyup');;
+					}, 300);
+				}).clickableByKeyboard();
+
+				if($('#inside_holder .inside_chatPane').css('display') == 'block') {
+					customizeChatPane();
+					setTimeout(function() {
+						$('.inside_messageText, .inside_systemMessage').removeAttr('tabindex');
+					}, 1000);
+				}
+
+			}, function () {
+				return $('#inside_chat_input_cell').length > 0;
+			})
+		}
+		else {
+			setTimeout(waitForInside, 1000);
+		}
+	}
+	waitForInside();
+	//#endregion
+
+	//#region show dept selector as radio button
+	deferWait(function () {
+		insideFrontInterface.chat.getDepartmentSelectorHtml = function (departments, askDepartmentPrompt) {
+			if (!departments || departments.length == 0) {
+				return "";
+			}
+
+			if (typeof (askDepartmentPrompt) == "undefined" || askDepartmentPrompt == null) {
+				askDepartmentPrompt = insideFrontInterface.chat.translate("To help us better assist you, which department do you require assistance from?");
+			}
+			var html = "";
+			html += "<div class='inside_dept_selector' role='radiogroup'><label class='formHeading inside_dept_selector_title'>" + escapeHtml(askDepartmentPrompt) + "</label>";
+			html += "<div>";
+
+			html += '<div>';
+			for (var i = 0; i < departments.length; i++) {
+				html += "<div class='inside_dept_option'> <label for='inside_chat_check_" + i + "'>";
+				html += "<input tabindex='2' type='radio' name='inside_dept' id='inside_chat_check_" + i + "' value='" + htmlEscape(departments[i]) + "' /><span class='box'></span>" + escapeHtml(departments[i]);
+				html += "</label></div>";
+			}
+			html += "</div>";
+
+			html += "</div>";
+			html += "</div>";
+
+			// wait until the department selector is rendered
+			deferWait(customizePrechatForm, function () {
+				return typeof _insideGraph !== 'undefined' && typeof _insideGraph.jQuery !== 'undefined' && _insideGraph.jQuery('.inside_dept_selector').length > 0;
+			});
+
+			return html;
+		}
+	}, function () {
+		return typeof insideFrontInterface !== 'undefined' && typeof insideFrontInterface.chat !== 'undefined' && typeof insideFrontInterface.chat.getDepartmentSelectorHtml !== 'undefined'
+	});
+	//#endregion
+
+	//#region customisation for ADA compliance
+	function customizeWebsiteElements() {
+		// chat tab using chat pane header
+		$('#inside_liveChatTab .chatHeaderIcons img').each(function () {
+			$(this).attr('alt', $(this).parent().attr('title'));
+		});
+
+		// join the call image
+		$('#inside_joinTheCallChatTab').attr({ 'tabindex': 0, 'aria-label': 'Join the Call' }).find('img').attr({ 'alt': 'Join the Call' });
+
+		// website header
+		// $('.header__chatWrapper').attr('tabindex', 0).clickableByKeyboard();
+
+		// help center page
+		// $('.Contacts__contacts_rowLink').clickableByKeyboard();
+
+		// help center dropdown menu
+		// var replaceChatLink = function () {
+		// 	deferWait(function () {
+		// 		var chatLink = $('.Dropdown-flyout__linksection div[tabindex]');
+		// 		chatLink.replaceWith('<a tabindex="0" role="link" href="javascript:void(0);" onclick="insideFrontInterface.openChatPane()" id="help" class="Dropdown-flyout__dropdownItem"> Chat<span class="Dropdown-flyout__menuItemsDescription"></span></a>');
+		// 	}, function () {
+		// 		return $('.Dropdown-flyout__linksection div[tabindex]').length > 0;
+		// 	});
+
+		// }
+		// $('#Help .Dropdown__sectionIconLabel').hover(replaceChatLink).click(replaceChatLink).focus(replaceChatLink);
+	}
+
+	function customizePrechatForm() {
+		$('.inside_dept_selector input[type="radio"]').keydown(function (event) {
+			var spaceOrEnter = event.keyCode == 32 || event.keyCode == 13;
+			if (spaceOrEnter)
+				$('#inside_prechatForm_form .insideSubmitButton').click();
+		}).focus(function () {
+			$(this).prop('checked', true);
+		});
+
+		$('#inside_prechatForm a').attr('tabindex', 2);
+		$('#inside_prechatForm .inside_output').removeAttr('tabindex');
+
+		// override prechat submit
+		var originalPrechatSubmit = $._data($("#inside_prechatForm .insideSubmitButton")[0], "events")['click'][0].handler;
+    $._data($("#inside_prechatForm .insideSubmitButton")[0], "events")['click'][0].handler = function () {
+      originalPrechatSubmit();
+      if($('.inside_InvalidInput').length == 0) {
+				setTimeout(customizeChatPane, 500);
+			}
+		}
+		
+
+	}
+
+	function customizeChatPane() {
+		if ($('.inside_chatPane').length == 0 || $('#inside_chatPaneHeader').length == 0) {
+			setTimeout(customizeChatPane, 500);
+			return;
+		}
+
+		// prevent duplicative read
+		$('#chatHeaderIcons > div').each(function() {
+			var title = $(this).attr('title');
+			$(this).attr('aria-label', title).attr('title-placeholder', title).removeAttr('title');
+			$(this).unbind('mouseover').mouseover(function() {
+				$(this).attr('title', $(this).attr('title-placeholder'));
+			}).unbind('mouseout').mouseout(function() {
+				$(this).removeAttr('title');
+			});
+		});
+
+		// set focus to close icon so user can easily close the dialog
+		// chat input will be hidden to prevent screen reader to read the placeholder
+		// also remove role="dialog" from chat pane to prevent screen reader read previous messages, new messages will be read using role="alert" in chat received callback
+		$('#inside_holder .inside_chatPane').removeClass('chatInputEnabled').removeAttr('role');
+		var focusButtonSelector = insideFrontInterface.chatInProgress ? 'inside_minimise' : 'inside_closeCross';
+		$('#chatHeaderIcons .' + focusButtonSelector).focus();
+		setTimeout(function () {
+			if (!$(document.activeElement).hasClass(focusButtonSelector)) $('#chatHeaderIcons .' + focusButtonSelector).focus();
+			$('#inside_holder .inside_chatPane').addClass('chatInputEnabled');
+			$('#inside_chatInput').trigger('keyup');
+		}, 500);
+		setTimeout(function () {
+			// try to set the focus again in case of slow connection
+			if (!$(document.activeElement).hasClass(focusButtonSelector)) $('#chatHeaderIcons .' + focusButtonSelector).focus();
+		}, 1000);
+
+		// fix screen reader sequencing
+		$('#inside_siteLogo .sr-only').remove();
+
+		// add missing alt attribute
+		$('#inside_chatPaneHeader .chatHeaderIcons img').each(function () {
+			$(this).attr('alt', $(this).parent().attr('title'));
+		});
+
+		// remove tabindex for unactionable items
+		$('#inside_chatHeaderAndWindowHolder').removeAttr('aria-live');
+		$('#chatHeaderIcons, .inside_messageText, .inside_systemMessage, #inside_leaveMessageForm .inside_output').removeAttr('tabindex');
+		setTimeout(function() {
+			$('.inside_messageText, .inside_systemMessage').removeAttr('tabindex');
+		}, 1000);
+		$('#inside_leaveMessageForm').attr('tabindex', 2).removeAttr('aria-live');
+
+		// add tabindex to links
+		$('#inside_leaveMessageForm_form a, .inside_messageText a, .inside_systemMessage a').attr('tabindex', 2);
+
+		// focus trap
+		$('#chatHeaderIcons .inside_closeCross').unbind('keydown').keydown(function (e) {
+			var visibleIcons = $('#chatHeaderIcons>div:visible');
+			if (!e.shiftKey && e.keyCode == 9) {
+				if ($("#inside_prechatForm:visible").length > 0) $("#inside_prechatForm").focus();
+				else if ($("#inside_leaveMessageForm:visible").length > 0) $("#inside_leaveMessageForm").focus();
+				else if ($("#inside_chatHeaderAndWindowHolder:visible").length > 0) $("#inside_chatHeaderAndWindowHolder").focus();
+			}
+		});
+		$('#inside_chatHeaderAndWindowHolder, #inside_leaveMessageForm, #inside_prechatForm').unbind('keydown').keydown(function (e) {
+			var activeId = document.activeElement.id;
+			if ((activeId == 'inside_chatHeaderAndWindowHolder' || activeId == 'inside_leaveMessageForm' || activeId == 'inside_prechatForm') && e.shiftKey && e.keyCode == 9) {
+				return false;
+			}
+		});
+
+	}
+	//#endregion
+}()

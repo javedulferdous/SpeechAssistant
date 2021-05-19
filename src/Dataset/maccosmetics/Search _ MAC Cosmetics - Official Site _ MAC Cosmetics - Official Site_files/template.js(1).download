@@ -1,0 +1,41 @@
+var site = site || {};
+site.template = site.template || {};
+site.templates = site.templates || {};
+
+(function($){
+
+  site.template.get = function(args) {
+    var template = site.templates[args.name];
+    if (_.isUndefined(template)) {
+      throw new Error('The template ' + args.name + ' cannot be found');
+    }
+    var translations = {
+      globals: {
+        t: site.translations
+      }
+    };
+    var view = $.extend({}, args.data, translations, template.data);
+    var partials = {};
+
+    if (!_.isUndefined(template.partials)) {
+      $.each(template.partials, function(key, name) {
+        if (_.isUndefined(site.templates[name])) {
+          throw new Error('The partial ' + name + ' cannot be found');
+        }
+
+        partials[key] = site.templates[name].content;
+      });
+    }
+
+    var rendered = Mustache.render(template.content, view, partials);
+
+    if (_.isFunction(args.callback)) {
+      var so = args.callback(rendered);
+      if (!_.isUndefined(so)) {
+        return so;
+      }
+    }
+
+    return rendered;
+  };
+})(jQuery);

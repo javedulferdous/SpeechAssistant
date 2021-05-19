@@ -1,0 +1,8 @@
+/**
+ * Copyright © Magento, Inc. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+
+
+define("mixins",["module"],function(n){"use strict";function r(n){return!!~n.indexOf("!")}function e(n){return"mixins!"+n}function i(n,r){var e=r.baseUrl||"",i=n.indexOf(e);return~i&&(n=n.substring(e.length-i)),n}function t(n,r){return i(a.require.toUrl(n),r)}function u(n){return!!~n.indexOf("./")}function s(n){return Array.prototype.slice.call(arguments,1).forEach(function(r){n=r(n)}),n}var o,c=require.s.contexts,f=c._,a=require.s.newContext("$"),l=f.config,x={baseUrl:l.baseUrl,paths:l.paths,shim:l.shim,config:l.config,map:l.map};return a.configure(x),o={load:function(n,r,e,i){var u=t(n,i);r([n].concat(this.getMixins(u)),function(){e(s.apply(null,arguments))})},getMixins:function(r){var e,i=n.config()||{};return-1!==r.indexOf("?")&&(r=r.substring(0,r.indexOf("?"))),e=i[r]||{},Object.keys(e).filter(function(n){return!1!==e[n]})},hasMixins:function(n){return this.getMixins(n).length},processNames:function(n,i){function s(n){var i=t(n,c);return r(n)||!u(n)&&!o.hasMixins(i)?n:e(n)}var c=i.config;return"string"!=typeof n?n.map(s):s(n)}}}),require(["mixins"],function(n){"use strict";var r=require.s.contexts,e=r._,i=e.require,t=n.processNames;e.require=function(n,r,u){return n=t(n,e),i(n,r,u)},Object.keys(i).forEach(function(n){e.require[n]=i[n]}),e.defQueue.shift=function(){var n=Array.prototype.shift.call(this);return n[1]=t(n[1],e),n}});
+//# sourceMappingURL=mixins.js.map

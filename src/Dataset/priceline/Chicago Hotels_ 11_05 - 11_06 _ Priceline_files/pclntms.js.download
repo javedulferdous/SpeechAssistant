@@ -1,0 +1,111 @@
+
+    var pclntms = (function () {
+        var isTmsOn = /true/i.test('true');
+        var api = {dataDictionary: {}};
+
+        /**
+         * Function available for backwards compatibility. Initializes the data objects and can load the Telaium
+         * script (if not present) or call a refire of the tags (utag.view)
+         *
+         * @param pageData The page data to fire the Marketing tags with. Refer to the pclntms Data Dictionary documentation.
+         */
+        function loadTealiumWithData(pageData) {
+            // Adds the page data into the pclntms.dataDictionary and utag_data objects
+            addPageData(pageData)
+            // Initiate the Tealium script (utag.js) if it's not present (this will trigger the tags)
+            if (!utag_data.scriptLoaded) {
+                insertTealiumScript();
+            } else if (!!utag) {
+                // If the script is loaded and 'utag' exists we can trigger the tags using view...
+                utag.view(utag_data);
+            }
+        }
+
+        /**
+         * Private function - inserts the Tealium script into the page, if it is not present.
+         */
+        function insertTealiumScript() {
+            // Make sure TMS is on (isTmsOn = LDAP) and the script hasn't been previously loaded.
+            if (isTmsOn && !utag_data.scriptLoaded) {
+                // Set the Tealium URL to load (calculated in the Java controller)
+                var tealiumUrl = utag_data.appCode == 'MOBILEWEB' ? '//tags.tiqcdn.com/utag/pcln/opt/prod/utag.js' : '//tags.tiqcdn.com/utag/pcln/opt/prod/utag.js';
+                // Prepare the DOM element
+                var tmsDomScript = document.createElement("script");
+                tmsDomScript.type = "text/javascript";
+                tmsDomScript.src = tealiumUrl;
+                tmsDomScript.async = true;
+                // Add the load callback so we know the script has been loaded by the DOM
+                tmsDomScript.addEventListener('load', function () {
+                    // Set the flag to show that the script has been added to the page
+                    utag_data.scriptLoaded = true;
+                    // If there's a valid callback passed into the script, make sure it's executed.
+                    var callback = '';
+                    if (!!callback && !!window[callback] && typeof(window[callback]) === 'function') {
+                        try {
+                            window[callback]();
+                        } catch (e) {
+                            console.log("TMS Load Callback Error:" + e);
+                        }
+                    }
+                }, false);
+                // Add the script to the page
+                var targetDomSibling = document.getElementsByTagName("script")[0];
+                targetDomSibling.parentNode.insertBefore(tmsDomScript, targetDomSibling);
+            }
+        }
+
+        /**
+         * Makes sure utag_data exists and adds the new page data to pclntms.dataDictionary and utag_data objects.
+         *
+         * @param pageData The page data to push to the tag objects
+         */
+        function addPageData(pageData) {
+            window.utag_data = window.utag_data || {scriptLoaded: false};
+            // Merge the data into the data dictionary. This is used by Google Analytics only.
+            mergeObjects(pageData, api.dataDictionary);
+            // Merge the new data into the utag_data object used by Tealium.
+            mergeObjects(pageData, window.utag_data);
+        }
+
+        /**
+         * Merges data from an object into another object. Used to pass data into the dataDictionary and utag_data
+         * objects when new data is added by the page.
+         *
+         * @param originObj The origin object to get the data from
+         * @param destinationObj The object the origin data will be pushed into
+         */
+        function mergeObjects(originObj, destinationObj) {
+            if (!!originObj) {
+                for (var key in originObj) {
+                    var value = originObj[key];
+                    if (!!value) {
+                        destinationObj[key] = value;
+                    }
+                }
+            }
+        }
+
+        /**
+         * Leaving this for backwards compatibility. Need to clean this up and provide a friendlier opt-out.
+         */
+        function optOutOptionsClicked() {
+            if (typeof __tealiumMo2Div == 'undefined') {
+                __tealiumMo2Div = document.createElement('SCRIPT');
+                __tealiumMo2Div.type = 'text/javascript';
+                __tealiumMo2Div.src = '//tags.tiqcdn.com/utag/pcln//prod/utag.tagsOptOut.js?cb=' + Math.random();
+                document.getElementsByTagName('head')[0].appendChild(__tealiumMo2Div);
+            }
+            else {
+                if (typeof __tealium != 'undefined')
+                    __tealium.load();
+            }
+        }
+
+        // public functions
+        api.config = loadTealiumWithData;
+        api.push = loadTealiumWithData;
+        api.addData = addPageData;
+        api.loadTelaium = insertTealiumScript;
+        api.optOutOptionsClicked = optOutOptionsClicked;
+        return api;
+    })();

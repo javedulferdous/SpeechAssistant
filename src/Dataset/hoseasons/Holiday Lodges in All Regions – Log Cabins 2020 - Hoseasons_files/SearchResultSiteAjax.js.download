@@ -1,0 +1,1801 @@
+﻿/* All Global Variables to be included here */
+var servicename = "";
+var requestHandler = "";
+var websiteId = "";
+var searchResultContainerId = "";
+var searchResultTempldateId = "";
+var noResultContainerId = "";
+var $Pagination1_ID = "";
+var $Pagination2_ID = "";
+var $Pagination3_ID = "";
+var $Pagination_ID = "";
+var $PaginationFirst_ID = "";
+var $PaginationLast_ID = "";
+var $PaginationBottom1_ID = "";
+var $PaginationBottom2_ID = "";
+var $PaginationBottom3_ID = "";
+var $PaginationBottom_ID = "";
+var $PaginationBottomFirst_ID = "";
+var $PaginationBottomLast_ID = "";
+var $SearchResultContainerDivId = "";
+var $PlatinumPushPostBackContainerId = "";
+var $PlatinumPushResultContainerId = "";
+var $PlatinumPushItemTemplateId = "";
+
+var MaxPage = "";
+var JumperDefaultCss = "";
+var PaginationCss = "";
+var CurrentCss = "";
+var PerPageResults = "";
+var ResultCount = "";
+
+
+var pageType = "";
+var trkref = "";
+var resultCountContainerId = "";
+var $PriceDivID = "";
+var $PriceErrorMessageID = "";
+var IsDatedSearch = "";
+var IsLastPage = "";
+var _maxPage = "";
+var _currentPageNumber;
+
+// For Map
+var nonDatedPriceText = "";
+var PermanentSettings = "";
+//var metreRadius = 40233.6;
+var MouseDown = false;
+var marker = null;
+var cottageListCircle = null;
+var circleOptions = null;
+var i = 0;
+// End Map
+var IsPagePostBack = false;
+
+var global_innerHtmlValue = "";
+var gloabl_hrefValue = "";
+var gloabl_pagenumber = "";
+var global_pagetype = "";
+var global_perPageResults = "";
+var gloabl_maxPage = "";
+
+//Open Ajax Filter------------------------------------------------------------------
+var ForSupplier;
+var radiusInMeters;
+var isProximitySearch;
+var proximitySearchCentreLat;
+var proximitySearchCentreLng;
+var QSParameterWebsiteId;
+var WebsiteId;
+var QSParameterPropDetailPageName;
+var PropertyDetailsPageName;
+var IntroTextLength;
+var maxZoom;
+var PopupImageWidth;
+var SingleClusterImageUrl;
+var ComplexClusterImageUrl;
+var ComplexClusterImageFifteenPlusUrl;
+var SingleClusterImageUrl_Fade;
+var ComplexClusterImageUrl_Fade;
+var ComplexClusterImageFifteenPlusUrl_Fade;
+var MapPopupUserControlName;
+var UseUnapproved;
+var Currency;
+var TooltipText;
+var _queryString = "";
+var _queryStringMap = "";
+var queryString = "";
+var $containingMapDivAjax;
+var hdnWebsiteID;
+var hdnWebsiteURL;
+var hdnRegionID = "";
+var IsFeature = "false";
+var IsNotPagination = "true";
+var revooProductCode = "";
+var currentURL = window.location.href.split('?')[1];
+var RegionID;
+var IsMapView = "false";
+var _allFiltreList = "";
+//Close Ajax Filter ----------------------------------------------------------------
+
+
+var $FlexibilityDDlId = "";
+var isFeatureSortFlag = false;
+var SupplierDisplaySet = "";
+var DiscountApply = "";
+var ReevooReviewPageName = "";
+
+function getLocalStorageValue(key) {
+
+    var retValue = "";
+
+    if (!(localStorage.getItem(key) === null)) {
+        retValue = localStorage.getItem(key);
+        localStorage.removeItem(key);
+    }
+
+    return retValue;
+}
+
+function savePostData() {
+
+    localStorage.clear();
+
+    localStorage.setItem("upperpaginationcontainer", JSON.stringify($("#upperpaginationcontainer").html()));
+    localStorage.setItem("lowerpaginationcontainer", JSON.stringify($("#lowerpaginationcontainer").html()));
+
+    // Saves the supplier results sets
+    if (SupplierDisplaySet.length > 0) {
+        localStorage.setItem("hdnSupplierDisplaySet", SupplierDisplaySet);
+    }
+
+    SavePaginationData();
+
+}
+
+function SavePaginationData() {
+
+    // Saves all CSS details
+    localStorage.setItem("PaginationCss", PaginationCss);
+    localStorage.setItem("CurrentCss", CurrentCss);
+    localStorage.setItem("JumperDefaultCss", JumperDefaultCss);
+
+    // Saves all Pagination Control IDs 
+    localStorage.setItem("Pagination1_ID", $Pagination1_ID.attr('id'));
+    localStorage.setItem("Pagination2_ID", $Pagination2_ID.attr('id'));
+    localStorage.setItem("Pagination3_ID", $Pagination3_ID.attr('id'));
+    localStorage.setItem("Pagination_ID", $Pagination_ID.attr('id'));
+    localStorage.setItem("PaginationFirst_ID", $PaginationFirst_ID.attr('id'));
+    localStorage.setItem("PaginationLast_ID", $PaginationLast_ID.attr('id'));
+
+    localStorage.setItem("PaginationBottom1_ID", $PaginationBottom1_ID.attr('id'));
+    localStorage.setItem("PaginationBottom2_ID", $PaginationBottom2_ID.attr('id'));
+    localStorage.setItem("PaginationBottom3_ID", $PaginationBottom3_ID.attr('id'));
+    localStorage.setItem("PaginationBottom_ID", $PaginationBottom_ID.attr('id'));
+    localStorage.setItem("PaginationBottomFirst_ID", $PaginationBottomFirst_ID.attr('id'));
+    localStorage.setItem("PaginationBottomLast_ID", $PaginationBottomLast_ID.attr('id'));
+
+    localStorage.setItem("MaxPage", MaxPage);
+
+    return false;
+}
+
+function RestorePaginationData() {
+
+    $Pagination1_ID = $("#" + getLocalStorageValue("Pagination1_ID") + "");
+    $Pagination2_ID = $("#" + getLocalStorageValue("Pagination2_ID") + "");
+    $Pagination3_ID = $("#" + getLocalStorageValue("Pagination3_ID") + "");
+    $Pagination_ID = $("#" + getLocalStorageValue("Pagination_ID") + "");
+    $PaginationFirst_ID = $("#" + getLocalStorageValue("PaginationFirst_ID") + "");
+    $PaginationLast_ID = $("#" + getLocalStorageValue("PaginationLast_ID") + "");
+    $PaginationBottom1_ID = $("#" + getLocalStorageValue("PaginationBottom1_ID") + "");
+    $PaginationBottom2_ID = $("#" + getLocalStorageValue("PaginationBottom2_ID") + "");
+    $PaginationBottom3_ID = $("#" + getLocalStorageValue("PaginationBottom3_ID") + "");
+    $PaginationBottom_ID = $("#" + getLocalStorageValue("PaginationBottom_ID") + "");
+    $PaginationBottomFirst_ID = $("#" + getLocalStorageValue("PaginationBottomFirst_ID") + "");
+    $PaginationBottomLast_ID = $("#" + getLocalStorageValue("PaginationBottomLast_ID") + "");
+
+    PaginationCss = getLocalStorageValue("PaginationCss");
+    CurrentCss = getLocalStorageValue("CurrentCss");
+    JumperDefaultCss = getLocalStorageValue("JumperDefaultCss");
+
+    return false;
+}
+
+jQuery.fn.Pagination = function (options) {
+    return this.each(function () {
+        var settings = jQuery.extend({
+            MaxPage: "",
+            JumperDefaultCss: "",
+            PaginationCss: "",
+            CurrentCss: "",
+            PerPageResults: "",
+            ResultCount: ""
+        }, options);
+
+
+        // All the global value to be assinged here in order to reuse in the global functionalities
+        MaxPage = settings.MaxPage;
+        JumperDefaultCss = settings.JumperDefaultCss;
+        PaginationCss = settings.PaginationCss;
+        CurrentCss = settings.CurrentCss;
+        PerPageResults = settings.PerPageResults;
+        ResultCount = settings.ResultCount;
+
+        if (!(localStorage.getItem("MaxPage") === null)) {
+            MaxPage = getLocalStorageValue("MaxPage");
+        }
+
+        if (MaxPage < 3) {
+            $PaginationLast_ID.hide();
+            $PaginationBottomLast_ID.hide();
+        }
+        else {
+            $PaginationLast_ID.show();
+            $PaginationBottomLast_ID.show();
+        }
+
+    }); // End this.each
+};
+
+
+jQuery.fn.AjaxSearchResult = function (options) {
+    return this.each(function () {
+        var settings = jQuery.extend({
+            requesthandler: "",
+            serviceMethod: "",
+            searchResultContainerId: null,
+            searchResultTempldateId: "",
+            $noResultContainerId: null,
+            $resultCountContainerId: null,
+            revooProductCode: ""
+
+        }, options);
+
+        // All the global value to be assinged here in order to reuse in the global functionalities
+        servicename = settings.serviceMethod;
+        requestHandler = settings.requesthandler;
+        _queryString = "?method=" + servicename;
+        searchResultContainerId = settings.searchResultContainerId;
+        searchResultTempldateId = settings.searchResultTempldateId;
+        noResultContainerId = settings.$noResultContainerId;
+        $resultCountContainerId = settings.$resultCountContainerId;
+
+        $Pagination1_ID = settings.$Pagination1_ID;
+        $Pagination2_ID = settings.$Pagination2_ID;
+        $Pagination3_ID = settings.$Pagination3_ID;
+        $Pagination_ID = settings.$Pagination_ID;
+        $PaginationFirst_ID = settings.$PaginationFirst_ID;
+        $PaginationLast_ID = settings.$PaginationLast_ID;
+        $PaginationBottom1_ID = settings.$PaginationBottom1_ID;
+        $PaginationBottom2_ID = settings.$PaginationBottom2_ID;
+        $PaginationBottom3_ID = settings.$PaginationBottom3_ID;
+        $PaginationBottom_ID = settings.$PaginationBottom_ID;
+        $PaginationBottomFirst_ID = settings.$PaginationBottomFirst_ID;
+        $PaginationBottomLast_ID = settings.$PaginationBottomLast_ID;
+
+        revooProductCode = settings.revooProductCode;
+        $PriceDivID = settings.$PriceDivID;
+        $PriceErrorMessageID = settings.$PriceErrorMessageID;
+        IsDatedSearch = settings.IsDatedSearch;
+        $SearchResultContainerDivId = settings.$SearchResultContainerDivId;
+
+        $PlatinumPushPostBackContainerId = settings.$PlatinumPushPostBackContainerId;
+        $PlatinumPushResultContainerId = settings.$PlatinumPushResultContainerId;
+        $PlatinumPushItemTemplateId = settings.$PlatinumPushItemTemplateId;
+        DiscountApply = settings.DiscountApply;
+        ReevooReviewPageName = settings.ReevooReviewPageName;
+
+        ShowPriceDivErrorMessage();
+
+        SupplierDisplaySet = getLocalStorageValue("hdnSupplierDisplaySet");
+
+        if (SupplierDisplaySet.length > 0) {
+            $("#hdnSupplierDisplaySet").val("");
+            $("#hdnSupplierDisplaySet").val(SupplierDisplaySet.split("countOfResult")[0]);
+            $resultCountContainerId.html(SupplierDisplaySet.split("countOfResult")[1]);
+        }
+
+        var hvSearch = $("#hdnSupplierDisplaySet").val();
+
+        $FlexibilityDDlId = options.$FlexibilityDDlId;
+        var exactMessage = encodeURI($("#exactMessage").val());
+        var closeMessage = encodeURI($("#closeMessage").val());
+
+        $("#searchresult").attr('class', 'selected');
+        $("#mapview").hide();
+
+        $("#mapresult").click(function () {
+            $("#mapresult").attr('class', 'selected');
+            $("#searchresult").attr('class', '');
+            $("#listtable").hide();
+            $("#mapview").show();
+            IsMapView = "true";
+            queryString = "&pricerange=" + $("#hdnPricing").val() + "&sleeps=" + $("#hdnSleeps").val() + "&acctype=" + $("#hdnAccomType").val() + "&region=" + $("#hdnRegion").val() + "&rating=" + $("#hdnRatings").val() + "&revoocode=" + revooProductCode + "&flexibilityrange=" + $("#hdnRange").val() + "&" + currentURL + "&pageType=" + pageType + "&exactMessage=" + exactMessage + "&closeMessage=" + closeMessage;
+            AjaxServiceCallMap($("#hdnFeatures").val());
+
+            $("#sortbycontainer").hide();
+            $("#upperpaginationcontainer").hide();
+            $("#lowerpaginationcontainer").hide();
+        });
+
+
+        $("#searchresult").click(function () {
+            $("#searchresult").attr('class', 'selected');
+            $("#mapresult").attr('class', '');
+            $("#mapview").hide();
+            $("#listtable").show();
+            IsMapView = "false";
+            queryString = _queryString + "&controltype=featurefilter" + "&pricerange=" + $("#hdnPricing").val() + "&sleeps=" + $("#hdnSleeps").val() + "&acctype=" + $("#hdnAccomType").val() + "&region=" + $("#hdnRegion").val() + "&rating=" + $("#hdnRatings").val() + "&revoocode=" + revooProductCode + "&flexibilityrange=" + $("#hdnRange").val() + "&" + currentURL + "&pageType=" + pageType + "&exactMessage=" + exactMessage + "&closeMessage=" + closeMessage;
+            AjaxServiceCall($("#hdnFeatures").val() + "_" + $("#hdnSort").val() + "_" + $("#hdnWebsiteID").val() + "_" + $("#hdnWebsiteURL").val() + "_" + $("#hdnRegionID").val());
+            $("#sortbycontainer").show();
+            $("#upperpaginationcontainer").show();
+            $("#lowerpaginationcontainer").show();
+        });
+
+
+        LoadTemplate(searchResultContainerId, searchResultTempldateId, hvSearch);
+
+        var contentsOfOldDiv = getLocalStorageValue("upperpaginationcontainer");
+        var contentsOfOldDivBottom = getLocalStorageValue("lowerpaginationcontainer");
+
+
+        if (contentsOfOldDiv.length > 0 && contentsOfOldDivBottom.length > 0) {
+
+            contentsOfOldDiv = JSON.parse(contentsOfOldDiv);
+            $("#upperpaginationcontainer").html("");
+            $("#upperpaginationcontainer").html(contentsOfOldDiv);
+
+            contentsOfOldDivBottom = JSON.parse(contentsOfOldDivBottom);
+            $("#lowerpaginationcontainer").html("");
+            $("#lowerpaginationcontainer").html(contentsOfOldDivBottom);
+
+            RestorePaginationData();
+
+        }
+
+        function LoadTemplate(container, template, strsearch) {
+            var jsonobj = $.parseJSON(strsearch);
+            if (IsDatedSearch == "True") {
+                $FlexibilityDDlId.show();
+            } else {
+                $FlexibilityDDlId.hide();
+            }
+            if (isFeatureSortFlag) {
+                if (jsonobj != null) {
+                    var resultcount = jsonobj.length;
+                    var recordsToShow = 3;
+                    if (resultcount < 3) {
+                        recordsToShow = resultcount;
+                    }
+                    $PlatinumPushPostBackContainerId.hide();                                                                                           // hide the platinum push block generated during page post back
+                    $PlatinumPushResultContainerId.loadTemplate(($PlatinumPushItemTemplateId), (jsonobj).slice(0, recordsToShow), { append: false });   // Display new set of Platinum push blocks
+                    $PlatinumPushResultContainerId.show();
+                    isFeatureSortFlag = false;
+                }
+            } else {
+                $PlatinumPushPostBackContainerId.show();
+                $PlatinumPushResultContainerId.hide();
+            }
+            $(container).loadTemplate($(template), jsonobj, { append: false });
+
+        }
+
+    }); // End this.each
+};
+
+
+
+/* All global functionalities such as sorting, filter, pagination and etc.,  to be implemented here */
+
+function featureSelect(controlID, filterType) {
+    var featureValue = controlID.value;
+    var featureName = controlID.id;
+    var hdnSort = $("#hdnSort").val();
+    pageType = $("#hdnPageType").val();
+
+    if (filterType == 'Price') {
+        var hdnPriceList = $("#hdnPricing").val();
+        if (controlID.checked) {
+            if (hdnPriceList != "") {
+                $("#hdnPricing").val(hdnPriceList + "," + featureValue);
+            }
+            else {
+                $("#hdnPricing").val(featureValue);
+            }
+        }
+        else {
+            if (hdnPriceList != "") {
+                RemoveEntryFromHiddenField(hdnPriceList, featureValue, filterType);
+            }
+        }
+    }
+    else if (filterType == 'AccomType') {
+        var hdnAccomList = $("#hdnAccomType").val();
+        if (controlID.checked) {
+            if (hdnAccomList != "") {
+                $("#hdnAccomType").val(hdnAccomList + "," + featureValue);
+            }
+            else {
+                $("#hdnAccomType").val(featureValue);
+            }
+        }
+        else {
+            if (hdnAccomList != "") {
+                RemoveEntryFromHiddenField(hdnAccomList, featureValue, filterType);
+            }
+        }
+    }
+    else if (filterType == 'Sleeps') {
+        var hdnSleepsList = $("#hdnSleeps").val();
+        if (controlID.checked) {
+            if (hdnSleepsList != "") {
+                $("#hdnSleeps").val(hdnSleepsList + "," + featureValue);
+            }
+            else {
+                $("#hdnSleeps").val(featureValue);
+            }
+        }
+        else {
+            if (hdnSleepsList != "") {
+                RemoveEntryFromHiddenField(hdnSleepsList, featureValue, filterType);
+            }
+        }
+    }
+    else if (filterType == 'Region') {
+        var hdnRegionList = $("#hdnRegion").val();
+        if (controlID.checked) {
+            if (hdnRegionList != "") {
+                $("#hdnRegion").val(hdnRegionList + "," + featureValue);
+            }
+            else {
+                $("#hdnRegion").val(featureValue);
+            }
+        }
+        else {
+            if (hdnRegionList != "") {
+                RemoveEntryFromHiddenField(hdnRegionList, featureValue, filterType);
+            }
+        }
+    }
+    else if (filterType == 'Rating') {
+        var hdnRatingsList = $("#hdnRatings").val();
+        if (controlID.checked) {
+            if (hdnRatingsList != "") {
+                $("#hdnRatings").val(hdnRatingsList + "," + featureValue);
+            }
+            else {
+                $("#hdnRatings").val(featureValue);
+            }
+        }
+        else {
+            if (hdnRatingsList != "") {
+                RemoveEntryFromHiddenField(hdnRatingsList, featureValue, filterType);
+            }
+        }
+    }
+    else {
+        var hdnFeatureList = $("#hdnFeatures").val();
+        if (controlID.checked) {
+            if (hdnFeatureList != "") {
+                $("#hdnFeatures").val(hdnFeatureList + "," + featureValue);
+            }
+            else {
+                $("#hdnFeatures").val(featureValue);
+            }
+        }
+        else {
+            if (hdnFeatureList != "") {
+                RemoveEntryFromHiddenField(hdnFeatureList, featureValue, filterType);
+            }
+        }
+    }
+    hdnPriceList = $("#hdnPricing").val();
+    hdnSleepsList = $("#hdnSleeps").val();
+    hdnAccomList = $("#hdnAccomType").val();
+    hdnRegionList = $("#hdnRegion").val();
+    hdnRatingsList = $("#hdnRatings").val();
+    var hdnRange = $("#hdnRange").val();
+    var exactMessage = encodeURI($("#exactMessage").val());
+    var closeMessage = encodeURI($("#closeMessage").val());
+    if (IsMapView == "true") {
+
+        queryString = "&pricerange=" + hdnPriceList + "&sleeps=" + hdnSleepsList + "&acctype=" + hdnAccomList + "&region=" + hdnRegionList + "&rating=" + hdnRatingsList + "&revoocode=" + revooProductCode + "&flexibilityrange=" + hdnRange + "&" + currentURL + "&pageType=" + pageType + "&exactMessage=" + exactMessage + "&closeMessage=" + closeMessage;
+    }
+    else {
+        queryString = _queryString + "&controltype=featurefilter" + "&pricerange=" + hdnPriceList + "&sleeps=" + hdnSleepsList + "&acctype=" + hdnAccomList + "&region=" + hdnRegionList + "&rating=" + hdnRatingsList + "&revoocode=" + revooProductCode + "&flexibilityrange=" + hdnRange + "&" + currentURL + "&pageType=" + pageType + "&exactMessage=" + exactMessage + "&closeMessage=" + closeMessage;
+    }
+    hdnFeatureList = $("#hdnFeatures").val();
+    hdnWebsiteID = $("#hdnWebsiteID").val();
+    hdnWebsiteURL = $("#hdnWebsiteURL").val();
+    hdnRegionID = $("#hdnRegionID").val();
+    IsFeature = "true";
+    IsNotPagination = "true";
+
+    _allFiltreList = hdnAccomList + "_" + hdnPriceList + "_" + hdnSleepsList + "_" + hdnRatingsList + "_" + hdnFeatureList;
+
+    if (IsMapView == "true") {
+        AjaxServiceCallMap(hdnFeatureList);
+    }
+    else {
+        AjaxServiceCall(hdnFeatureList + "_" + hdnSort + "_" + hdnWebsiteID + "_" + hdnWebsiteURL + "_" + hdnRegionID);
+    }
+
+}
+
+function Flexibility(controlId) {
+    $("#hdnRange").val(controlId.value);
+    var hdnFeatureList = $("#hdnFeatures").val();
+
+    var hdnSort = $("#hdnSort").val();
+    var hdnPriceList = $("#hdnPricing").val();
+    var hdnSleepsList = $("#hdnSleeps").val();
+    var hdnAccomList = $("#hdnAccomType").val();
+    var hdnRegion = $("#hdnRegion").val();
+    var hdnRatingsList = $("#hdnRatings").val();
+    pageType = $("#hdnPageType").val();
+    var exactMessage = encodeURI($("#exactMessage").val());
+    var closeMessage = encodeURI($("#closeMessage").val());
+    queryString = _queryString + "&controltype=featurefilter" + "&pricerange=" + hdnPriceList + "&sleeps=" + hdnSleepsList + "&acctype=" + hdnAccomList + "&region=" + hdnRegion + "&rating=" + hdnRatingsList + "&revoocode=" + revooProductCode + "&flexibilityrange=" + controlId.value + "&" + currentURL + "&pageType=" + pageType + "&exactMessage=" + exactMessage + "&closeMessage=" + closeMessage;
+    hdnWebsiteID = $("#hdnWebsiteID").val();
+    hdnWebsiteURL = $("#hdnWebsiteURL").val();
+    IsFeature = "true";
+    IsNotPagination = "true";
+    IsFeature = "true";
+    hdnRegionID = $("#hdnRegionID").val();
+    AjaxServiceCall(hdnFeatureList + "_" + hdnSort + "_" + hdnWebsiteID + "_" + hdnWebsiteURL + "_" + hdnRegionID);
+
+}
+
+
+function sortAccomodation(sortParam, sortOrder, isDatedSearch, searchFlexibility, platinumFeatureName, platinumFeatureOrder, platinumFeatureQuantity, RevooSiteName) {
+    var isDatedSearch = $("#hdnIsDateSearch").val();
+    var searchFlexibility = $("#hdnFlexibilityRange").val();
+    var isPricingBypassed = $("#hdnIsPricingByPassed").val();
+    var originalClientIP = $("#hdnOriginalClientIP").val();
+    var startDate = $("#hdnStartDate").val();
+    var hdnRange = $("#hdnRange").val();
+    pageType = $("#hdnPageType").val();
+    var sortvalue = sortParam + "," + sortOrder + "," + isDatedSearch + "," + searchFlexibility + "," + platinumFeatureName + "," + platinumFeatureOrder + "," + platinumFeatureQuantity + "," + isPricingBypassed + "," + originalClientIP + "," + startDate + "," + RevooSiteName;
+    var hdnFeatureList = $("#hdnFeatures").val();
+
+    $("#hdnSort").val(sortvalue);
+    var hdnSort = $("#hdnSort").val();
+    var hdnPriceList = $("#hdnPricing").val();
+    var hdnSleepsList = $("#hdnSleeps").val();
+    var hdnAccomList = $("#hdnAccomType").val();
+    var hdnRegion = $("#hdnRegion").val();
+    var hdnRatingsList = $("#hdnRatings").val();
+    var exactMessage = encodeURI($("#exactMessage").val());
+    var closeMessage = encodeURI($("#closeMessage").val());
+    if (sortParam == 'feature') {
+        // Set feature sort flag for use for updating Platinumpush blocks in Ajax call success
+        isFeatureSortFlag = true;
+    }
+    queryString = _queryString + "&controltype=sort" + "&pricerange=" + hdnPriceList + "&sleeps=" + hdnSleepsList + "&acctype=" + hdnAccomList + "&region=" + hdnRegion + "&rating=" + hdnRatingsList + "&revoocode=" + revooProductCode + "&flexibilityrange=" + hdnRange + "&" + currentURL + "&pageType=" + pageType + "&exactMessage=" + exactMessage + "&closeMessage=" + closeMessage;
+    hdnWebsiteID = $("#hdnWebsiteID").val();
+    hdnWebsiteURL = $("#hdnWebsiteURL").val();
+    IsFeature = "true";
+    IsNotPagination = "true";
+    IsFeature = "true";
+    hdnRegionID = $("#hdnRegionID").val();
+    AjaxServiceCall(hdnFeatureList + "_" + hdnSort + "_" + hdnWebsiteID + "_" + hdnWebsiteURL + "_" + hdnRegionID);
+}
+
+
+function RemoveEntryFromHiddenField(text, valueToRemove, filterType) {
+    var revisedValue;
+    if (text.indexOf(",") > -1 && text.indexOf(valueToRemove) > -1) {
+        var textArray = text.split(',');
+        var arrayLength = textArray.length;
+        for (var i = 0; i < arrayLength; i++) {
+            if (textArray[i] == valueToRemove) {
+                var textlength = textArray[i].length;
+                textArray.splice(i, 1);
+                revisedValue = textArray.join(',');
+                if (filterType == 'Price') {
+                    $("#hdnPricing").val(revisedValue);
+                }
+                else if (filterType == 'Sleeps') {
+                    $("#hdnSleeps").val(revisedValue);
+                }
+                else if (filterType == 'Region') {
+                    $("#hdnRegion").val(revisedValue);
+                }
+                else if (filterType == 'AccomType') {
+                    $("#hdnAccomType").val(revisedValue);
+                }
+                else if (filterType == 'Rating') {
+                    $("#hdnRatings").val(revisedValue);
+                }
+                else {
+                    $("#hdnFeatures").val(revisedValue);
+                }
+            }
+        }
+    }
+    else {
+        if (filterType == 'Price') {
+            $("#hdnPricing").val("");
+        }
+        else if (filterType == 'Sleeps') {
+            $("#hdnSleeps").val("");
+        }
+        else if (filterType == 'Region') {
+            $("#hdnRegion").val("");
+        }
+        else if (filterType == 'AccomType') {
+            $("#hdnAccomType").val("");
+        }
+        else if (filterType == 'Rating') {
+            $("#hdnRatings").val("");
+        }
+        else {
+            $("#hdnFeatures").val("");
+        }
+    }
+}
+
+function RedirectToPage(controlID, pagenumber, pagetype, perPageResults) {
+    var innerHtmlValue = controlID.innerHTML;
+    var hrefValue = controlID.href;
+
+    var maxPage = getLocalStorageValue("MaxPage");
+
+    if (maxPage.length > 0) {
+        MaxPage = MaxPage;
+    }
+
+    maxPage = MaxPage;
+
+    HandlePagination(innerHtmlValue, hrefValue, parseInt(pagenumber), pagetype, perPageResults, maxPage);
+
+    SavePaginationData();
+
+    return false;
+}
+
+function HandlePagination(innerHtmlValue, hrefValue, pagenumber, pagetype, perPageResults, maxPage) {
+    var currentPageText;
+    var currentPageStartText;
+    var currentPageEndText;
+    var previousPageText;
+    var nextPageText;
+    var forFirstPageText;
+    var forLastPageText;
+
+    var currentPageNumber = pagenumber;
+
+    var previousPageNumber = (parseInt(currentPageNumber) - 1).toString();
+    var nextPageNumber = (parseInt(currentPageNumber) + 1).toString();
+    var pageNumberForFirst = (parseInt(currentPageNumber) + 2).toString();
+    var pageNumberForLast = (parseInt(currentPageNumber) - 2).toString();
+    var difference;
+    if (perPageResults != "") {
+        difference = parseInt(perPageResults);
+    } else {
+        difference = perPageResults;
+    }
+
+    var pageType = pagetype;
+
+    _currentPageNumber = pagenumber;
+
+    //_maxPage = ($PaginationBottomLast_ID).attr('href').split("page=")[1];
+
+    _maxPage = maxPage;
+
+    if (currentPageNumber <= parseInt(_maxPage)) {
+        if (currentPageNumber != 1 && pageType != 'firstpage' && pageType != 'lastpage' && currentPageNumber != _maxPage) {
+            currentPageText = innerHtmlValue;
+            currentPageStartText = parseInt(currentPageText.split("-")[0]);
+            currentPageEndText = parseInt(currentPageText.split("-")[1]);
+            previousPageText = ((currentPageStartText - difference).toString() + "-" + (currentPageEndText - difference).toString()).toString();  //Previous Page Text
+            nextPageText = ((currentPageStartText + difference).toString() + "-" + (currentPageEndText + difference).toString()).toString();  //Next Page Text
+        }
+
+        else if (pageType == 'firstpage' || currentPageNumber == 1) {
+            currentPageNumber = 0;
+            currentPageText = (((currentPageNumber * perPageResults) + 1).toString() + "-" + ((currentPageNumber + 1) * perPageResults).toString()).toString();
+            nextPageText = ((((parseInt(nextPageNumber) - 1) * perPageResults) + 1).toString() + "-" + (((parseInt(nextPageNumber) - 1) + 1) * perPageResults).toString()).toString();
+            forFirstPageText = ((((parseInt(pageNumberForFirst) - 1) * perPageResults) + 1).toString() + "-" + (((parseInt(pageNumberForFirst) - 1) + 1) * perPageResults).toString()).toString();
+
+        }
+
+        else if (pageType == 'lastpage' || currentPageNumber == parseInt(_maxPage)) {
+            IsLastPage = pageType == 'lastpage' ? pageType : _maxPage;
+            currentPageText = ((((currentPageNumber - 1) * perPageResults) + 1).toString() + "-").toString();
+            previousPageText = ((((currentPageNumber - 2) * perPageResults) + 1).toString() + "-" + (((currentPageNumber - 2) + 1) * perPageResults).toString()).toString();
+            forLastPageText = ((((currentPageNumber - 3) * perPageResults) + 1).toString() + "-" + (((currentPageNumber - 3) + 1) * perPageResults).toString()).toString();
+        }
+
+        var hrefWithoutPage = hrefValue.split("page=")[0];
+        var currentHref = hrefValue;
+        var previousHref = hrefWithoutPage + "page=" + previousPageNumber;
+        var nextHref = hrefWithoutPage + "page=" + nextPageNumber;
+        var forFirstHref = hrefWithoutPage + "page=" + pageNumberForFirst;
+        var forLastHref = hrefWithoutPage + "page=" + pageNumberForLast;
+
+        if (pagenumber > 1 && pagenumber < parseInt(_maxPage) && pageType != 'firstpage' && pageType != 'lastpage') {
+            // For top
+            //HandlePagination(innerHtmlValue, hrefValue, pagenumber, pagetype, perPageResults, maxPage)
+            //function RedirectToPage(controlID, pagenumber, pagetype, perPageResults) 
+
+            ($PaginationFirst_ID).show();
+            ($Pagination1_ID).html(previousPageText).attr('onClick', "RedirectToPage(this, '" + previousPageNumber + "', 'pagination', '" + perPageResults + "');javascript:return false;").attr('href', previousHref).attr('class', (PaginationCss + previousPageNumber));
+            ($Pagination2_ID).html(currentPageText).attr('onClick', "RedirectToPage(this, '" + currentPageNumber + "', 'pagination' , '" + perPageResults + "');javascript:return false;").attr('href', currentHref).attr('class', CurrentCss);
+            ($Pagination3_ID).html(nextPageText).attr('onClick', "RedirectToPage(this, '" + nextPageNumber + "', 'pagination' , '" + perPageResults + "');javascript:return false;").attr('href', nextHref).attr('class', (PaginationCss + nextPageNumber));
+            ($Pagination_ID).html('...').attr('class', JumperDefaultCss);
+            ($PaginationLast_ID).show();
+
+            //For Bottom
+            ($PaginationBottomFirst_ID).show();
+            ($PaginationBottom1_ID).html(previousPageText).attr('onClick', "RedirectToPage(this, '" + previousPageNumber + "', 'pagination' , '" + perPageResults + "');javascript:return false;").attr('href', previousHref).attr('class', (PaginationCss + previousPageNumber));
+            ($PaginationBottom2_ID).html(currentPageText).attr('onClick', "RedirectToPage(this, '" + currentPageNumber + "', 'pagination', '" + perPageResults + "');javascript:return false;").attr('href', currentHref).attr('class', CurrentCss);
+            ($PaginationBottom3_ID).html(nextPageText).attr('onClick', "RedirectToPage(this, '" + nextPageNumber + "', 'pagination', '" + perPageResults + "');javascript:return false;").attr('href', nextHref).attr('class', (PaginationCss + nextPageNumber));
+            ($PaginationBottom_ID).html('...').attr('href', '').attr('class', JumperDefaultCss);
+            ($PaginationBottomLast_ID).show();
+        }
+        else if (pageType == 'firstpage' || pagenumber == 1) {
+            // For top
+            ($Pagination1_ID).html(currentPageText).attr('onClick', "RedirectToPage(this, '" + currentPageNumber + "', 'pagination' , '" + perPageResults + "');javascript:return false;").attr('href', currentHref).attr('class', CurrentCss);
+            ($Pagination2_ID).html(nextPageText).attr('onClick', "RedirectToPage(this, '" + nextPageNumber + "', 'pagination', '" + perPageResults + "');javascript:return false;").attr('href', nextHref).attr('class', (PaginationCss + nextPageNumber));
+            ($Pagination3_ID).html(forFirstPageText).attr('onClick', "RedirectToPage(this, '" + pageNumberForFirst + "','pagination', '" + perPageResults + "');javascript:return false;").attr('href', forFirstHref).attr('class', (PaginationCss + pageNumberForFirst));
+            ($Pagination_ID).html('...').attr('href', '').attr('class', JumperDefaultCss);
+            ($PaginationFirst_ID).hide();
+            ($PaginationLast_ID).show();
+
+            //For Bottom
+            ($PaginationBottom1_ID).html(currentPageText).attr('onClick', "RedirectToPage(this, '" + currentPageNumber + "', 'pagination', '" + perPageResults + "');javascript:return false;").attr('href', currentHref).attr('class', CurrentCss);
+            ($PaginationBottom2_ID).html(nextPageText).attr('onClick', "RedirectToPage(this, '" + nextPageNumber + "','pagination', '" + perPageResults + "');javascript:return false;").attr('href', nextHref).attr('class', (PaginationCss + nextPageNumber));
+            ($PaginationBottom3_ID).html(forFirstPageText).attr('onClick', "RedirectToPage(this, '" + pageNumberForFirst + "', 'pagination', '" + perPageResults + "');javascript:return false;").attr('href', forFirstHref).attr('class', (PaginationCss + pageNumberForFirst));
+            ($PaginationBottom_ID).html('...').attr('class', JumperDefaultCss);
+            ($PaginationBottomFirst_ID).hide();
+            ($PaginationBottomLast_ID).show();
+        }
+        else if (pageType == 'lastpage' || (pagenumber == parseInt(_maxPage) && parseInt(_maxPage) > 2)) {
+            //For Top
+            ($Pagination_ID).html(currentPageText).attr('onClick', "RedirectToPage(this, '" + currentPageNumber + "', 'pagination' , '" + perPageResults + "');javascript:return false;").attr('href', currentHref).attr('class', CurrentCss);
+            ($Pagination3_ID).html(previousPageText).attr('onClick', "RedirectToPage(this, '" + previousPageNumber + "', 'pagination', '" + perPageResults + "');javascript:return false;").attr('href', previousHref).attr('class', (PaginationCss + previousPageNumber));
+            ($Pagination2_ID).html(forLastPageText).attr('onClick', "RedirectToPage(this, '" + pageNumberForLast + "', 'pagination', '" + perPageResults + "');javascript:return false;").attr('href', forLastHref).attr('class', (PaginationCss + pageNumberForLast));
+            ($Pagination1_ID).html('...').attr('href', '').attr('class', JumperDefaultCss);
+            ($PaginationFirst_ID).show();
+            ($PaginationLast_ID).hide();
+
+            //For Bottom
+            ($PaginationBottom_ID).html(currentPageText).attr('onClick', "RedirectToPage(this, '" + currentPageNumber + "', 'pagination' , '" + perPageResults + "');javascript:return false;").attr('href', currentHref).attr('class', CurrentCss);
+            ($PaginationBottom3_ID).html(previousPageText).attr('onClick', "RedirectToPage(this, '" + previousPageNumber + "', 'pagination', '" + perPageResults + "');javascript:return false;").attr('href', previousHref).attr('class', (PaginationCss + previousPageNumber));
+            ($PaginationBottom2_ID).html(forLastPageText).attr('onClick', "RedirectToPage(this, '" + pageNumberForLast + "', 'pagination', '" + perPageResults + "');javascript:return false;").attr('href', forLastHref).attr('class', (PaginationCss + pageNumberForLast));
+            ($PaginationBottom1_ID).html('...').attr('href', '').attr('class', JumperDefaultCss);
+            ($PaginationBottomFirst_ID).show();
+            ($PaginationBottomLast_ID).hide();
+        }
+        else if (pageType == 'lastpage' || (pagenumber == parseInt(_maxPage) && parseInt(_maxPage) == 2)) {
+            //For Top
+            ($Pagination1_ID).html(previousPageText).attr('onClick', "RedirectToPage(this, '" + previousPageNumber + "', 'pagination' , '" + perPageResults + "');javascript:return false;").attr('href', previousHref).attr('class', (PaginationCss + previousPageNumber));
+            ($Pagination2_ID).html(currentPageText).attr('onClick', "RedirectToPage(this, '" + currentPageNumber + "', 'pagination', '" + perPageResults + "');javascript:return false;").attr('href', currentHref).attr('class', CurrentCss);
+            ($PaginationFirst_ID).hide();
+            ($PaginationLast_ID).hide();
+
+            //For Bottom
+
+            ($PaginationBottom1_ID).html(previousPageText).attr('onClick', "RedirectToPage(this, '" + previousPageNumber + "', '" + 'pagination' + "', '" + perPageResults + "');javascript:return false;").attr('href', previousHref).attr('class', (PaginationCss + previousPageNumber));
+            ($PaginationBottom2_ID).html(currentPageText).attr('onClick', "RedirectToPage(this, '" + currentPageNumber + "', '" + 'pagination' + "', '" + perPageResults + "');javascript:return false;").attr('href', currentHref).attr('class', CurrentCss);
+            ($PaginationBottomFirst_ID).hide();
+            ($PaginationBottomLast_ID).hide();
+        }
+        if (_maxPage < 3) {
+            ($PaginationFirst_ID).hide();
+            ($PaginationLast_ID).hide();
+            ($PaginationBottomFirst_ID).hide();
+            ($PaginationBottomLast_ID).hide();
+        }
+        var hdnPriceList = $("#hdnPricing").val();
+        var hdnSleepsList = $("#hdnSleeps").val();
+        var hdnAccomList = $("#hdnAccomType").val();
+        var hdnRegion = $("#hdnRegion").val();
+        var hdnRatingsList = $("#hdnRatings").val();
+        var hdnFeatures = $("#hdnFeatures").val();
+        var hdnRange = $("#hdnRange").val();
+        var page = $("#hdnPageType").val();
+        var exactMessage = encodeURI($("#exactMessage").val());
+        var closeMessage = encodeURI($("#closeMessage").val());
+        queryString = _queryString + "&controltype=pagination" + "&pricerange=" + hdnPriceList + "&sleeps=" + hdnSleepsList + "&acctype=" + hdnAccomList + "&region=" + hdnRegion + "&rating=" + hdnRatingsList + "&revoocode=" + revooProductCode + "&features=" + hdnFeatures + "&flexibilityrange=" + hdnRange + "&" + currentURL + "&pageType=" + page + "&exactMessage=" + exactMessage + "&closeMessage=" + closeMessage;
+        hdnWebsiteID = $("#hdnWebsiteID").val();
+        hdnWebsiteURL = $("#hdnWebsiteURL").val();
+        var hdnSort = $("#hdnSort").val();
+        IsNotPagination = "false";
+        hdnRegionID = $("#hdnRegionID").val();
+
+        if (!IsPagePostBack) {
+
+            IsPagePostBack = false;
+
+            AjaxServiceCall(currentPageNumber + "_" + hdnSort + "_" + hdnWebsiteID + "_" + hdnWebsiteURL + "_" + hdnRegionID);
+        }
+    }
+}
+
+function RenderNewHtml(totalresultcount, pageHref, perPagecount, paginationCss, currentPageCss, jumperCss) {
+    var maxPageNumber = totalresultcount / perPagecount;
+    if (maxPageNumber == 0) {
+        maxPageNumber = 1;
+    }
+    maxPageNumber = Math.ceil(maxPageNumber);
+
+    MaxPage = maxPageNumber;
+
+    var j = 0;
+    var _from = (j * perPagecount) + 1;
+    var _to = (j + 1) * perPagecount;
+    var pageText = ((_from.toString()) + "-" + (_to.toString())).toString();
+    var nextText = ((_from + parseInt(perPagecount)).toString() + "-" + (_to + parseInt(perPagecount)).toString()).toString();
+    var nextToNext = (((_from + parseInt(perPagecount)) + parseInt(perPagecount)).toString() + "-" + ((_to + parseInt(perPagecount)) + parseInt(perPagecount)).toString()).toString();
+    var firstPageNumber = 1;
+    var secondPageNumber = 2;
+    var thirdPageNumber = 3;
+    var firstPageHref = (pageHref.split("page=")[0] + "&page=" + (firstPageNumber.toString())).toString();
+    var secondPageHref = (pageHref.split("page=")[0] + "&page=" + (secondPageNumber.toString())).toString();
+    var thirdPageHref = (pageHref.split("page=")[0] + "&page=" + (thirdPageNumber.toString())).toString();
+    var lastPageHref = (pageHref.split("page=")[0] + "&page=" + (maxPageNumber.toString())).toString();
+    // For top
+    ($PaginationFirst_ID).html("&#171; First").attr('onClick', "RedirectToPage(this," + firstPageNumber + ",'firstpage'," + perPagecount + ",'" + paginationCss + "','" + currentPageCss + "','" + jumperCss + "');javascript:return false;").attr('href', firstPageHref);
+    ($Pagination1_ID).html(pageText).attr('onClick', "RedirectToPage(this," + firstPageNumber + ",''," + perPagecount + ",'" + paginationCss + "','" + currentPageCss + "','" + jumperCss + "');javascript:return false;").attr('href', firstPageHref).attr('class', currentPageCss);
+    ($Pagination2_ID).html(nextText).attr('onClick', "RedirectToPage(this," + secondPageNumber + ",''," + perPagecount + ",'" + paginationCss + "','" + currentPageCss + "','" + jumperCss + "');javascript:return false;").attr('href', secondPageHref).attr('class', (paginationCss + secondPageNumber));
+    ($Pagination3_ID).html(nextToNext).attr('onClick', "RedirectToPage(this," + thirdPageNumber + ",''," + perPagecount + ",'" + paginationCss + "','" + currentPageCss + "','" + jumperCss + "');javascript:return false;").attr('href', thirdPageHref).attr('class', (paginationCss + thirdPageNumber));
+    ($Pagination_ID).html('...').attr('onClick', "RedirectToPage(this,'' ,''," + perPagecount + ");javascript:return false;").attr('href', '').attr('class', jumperCss);
+    ($PaginationLast_ID).html("Last &#187;").attr('onClick', "RedirectToPage(this," + maxPageNumber + ",'lastpage'," + perPagecount + ",'" + paginationCss + "','" + currentPageCss + "','" + jumperCss + "');javascript:return false;").attr('href', lastPageHref);
+
+    //For Bottom
+    ($PaginationBottomFirst_ID).html("&#171; First").attr('onClick', "RedirectToPage(this," + firstPageNumber + ",'firstpage'," + perPagecount + ",'" + paginationCss + "','" + currentPageCss + "','" + jumperCss + "');javascript:return false;").attr('href', firstPageHref);
+    ($PaginationBottom1_ID).html(pageText).attr('onClick', "RedirectToPage(this," + firstPageNumber + ",''," + perPagecount + ",'" + paginationCss + "','" + currentPageCss + "','" + jumperCss + "');javascript:return false;").attr('href', firstPageHref).attr('class', currentPageCss);
+    ($PaginationBottom2_ID).html(nextText).attr('onClick', "RedirectToPage(this," + secondPageNumber + ",''," + perPagecount + ",'" + paginationCss + "','" + currentPageCss + "','" + jumperCss + "');javascript:return false;").attr('href', secondPageHref).attr('class', (paginationCss + secondPageNumber));
+    ($PaginationBottom3_ID).html(nextToNext).attr('onClick', "RedirectToPage(this," + thirdPageNumber + ",''," + perPagecount + ",'" + paginationCss + "','" + currentPageCss + "','" + jumperCss + "');javascript:return false;").attr('href', thirdPageHref).attr('class', (paginationCss + thirdPageNumber));
+    ($PaginationBottom_ID).html('...').attr('onClick', "RedirectToPage(this,'' ,''," + perPagecount + ");javascript:return false;").attr('href', '').attr('class', jumperCss);
+    ($PaginationBottomLast_ID).html("Last &#187;").attr('onClick', "RedirectToPage(this," + maxPageNumber + ",'lastpage'," + perPagecount + ",'" + paginationCss + "','" + currentPageCss + "','" + jumperCss + "');javascript:return false;").attr('href', lastPageHref);
+    ShowControls();
+
+    if (maxPageNumber == 2) {
+        ($PaginationBottom2_ID).html(($PaginationBottom2_ID)[0].innerText.split("-")[0] + '-' + (totalresultcount.toString())).attr('onClick', "RedirectToPage(this," + secondPageNumber + ",''," + perPagecount + ",'" + paginationCss + "','" + currentPageCss + "','" + jumperCss + "');javascript:return false;").attr('href', secondPageHref).attr('class', (paginationCss + secondPageNumber));
+        ($Pagination2_ID).html(($Pagination2_ID)[0].innerText.split("-")[0] + '-' + (totalresultcount.toString())).attr('onClick', "RedirectToPage(this," + secondPageNumber + ",''," + perPagecount + ",'" + paginationCss + "','" + currentPageCss + "','" + jumperCss + "');javascript:return false;").attr('href', secondPageHref).attr('class', (paginationCss + secondPageNumber));
+        ($Pagination3_ID).hide();
+        ($Pagination_ID).hide();
+        ($PaginationBottom3_ID).hide();
+        ($PaginationBottom_ID).hide();
+        ($PaginationFirst_ID).hide();
+        ($PaginationLast_ID).hide();
+        ($PaginationBottomFirst_ID).hide();
+        ($PaginationBottomLast_ID).hide();
+    }
+    if (maxPageNumber == 1) {
+        ($PaginationFirst_ID).hide();
+        ($PaginationBottomFirst_ID).hide();
+        ($Pagination1_ID).html((firstPageNumber.toString()) + "-" + (totalresultcount.toString())).attr('onClick', "RedirectToPage(this," + firstPageNumber + ",''," + perPagecount + ",'" + paginationCss + "','" + currentPageCss + "','" + jumperCss + "');javascript:return false;").attr('href', firstPageHref).attr('class', currentPageCss);
+        ($Pagination2_ID).hide();
+        ($Pagination3_ID).hide();
+        ($Pagination_ID).hide();
+        ($PaginationBottom1_ID).html((firstPageNumber.toString()) + "-" + (totalresultcount.toString())).attr('onClick', "RedirectToPage(this," + firstPageNumber + ",''," + perPagecount + ",'" + paginationCss + "','" + currentPageCss + "','" + jumperCss + "');javascript:return false;").attr('href', firstPageHref).attr('class', currentPageCss);
+        ($PaginationBottom2_ID).hide();
+        ($PaginationBottom3_ID).hide();
+        ($PaginationBottom_ID).hide();
+        ($PaginationLast_ID).hide();
+        ($PaginationBottomLast_ID).hide();
+
+    }
+}
+
+function HideShow(controlID, divID, anchorMoreText, anchorLessText, anchorMoreID) {
+    var moreDetailsDivId = $("#" + divID);
+    var anchorMoreID = $("#" + anchorMoreID);
+    if (moreDetailsDivId.css('display') == 'none') {
+        moreDetailsDivId.show();
+        anchorMoreID[0].innerHTML = anchorLessText;
+    }
+    else {
+        moreDetailsDivId.hide();
+        anchorMoreID[0].innerHTML = anchorMoreText;
+    }
+}
+
+function HideControls() {
+    ($PaginationFirst_ID).hide();
+    ($PaginationBottomFirst_ID).hide();
+    ($Pagination1_ID).hide();
+    ($Pagination2_ID).hide();
+    ($Pagination3_ID).hide();
+    ($Pagination_ID).hide();
+    ($PaginationBottom1_ID).hide();
+    ($PaginationBottom2_ID).hide();
+    ($PaginationBottom3_ID).hide();
+    ($PaginationBottom_ID).hide();
+    ($PaginationLast_ID).hide();
+    ($PaginationBottomLast_ID).hide();
+    $(searchResultContainerId).hide();
+    $(searchResultTempldateId).hide();
+}
+function ShowControls() {
+    ($PaginationFirst_ID).show();
+    ($PaginationBottomFirst_ID).show();
+    ($Pagination1_ID).show();
+    ($Pagination2_ID).show();
+    ($Pagination3_ID).show();
+    ($Pagination_ID).show();
+    ($PaginationBottom1_ID).show();
+    ($PaginationBottom2_ID).show();
+    ($PaginationBottom3_ID).show();
+    ($PaginationBottom_ID).show();
+    ($PaginationLast_ID).show();
+    ($PaginationBottomLast_ID).show();
+    $(searchResultContainerId).show();
+    $(searchResultTempldateId).show();
+}
+
+function ShowPriceDivErrorMessage() {
+    if (IsDatedSearch == "True") {
+        $PriceDivID.show();
+        $PriceErrorMessageID.hide();
+    }
+    else {
+        $PriceErrorMessageID.show();
+        $PriceDivID.hide();
+    }
+}
+function HandlePaginationLast(_result, _perPagecount) {
+    var maxPageNumber = (parseInt(_result.split("countOfResult")[1]) / _perPagecount);
+    maxPageNumber = Math.ceil(maxPageNumber);
+
+    if (IsLastPage == 'lastpage' || (IsLastPage == _maxPage && IsLastPage != "" && parseInt(_maxPage) > 2)) {
+        ($Pagination_ID).html(($Pagination_ID)[0].innerText + _result.split("countOfResult")[1]);
+        ($PaginationBottom_ID).html(($PaginationBottom_ID)[0].innerText + _result.split("countOfResult")[1]);
+    }
+    else if (_currentPageNumber == (parseInt(_maxPage) - 1) && parseInt(_maxPage) > 2) {
+        ($Pagination3_ID).html(($Pagination3_ID)[0].innerText.split("-")[0] + '-' + _result.split("countOfResult")[1]);
+        ($PaginationBottom3_ID).html(($PaginationBottom3_ID)[0].innerText.split("-")[0] + '-' + _result.split("countOfResult")[1]);
+    }
+    else if (parseInt(maxPageNumber) == 2) {
+        ($Pagination2_ID).html(($Pagination2_ID)[0].innerText.split("-")[0] + '-' + _result.split("countOfResult")[1]);
+        ($PaginationBottom2_ID).html(($PaginationBottom2_ID)[0].innerText.split("-")[0] + '-' + _result.split("countOfResult")[1]);
+        ($PaginationLast_ID).hide();
+        ($PaginationFirst_ID).hide();
+        ($PaginationBottomFirst_ID).hide();
+        ($PaginationBottomLast_ID).hide();
+    }
+    else if (parseInt(maxPageNumber) == 1) {
+        ($Pagination1_ID).html(($Pagination1_ID)[0].innerText.split("-")[0] + '-' + _result.split("countOfResult")[1]);
+        ($PaginationBottom1_ID).html(($PaginationBottom1_ID)[0].innerText.split("-")[0] + '-' + _result.split("countOfResult")[1]);
+    }
+    IsLastPage = "";
+}
+function Clear(controlID) {
+    $('input[type=checkbox]').each(function () {
+        $(this).attr("checked", false);
+    });
+    $("#hdnSort").val("");
+    $("#hdnPricing").val("");
+    $("#hdnSleeps").val("");
+    $("#hdnAccomType").val("");
+    $("#hdnRegion").val("");
+    $("#hdnRatings").val("");
+    $("#hdnFeatures").val("");
+    var hdnSort = $("#hdnSort").val();
+    var hdnPriceList = $("#hdnPricing").val();
+    var hdnSleepsList = $("#hdnSleeps").val();
+    var hdnAccomList = $("#hdnAccomType").val();
+    var hdnRegionList = $("#hdnRegion").val();
+    var hdnRatingsList = $("#hdnRatings").val();
+    pageType = $("#hdnPageType").val();
+    var exactMessage = encodeURI($("#exactMessage").val());
+    var closeMessage = encodeURI($("#closeMessage").val());
+    queryString = _queryString + "&controltype=featurefilter" + "&pricerange=" + hdnPriceList + "&sleeps=" + hdnSleepsList + "&acctype=" + hdnAccomList + "&region=" + hdnRegionList + "&rating=" + hdnRatingsList + "&revoocode=" + revooProductCode + "&" + currentURL + "&pageType=" + pageType + "&exactMessage=" + exactMessage + "&closeMessage=" + closeMessage;
+    var hdnFeatureList = $("#hdnFeatures").val();
+    var hdnWebsiteID = $("#hdnWebsiteID").val();
+    var hdnWebsiteURL = $("#hdnWebsiteURL").val();
+    var hdnRegionID = $("#hdnRegionID").val();
+    IsFeature = "true";
+    IsNotPagination = "true";
+    AjaxServiceCall(hdnFeatureList + "_" + hdnSort + "_" + hdnWebsiteID + "_" + hdnWebsiteURL + "_" + hdnRegionID);
+}
+
+
+
+//shan change
+
+
+
+
+function AjaxServiceCall(featureData) {
+    var requestHandler = "/HoseasonsRequestHandler.ashx";
+    //    var returnResult;
+    //    var _perPagecount;
+
+    $.ajax({
+        async: true,
+        type: 'POST',
+        url: requestHandler + queryString,
+        data: { 'param': featureData, 'previousFiltreList': _allFiltreList, 'configStringCollection': DiscountApply, 'reevooReviewPageName' : ReevooReviewPageName},
+        success: function (result) {
+            if (IsFeature == "true" && IsNotPagination == "true") {
+
+                IsFeature = "false";
+                IsNotPagination = "true";
+                ResultCount = result.split("countOfResult")[1];
+                PerPageResults = $("#hdnResultsPerPage").val();
+                $resultCountContainerId.html(result.split("countOfResult")[1]);
+                if (parseInt(ResultCount) > 0) {
+                    ShowControls();
+                    RenderNewHtml(parseInt(ResultCount), window.location.href, PerPageResults, PaginationCss, CurrentCss, JumperDefaultCss);
+                } else { HideControls(); }
+            }
+
+            HandlePaginationLast(result, $("#hdnResultsPerPage").val());
+
+            $resultCountContainerId.html(result.split("countOfResult")[1]);
+
+            LoadTemplate(searchResultContainerId, searchResultTempldateId, result.split("countOfResult")[0]);
+
+            SupplierDisplaySet = result;
+
+            SavePageState();
+        },
+        error: function (result) { /* die silently */
+        }
+    });
+}
+
+// Retruns the current query string value returned configured in map result control
+function GetMapQueryStringValue() {
+
+   var _queryString = '&forsup=' + ForSupplier
+        + '&isprx=' + isProximitySearch
+        + '&prxlat=' + proximitySearchCentreLat
+        + '&prxlng=' + proximitySearchCentreLng
+        + '&' + QSParameterWebsiteId + '=' + WebsiteId
+        + '&' + QSParameterPropDetailPageName + '=' + PropertyDetailsPageName
+        + '&introtextlength=' + IntroTextLength
+        + '&maxzoom=' + maxZoom
+        + '&imgwidth=' + PopupImageWidth
+        + '&singleclusterimageurl=' + SingleClusterImageUrl
+        + '&complexclusterimageurl=' + ComplexClusterImageUrl
+        + '&complexclusterimagefifteenplusurl=' + ComplexClusterImageFifteenPlusUrl
+        + '&singleclusterimageurl_fade=' + SingleClusterImageUrl_Fade
+        + '&complexclusterimageurl_fade=' + ComplexClusterImageUrl_Fade
+        + '&complexclusterimagefifteenplusurl_fade=' + ComplexClusterImageFifteenPlusUrl_Fade
+        + '&mapuc=' + MapPopupUserControlName
+        + '&useunappr=' + UseUnapproved
+        + '&curr=' + Currency
+        + '&mapresultshandlerinstance=' + MapResultsHandlerInstance //Script variable MapResultsHandlerInstance is registered in another script
+        + '&tooltipText=' + TooltipText
+        + '&miles=' + radiusInMeters
+        + '&regionID=' + RegionID
+        + '&ismapresult='+ true;
+    
+    return _queryString;
+
+}
+//Ajax Map Search Result--------------------------------------------------
+function PopulateGoogleMapResult(jsonMapData) {
+        var mapData = $.parseJSON(jsonMapData);
+        $containingMapDivAjax.mapResultsAjax(mapData);
+    return false;
+}
+
+//Ajax--------------------------------------------------
+function AjaxServiceCallMap(featureData) {
+    var requestHandler = "/HoseasonsRequestHandler.ashx";
+    $.ajax({
+        async: true,
+        type: 'POST',
+        url: requestHandler + '?method=MAPSEARCHFEATURE' + queryString
+                            + '&forsup=' + ForSupplier
+                            + '&isprx=' + isProximitySearch
+                            + '&prxlat=' + proximitySearchCentreLat
+                            + '&prxlng=' + proximitySearchCentreLng
+                            + '&' + QSParameterWebsiteId + '=' + WebsiteId
+                            + '&' + QSParameterPropDetailPageName + '=' + PropertyDetailsPageName
+                            + '&introtextlength=' + IntroTextLength
+                            + '&maxzoom=' + maxZoom
+                            + '&imgwidth=' + PopupImageWidth
+                            + '&singleclusterimageurl=' + SingleClusterImageUrl
+                            + '&complexclusterimageurl=' + ComplexClusterImageUrl
+                            + '&complexclusterimagefifteenplusurl=' + ComplexClusterImageFifteenPlusUrl
+                            + '&singleclusterimageurl_fade=' + SingleClusterImageUrl_Fade
+                            + '&complexclusterimageurl_fade=' + ComplexClusterImageUrl_Fade
+                            + '&complexclusterimagefifteenplusurl_fade=' + ComplexClusterImageFifteenPlusUrl_Fade
+                            + '&mapuc=' + MapPopupUserControlName
+                            + '&useunappr=' + UseUnapproved
+                            + '&curr=' + Currency
+                            + '&mapresultshandlerinstance=' + MapResultsHandlerInstance //Script variable MapResultsHandlerInstance is registered in another script
+                            + '&tooltipText=' + TooltipText
+                            + '&miles=' + radiusInMeters
+                            + '&features=' + featureData
+                            + '&regionID=' + RegionID,
+        data: { 'param': featureData },
+        success: function (result) {
+            var mapData = $.parseJSON(result.split("countOfResult")[0]);
+            $resultCountContainerId.html(result.split("countOfResult")[1]);
+            $containingMapDivAjax.mapResultsAjax(mapData);
+
+        },
+        error: function (result) { /* die silently */
+        }
+    });
+}
+//Ajax--------------------------------------------------
+jQuery.fn.mapResultsAjax = function (options) {
+    if (PermanentSettings == "") {
+        PermanentSettings = options;
+    } else {
+        PermanentSettings.clusterMarkers[options.zoom] = options.clusterMarkers[options.zoom];
+    }
+    return this.each(function () {
+        var settings = jQuery.extend({
+            center: { lat: 54.5, lng: -3.0 },
+            zoom: 1,
+            minZoom: 5,
+            maxZoom: 12,
+            clusterMarkers: {},
+            singleMarkers: {},
+            mappingRequestHander: '',
+            isProximitySearch: false,
+            queryString: '',
+            QSParameterSiteCode: 'scode',
+            QSParameterWebsiteId: 'id',
+            WebsiteId: 0,
+            ForSupplier: 0,
+            PropertyDetailsPageName: '',
+            QSParameterPropDetailPageName: '',
+            IntroTextLength: 85,
+            PopupImageWidth: "125",
+            SingleClusterImageUrl: '',
+            ComplexClusterImageUrl: '',
+            ComplexClusterImageFifteenPlusUrl: '',
+            MarkerLat: 0.0,
+            MarkerLng: 0.0,
+            MarkerUrl: '',
+            initClusterMarkers: {},
+            initSingleMarkers: {},
+            callingFunc: '',
+            TooltipText: 'Click to zoom in for multiple cottages.',
+            radiusInMeters: 32186.9,
+            revooProductCode: '',
+            RegionID: ''
+        }, options);
+        settings.clusterMarkers = PermanentSettings.clusterMarkers;
+        var containingMapDiv = this;
+        var $containingMapDiv = $(this);
+        $containingMapDivAjax = $containingMapDiv;
+        if (settings.center.lat == 0.0 || settings.center.lng == 0.0) {
+            settings.center.lat = 54.5;
+            settings.center.lng = -3.0;
+            settings.zoom = settings.minZoom;
+        }
+        var latlng = new window.google.maps.LatLng(settings.center.lat, settings.center.lng);
+        //Open Ajax Filter------------------------------------------------------------------
+        var hdnPriceList = $("#hdnPricing").val();
+        var hdnSleepsList = $("#hdnSleeps").val();
+        var hdnAccomList = $("#hdnAccomType").val();
+        var hdnRegion = $("#hdnRegion").val();
+        var hdnRatingsList = $("#hdnRatings").val();
+        var hdnFeatures = $("#hdnFeatures").val();
+        var hdnRange = $("#hdnRange").val();
+        RegionID = $("#hdnRegionID").val();
+        ForSupplier = settings.ForSupplier;
+        radiusInMeters = settings.radiusInMeters;
+        isProximitySearch = settings.isProximitySearch;
+        proximitySearchCentreLat = settings.proximitySearchCentreLat;
+        proximitySearchCentreLng = settings.proximitySearchCentreLng;
+        QSParameterWebsiteId = settings.QSParameterWebsiteId;
+        WebsiteId = settings.WebsiteId;
+        QSParameterPropDetailPageName = settings.QSParameterPropDetailPageName;
+        PropertyDetailsPageName = settings.PropertyDetailsPageName;
+        IntroTextLength = settings.IntroTextLength;
+        maxZoom = settings.maxZoom;
+        PopupImageWidth = settings.PopupImageWidth;
+        SingleClusterImageUrl = settings.SingleClusterImageUrl;
+        ComplexClusterImageUrl = settings.ComplexClusterImageUrl;
+        ComplexClusterImageFifteenPlusUrl = settings.ComplexClusterImageFifteenPlusUrl;
+        SingleClusterImageUrl_Fade = settings.SingleClusterImageUrl_Fade;
+        ComplexClusterImageUrl_Fade = settings.ComplexClusterImageUrl_Fade;
+        ComplexClusterImageFifteenPlusUrl_Fade = settings.ComplexClusterImageFifteenPlusUrl_Fade;
+        MapPopupUserControlName = settings.MapPopupUserControlName;
+        UseUnapproved = settings.UseUnapproved;
+        Currency = settings.Currency;
+        TooltipText = settings.TooltipText;
+        radiusInMeters = settings.radiusInMeters;
+        revooProductCode = options.sitename;
+        RegionID = settings.RegionID;
+        //Close Ajax Filter ----------------------------------------------------------------
+        var minZoom = settings.minZoom;
+        var maxZoom = settings.maxZoom;
+
+        var cottageData = [];
+        var infoWindow = null;
+
+        var mapOptions = {
+            zoom: settings.zoom,
+            maxZoom: settings.maxZoom,
+            minZoom: settings.minZoom,
+            center: latlng,
+            navigationControl: true,
+            scaleControl: true,
+            mapTypeId: window.google.maps.MapTypeId.ROADMAP,
+            mapTypeControl: true,
+            streetViewControl: false,
+            scrollWheel: false,
+            mapTypeControlOptions: {
+                style: window.google.maps.MapTypeControlStyle.HORIZONTAL_BAR,
+                position: window.google.maps.ControlPosition.TOP_RIGHT
+            }
+        };
+
+        var cottageListInfoWindow = null;
+
+        var mappingRequestHandler = settings.mappingRequestHandler;
+        var map = new window.google.maps.Map(containingMapDiv, mapOptions);
+
+        // Add the proximity search centre marker
+        if (settings.isProximitySearch == true) {
+            drawProximityMarkerImage();
+        }
+
+
+        window.google.maps.event.addListener(map, 'zoom_changed', function () {
+            var zoom = map.getZoom();
+            if (zoom < minZoom) map.setZoom(minZoom);
+            if (zoom > maxZoom) map.setZoom(maxZoom);
+            zoom = map.getZoom();
+
+            var bounds = map.getBounds();
+            var neLatitude = bounds.getNorthEast().lat();
+            var neLongitude = bounds.getNorthEast().lng();
+            var swLatitude = bounds.getSouthWest().lat();
+            var swLongitude = bounds.getSouthWest().lng();
+
+            var url;
+            if (settings.queryString == '') {
+                url = '?';
+            } else {
+                url = '?' + settings.queryString + '&';
+            }
+
+            $containingMapDiv.data("history", history);
+            var ajaxData = '&' + settings.QSParameterWebsiteId + '=' + settings.WebsiteId
+        + '&' + settings.QSParameterPropDetailPageName + '=' + settings.PropertyDetailsPageName
+        + '&forsup=' + settings.ForSupplier
+        + '&isprx=' + settings.isProximitySearch
+        + '&prxlat=' + settings.proximitySearchCentreLat
+        + '&prxlng=' + settings.proximitySearchCentreLng
+        + '&introtextlength=' + settings.IntroTextLength
+        + '&maxzoom=' + settings.maxZoom
+        + '&zoom=' + zoom
+        + '&imgwidth=' + settings.PopupImageWidth
+        + '&singleclusterimageurl=' + settings.SingleClusterImageUrl
+        + '&complexclusterimageurl=' + settings.ComplexClusterImageUrl
+        + '&complexclusterimagefifteenplusurl=' + settings.ComplexClusterImageFifteenPlusUrl
+        + '&mapuc=' + settings.MapPopupUserControlName
+        + '&useunappr=' + settings.UseUnapproved
+        + '&curr=' + settings.Currency
+        + '&neLat=' + neLatitude
+        + '&neLng=' + neLongitude
+        + '&swLat=' + swLatitude
+        + '&swLng=' + swLongitude
+        + '&cluscodes=' + createPropertiesListJsonFromSettings()
+        + '&markerLat=' + createMarkerJsonFromSettings("lat")
+        + '&markerLng=' + createMarkerJsonFromSettings("lng")
+        + '&markerUrl=' + settings.MarkerUrl
+        + '&initSites=' + createInitPropertiesListJsonFromSettings()
+        + '&callingFunc=zoom'
+        + '&mapresultshandlerinstance=' + MapResultsHandlerInstance
+        + '&tooltipText=' + settings.TooltipText
+        + '&miles=' + settings.radiusInMeters;
+            $.ajax({
+                async: false,
+                type: 'POST',
+                url: mappingRequestHandler + url + 'method=mapping--get-zoom-map-data',
+                data: ajaxData,
+                context: document.body,
+                success: function (result) {
+                    var mapData = $.parseJSON(result);
+                    $('#' + containingMapDiv.id).mapResults(mapData);
+                },
+                error: function () {
+                }
+            });
+
+        }); //end of zoom event
+
+        window.google.maps.event.addListener(map, 'dragend', function () {
+            //if (MouseDown == true) return;
+            var zoom = map.getZoom();
+
+            if (zoom < minZoom) map.setZoom(minZoom);
+            if (zoom > maxZoom) map.setZoom(maxZoom);
+
+            var bounds = map.getBounds();
+            var neLatitude = bounds.getNorthEast().lat();
+            var neLongitude = bounds.getNorthEast().lng();
+            var swLatitude = bounds.getSouthWest().lat();
+            ;
+            var swLongitude = bounds.getSouthWest().lng();
+
+            var url;
+            if (settings.queryString == '') {
+                url = '?';
+            } else {
+                url = '?' + settings.queryString + '&';
+            }
+
+            $containingMapDiv.data("history", history);
+            //settings.zoom = zoom;
+            var ajaxData = '&' + settings.QSParameterWebsiteId + '=' + settings.WebsiteId
+            + '&' + settings.QSParameterPropDetailPageName + '=' + settings.PropertyDetailsPageName
+            + '&forsup=' + settings.ForSupplier
+            + '&isprx=' + settings.isProximitySearch
+			+ '&prxlat=' + settings.proximitySearchCentreLat
+			+ '&prxlng=' + settings.proximitySearchCentreLng
+            + '&introtextlength=' + settings.IntroTextLength
+            + '&maxzoom=' + settings.maxZoom
+            + '&zoom=' + zoom
+            + '&imgwidth=' + settings.PopupImageWidth
+            + '&singleclusterimageurl=' + settings.SingleClusterImageUrl
+            + '&complexclusterimageurl=' + settings.ComplexClusterImageUrl
+            + '&complexclusterimagefifteenplusurl=' + settings.ComplexClusterImageFifteenPlusUrl
+            + '&neLat=' + neLatitude
+            + '&neLng=' + neLongitude
+            + '&swLat=' + swLatitude
+            + '&swLng=' + swLongitude
+            + '&cluscodes=' + createPropertiesListJsonFromSettings()
+            + '&markerLat=' + createMarkerJsonFromSettings("lat")
+            + '&markerLng=' + createMarkerJsonFromSettings("lng")
+            + '&markerUrl=' + settings.MarkerUrl
+            + '&initSites=' + createInitPropertiesListJsonFromSettings()
+            + '&callingFunc=dragEnd'
+            + '&mapresultshandlerinstance=' + MapResultsHandlerInstance
+            + '&tooltipText=' + settings.TooltipText
+            + '&miles=' + settings.radiusInMeters;
+            $.ajax({
+                async: true,
+                type: 'POST',
+                url: mappingRequestHandler + url + 'method=mapping--get-zoom-map-data',
+                data: ajaxData,
+                context: document.body,
+                success: function (result) {
+                    var mapData = $.parseJSON(result);
+                    $('#' + containingMapDiv.id).mapResults(mapData);
+
+                },
+                error: function () {
+                }
+            });
+
+        }); //end of pan event
+
+        // Add single markers
+        $(settings.singleMarkers[settings.zoom]).each(function () {
+            var singleClusterImage = settings.SingleClusterImageUrl;
+            var siteForMap = this;
+            var siteForMapLatLng = new window.google.maps.LatLng(siteForMap.lat, siteForMap.lng);
+
+            var siteForMapMarker = new window.google.maps.Marker({
+                position: siteForMapLatLng,
+                icon: singleClusterImage
+            });
+
+            siteForMapMarker.setMap(map);
+            var obj = settings.singleMarkers[settings.zoom];
+
+            if (settings.isProximitySearch != true) {
+                var code = (settings.ForSupplier ? obj[settings.singleMarkers[settings.zoom].length - 1].code : obj[settings.singleMarkers[settings.zoom].length - 1].accommodationCode);
+                if (this.code == code) {
+                    drawProximityMarkerImage();
+                }
+            }
+
+            // Add the marker onclick handler to display the popup.
+            window.google.maps.event.addListener(siteForMapMarker, 'click', function () {
+
+                var clickedMarker = this;
+                var lat = clickedMarker.getPosition().lat();
+                var lng = clickedMarker.getPosition().lng();
+                var cottageJson = '';
+                var found = false;
+
+                for (var i = 0; i < cottageData.length; i++) {
+                    var c = cottageData[i];
+                    if (c.lat == lat && c.lng == lng) {
+                        cottageJson = c.cottageJSON;
+                        found = true;
+                        break;
+                    }
+                }
+
+                if (found == true) {
+                    markerClickCallbackSuccess(cottageJson, clickedMarker, false);
+                } else {
+                    var url;
+                    if (settings.queryString == '') {
+                        url = '?';
+                    } else {
+                        url = '?' + settings.queryString + '&';
+                    }
+
+
+
+                    $.ajax({
+                        async: true,
+                        type: 'POST',
+                        url: mappingRequestHandler // should be: {root}/HoseasonsRequestHandler.ashx
+							+ url + 'method=mapping--get-site-popup-data&' + settings.QSParameterSiteCode + '=' + siteForMap.code
+							+ '&forsup=' + settings.ForSupplier
+							+ '&isprx=' + settings.isProximitySearch
+							+ '&prxlat=' + settings.proximitySearchCentreLat
+							+ '&prxlng=' + settings.proximitySearchCentreLng
+							+ '&' + settings.QSParameterWebsiteId + '=' + settings.WebsiteId
+							+ '&' + settings.QSParameterPropDetailPageName + '=' + settings.PropertyDetailsPageName
+							+ '&introtextlength=' + settings.IntroTextLength
+							+ '&maxzoom=' + settings.maxZoom
+							+ '&imgwidth=' + settings.PopupImageWidth
+							+ '&singleclusterimageurl=' + settings.SingleClusterImageUrl
+							+ '&complexclusterimageurl=' + settings.ComplexClusterImageUrl
+							+ '&complexclusterimagefifteenplusurl=' + settings.ComplexClusterImageFifteenPlusUrl
+							+ '&mapuc=' + settings.MapPopupUserControlName
+							+ '&useunappr=' + settings.UseUnapproved
+							+ '&curr=' + settings.Currency
+							+ '&acode=' + siteForMap.accommodationCode
+                            + '&mapresultshandlerinstance=' + MapResultsHandlerInstance
+                            + '&tooltipText=' + settings.TooltipText
+                            + '&miles=' + settings.radiusInMeters,
+
+                        context: document.body,
+                        success: function (result) { markerClickCallbackSuccess(result, clickedMarker, true); },
+                        error: function () {
+                        }
+                    });
+                }
+
+            });
+
+        }); // End add single markers
+
+        /*        this.centerMap = function () {
+        setTimeout(function () {
+        map.setCenter(latlng);
+        }, 500);
+        };*/
+
+
+        function markerClickCallbackSuccess(cottageJson, callbackMarker, addToArray) {
+
+            var cottageDetails = $.parseJSON(cottageJson);
+
+            var contentString = getInfoWindowContent(cottageDetails);
+
+            if (infoWindow == null) {
+                infoWindow = new window.google.maps.InfoWindow({
+                    content: contentString,
+                    maxWidth: 350
+                });
+            } else {
+                infoWindow.setContent(contentString);
+            }
+
+            infoWindow.open(map, callbackMarker);
+
+            if (addToArray) {
+                var ele = { lat: callbackMarker.position.lat(), lng: callbackMarker.position.lng(), cottageJSON: cottageJson };
+                cottageData.push(ele);
+            }
+        }
+
+        function getClusterImage(count) {
+            var clusterImage;
+            if (count > 0 && count < 16) {
+                clusterImage = settings.ComplexClusterImageUrl + count + ".png";
+            } else {
+                clusterImage = settings.ComplexClusterImageFifteenPlusUrl;
+            }
+            return clusterImage;
+        }
+
+        $(settings.clusterMarkers[settings.zoom]).each(function () {
+            var cluster = this;
+
+            // Calculate quantity of accomodation 
+            var totalaccom = 0;
+            var supplierline = cluster.cottages.split("|");
+            for (var i = 0; i < supplierline.length; i++) {
+                var supplierdetails = supplierline[i].split("^");
+                if (supplierdetails.length > 3) {
+                    var accoms = supplierdetails[3].split(",");
+                    totalaccom = totalaccom + accoms.length;
+                }
+            }
+
+            var clusterImage = getClusterImage(totalaccom);
+            var clusterLatLng = new window.google.maps.LatLng(cluster.lat, cluster.lng);
+
+            var clusterMarker = new window.google.maps.Marker({
+                position: clusterLatLng,
+                icon: clusterImage,
+                title: settings.TooltipText,
+                zIndex: 1000
+            });
+
+            clusterMarker.setMap(map);
+            if (marker == null) {
+                drawProximityMarkerImage();
+            }
+
+            window.google.maps.event.addListener(clusterMarker, 'click', function () {
+
+                var url;
+                if (settings.queryString == '') {
+                    url = '?';
+                } else {
+                    url = '?' + settings.queryString + '&';
+                }
+
+                $containingMapDiv.data("history", history);
+                //send property info as data rather than in the URL as may be too big for querystring
+                var ajaxData = '&cluscodes=' + cluster.cottages
+					+ '&' + settings.QSParameterWebsiteId + '=' + settings.WebsiteId
+					+ '&' + settings.QSParameterPropDetailPageName + '=' + settings.PropertyDetailsPageName
+					+ '&forsup=' + settings.ForSupplier
+                    + '&isprx=' + settings.isProximitySearch
+                    + '&prxlat=' + settings.proximitySearchCentreLat
+                    + '&prxlng=' + settings.proximitySearchCentreLng
+					+ '&introtextlength=' + settings.IntroTextLength
+					+ '&maxzoom=' + settings.maxZoom
+					+ '&imgwidth=' + settings.PopupImageWidth
+					+ '&singleclusterimageurl=' + settings.SingleClusterImageUrl
+					+ '&complexclusterimageurl=' + settings.ComplexClusterImageUrl
+					+ '&complexclusterimagefifteenplusurl=' + settings.ComplexClusterImageFifteenPlusUrl
+					+ '&mapuc=' + settings.MapPopupUserControlName
+					+ '&useunappr=' + settings.UseUnapproved
+					+ '&curr=' + settings.Currency
+                    + '&mapresultshandlerinstance=' + MapResultsHandlerInstance
+                    + '&tooltipText=' + settings.TooltipText
+                    + '&miles=' + settings.radiusInMeters;
+
+                $.ajax({
+                    async: true,
+                    type: 'POST',
+                    url: mappingRequestHandler + url + 'method=mapping--get-map-data',
+                    data: ajaxData,
+                    context: document.body,
+                    success: function (result) {
+
+                        var mapData = $.parseJSON(result);
+                        var cottageList = getInfoWindowListContent(mapData);
+
+                        if (cottageListInfoWindow) {
+                            cottageListInfoWindow.close();
+                        }
+
+                        cottageListInfoWindow = new window.google.maps.InfoWindow({ content: cottageList, maxWidth: 370, visible: true });
+                        //window.google.maps.event.addListener(cottageListInfoWindow, 'closeclick', function () {
+                        //$('#' + containingMapDiv.id).mapResults(mapData);
+                        //});
+
+                        cottageListInfoWindow.open(map, clusterMarker);
+                    },
+                    error: function () {
+                    }
+                });
+
+            });
+        }); // end of addClusterMarkers
+
+        function getInfoWindowContent(cottageDetails) {
+            var contentString = "<div class='mappropertyDetailsContainer'><ul class='serviceList'>";
+
+            // process all services that are available
+            for (var i = 0; i < cottageDetails.length; i++) {
+                if (cottageDetails[i].htmlContent != undefined && cottageDetails[i].htmlContent != '') {
+                    contentString += cottageDetails[i].htmlContent;
+                } else {
+                    if (settings.ForSupplier) {
+                        contentString = contentString + "<li><div class='map_propertyImage'>"
+					                + (cottageDetails[i].image != "" ? "<img alt='" + cottageDetails[i].name + "' src='" + cottageDetails[i].image + "'/>" : "")
+					                + "</div>"
+					                + "<div class='map_propertyDetails'>"
+					                + "<h2><a href='" + cottageDetails[i].link + "'>" + cottageDetails[i].name + "</a></h2>"
+					                + "<div class='map_propertyPrice'>"
+					                + "<span class=\"priceDisplay\">" + " " + nonDatedPriceText + "</span>"
+					                + " <span class=\"priceValue\">" + cottageDetails[i].price + "</span></div>"
+                          + " <span class=\"introText\">" + cottageDetails[i].introText + "</span>"
+					                + "<div class='map_propertyLink'><a href='" + cottageDetails[i].link + "'><u>Read more&#187;</u></a></div></div>"
+					                + "<div class='clear map_propertyDetailsend'></div></li>";
+                    } else {
+                        contentString = contentString + "<li><div class='map_propertyImage'>"
+					                + (cottageDetails[i].image != "" ? "<img alt='" + cottageDetails[i].name + "' src='" + cottageDetails[i].image + "'/>" : "")
+					                + "</div>"
+					                + "<div class='map_propertyDetails'>"
+					                + "<h2>" + cottageDetails[i].name + " (" + cottageDetails[i].code + ")</h2>"
+					                + "<div class='map_propertyInfo'>"
+					                + "<span>Sleeps:</span>" + cottageDetails[i].maxSleepCount
+					                + "<span>Bedrooms:</span>" + cottageDetails[i].bedroomCount
+					                + "<span>Pets:</span>" + (cottageDetails[i].allowsPets ? 'Yes' : 'No')
+					                + "</div>"
+					                + " <span class=\"introText\">" + cottageDetails[i].introText + "</span>"
+					                + "<div class='map_propertyPrice'>"
+					                + "<span class=\"priceDisplay\">" + " " + nonDatedPriceText + "</span>"
+					                + "<span class=\"priceValue\">" + cottageDetails[i].price + "</span></div>"
+					                + "<div class='map_propertyLink'><a href='" + cottageDetails[i].link + "'><u>Read more&#187;</u></a></div></div>"
+					                + "<div class='clear map_propertyDetailsend'></div></li>";
+                    }
+                }
+            }
+
+            // close main container
+            contentString = contentString + "</ul></div>";
+
+            return contentString;
+        }
+
+        function getInfoWindowListContent(mapData) {
+            var header =
+					"<div class='clusteredPropertyListContainer'>" +
+						"<div class='clusteredPropertyListHeader'>" +
+						"<span class='clusteredPropertyListHeaderText'>" + mapData.ClusterItems.length + " Properties</span>" +
+						"</div>" +
+						"<div class='clusteredPropertyListContainerContent'>";
+            if (mapData.HtmlContent != undefined && mapData.HtmlContent != '') {
+                return header + "<ul class='serviceList'>" + mapData.HtmlContent + "</ul></div></div>";
+            }
+
+            var result = "";
+            var cottageDetailsList = mapData.ClusterItems;
+            if (cottageDetailsList) {
+                result = header;
+                for (var i = 0; i < cottageDetailsList.length; i++) {
+                    if (settings.ForSupplier) {
+                        result = result +
+						            "<div class='clusteredPropertyItem'>"
+                        + "<div class='clusteredPropertyItemColumn' >"
+                        + "<a href='" + cottageDetailsList[i].MoreInfoUri + "'><img alt='Image of property' src='" + cottageDetailsList[i].ImageUri + "'/></a>"
+                        + "</div>"
+                        + "<div class='clusteredPropertyItemColumn'>"
+                        + "<div class='map_propertyDetails'>"
+                        + "<h2>" + cottageDetailsList[i].Name + "</h2>"
+                        + "" + cottageDetailsList[i].Location
+                        + "<div class='map_propertyInfo'>"
+                    	  + "<span class=\"priceDisplay\">" + " " + nonDatedPriceText + "</span>"
+					              + "<span class=\"priceValue\">£" + cottageDetailsList[i].Price + "</span></div>"
+                        + "<div class='map_propertyLink'><a href='" + cottageDetailsList[i].MoreInfoUri + "'><u>Read more&#187;</u></a></div>"
+                        + "</div>"
+                        + "</div>"
+                        + "</div>"
+                        + "</div>"
+                        + "</div>";
+                    } else {
+                        result = result +
+						            "<div class='clusteredPropertyItem'>"
+                        + "<div class='clusteredPropertyItemColumn'>"
+                        + "<a href='" + cottageDetailsList[i].MoreInfoUri + "'><img alt='Image of property' src='" + cottageDetailsList[i].ImageUri + "'/></a>"
+                        + "</div>"
+                        + "<div class='clusteredPropertyItemColumn'>"
+                        + "<div class='map_propertyDetails'>"
+                        + "<h2>" + cottageDetailsList[i].Name + " (" + cottageDetailsList[i].Code + ")</h2>"
+                        + "" + cottageDetailsList[i].Location
+                        + "<div class='map_propertyInfo'>"
+                        + "<span>Sleeps:</span>" + cottageDetailsList[i].MaxSleepsCount
+                        + "<span>Bedrooms:</span>" + cottageDetailsList[i].BedroomCount
+                    	  + "<span class=\"priceDisplay\">" + " " + nonDatedPriceText + "</span>"
+					              + "<span class=\"priceValue\">£" + cottageDetailsList[i].Price + "</span></div>"
+                        + "<div class='map_propertyLink'><a href='" + cottageDetailsList[i].MoreInfoUri + "'><u>Read more&#187;</u></a></div>"
+                        + "</div>"
+                        + "</div>"
+                        + "</div>"
+                        + "</div>"
+
+                        + "</div>";
+                    }
+                }
+                result +=
+					"</div></div>";
+            }
+            return result;
+        }
+
+        function createPropertiesListJsonFromSettings() {
+            var result = "";
+            var zoom = settings.zoom;
+
+            var clustered = settings.clusterMarkers[zoom];
+            var singles = settings.singleMarkers[zoom];
+
+            $(clustered).each(function () {
+                result += this.cottages + "|";
+            });
+
+            $(singles).each(function () {
+                result += createSinglePropertyItem(this);
+            });
+
+            return result;
+        }
+
+
+
+        function createInitPropertiesListJsonFromSettings() {
+            var result = "";
+            var zoom = settings.zoom;
+
+            var clustered = settings.initClusterMarkers[zoom];
+            var singles = settings.initSingleMarkers[zoom];
+
+            $(clustered).each(function () {
+                if (this.count > 1) {
+                    result += this.cottages + "|";
+                } else {
+                    result += this.cottages + "^" + this.lat + "^" + this.lng + "^" + this.cottages + "|";
+                }
+            });
+
+            result += "#";
+
+            $(singles).each(function () {
+                result += createSinglePropertyItem(this);
+            });
+
+            return result;
+        }
+
+        function createMarkerJsonFromSettings(latlng) {
+
+            var markerResult;
+            switch (latlng) {
+                case "lat":
+                    if (settings.MarkerLat == 0) {
+                        markerResult = settings.proximitySearchCentreLat;
+                    } else {
+                        markerResult = settings.MarkerLat;
+                    }
+                    break;
+                case "lng":
+                    if (settings.MarkerLng == 0) {
+                        markerResult = settings.proximitySearchCentreLng;
+                    } else {
+                        markerResult = settings.MarkerLng;
+                    }
+                    break;
+                default:
+                    markerResult = 0;
+                    break;
+            }
+            return markerResult;
+        }
+
+        function createSinglePropertyItem(cottage) {
+            if (cottage) {
+                var result = cottage.code + "^" + cottage.lat + "^" + cottage.lng + "^";
+                if (cottage.accommodationCode) {
+                    result += cottage.accommodationCode + "|";
+                } else {
+                    result += cottage.code + "|";
+                }
+                return result;
+            } else return "";
+        }
+
+        function drawCircle() {
+            cottageListCircle = new window.google.maps.Circle();
+            circleOptions = {
+                map: map,
+                fillColor: '#FF0000',
+                fillOpacity: 0.20,
+                strokeColor: '#000000',
+                strokeOpacity: 0.75,
+                strokeWeight: 1,
+                center: marker.getPosition(),
+                radius: settings.radiusInMeters
+            };
+            cottageListCircle.setOptions(circleOptions);
+        }
+
+        function drawProximityMarkerImage() {
+
+            var image = "/Images/GoogleMapIcons/CenterMarker.png";
+
+            var lat = settings.proximitySearchCentreLat;
+            var lng = settings.proximitySearchCentreLng;
+
+            if (settings.proximitySearchCentreLat == 0 || settings.proximitySearchCentreLng == 0) {
+                lat = options.MarkerLat;
+                lng = options.MarkerLng;
+            }
+
+            marker = new window.google.maps.Marker({
+                position: new window.google.maps.LatLng(lat, lng),
+                icon: image,
+                zIndex: 1
+            });
+
+            marker.setMap(map);
+            drawCircle(marker);
+        }
+
+
+    }); // End this.each
+};

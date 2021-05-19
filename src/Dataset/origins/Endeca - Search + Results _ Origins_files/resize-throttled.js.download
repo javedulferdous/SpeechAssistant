@@ -1,0 +1,7 @@
+(function($) {
+  var resizeThrottled = _.throttle(function() {
+    $(window).trigger('resize-throttled');
+  }, 60);
+
+  $(window).on('resize', resizeThrottled);
+})(jQuery);

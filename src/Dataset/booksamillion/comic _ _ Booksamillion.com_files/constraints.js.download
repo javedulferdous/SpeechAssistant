@@ -1,0 +1,31 @@
+// validate requested versus qty available at the selected store
+function validatePickupQuantity (qEl) {
+	var pickupLimit  = qEl.data('pickupable');
+	var pickupErrID  = qEl.data('pickuperrfld');
+	var constraintNm = qEl.data('constraintfld');
+	var constrainQty = true;
+
+	// if a constraintfld data-attribute exists, only constrain if the pickup option is checked
+	if (constraintNm) {
+		constrainQty = (jQuery("input[name='" + constraintNm+"']:checked").val() >= -1) ? false : true;
+	}
+
+	// Briefly display the pre-defined constraint message and reset the selected qty if appropriate
+	if ((pickupLimit < qEl.val()) && constrainQty) {
+		qEl.val(pickupLimit);
+		jQuery('#'+pickupErrID).stop().slideDown(1000).slideUp(3000);
+	}
+}
+
+jQuery(document).ready(function() {
+	// monitor all qty fields for validity
+	jQuery('.pickup-qty-validator').on('input change blur', function() {
+		validatePickupQuantity(jQuery(this));
+	});
+
+	// link cart destination field changes to monitored qty fields
+	jQuery('.pickup-qty-constraint').on('input change blur', function() {
+		if (jQuery(this).filter(":checked").val() < -1) {
+			var pickupID = jQuery(this).data("quantityfld");
+			validatePickupQuantity(jQuery('#'+pickupID));
+		} }); });

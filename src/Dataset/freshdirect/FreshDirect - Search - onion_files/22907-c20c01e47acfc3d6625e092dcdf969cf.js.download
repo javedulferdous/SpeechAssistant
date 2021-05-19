@@ -1,0 +1,212 @@
+
+;(function() {
+  var vantage = {
+    version: '0.1.2',
+    pixelId: '1313212712140887',
+    platform: 'external',
+    storeId: '22907',
+    storeName: 'www.freshdirect.com',
+    adwordsAccountId: '6935547723',
+    googleConversionTrackerId: 'AW-756967831',
+    googleSendToSuffix: 'A_J5COXS-5YBEJfT-egC',
+  };
+
+  var head = document.getElementsByTagName('head')[0];
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src = 'https://dow068lag04cv.cloudfront.net/vantage-coop-3.3-min.js';
+  script.async = true;
+  head.appendChild(script);
+  
+  window.$vantageRetailerKey = 'FreshDirect';
+  window.$vantageBrands = {
+  "Kevita": {
+    "pixelId": "1344836295646435", 
+    "vendor": "PepsiCo", 
+    "suffix": "eIq_CPm1h5cBEJfT-egC", 
+    "vendorSuffix": "zfmaCI2QkJcBEJfT-egC"
+  }, 
+  "Chobani": {
+    "pixelId": "1440087372825594", 
+    "vendor": "Chobani Yogurts", 
+    "suffix": "-3TRCKDqvJgBEJfT-egC", 
+    "vendorSuffix": "D-DHCODZxpgBEJfT-egC"
+  }, 
+  "Ruffles": {
+    "pixelId": "287755415351146", 
+    "vendor": "PepsiCo", 
+    "suffix": "Z3rCCIuXkJcBEJfT-egC", 
+    "vendorSuffix": "zfmaCI2QkJcBEJfT-egC"
+  }, 
+  "Fritos": {
+    "pixelId": "2191095817830526", 
+    "vendor": "PepsiCo", 
+    "suffix": "xFO0CJeXkJcBEJfT-egC", 
+    "vendorSuffix": "zfmaCI2QkJcBEJfT-egC"
+  }, 
+  "Applegate": {
+    "pixelId": "384082468910771", 
+    "vendor": "ApplegateCo", 
+    "suffix": "E0vhCP-z4aYBEJfT-egC", 
+    "vendorSuffix": "51sWCOux4aYBEJfT-egC"
+  }, 
+  "Cottonelle": {
+    "pixelId": "884856258389108", 
+    "vendor": "KimberlyClark", 
+    "suffix": "g5qHCMuO9bIBEJfT-egC", 
+    "vendorSuffix": "P3TOCO21h5cBEJfT-egC"
+  }, 
+  "Bounty": {
+    "pixelId": "554712262025792", 
+    "vendor": "P&G", 
+    "suffix": "", 
+    "vendorSuffix": ""
+  }, 
+  "SunChips": {
+    "pixelId": "2098629870452852", 
+    "vendor": "PepsiCo", 
+    "suffix": "Ft5-CKrl-5YBEJfT-egC", 
+    "vendorSuffix": "zfmaCI2QkJcBEJfT-egC"
+  }, 
+  "KIND": {
+    "pixelId": "344588996173429", 
+    "vendor": "KIND Snacks", 
+    "suffix": "_UKhCOnZxpgBEJfT-egC", 
+    "vendorSuffix": ""
+  }, 
+  "Tropicana": {
+    "pixelId": "497645870646660", 
+    "vendor": "PepsiCo", 
+    "suffix": "BLrWCJi0h5cBEJfT-egC", 
+    "vendorSuffix": "zfmaCI2QkJcBEJfT-egC"
+  }, 
+  "Naked Juice": {
+    "pixelId": "263118164511927", 
+    "vendor": "PepsiCo", 
+    "suffix": "jWSKCPy1h5cBEJfT-egC", 
+    "vendorSuffix": "zfmaCI2QkJcBEJfT-egC"
+  }, 
+  "Aquafina": {
+    "pixelId": "1051622434994391", 
+    "vendor": "PepsiCo", 
+    "suffix": "pfIjCKfl-5YBEJfT-egC", 
+    "vendorSuffix": "zfmaCI2QkJcBEJfT-egC"
+  }, 
+  "Kleenex": {
+    "pixelId": "179898829301393", 
+    "vendor": "KimberlyClark", 
+    "suffix": "LsGUCN2VkJcBEJfT-egC", 
+    "vendorSuffix": "P3TOCO21h5cBEJfT-egC"
+  }, 
+  "The Great American Turkey Co.": {
+    "pixelId": "386491035597589", 
+    "vendor": "Great American Turkey Co", 
+    "suffix": "kVzZCKqc96UBEJfT-egC", 
+    "vendorSuffix": "HwPwCJ-a96UBEJfT-egC"
+  }, 
+  "Pepsi": {
+    "pixelId": "257455684898595", 
+    "vendor": "PepsiCo", 
+    "suffix": "5uIcCJqXkJcBEJfT-egC", 
+    "vendorSuffix": "zfmaCI2QkJcBEJfT-egC"
+  }, 
+  "Lay's": {
+    "pixelId": "229292894387643", 
+    "vendor": "PepsiCo", 
+    "suffix": "EdyxCIWXkJcBEJfT-egC", 
+    "vendorSuffix": "zfmaCI2QkJcBEJfT-egC"
+  }, 
+  "Smartfood": {
+    "pixelId": "654186108284456", 
+    "vendor": "PepsiCo", 
+    "suffix": "gdKkCM7l-5YBEJfT-egC", 
+    "vendorSuffix": "zfmaCI2QkJcBEJfT-egC"
+  }, 
+  "Frito-Lay": {
+    "pixelId": "652120778477709", 
+    "vendor": "PepsiCo", 
+    "suffix": "5Q6JCPO1h5cBEJfT-egC", 
+    "vendorSuffix": "zfmaCI2QkJcBEJfT-egC"
+  }, 
+  "Doritos": {
+    "pixelId": "2002370489826657", 
+    "vendor": "PepsiCo", 
+    "suffix": "JJXTCIiRkJcBEJfT-egC", 
+    "vendorSuffix": "zfmaCI2QkJcBEJfT-egC"
+  }, 
+  "Huggies": {
+    "pixelId": "1258397384294433", 
+    "vendor": "KimberlyClark", 
+    "suffix": "EeE2CPC1h5cBEJfT-egC", 
+    "vendorSuffix": "P3TOCO21h5cBEJfT-egC"
+  }, 
+  "Driscoll's": {
+    "pixelId": "589053445167161", 
+    "vendor": "DriscollsInc", 
+    "suffix": "G0ujCNK0-7IBEJfT-egC", 
+    "vendorSuffix": "DhBYCMy9i7MBEJfT-egC"
+  }, 
+  "Organic Valley": {
+    "pixelId": "486391418638689", 
+    "vendor": "OrganicValleyCoop", 
+    "suffix": "19YLCMOx-7IBEJfT-egC", 
+    "vendorSuffix": "xiuPCMWt-7IBEJfT-egC"
+  }, 
+  "Tostitos": {
+    "pixelId": "1910296295945124", 
+    "vendor": "PepsiCo", 
+    "suffix": "OfAdCL6RkJcBEJfT-egC", 
+    "vendorSuffix": "zfmaCI2QkJcBEJfT-egC"
+  }, 
+  "H\u00e4lsa": {
+    "pixelId": "543965166114376", 
+    "vendor": "H\u00e4lsaCo", 
+    "suffix": "Hz0DCIqsh5cBEJfT-egC", 
+    "vendorSuffix": "pvwRCOOPkJcBEJfT-egC"
+  }, 
+  "Brodo": {
+    "pixelId": "639459006515615", 
+    "vendor": "Brodofication", 
+    "suffix": "rERpCOe1h5cBEJfT-egC", 
+    "vendorSuffix": "_lc5COq1h5cBEJfT-egC"
+  }, 
+  "Cheetos": {
+    "pixelId": "251417965510335", 
+    "vendor": "PepsiCo", 
+    "suffix": "XHH_CPyWkJcBEJfT-egC", 
+    "vendorSuffix": "zfmaCI2QkJcBEJfT-egC"
+  }, 
+  "Quaker": {
+    "pixelId": "281017779165398", 
+    "vendor": "PepsiCo", 
+    "suffix": "KI7LCMvl-5YBEJfT-egC", 
+    "vendorSuffix": "zfmaCI2QkJcBEJfT-egC"
+  }, 
+  "Diet Pepsi": {
+    "pixelId": "257455684898595", 
+    "vendor": "PepsiCo", 
+    "suffix": "5uIcCJqXkJcBEJfT-egC", 
+    "vendorSuffix": "zfmaCI2QkJcBEJfT-egC"
+  }, 
+  "Simple Mills": {
+    "pixelId": "295177734618481", 
+    "vendor": "Simple Mills, Inc.", 
+    "suffix": "Bm5cCKyY96UBEJfT-egC", 
+    "vendorSuffix": "xshtCMSY96UBEJfT-egC"
+  }, 
+  "Rold Gold": {
+    "pixelId": "701035910264128", 
+    "vendor": "PepsiCo", 
+    "suffix": "pnuECIiXkJcBEJfT-egC", 
+    "vendorSuffix": "zfmaCI2QkJcBEJfT-egC"
+  }, 
+  "Gatorade": {
+    "pixelId": "295295301216884", 
+    "vendor": "PepsiCo", 
+    "suffix": "sHrbCPa1h5cBEJfT-egC", 
+    "vendorSuffix": "zfmaCI2QkJcBEJfT-egC"
+  }
+}
+    
+  window.$vantage = vantage;
+})(window);

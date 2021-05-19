@@ -1,0 +1,32 @@
+_satellite.pushAsyncScript(function(event, target, $variables){
+  // Love Birds 222208
+if(_satellite.getVar('Movie ID') == '222208'){
+//Desktop MOP
+if(_satellite.getVar('Page Level 2') == 'movie | overview'){
+  //pxl-449
+  (function(e,t,n){if(e.snaptr)return;var a=e.snaptr=function(){a.handleRequest?a.handleRequest.apply(a,arguments):a.queue.push(arguments)};a.queue=[];var s='script';r=t.createElement(s);r.async=!0;r.src=n;var u=t.getElementsByTagName(s)[0];u.parentNode.insertBefore(r,u);})(window,document,'https://sc-static.net/scevent.min.js');
+
+snaptr('init', 'e79aa6a9-548c-42e1-9bfd-92fe4c778d47', {'user_email': '_INSERT_USER_EMAIL_'});
+snaptr('track', 'e79aa6a9-548c-42e1-9bfd-92fe4c778d47', 'PAGE_VIEW');
+
+
+
+    }
+
+}
+
+// Love Birds 222208
+if(_satellite.getVar('Movie ID') == '222208'){
+//Desktop MSP
+if(_satellite.getVar('Page Level 2') == 'movie times | by movie'){
+  //pxl-449
+  (function(e,t,n){if(e.snaptr)return;var a=e.snaptr=function(){a.handleRequest?a.handleRequest.apply(a,arguments):a.queue.push(arguments)};a.queue=[];var s='script';r=t.createElement(s);r.async=!0;r.src=n;var u=t.getElementsByTagName(s)[0];u.parentNode.insertBefore(r,u);})(window,document,'https://sc-static.net/scevent.min.js');
+
+snaptr('init', 'e79aa6a9-548c-42e1-9bfd-92fe4c778d47', {'user_email': '_INSERT_USER_EMAIL_'});
+snaptr('track', 'e79aa6a9-548c-42e1-9bfd-92fe4c778d47', 'PAGE_VIEW');
+
+
+      }
+
+}
+});

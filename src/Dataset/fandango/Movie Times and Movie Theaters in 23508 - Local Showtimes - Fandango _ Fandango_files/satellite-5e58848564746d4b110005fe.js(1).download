@@ -1,0 +1,33 @@
+_satellite.pushAsyncScript(function(event, target, $variables){
+   //Never Rarely Sometimes Always 221951
+if(_satellite.getVar('Movie ID') == '221951'){
+  //Desktop MOP
+  if(_satellite.getVar('Page Level 2') == 'movie | overview'){
+
+
+}
+
+
+//Desktop MSP
+  if(_satellite.getVar('Page Level 2') == 'movie times | by movie'){
+
+//pxl-522
+  _satellite.loadScript('https://www.googletagmanager.com/gtag/js?id=AW-687456621')
+  window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'AW-687456621');
+gtag('event', 'conversion', {'send_to': 'AW-687456621/deD6CN2U8sUBEO2C58cC'}); 
+
+//pxl-523
+  _satellite.loadScript('https://www.googletagmanager.com/gtag/js?id=AW-687455868')
+  window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'AW-687455868');
+gtag('event', 'conversion', {'send_to': 'AW-687455868/ZzqrCI6ui8YBEPz85scC'}); 
+
+
+}
+}
+});

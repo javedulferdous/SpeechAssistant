@@ -1,0 +1,30 @@
+_satellite.pushAsyncScript(function(event, target, $variables){
+  function getParameterByNameCJ(name) {
+    name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
+    var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"), results = regex.exec(location.search.toLowerCase());
+    return results === null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
+}
+function setCookieNameValExp(name,vale,noofdays){
+    var now = new Date(),time = now.getTime(),expTime = time + 1000*24*60*60*parseInt(noofdays), expires='';
+    now.setTime(expTime);
+    if(noofdays && !isNaN(noofdays)){
+        expires = now.toGMTString();
+    }
+    document.cookie = name + "=" + vale + "; expires=" + expires + "; domain=.walgreens.com; path=/";
+}
+function setCJEvent(){
+    var cjeventid = getParameterByNameCJ('cjevent');
+    if(cjeventid!=''){
+        setCookieNameValExp('cjevent2',cjeventid,30);
+    }
+}
+function setCJPID(){
+    var pid = getParameterByNameCJ('pid');
+    if(pid!=''){
+        setCookieNameValExp('cj',pid,7);
+    }
+}
+setCJEvent();
+setCJPID();
+
+});

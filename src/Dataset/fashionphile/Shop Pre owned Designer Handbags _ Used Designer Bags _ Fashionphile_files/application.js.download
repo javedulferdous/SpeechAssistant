@@ -1,0 +1,1313 @@
+$(function(){
+    $(document).on('click', '[data-action="remove-from-cart"]', function (e) {
+        e.preventDefault();
+        var event = JSON.parse($(this).attr('data-event'));
+        event.href = $(this).attr('href');
+        events.emit('cart_remove', event);
+    });
+
+    $(document).on('click', '[data-action="logout"]', function (e) {
+        e.preventDefault();
+        var event = JSON.parse($(this).attr('data-event'));
+        event.href = $(this).attr('href');
+        events.emit('user_logout', event);
+    });
+
+    $('span.social-icons a').click(function () {
+        events.emit('social_click', {
+            href : $(this).attr('href')
+        });
+    });
+});
+
+window.App = (function($) {
+    $('[data-toggle="on-hover-popover"]').popover({
+        container: 'body',
+        trigger: 'hover'
+    });
+
+    var messageQueue = $({});
+
+    var App = {
+        start: function() {
+            this.attachModalEvents();
+            this.setupShopPage();
+            if(window.functors){
+                $('body').on('scroll',window.functors.detectScrollPosition.byBody);
+                $(window).on('scroll',window.functors.detectScrollPosition.byWindow);
+            }
+        },
+
+        attachModalEvents: function() {
+            $('[data-action=mouseover]').on('mouseover', App.helpers.swapRolloverImage);
+            $('button[data-trigger="add-to-cart"]').on('click', function() {
+                App.helpers.submitForm($('form[action*="/cart/add"]'), function(response){
+                    const totals = {
+                        subTotalNonDiscounted: response.cart.subTotalNonDiscounted,
+                        subTotalDiscounted: response.cart.subTotalDiscounted,
+                        subTotal: response.cart.subTotal,
+                        discountTotal: response.cart.discountTotal,
+                        discountedSubtotal: response.cart.discountedSubtotal,
+                        amountDue: response.cart.amountDue
+                    };
+                    for(let i in totals){
+                      $('[data-minicartdisplay="' + i + '"]').html(totals[i]);
+                    }
+                });
+            });
+        },
+
+        setupShopPage: function () {
+            $('[data-action=sort], [data-action=page]').on('change', App.shop.sort);
+        },
+
+        helpers: {
+            addNewItemToCart: function(response) {
+                $("[data-item-count]").html(response.itemCount);
+                $("[data-cart-box]").append(response.itemHtml);
+                events.emit('cart_add', response.event)
+            },
+            submitForm: function(form, optionalSuccessCallback) {
+                var passesValidation = true,
+                    isGiftCardForm = form.hasClass('giftcard');
+                if (isGiftCardForm) {
+                  passesValidation = window.giftCards.passesValidation(form);
+                }
+
+                if (passesValidation) {
+                    $button = $('button:contains("Add to Cart")');
+                    $(':input').attr('style', 'border:1px solid #cccccc;');
+                    $('[data-action=disable-for-loading]').attr('disabled', true);
+                    App.helpers.disableButton($button);
+                    if (isGiftCardForm) {
+                      window.giftCards.autoSetCardAmount(form);
+                    }
+                    var serialized = form.serialize();
+                    var $request = $.post(form.attr('action'), serialized).done(function(response) {
+                        App.helpers.addNewItemToCart(response);
+                        if (form.hasClass('quickview-add')) {
+                            App.helpers.createQuickViewModal(response.html);
+                        } else if (form.hasClass('followed-product-add')) {
+                            window.location = '/shopping-bag';
+                        } else {
+                            App.helpers.createModal(response.html);
+                        }
+                        App.helpers.reenableButton($button);
+                    });
+                    $request.success(function (formResponse) {
+                        if(typeof optionalSuccessCallback === 'function'){
+                            optionalSuccessCallback(formResponse);
+                        }
+                        $('[data-action=disable-for-loading]').attr('disabled', false).html('ADD To Cart');
+                    })
+                    $request.fail(function (response) {
+                        $('[data-action=disable-for-loading]').attr('disabled', false).html('ADD To Cart');
+                        if ($request.status == 422) {
+                            var jsonResponse = $.parseJSON(response.responseText);
+                            for (var i in jsonResponse) {
+                              $(':input[name="'+i+'"]').attr('style', 'border:1px solid #eb0c8f;');
+                            }
+                        }
+                    });
+                }
+            },
+
+             createQuickViewModal: function(content) {
+                $('.in .modal-content').empty().html(content);
+                $('.in .button-group').css({
+                    'display': 'flex',
+                    'justify-content': 'center'
+                });
+                $('.in .button-group a.btn').css('margin', '0 15px');
+             },
+
+            createModal: function(content) {
+                modal = '<div class="modal fade" role="dialog" aria-hidden="true">';
+                    modal += '<div class="modal-dialog modal-sm">';
+                        modal += '<div class="modal-content">';
+                            modal += content;
+                        modal += '</div>';
+                    modal += '</div>';
+                modal += '</div>';
+
+                $(modal).modal();
+            },
+
+            swapRolloverImage: function() {
+                var $rolloverImage = $(this).closest('.modal').find('img[name=rollover]'),
+                    newImageSrc = $(this).data('image-url');
+
+                $rolloverImage.attr('src', newImageSrc);
+            },
+
+          disableButton: function (button) {
+            var text = button.html();
+            button.attr({'disabled': true, 'data-text': text}).html('<span class="icon"><i class="fa fa-spinner fa-spin"></i></span> Processing');
+          },
+
+          reenableButton: function (button) {
+            var text = button.data('text');
+            button.html(text).attr('disabled', false)
+          }
+        },
+
+        shop: {
+            saveTitleAndPage: (title,url) => {
+                App.shop.page.currentTitle = title;
+                App.shop.page.currentUrl = url;
+            },
+            page: {
+                currentTitle: null,
+                currentUrl: null,
+                bootstrapped: false,
+            },
+            parameters: {
+                pageSize: 180,
+                sort: null,
+                page: 1
+            },
+            sort: (eventElement) => {
+                events.emit('sort_click', {});
+                showOverlay();
+                let source = $(eventElement.target);
+                let scrollToTop = true;
+                if(source.attr('id').match(/pageSize/)){
+                    App.shop.parameters.pageSize = source.val();
+                    $('div.form-group div.select-wrapper select[id=pageSize]').each((index,selectElement) => {
+                        if(eventElement.target == selectElement){
+                            return;
+                        }
+                        $(selectElement).val(App.shop.parameters.pageSize);
+                    });
+                    let currentPage = grabCurrentPage();
+                    /**
+                     * This prevents the app from loading pages that are out of bounds. 
+                     * Say, for instance, the current page size is 60, and we're on page six,
+                     * and the total amount of items is 358. If the user changes the page size
+                     * to 180 and we don't adjust page size, we will be at the offset of 6 * 180 
+                     * which is 1080. Obviously, there are only 358 items total, so we have to 
+                     * instead prefer the last page of results.
+                     */
+                    if(App.shop.parameters.pageSize * currentPage > scrollData.items.total){
+                        App.shop.parameters.page = Math.ceil(scrollData.items.total / App.shop.parameters.pageSize);
+                    }
+                }
+                if(source.attr('id').match(/sort/)){
+                    App.shop.parameters.sort = source.val();
+                    $('div.form-group span.page_view_options div.select-wrapper select[name=sort]')
+                        .each((index,selectElement) => {
+                        if(eventElement.target == selectElement){
+                            return;
+                        }
+                        $(selectElement).val(App.shop.parameters.sort);
+                    });
+                }
+                scrollData.hasResults = 1;
+                scrollData.clearThrottle();
+                let url = location.pathname + '?' + $.param(App.shop.parameters);
+
+                let tempPage = App.shop.parameters.page;
+                if(window.functors){
+                    requestResults(url).then((results) => {
+                        App.shop.parameters = results.parameters;
+                        App.shop.parameters.page = tempPage;
+                        hideOverlay();
+                        functors.defaultRequestHandler(url,results);
+                        functors.pushPage(results.pageTitle,url);
+                        resetChunkCounter();
+                    }).catch(window.functors.defaultRequestCatcher);
+                }
+            },
+        },
+    };
+
+    return App;
+})(jQuery);
+
+var showOverlay = function() {
+    $('.overlay').fadeIn();
+    $('[data-container=products]').css('min-height', $('[data-container=products]').height() + 'px');
+    $('[data-container=products]').empty();
+};
+
+var hideOverlay = function() {
+    $('[data-container=products]').css('min-height', 0);
+    $('.overlay').fadeOut();
+};
+
+var isTouchDevice = function() {
+    if(('ontouchstart' in window) || window.DocumentTouch && document instanceof DocumentTouch) {
+        return true;
+    }
+    return false;
+}
+
+var renderModal = function(response) {
+    var $modal = $(response).find('#remoteModal');
+
+    if (response.popups) {
+        $.each(response.popups, function(index, popup) {
+            window.open(popup.url, popup.title, 'width=' + popup.width + ', height=' + popup.height);
+        });
+
+        $('#remoteModal').modal('hide');
+    }
+
+    if (response.success && response.order){
+        window.open('/account/orders/' + response.order + '/print-return-label/' + response.orderDetail);
+        location.reload();
+    }
+
+    if (response.reload_bootgrid_selector) {
+        $(response.reload_bootgrid_selector).bootgrid('reload');
+    }
+
+    if ($modal.size() && $('#remoteModal').size()) {
+        $('#remoteModal').html($modal.html());
+    } else {
+        $('#remoteModal').modal('hide');
+        $('body').append($modal);
+        $modal.modal();
+        $modal.modal('show');
+    }
+    $('#remoteModal').find('.close').on('click', function() {
+        $('#remoteModal').modal('hide');
+    });
+
+    $('#remoteModal').find('form').on('submit', function(e) {
+        e.preventDefault();
+        var $this = $(this);
+        $('[data-action=modal-submit]').html('Saving <i class="fa fa-spinner fa-spin"></i>');
+        $.post($this.attr('action'), $this.serialize())
+            .done(function(response){
+                renderModal(response);
+            });
+    });
+    $('#remoteModal').find('[name=country]').on('change', countryInputChangeHandler).trigger('change');
+    $('#remoteModal').find('.state-select').on('change', window.stateSelectChangeHandler);
+    $('#remoteModal').on('hidden.bs.modal', function() {
+        $(this).remove();
+        $(document).trigger('remote-modal-hidden');
+    });
+
+    return $modal;
+};
+var initRemoteModals = function() {
+  $('[data-remote-modal]').each(function() {
+    var $this = $(this);
+    $this.on('click', function(e) {
+        e.preventDefault();
+        var loadingModal = document.createElement('div');
+        loadingModal.setAttribute('id', 'modal_loading');
+        loadingModal.classList.add('modal', 'fade');
+        $(loadingModal).html('<div class="modal-dialog"><div class="modal-content"><div class="modal-body"><div class="loading-wrapper"><div class="loading-logo"></div></div></div></div></div>');
+        $('body').append(loadingModal);
+        $('#modal_loading').modal('show');
+        if (!$this.data('pending-clicks')) {
+            $this.data('pending-clicks', true);
+            var url = $this.attr('href');
+            $.get(url).done(function(response) {
+                $('#modal_loading').modal('hide');
+                $('body').remove('#modal_loading');
+                $modal = renderModal(response);
+                $modal.find('input[type=radio], select, input[type=checkbox]').on('change', showAndHideRelatedSections);
+                $modal.find('input[type=radio], select, input[type=checkbox]').trigger('change');
+                $modal.on('hidden.bs.modal', function() {
+                    $this.data('pending-clicks', false);
+                });
+            });
+        }
+    });
+  });
+};
+
+var showAndHideRelatedSections = function(e) {
+  $('[data-section]').addClass('hidden');
+  $('[data-toggle-section]:checked, [data-toggle-section]:selected').each(function(index, toggle) {
+    var sections = $(toggle).data('toggle-section').split('|');
+    $.each(sections, function(index, section) {
+      $('[data-section*="' + section + '"]').removeClass('hidden');
+    });
+  });
+};
+
+$('body').find('input[type=radio], select, input[type=checkbox]').on('change', showAndHideRelatedSections);
+$('body').find('input[type=radio], select, input[type=checkbox]').trigger('change');
+
+jQuery(document).ready(function($) {
+    App.start();
+
+    initRemoteModals();
+    History.Adapter.bind(window,'statechange',function(){
+        var State = History.getState();
+    });
+    $('[data-action=disable-for-loading]').removeClass('disabled');
+    $('[data-toggle="offcanvas"]').click(function (e) {
+        e.stopPropagation();
+        e.preventDefault();
+        if($(".slide-out-div").hasClass("open")) {
+            $(".close-sell").trigger("click");
+        }
+        var $offcanvasMenu = $('.row-offcanvas');
+
+        if (!$offcanvasMenu.hasClass('active')) {
+            toggleMenuState();
+            $offcanvasMenu.addClass('active');
+            $('body, [data-toggle="offcanvas"]').on('click.offCanvas touchstart.offCanvas', function (e) {
+                var isSidebarClick = $(e.target).parents('.sidebar-offcanvas').length > 0;
+                if (!isSidebarClick) {
+                    e.stopPropagation();
+                    e.preventDefault();
+                    $('.row-offcanvas').removeClass('active');
+                    toggleMenuState();
+                    $('body, [data-toggle="offcanvas"]').off('click.offCanvas touchstart.offCanvas');
+                }
+            });
+        }
+    });
+
+    $('input[type=submit]').click(function(e) {
+        var $target = $(e.currentTarget),
+            method = $target.data('method'),
+            $form = $target.closest('form');
+
+        switch (method) {
+            case 'delete':
+                method = 'DELETE';
+                break;
+            case 'create':
+                method = 'POST';
+                break;
+            case 'update':
+                method = 'PUT';
+                break;
+            default:
+                method = null;
+        }
+
+        if (method && $form) {
+            $form.find('input[name=_method]').val(method);
+        }
+
+        return true;
+    });
+
+    var toggleMenuState = function() {
+        $('[data-toggle="offcanvas"]').toggleClass("is-active");
+    };
+
+    var renderCheckbox = (child) => {
+        var $checkbox = $('<input type="checkbox">');
+
+        $checkbox.prop('checked', child.matchesMainFilter || child.applied);
+        $checkbox.data('add-url', child.url);
+        $checkbox.data('remove-url', child.removeUrl);
+        $checkbox.on('change', async function() {
+            events.emit('filter_click', {});
+            showOverlay();
+            var $this = $(this);
+            var url;
+
+            if ($this.is(':checked')) {
+                url = $this.data('add-url');
+            } else {
+                url = $this.data('remove-url');
+            }
+            if(window.functors){
+                url = functors.urlFix(url);
+                await requestResults(url)
+                    .then((results) => {
+                        var $matched = $('li[data-id=' + $this.closest('li').data('id') + ']');
+                        $.each($matched, function(index, match) {
+                            renderShopCategoriesPartially(results.aggregations, $(match).closest('.filter-group'));
+                        });
+                        renderShopProducts(results);
+                        renderShopPagination(results.meta.pagination);
+                        renderShopResultsTotal(results.meta.total);
+                        renderShopResultsItemsFrom(results.meta.itemsFrom);
+                        renderShopResultsItemsTo(results.meta.itemsTo);
+                        window.renderPageOptions(results.parameters);
+                        App.shop.parameters = results.parameters;
+                        renderAppliedFilters(results.appliedFilters, results.mainFilter, results.removeSearchUrl);
+                        if (typeof(window.ga) !== 'undefined') {
+                            ga('set', 'page', window.location.href);
+                            ga('send', 'pageview');
+                        }
+                        updateMetaDescription(results);
+                        hideOverlay();
+                        App.shop.saveTitleAndPage(results.pageTitle,url);
+                        functors.pushPage(results.pageTitle,url);
+                        resetChunkCounter();
+                    }).catch(window.functors.defaultRequestCatcher);
+            }
+        });
+
+        return $checkbox;
+    };
+
+    var renderAppliedFilters = function(appliedFilters, mainFilter, removeSearchUrl) {
+        var $appliedFilters = $('<div></div>'),
+            filters = 0;
+
+        if (!mainFilter) {
+            $('#mainFilter').remove();
+        }
+        $.each(appliedFilters, function(index, filter) {
+            if (!filter.matchesMainFilter) {
+                $link = $('<a></a>');
+                $link.attr({
+                    'href': filter.removeUrl,
+                    'class': 'btn btn-xs btn-default remove-filter'
+                }).html(filter.name + ' <i class="glyphicon glyphicon-remove"</i>');
+                $appliedFilters.append($link);
+                $appliedFilters.append(' ');
+                filters++;
+            }
+        });
+
+        var otherFilterCount = $('.remove-filter').not('[data-container=applied-filters] .remove-filter').not('#clearAll').size();
+        if (filters + otherFilterCount > 1) {
+            $('#clearAll').removeClass('hidden');
+        }
+        $('[data-container=applied-filters]').html($appliedFilters);
+
+        if (mainFilter) {
+            $('[data-filter=main-filter]').attr('href', mainFilter.remove_url);
+        }
+
+        $('.remove-search-filter').attr('href', removeSearchUrl);
+    };
+
+    var closeDropdown = function() {
+        $(this).closest(".dropdown-menu").prev().dropdown("toggle");
+    };
+
+    window.renderPageOptions = function(parameters) {
+        var $sortForm = $('select[name=sort]').closest('form'),
+            $pageViewForm = $('select[name=pageSize]').closest('form'),
+            formsToUpdate = [$sortForm, $pageViewForm],
+            $previousParameters = $('input[data-option-type=parameter]');
+
+        $previousParameters.remove();
+
+        $.each(parameters, function(name, value) {
+            var hiddenInput = '<input name="' + name + '" type="hidden" data-option-type="parameter" value="' + value + '">';
+
+            $.each(formsToUpdate, function(index, $form) {
+                let nameInput = $form.has('[name=' + name + ']');
+                if ('length' in nameInput && nameInput.length > 0) {
+                    $form.find('[name=' + name + ']').val(value);
+                } else {
+                    $form.prepend(hiddenInput);
+                }
+            });
+        });
+    };
+    var renderDropdown = function(category) {
+        var $btnGroup = $('<div class="btn-group filter-group"></div>');
+        var $dropdownToggle = $('<a class="btn dropdown-toggle" data-toggle="dropdown"></a>');
+        var $dropdownMenu = $('<div class="dropdown-menu"><ul class="filter-links"></ul><div class="dropdown-footer">' + viewAllLink(category) + '&nbsp;<span class="glyphicon glyphicon-remove close-dropdown" data-action="close"></span></div>');
+        $dropdownMenu.on('click', function(e) {
+            e.stopPropagation();
+        });
+
+        $btnGroup.append($dropdownToggle);
+        $btnGroup.append($dropdownMenu);
+        $dropdownToggle.html(category.title + ' <span class="caret"></span>');
+        $($dropdownMenu).find("[data-action=close]").on('click', closeDropdown);
+
+        $.each(category.children, function(index, child) {
+            var $li = $('<li></li>');
+            var $label = $('<label></label>');
+
+            $li.data('id', child.identifier);
+            $li.attr('data-id', child.identifier);
+
+            var $checkbox = renderCheckbox(child);
+            $li.html($label);
+            $label.html('&nbsp;' + child.name + ' (' + child.count + ')');
+            $label.prepend($checkbox);
+            $dropdownMenu.find('ul').append($li);
+        });
+
+        return $btnGroup;
+    };
+
+    var renderMobileDropdown = function(category) {
+        var $listGroup = $('<li class="list-group-item filter-group"></li>');
+        var $dropdownToggle = $('<a class="btn dropdown-toggle" data-toggle="collapse" data-target="#' + category.identifier + '"></a>');
+        var $dropdownMenu = $('<div class="sub-item collapse" id="' + category.identifier + '"><ul></ul>');
+        $dropdownMenu.on('click', function(e) {
+            e.stopPropagation();
+        });
+
+        $listGroup.append($dropdownToggle);
+        $listGroup.append($dropdownMenu);
+        $dropdownToggle.html(category.title + ' <span class="caret"></span>');
+
+        $.each(category.children, function(index, child) {
+            var $li = $('<li></li>');
+            var $label = $('<label></label>');
+
+            $li.data('id', child.identifier);
+            $li.attr('data-id', child.identifier);
+
+            var $checkbox = renderCheckbox(child);
+            $li.html($label);
+            $label.html('&nbsp;' + child.name + ' (' + child.count + ')');
+            $label.prepend($checkbox);
+            $dropdownMenu.find('ul').append($li);
+        });
+
+        return $listGroup;
+    };
+
+    var viewAllLink = function(category) {
+        var viewAllLink = '';
+        if (category.classification == 'type') {
+            viewAllLink = '<a href="' + category.view_all_url + '">View All ' + category.title + ' (' + category.count + ')</a>';
+        }
+
+        return viewAllLink;
+    };
+
+    var renderDropdowns = function(categories) {
+        var $categories = $('<div></div>');
+
+        $.each(categories, function(index, category) {
+            var $category = renderDropdown(category);
+            $categories.append($category);
+        });
+
+        $categories.find('.btn-group').slice(-2).find('.dropdown-menu').addClass('pull-right');
+
+        return $categories;
+    };
+
+    var renderMobileDropdowns = function(categories) {
+        var $categories = $('<ul></ul>');
+
+        $.each(categories, function(index, category) {
+            var $category = renderMobileDropdown(category);
+            $categories.append($category);
+
+        });
+
+        return $categories
+    };
+
+    window.renderPagination = (pagination) => {
+        $('[data-container=pagination]').html(pagination);
+        $('li.page-item a.page-link').each((index,anchor) => {
+            $(anchor).on('click',(e) => {
+                functors.scrollToTop();
+                e.preventDefault();
+                if($(anchor).attr('data-page')){
+                    App.shop.parameters.page =  parseInt($(anchor).attr('data-page'));
+                }else{
+                    App.shop.parameters.page =  parseInt($(anchor).attr('href').match(/&page=([\d]+)/)[1]);
+                }
+                showOverlay();
+                App.shop.parameters.page = parseInt($(anchor).attr('href').match(/&page=([\d]+)/)[1]);
+                let url = window.location.pathname + $(anchor).attr('href');
+                url = urlPath(url);
+                if(prefetchExists(url)){
+                    results = getPrefetched(url);
+                    functors.pushPage(results.pageTitle,url);
+                    functors.defaultRequestHandler(url,results);
+                    hideOverlay();
+                    resetChunkCounter();
+                }else{
+                    requestResults(url)
+                        .then((results) => {
+                        functors.pushPage(results.pageTitle,url);
+                        functors.defaultRequestHandler(url,results);
+                        scrollData.clearThrottle();
+                        hideOverlay();
+                        App.shop.parameters = results.parameters;
+                        resetChunkCounter();
+                    }).catch(window.functors.defaultRequestCatcher);
+                }
+                return false
+            });
+        });
+    };
+
+    window.updateMetaDescription = function(results) {
+        $('meta[name=description]').attr('content', results.metaDescription);
+    };
+
+    var renderShopCategoriesPartially = function(categories, $skipCategory) {
+        var categoryTitle = $skipCategory.find('.dropdown-toggle').text().trim();
+
+        var matched = $.grep(categories, function(element) {
+            return element.title == categoryTitle;
+        });
+        var isMobile = $skipCategory.closest('[data-container="mobile-filters"]').length > 0;
+        matched = matched[0];
+        if (matched) {
+            $skipCategory.parent().find('.filter-group').not($skipCategory).remove();
+
+            $.each(categories, function(index, category) {
+                var $category = isMobile ? renderMobileDropdown(category) : renderDropdown(category);
+
+                if (index < categories.indexOf(matched)) {
+                    $category.insertBefore($skipCategory);
+                }
+
+                if (index > categories.indexOf(matched)) {
+                    $skipCategory.parent().append($category);
+                }
+            });
+            $skipCategory.siblings('.btn-group').slice(-2).find('.dropdown-menu').addClass('pull-right');
+
+            $.each(matched.children, function(index, child) {
+                var $checkbox = renderCheckbox(child);
+
+                var $category = $skipCategory.find('li').filter(function() {
+                    return $(this).data('id') == child.identifier;
+                });
+
+                $category.find('input[type=checkbox]').replaceWith($checkbox);
+            });
+        }
+    };
+
+    var renderShopCategories = function(categories) {
+        var $categories = renderDropdowns(categories);
+        $('[data-container=filters]').html($categories);
+    };
+
+    var renderShopMobileCategories = function(categories) {
+        var $categories = renderMobileDropdowns(categories);
+        $('[data-container=mobile-filters]').html($categories);
+    };
+
+    var renderShopProducts = function (results) {
+        if (results.meta.total > 0) {
+            $('[data-container=products]').html(results.products);
+            $('[data-container=products] [rel=tooltip]').tooltip();
+            $('.modal').on('shown.bs.modal', function () {
+                App.attachModalEvents();
+            });
+            $('[data-action=follow-product]').on('click', function () {
+                followProduct($(this));
+            });
+        } else {
+            $('[data-container=no-results]').removeClass('hidden');
+        }
+    };
+
+    var renderShopPagination = function(pagination) {
+        renderPagination(pagination);
+        $('a.page-link').each((index,element) => {
+            let pageNumber = parseInt($(element).text().replace(/[^\d]+/,''));
+            if(pageNumber > 0){
+                $(element).attr('data-page',pageNumber);
+                if(pageNumber > scrollData.topPage){
+                    scrollData.topPage = pageNumber;
+                }
+            }
+        });
+       window.grabCurrentPage();
+    };
+
+    var renderShopResultsTotal = function(total) {
+        $('[data-container=results-total]').text(total);
+        scrollData.items.total = total;
+    };
+
+    var renderShopResultsItemsFrom = function(itemsFrom) {
+        $('[data-container=results-items-from]').text(itemsFrom);
+        scrollData.items.from = itemsFrom;
+    };
+
+    var renderShopResultsItemsTo = function(itemsTo) {
+        $('[data-container=results-items-to]').text(itemsTo);
+        scrollData.items.to = itemsTo;
+    };
+
+    window.renderShopResults = function(results) {
+        renderShopCategories(results.aggregations);
+        renderShopMobileCategories(results.aggregations);
+        renderShopProducts(results);
+        renderShopPagination(results.meta.pagination);
+        renderShopResultsTotal(results.meta.total);
+        renderShopResultsItemsFrom(results.meta.itemsFrom);
+        renderShopResultsItemsTo(results.meta.itemsTo);
+        renderAppliedFilters(results.appliedFilters, results.mainFilter, results.removeSearchUrl);
+    };
+
+    if (typeof(bootstrappedShopResults) != 'undefined') {
+        renderShopResults(bootstrappedShopResults);
+        App.shop.parameters = bootstrappedShopResults.parameters;
+        App.shop.page.bootstrapped = true;
+    }
+
+    $('[name=create_alert]').click(function() {
+        followProduct($(this));
+    });
+
+    // footer js
+    $(document).ready(function () {
+        $(".collapsible").click(function () {
+            if ($(window).width() <= 768)
+            {
+                var $this = $(this);
+                $this.children('ul').slideToggle();
+                $this.find('i').toggleClass('fa-chevron-down fa-chevron-up')
+            }
+        });
+        if ($(window).width() <= 768) {
+            $("footer .collapsible ul").hide();
+        }
+    });
+
+    $(window).resize(function () {
+        if ($(window).width() <= 768) {
+           $("footer .collapsible ul").hide();
+        }
+        if ($(window).width() > 768) {
+           $('footer .collapsible ul').show();
+        }
+    });
+
+    $('[data-action=subscribe]').click(function() {
+        var email = $('[name=subscribe_email]').val(),
+            type = $(this).val();
+        $.ajax({
+            type: "POST",
+            url: '/newsletters/subscribe',
+            data:   {email: email, type: type},
+            success: function (data) {
+                $('[data-content=newsletter-message]').html("<p>" + data.message + "</p>");
+            }
+        });
+    });
+
+    if ($('.cloudzoom').length){
+        CloudZoom.quickStart();
+    }
+
+    if($('#owl-small').length || $('#owl-large').length || $('#owl-home').length || $('#owl-home1').length || $('#owl-home2').length || $('#owl-home3').length || $("#owl-shop")){
+
+        var owlSmall = $("#owl-small");
+        var owlLarge = $("#owl-large");
+        var owlHome = $("#owl-home");
+        var owlShop = $("#owl-shop");
+
+        owlHome.owlCarousel({
+            loop: true,
+            margin: 10,
+            nav: false,
+            dots: false,
+            responsive: {
+                0: {
+                    items: 3,
+                    stagePadding: 30,
+                    center: true
+                },
+                768: {
+                    items: 4,
+                    slideBy: 2
+                },
+                992: {
+                    items: 5,
+                    slideBy: 2
+                }
+            }
+        });
+
+        owlLarge.owlCarousel({
+            center: false,
+            loop: true,
+            margin: 10,
+            nav: false,
+            dots: false,
+            responsive: {
+                768: {
+                    items: 6
+                },
+                992: {
+                    items: 8
+                }
+            }
+        });
+
+        owlSmall.owlCarousel({
+            center: true,
+            loop: true,
+            lazyLoad: true,
+            margin: 10,
+            nav: false,
+            dots: false,
+            responsive: {
+                0: {
+                    items: 1,
+                    stagePadding: 30,
+                }
+            }
+        });
+
+        owlShop.owlCarousel({
+            loop: true,
+            margin: 10,
+            nav: false,
+            dots: false,
+            responsive: {
+                0: {
+                    items: 2,
+                    stagePadding: 30,
+                    center: true
+                },
+                768: {
+                    items: 4,
+                    stagePadding: 30,
+                    center: true
+                },
+                992: {
+                    items: 8,
+                    stagePadding: 30,
+                    center: true
+                }
+            }
+        });
+
+        $("#owl-shop [data-toggle=modal]").click(function(){
+            owlShop.trigger('owl.stop');
+        });
+
+        $(".prev-thumb").click(function() {
+            owlSmall.trigger('prev.owl.carousel', [300]);
+            owlLarge.trigger('prev.owl.carousel', [300]);
+            owlHome.trigger('prev.owl.carousel', [300]);
+        });
+        $(".next-thumb").click(function() {
+            owlSmall.trigger('next.owl.carousel', [300]);
+            owlLarge.trigger('next.owl.carousel', [300]);
+            owlHome.trigger('next.owl.carousel', [300]);
+        });
+
+        $(".prev-thumb2").click(function() {
+            owlHome.trigger('prev.owl.carousel', [300]);
+        });
+        $(".next-thumb2").click(function() {
+            owlHome.trigger('next.owl.carousel', [300]);
+        });
+
+        $('div.pinch-zoom').each(function() {
+            new RTP.PinchZoom($(this), {});
+        });
+    }
+
+    function followProduct(element) {
+        var $this = element,
+            productId = $this.data('id');
+        events.emit('favorited_product', JSON.parse($this.attr('data-event')));
+        $('[data-id=' + productId + '] i').tooltip('destroy');
+        $.ajax({
+            url: '/followed-product/' + productId,
+            method: 'post',
+            dataType: 'json'
+        }).done(function(response) {
+            $('[data-id=' + response.product + '] i').attr('title', response.message);
+            $('[data-id=' + response.product + '] i').tooltip('show');
+            if (response.success) {
+                $('[data-id=' + response.product + '] i').toggleClass('fa-heart fa-heart-o');
+                $('button[data-id=' + response.product + ']').toggleClass('disabled');
+                $('button[data-id=' + response.product + ']').html(response.message);
+                var count = parseInt($('[data-id=' + response.product + '] sup').html());
+                $('[data-id=' + response.product + '] sup').html((count > 0 ? count : 0) + response.count);
+            }
+        });
+    }
+
+    function noError()
+    {
+        $('.errors').removeClass("errors");
+        $('[data-content=errors]').addClass('hidden');
+    }
+
+    $('input, select, textarea').focus(function() {
+        noError();
+    });
+
+    var $navbar = $('.navbar-collapse');
+    if ($navbar.length) {
+        var adjustNavbar = function() {
+            var y = (document.documentElement.scrollTop || document.body.scrollTop || Math.abs($('#info-nav').offset().top));
+            if (y >= top) {
+                fixNavbar()
+            } else {
+                unfixNavbar();
+            }
+        };
+        var calculateTop = function() {
+            top = Math.abs($navbar.offset().top) - parseFloat($navbar.css('margin-top').replace(/auto/, 0));
+        };
+        var fixNavbar = function() {
+            $navbar.addClass('navbar-fixed-top');
+            $navbarPlaceholder.css('height', $navbar.outerHeight() + 'px');
+        };
+        var unfixNavbar = function() {
+            $navbar.removeClass('navbar-fixed-top');
+            $navbarPlaceholder.css('height', 'auto');
+        };
+        var $navbarPlaceholder = $('.navbar-placeholder');
+        var top;
+        calculateTop();
+        var $window = $(window);
+        $(document.body).scroll((e) => {
+            adjustNavbar();
+        })
+        $window.scroll(function(e) {
+            adjustNavbar();
+        });
+        $window.on('resize', function() {
+            new Promise((resolve, reject) => {
+                unfixNavbar();
+            }).then(() => {
+                calculateTop();
+            }).then(() => {
+                adjustNavbar();
+            });
+        });
+    }
+
+    if ($('[data-toggle="tooltip"]').length) {
+        $('[data-toggle="tooltip"]').tooltip();
+    }
+
+    $('.panel-title').click(function(){
+        var activePanel = $(this).attr('id');
+        $('.'+activePanel).toggleClass('glyphicon-chevron-down glyphicon-chevron-up')
+    });
+
+    $('.modal.video').on('hidden.bs.modal', function (e) {
+        $(this).find('.modal-content').empty();
+        $(this).removeData('bs.modal');
+    });
+
+    if($('[data-container=product]').length){
+        $('[data-action=follow-product]').on('click', function() {
+            followProduct($(this));
+        });
+    }
+
+    if($('[rel=popover]').length && !(isTouchDevice())){
+        $('[rel=popover]').popover({
+            html : true,
+            placement: 'bottom',
+            trigger: 'manual',
+            animation: false,
+            content: function() {
+                var target = $(this).attr('data-option');
+                return $('#' + target).html();
+            }
+        }).on("mouseenter", function () {
+            var _this = this;
+            $(this).popover("show");
+            $(this).siblings(".popover").on("mouseleave", function () {
+                $(_this).popover('hide');
+            });
+        }).on("mouseleave", function () {
+            var _this = this;
+            setTimeout(function () {
+                if (!$(".popover:hover").length) {
+                    $(_this).popover("hide")
+                }
+            }, 100);
+        });
+    } else if($('[rel=popover]').length && isTouchDevice()) {
+        $('[rel=popover]').popover({
+            html : true,
+            placement: 'bottom',
+            trigger: 'manual',
+            animation: false,
+            content: function() {
+                var target = $(this).attr('data-option');
+                return $('#' + target).html();
+            }
+        }).on("click", function () {
+            $(this).popover("toggle");
+        });
+    }
+
+    $('input, textarea').placeholder();
+
+    $(document).tooltip({
+        selector: '.tt'
+    });
+    $('[data-load-page]').click(function() {
+        var loadedPage = $(this).data('load-page'),
+            nextPage = loadedPage + 1,
+            pageToken = $('[data-page-token]') ? '&page-token=' + $('[data-page-token]:last').data('page-token') : null,
+            url = $(this).data('url') + '?page=' + nextPage + pageToken;
+            $(this).html('Loading <i class="fa fa-spinner fa-spin"></i>');
+        $.get(url).done(function(response) {
+            if(response) {
+                $('[data-loaded-content]').append(response);
+                $('[data-load-page]').data('load-page', nextPage);
+                $('[data-load-page]').html('More');
+            } else {
+                $('[data-load-page]').addClass('disabled');
+                $('[data-load-page]').html("That's all of them");
+            }
+        });
+    });
+
+    $( "#read-more" ).click(function() {
+        $( ".shop-header" ).toggleClass("is-active");
+        $( "#read-more" ).toggleClass("is-active");
+    });
+    if( $('div[data-header="brand"]').height() < $('.shop-header').height() ){
+        $('#read-more').hide();
+        $('.text-fade').hide();
+    }
+});
+
+jQuery.fn.preventDoubleSubmission = function() {
+  $(this).on('submit',function(e){
+    var $form = $(this);
+
+    if ($form.data('submitted') === true) {
+      // Previously submitted - don't submit again
+      e.preventDefault();
+    } else {
+      // Mark it so that the next submit can be ignored
+      $form.data('submitted', true);
+    }
+  });
+
+  // Keep chainability
+  return this;
+};
+
+$('form[data-prevent-double-submission]').preventDoubleSubmission();
+
+$(function () {
+    $('[name="suppliersFile"]').change(function() {
+        //ajax call
+    });
+
+    // Session storage for eyebrow nav/banner
+    var eyebrowNavStatus = sessionStorage.getItem('eyebrow-nav-status');
+    $(window).load(function() {
+        if (eyebrowNavStatus !== 'closed') {
+            $('.eyebrow-nav').removeClass('hidden');
+        }
+        if(window.functors){
+            window.functors.start();
+        }
+    });
+    $('.eyebrow-nav .fa-times').on('click', function() {
+        sessionStorage.setItem('eyebrow-nav-status', 'closed');
+        $('.eyebrow-nav').addClass('hidden');
+    });
+
+    //Sales Statistics Slider
+    $('.slide-out-div').tabSlideOut({
+        tabHandle: '.handle',
+        tabClose:'.close-sell',
+        tabLocation: 'bottom',
+        speed: 650,
+        action: 'click',
+        topPos: '85px'
+    });
+
+    var currentMonth = new Date().getMonth() + 1;
+
+    $('#expiration_month').val(currentMonth);
+
+    $("button[name='facebook_button']").click(function(){
+        var redirect = $('[name=login_redirect]').val();
+        window.location = '/facebook?login_redirect=' + redirect;
+    });
+
+    if (window.location.pathname.match(/^\/password$/) != null) {
+        $('#forgot_password').modal({
+            backdrop: 'static',
+            keyboard: false
+        });
+
+        $('.close').hide();
+        $('.alert').hide();
+    }
+
+    $(document).on('click', '.password-reset-submission-btn', function() {
+        $passwordSubmissionBtn = $('.password-reset-submission-btn').last();
+        if ( $passwordSubmissionBtn.is('.submitting') ) {
+            return;
+        }
+        $passwordSubmissionBtn.last().addClass('submitting');
+        var emailToken = $('#email-token').val();
+        var password = $.trim($('input[name="password_reset"]').val());
+        var passwordConfirmation = $.trim($('input[name="password_confirmation"]').val());
+
+        $.ajax({
+            url: '/password/' + emailToken,
+            method: 'PUT',
+            data: {
+                password: password,
+                password_confirmation: passwordConfirmation
+            },
+            format: 'json'
+        }).done(function(response) {
+            clearAlertMessages();
+            $modal = $('#forgot_password');
+
+            var alertDiv = $('.alert');
+            if (response.success != undefined) {
+                var textSuccess = response.success;
+                $('.alert').show();
+                alertDiv.append(textSuccess).toggleClass('alert-success');
+
+                setTimeout(function() {
+                    clearFields();
+                    alertDiv.toggleClass('alert-success');
+                    alertDiv.html('');
+
+                    window.location.href = '/account/dashboard';
+
+                }, 3000);
+
+            } else {
+                if (response.password != undefined) {
+                    $('.alert').show();
+                    var passwords = response.password;
+                    for (var i = 0; i < passwords.length; i++) {
+                        alertDiv.append('<p>' + passwords[i] + '<p/>');
+                    }
+                }
+
+                if (response.password_confirmation != undefined) {
+                    $('.alert').show();
+                    var passwordConfirmations = response.password_confirmation;
+                    for (var i = 0; i < passwordConfirmations.length; i++) {
+                        alertDiv.append('<p>' + passwordConfirmations[i] + '<p/>');
+                    }
+                }
+
+                if (!alertDiv.is('alert-danger')) {
+                    alertDiv.toggleClass('alert-danger');
+                };
+
+                setTimeout(function() {
+                    clearFields();
+                    clearAlertMessages();
+                    alertDiv.toggleClass('alert-danger');
+                    $('.alert').hide();
+                }, 5000);
+            }
+        }).fail(function() {
+            $('.alert').html('An error has occured. Please contact us.');
+        }).always(function() {
+            $passwordSubmissionBtn.removeClass('submitting');
+        });
+    });
+
+    $(document).on('click', '.forgot-password-link', function() {
+        $('.alert').hide();
+        $('#forgot_password').modal();
+    });
+
+    function clearFields() {
+        $($('.forgot-password-email').get(0)).val('');
+    }
+
+    function clearAlertMessages() {
+        $('.alert').html('');
+    }
+
+    $(document).on('click', '.email-submission-btn', function() {
+        $emailSubmissionBtn = $('.email-submission-btn').last();
+        if ( $emailSubmissionBtn.is('.submitting') ) {
+            return;
+        }
+
+        $emailSubmissionBtn.last().addClass('submitting');
+        $email = $($('.forgot-password-email').get(0));
+
+        $.ajax({
+            url: '/password',
+            method: 'POST',
+            data: { email: $email.val() },
+            format: 'json'
+        }).done(function(response) {
+            clearAlertMessages();
+            $modal = $('#forgot_password');
+
+            var alertDiv = $('.alert');
+            if (response.success != undefined) {
+                var textSuccess = response.success;
+                $('.alert').show();
+                alertDiv.append(textSuccess).toggleClass('alert-success');
+
+                setTimeout(function() {
+                    clearFields();
+                    alertDiv.toggleClass('alert-success');
+                    alertDiv.html('');
+                    $modal.modal('hide');
+                    $('.alert').hide();
+
+                }, 3000);
+
+            } else {
+                if (response.email != undefined) {
+                    $('.alert').show();
+                    var emailErrors = response.email;
+                    for (var i = 0; i < emailErrors.length; i++) {
+                        alertDiv.append('<p>' + emailErrors[i] + '<p/>');
+                    }
+                }
+
+                if (!alertDiv.is('alert-danger')) {
+                    alertDiv.toggleClass('alert-danger');
+                };
+
+                setTimeout(function() {
+                    clearFields();
+                    clearAlertMessages();
+                    alertDiv.toggleClass('alert-danger');
+                    $('.alert').hide();
+                }, 5000);
+            }
+        }).fail(function(response) {
+            $('.alert').html('An error has occurred. Please contact us.');
+        }).always(function(response) {
+            $emailSubmissionBtn.removeClass('submitting');
+        });
+    });
+
+    $('[data-action=print]').on('click', function() {
+        window.print();
+    });
+
+    $('.product_container button').click(function(){
+        var productUrl = $(this).data('url'),
+            productModal = $(this).data('target');
+        $.ajax({
+            url: productUrl
+        }).done(function(data){
+            $(productModal + ' .modal-content').html(data);
+        });
+    });
+
+    $('[data-action=alert-submit-btn]').on('click', function() {
+        $('[data-action=alert-submit-btn]').addClass('disabled');
+    });
+});
+
+// Makes Mobile Login Icon functionality consistent across devices
+// 1 tap opens login popover, 2 taps goes to login page
+$('#mobile-login')
+.on('shown.bs.popover', function () {
+    var route = $('#mobile-login').attr('data-route');
+    $('#mobile-login').delay( 50 ).queue(function(next){
+        $(this).attr('href',route);
+        next();
+    })
+})
+.on('hide.bs.popover', function () {
+    $('#mobile-login').attr('href',null);
+});

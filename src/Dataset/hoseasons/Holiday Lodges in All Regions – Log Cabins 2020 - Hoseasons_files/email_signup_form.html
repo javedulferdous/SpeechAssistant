@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<!-- saved from url=(0067)https://hoseasons.msgfocus.com/k/Vacation-Rentals/email_signup_form -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<title></title>
+	<link href="./style.css" rel="stylesheet" media="all" type="text/css">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        // Set placeholders
+        var aoElements = document.querySelectorAll("input:not([type='submit'])"),
+            sPlaceholder = "";
+
+        for (var i = 0; i < aoElements.length; i++) {
+            sPlaceholder = aoElements[i].name.replace(/_[0-9]+$/gm, "").replace("_", " ");
+            sPlaceholder = sPlaceholder.indexOf("email") > -1 ? "Email address" : sPlaceholder.charAt(0).toUpperCase() + sPlaceholder.substring(1);
+            aoElements[i].placeholder = sPlaceholder;
+        }
+    });
+
+    window.addEventListener("message", function (e) {
+        // Add sites to this array
+        
+        var sSiteName = e.origin.split(".")[1],
+            asSafeSites = [
+                "hoseasons", 
+                "landal",
+                "cottages",
+                "cottages4you",
+                "mulberrycottages",
+                "bluechipholidays",
+                "english-country-cottages",
+                "french-country-cottages",
+                "italian-country-cottages",
+                "scottish-country-cottages",
+                "welsh-country-cottages",
+                "welcomecottages"
+            ];
+
+        // True if origin is trusted and is one of the following site names
+        if (asSafeSites.some(function (i) { return sSiteName === i; })) {
+            // True if value exists in item
+            function contains(a, s) { return a.indexOf(s) > -1 }
+
+            var oContainer = document.querySelector(".container"), // container wrapping the form
+                oThankYouPage = document.querySelector(".amf-thank-you-page"), // text that adestra generates on successful submission
+                sClasses = e.data.className ? e.data.className.split(" ") : [], // custom classes to apply to container
+                asBodyClassList = e.data.bodyData.className ? e.data.bodyData.className.split(" ") : [], // classes from the parent's body
+                oDigitalData = e.data.bodyData.digital, // digitalData object from the parent
+                bIsRevealForm = contains(sClasses, "reveal"); // use reveal form functionality if true
+
+            // Apply custom classes
+            oContainer.className += " " + sClasses.join(" ");
+
+            if (bIsRevealForm && document.querySelectorAll(".amf-error-message").length > 0) {
+                oContainer.className += " show";
+            }
+
+            // True if form was successfully submitted
+            if (oThankYouPage) {
+                oContainer.classList.add("submitted");
+                parent.postMessage({ id: e.data.id, msg: "submitted" }, e.origin);
+                setTimeout(function () { oThankYouPage.style.opacity = 1 }, 400);
+            }
+            // Load form
+            else {
+                var oEmailWrap = document.querySelector(".email-input"),
+                    oEmailInput = oEmailWrap.querySelector("input");
+
+                if (e.data.email) {
+                    oEmailInput.value = e.data.email;
+                }
+
+                // Add extra form logic if true
+                if (bIsRevealForm) {
+                    var bIsActive = false;
+
+                    oEmailInput.addEventListener("focus", function () {
+                        if (!bIsActive) {
+                            oEmailInput.blur();
+                            bIsActive = true;
+                        }
+                    });
+
+                    oEmailWrap.addEventListener("click", function () {
+                        if (!contains(oContainer.className, "show")) {
+                            oContainer.classList.add("show");
+                            parent.postMessage({ id: e.data.id, msg: "opened" }, e.origin);
+                            setTimeout(function() {
+                                oEmailInput.focus();
+                            }, 500);
+                        }
+                    });
+                }
+
+                // Determine product name
+                var sProduct = ""
+
+				if (e.data.productName){
+					sProduct = e.data.productName
+				} else {
+					switch (sSiteName) {
+						case "hoseasons":
+						case "landal":
+							// Search results
+							if (contains(asBodyClassList, "search-results-page")) {
+								sProduct = asBodyClassList[0] === "euro" ? "eu parks" : asBodyClassList[0];
+							}
+							// Product details
+							else if (contains(asBodyClassList, "accommodation-page") || contains(asBodyClassList, "products--accommodation")) {
+								sProduct = asBodyClassList[0].replace("--pd", "");
+							}
+							// Other page
+							else {
+								if (oDigitalData) {
+									var sChannel = oDigitalData.page.channel
+									if (sChannel) {
+										if (contains(["Lodges", "HolidayParks", "Boats", "Cottages", "HolidayParksEurope"], sChannel)) {
+											switch (sChannel) {
+												case "HolidayParks": sProduct = "parks";
+												case "HolidayParksEurope": sProduct = "eu parks";
+												default: sProduct = sChannel.toLowerCase();
+											}
+										}
+									}
+								}
+								sProduct = "gateway";
+							}
+							break;
+						default: sProduct = "cottages";
+					}
+				}
+
+                // Determine page name
+                var sPageName = "",
+                    sBodyId = e.data.bodyData.id; // ID from origin document body
+
+                if (oDigitalData && typeof oDigitalData.page.pageType !== "undefined") {
+                    sPageName = oDigitalData.page.pageType.match(/[A-Z][a-z]+|[0-9]+/g).join(" ").replace(/(Accommodation|Site)/, "").toLowerCase();
+                } else if (sBodyId) {
+                    sPageName = sBodyId.replace(/[body]*[-_]/g, " ");
+                } else {
+                    sPageName = e.data.pathName.substring(1).replace(/-/g, " ");
+                }
+
+                // Set hidden fields
+                document.querySelector(".brand-input input").value = e.origin.split(".")[1];
+                document.querySelector(".timestamp-input").value = new Date().toISOString().slice(0, 10).replace(/-/g, "");
+                document.querySelector(".product-input").value = sProduct;
+				document.querySelector(".page-name-input").value = e.data.pageName ? e.data.pageName : sPageName;
+				
+            }
+        }
+		window.top.postMessage('adestra set up complete', e.origin);
+    });
+</script>
+	<style>/* 
+    Standard Overwrites 
+    
+*/
+.brand-input,
+.page-name-input,
+.timestamp-input,
+.product-input,
+.interest-input {
+    display: none;
+}
+
+body {
+    background: none !important;
+}
+
+.amf-thank-you-page {
+    opacity: 0;
+    transition: 0.5s all ease;
+}
+
+.amf-thank-you-page h4 {
+    margin: 0 !important;
+    font-size: 22px !important;
+    font-weight: 500 !important;
+    text-align: center;
+    color: #555;
+}
+
+.amf-el {
+    position: relative;
+    margin: 10px 0 !important;
+}
+
+.amf-error-message {
+    margin: 0 !important;
+    left: 10px !important;
+    position: absolute;
+    top: 7px !important;
+    line-height: 0 !important;
+}
+
+.amf-error.amf-type-textbox input {
+    border-color: #db391e !important;
+}
+
+.amf-el label {
+    border: 0;
+    clip: rect(1px, 1px, 1px, 1px);
+    clip-path: inset(50%);
+    height: 1px;
+    margin: -1px;
+    width: 1px;
+    overflow: hidden;
+    position: absolute;
+    word-wrap: normal;
+}
+
+.container {
+    width: 100% !important;
+    max-width: 400px;
+    margin: 0 auto !important;
+    padding: 0 !important;
+    background: none !important;
+    color: initial !important;
+}
+
+.container .submit-input input {
+    -webkit-appearance: none;
+}
+
+.amf-el .amf-el-inner {
+    margin: 0 !important;
+}
+
+.amf-el .amf-el-inner input {
+    box-shadow: none !important;
+    padding: 0 !important;
+    height: 30px !important;
+    width: 95% !important;
+    padding-left: 5px !important;
+}
+
+.amf-el.amf-type-button {
+    margin: 0 !important;
+    text-align: center;
+}
+
+.amf-el.amf-type-button input {
+    padding: 10px !important;
+    width: 120px;
+    background-color: #39861C !important
+}
+
+.title-input {
+    width: 50px;
+}
+
+.title-input select {
+    height: 30px;
+}
+
+.amf-el .amf-el-inner input,
+.title-input select {
+    border-radius: 2px !important;
+    margin-left: 5px !important;
+}
+
+/* 
+
+    Custom config class: inline
+
+*/
+.container.inline .amf-error-message {
+    top: -7px !important;
+}
+
+.container.inline {
+    max-width: 760px !important;
+}
+
+.container.inline form {
+    display: flex;
+    margin-top: 12px;
+}
+
+.container.inline .amf-el {
+    margin: 0 6px !important;
+}
+
+.container.inline .submit-input {
+    margin: 0 5px !important;
+}
+
+.container.inline .title-input select {
+    height: 37px;
+}
+
+.container.inline .amf-el .amf-el-inner input {
+    height: 35px !important;
+}
+
+.container.inline .amf-el .amf-el-inner input,
+.container.inline .title-input select {
+    border-radius: 5px !important;
+}
+
+@media only screen and (max-width: 500px) {
+    .container.inline form {
+        display: block;
+    }
+
+    .container.inline .amf-el {
+        margin: 10px 0 !important;
+    }
+
+    .container.inline .amf-error-message {
+        top: 7px !important;
+    }
+}
+
+/* 
+
+Custom config class: no-borders
+
+*/
+.container.no-borders .title-input select,
+.container.no-borders .amf-el .amf-el-inner input {
+    border-color: transparent;
+}
+
+/* 
+
+Custom config class: reveal
+
+*/
+
+.container.cdc.reveal:not(.new) {
+    position: absolute;
+    right: 30px !important;
+}
+
+.container.reveal {
+    position: absolute;
+    left: 0;
+    margin: 0 !important;
+}
+
+.container.reveal.cdc.new {
+    transition: 0.5s all ease;
+    margin-top: -30px !important;
+}
+
+.container.reveal .title-input select,
+.container.reveal .amf-el .amf-el-inner input {
+    height: 40px !important;
+    border-radius: 3px !important;
+}
+
+.container.reveal.cdc.new .amf-el .amf-el-inner input,
+.container.reveal.cdc.new .title-input select {
+    margin-left: 0 !important;
+}
+
+.container.reveal .amf-el {
+    margin: 5px 0 !important;
+}
+
+.container.reveal .email-input {
+    position: relative;
+    top: -70px;
+    transition: 0.5s all ease;
+}
+
+.container.reveal .submit-input {
+    position: absolute;
+    top: 90px;
+    left: 0;
+    right: 0;
+    transition: 0.5s all ease;
+}
+
+.container.reveal.cdc .submit-input {
+    left: 6px;
+    right: initial;
+}
+
+.container.reveal .submit-input input {
+    width: 140px;
+    font-size: 16px;
+    -webkit-appearance: none;
+}
+
+.container.reveal .title-input,
+.container.reveal .first-name-input,
+.container.reveal .last-name-input,
+.container.reveal.cdc .submit-input {
+    visibility: hidden;
+    opacity: 0;
+    transition: visibility 0s 0.5s, opacity 0.5s linear;
+}
+
+.container.show .title-input,
+.container.show .first-name-input,
+.container.show .last-name-input,
+.container.show.cdc .submit-input {
+    visibility: visible;
+    opacity: 1;
+    transition: opacity 0.5s linear;
+}
+
+.container.cdc.show,
+.container.cdc.new.show {
+    margin-top: 0 !important;
+}
+
+.container.show .submit-input {
+    top: 150px;
+}
+
+.container.show .email-input {
+    top: 0;
+}
+
+
+.container.reveal.submitted {
+    position: absolute;
+    top: 0;
+    right: 0;
+}
+
+.container.reveal.cdc.new.submitted {
+    top: 30px;
+    left: 0;
+    right: initial;
+    color: #fff;
+}
+
+.container.reveal .amf-thank-you-page {
+    position: absolute;
+    margin-top: 20%;
+    right: 10%;
+}
+
+.container.reveal .amf-thank-you-page h4 {
+    color: #fff;
+    font-size: 25px !important;
+    text-shadow: 1px 1px #000;
+}
+
+.container.reveal.cdc.new .amf-thank-you-page h4 {
+    color: #fff;
+}
+
+.container.reveal.cdc.new .submit-input {
+    left: 1px !important;
+}
+
+@media only screen and (max-width: 500px) {
+    .container.reveal.cdc.new.submitted {
+        top: 0;
+    }
+    
+    .container.reveal.cdc.new.show {
+        margin-top: 0 !important
+    }
+
+    .container.reveal.cdc.new .amf-el .amf-el-inner .input {
+        width: 98% !important;
+    }
+
+    .container.reveal {
+        right: 0% !important;
+    }
+
+    .container.reveal .email-input {
+        top: -110px !important;
+    }
+
+    .container.show .email-input {
+        top: 2px !important;
+    }
+
+    .container.show .submit-input {
+        top: 190px;
+    }
+
+    .container.reveal .amf-thank-you-page {
+        margin-top: 10%;
+        left: 0;
+        right: 0;
+    }
+
+    .container.reveal .amf-thank-you-page h4 {
+        color: #727272;
+        text-shadow: none;
+        font-size: 25px !important;
+    }
+}
+
+/*
+Custom config class: inline-names
+
+*/
+.container.inline-names .first-name-input,
+.container.inline-names .last-name-input {
+    display: inline-block;
+    width: 48%;
+}
+
+.container.inline-names .first-name-input {
+    margin-right: 5px !important;;
+}
+
+@media only screen and (max-width: 500px) {
+    .container.inline-names .first-name-input,
+    .container.inline-names .last-name-input {
+        display: block;
+        width: 100%;
+    }
+
+    .container.inline-names .first-name-input {
+        margin-right: 0 !important;;
+    }
+    
+}
+
+/***    LANDAL  ***/
+
+.container.landal .amf-el.amf-type-button input {
+    background-color: #65ae2e !important;
+}
+
+/***    CDC     ***/
+
+.container.reveal.cdc .amf-thank-you-page {
+    margin-top: 10% !important;
+}
+
+.container.reveal.cdc .amf-thank-you-page h4 {
+    color: #8e8e8e;
+    font-size: 25px !important;
+    text-shadow: none !important;
+}
+
+/***    MUL     ***/
+.mul .submit-input input {
+    background-color: #CC1466
+}
+
+.mul-foot input,
+.mul-foot select {
+    background-color: transparent;
+    color: #ffffff;
+    border-color: #ffffff;
+}
+
+.mul-foot select option {
+    color: #000000;
+}
+
+.mul-foot input {
+    border: none;
+    border-bottom: 1px solid;
+}
+
+.mul-foot input::-webkit-input-placeholder {
+    color: #ffffff !important;
+}
+
+.mul-foot input:-ms-input-placeholder {
+    color: #ffffff !important;
+}
+
+.mul-foot input::placeholder {
+    color: #ffffff !important;
+}
+
+.mul-foot .submit-input {
+    margin-top: 15px !important;
+    margin-left: 5px !important;
+    text-align: left;
+}
+
+.mul-foot .submit-input input {
+    border-radius: 8px;
+    width: 90px !important;
+    border: 1px solid;
+    background-color: transparent !important;
+}
+
+.mul-foot .amf-error-message {
+    top: 2px !important;
+}
+
+.mul-foot .amf-error input {
+    border: none;
+    border-bottom: 1px solid;
+}
+
+.mul-foot .amf-thank-you-page {
+    margin-top: 10px;
+}
+
+.mul-foot .amf-thank-you-page h4 {
+    color: #ffffff;
+}
+
+/* BCH */
+.bch .amf-thank-you-page h4 {
+    color: #ffffff !important;
+}
+
+.container.bch.inline select,
+.container.bch.inline .amf-el .amf-el-inner input,
+.container.bch input#submit {
+    height: 42px !important;
+}
+
+@media only screen and (min-width: 600px) {
+    .container.bch [id*='amf-input-email'] {
+        width: 200px !important;
+    }
+}
+
+.container.bch.inline .amf-error-message {
+    top: 7px !important;
+}
+
+.container.bch.inline {
+    max-width: 850px !important;
+}
+
+/* Country Cottages */
+.cc .submit-input input {
+    width: 170px;
+}
+
+/* English CC */
+.ecc .submit-input input {
+    background-color: #537168 !important;
+}
+
+/* French CC */
+.fcc .submit-input input {
+    background-color: #986490 !important;
+}
+
+/* Scottish CC */
+.scc .submit-input input {
+    background-color: #5B5B7D !important;
+}
+
+/* Welsh CC */
+.wcc .submit-input input {
+    background-color: #B05371 !important;
+}
+
+/* Welcome Cottages */
+.wel .submit-input input {
+    background-color: #fd8a25 !important;
+}
+
+.wel .amf-thank-you-page {
+    margin-top: 90px;
+}
+
+/* cdc homepage cta block */
+.cta--signup--frame .amf-el.amf-type-button input {
+	background-color: #39495c!important;
+	width: 100%;
+	display: block;
+	font-size: 17px;
+	padding: 15px 0!important;
+	border-radius: 3px;
+}
+.cta--signup--frame .submit-input {
+	width: 99%;
+}
+.cta--signup--frame.container.inline-names .first-name-input, .cta--signup--frame.container.inline-names .last-name-input, .cta--signup--frame.container.show .email-input {
+	width: 97%;
+}
+.cta--signup--frame .amf-el .amf-el-inner input {
+	width: 100%!important;
+}
+@media only screen and (min-width: 500px) {
+	.cta--signup--frame.container.inline-names .first-name-input, .cta--signup--frame.container.inline-names .last-name-input {
+		width: 50%;
+		display: block;
+		float: left;
+		margin-right: 0!important;
+	}
+	.cta--signup--frame.container.inline-names .first-name-input input, .cta--signup--frame.container.inline-names .last-name-input input {
+		width: 95%!important;
+	}
+	.cta--signup--frame.container.inline-names .email-input {
+		width: 97.5%!important;
+	}
+	.cta--block--button {
+		max-width: 280px;
+	}
+}
+/* end styles */</style>
+</head>
+<body data-new-gr-c-s-check-loaded="14.983.0">
+	<div class="container inline no-borders">
+		<form action="https://hoseasons.msgfocus.com/k/Vacation-Rentals/email_signup_form" method="post" accept-charset="UTF-8"><div class="amf-el amf-type-select title-input" id="amf-el-title_152"><label for="amf-input-title_152">Title</label><div class="amf-el-inner"><select name="title_152" id="amf-input-title_152"><option value="Mr" id="title_152-0">Mr</option><option value="Mrs" id="title_152-1">Mrs</option><option value="Ms" id="title_152-2">Ms</option><option value="Miss" id="title_152-3">Miss</option><option value="Mx" id="title_152-4">Mx</option></select></div></div><div class="amf-el amf-type-textbox brand-input" id="amf-el-brand_153"><label for="amf-input-brand_153">Brand</label><div class="amf-el-inner"><input type="text" class="text" name="brand_153" id="amf-input-brand_153" value="" maxlength="255" onkeyup="if (this.length&gt;255) this.value=this.value.substr(0, 255)" onblur="this.value=this.value.substr(0, 255)" placeholder="Brand"></div></div><div class="amf-el amf-type-textbox first-name-input" id="amf-el-first_name_154"><label for="amf-input-first_name_154">First Name</label><div class="amf-el-inner"><input type="text" class="text" name="first_name_154" id="amf-input-first_name_154" value="" maxlength="255" onkeyup="if (this.length&gt;255) this.value=this.value.substr(0, 255)" onblur="this.value=this.value.substr(0, 255)" placeholder="First name"></div></div><div class="amf-el amf-type-textbox last-name-input" id="amf-el-last_name_155"><label for="amf-input-last_name_155">Last Name</label><div class="amf-el-inner"><input type="text" class="text" name="last_name_155" id="amf-input-last_name_155" value="" maxlength="255" onkeyup="if (this.length&gt;255) this.value=this.value.substr(0, 255)" onblur="this.value=this.value.substr(0, 255)" placeholder="Last name"></div></div><div class="amf-el amf-type-textbox email-input" id="amf-el-email_address_156"><label for="amf-input-email_address_156">Email Address</label><div class="amf-el-inner"><input type="text" class="text" name="email_address_156" id="amf-input-email_address_156" value="" maxlength="255" onkeyup="if (this.length&gt;255) this.value=this.value.substr(0, 255)" onblur="this.value=this.value.substr(0, 255)" placeholder="Email address"></div></div><input type="hidden" class="page-name-input" name="page_name_162" id="amf-hidden-page_name_162" value="Footer" placeholder="Page name"><input type="hidden" class="timestamp-input" name="time_stamp_163" id="amf-hidden-time_stamp_163" value="20201106" placeholder="Time stamp"><input type="hidden" class="product-input" name="product_164" id="amf-hidden-product_164" value="lodges" placeholder="Product"><input type="hidden" class="interest-input" name="interest_165" id="amf-hidden-interest_165" value="" placeholder="Interest"><div class="amf-el amf-type-button submit-input" id="amf-el-submit_button_161"><input type="submit" class="button" name="submit" id="submit" value="Sign up"></div><script type="text/javascript" id="0.894382835210184">
+	(function(){
+		var script			= document.getElementById('0.894382835210184');
+		var form			= script.parentNode;
+		var inputs			= form.getElementsByTagName('INPUT');
+		var submit_count	= 0;
+
+		var enable_double_submit = false;
+
+		for (var i=0; i<inputs.length; i++) {
+			var my_input = inputs[i];
+			if ( my_input.type === 'submit' ) {
+				var container = my_input.parentNode;
+				if (container.className.match(/enable-double-submit/)) {
+					enable_double_submit = true;
+				}
+			}
+		}
+
+		form.addEventListener('submit', function( evt ){
+			if (submit_count >= 1 && !enable_double_submit) {
+				evt.preventDefault();
+			}
+			submit_count++;
+		});
+
+	})();
+</script>
+</form>
+	</div>
+	
+
+</body></html>

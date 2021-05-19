@@ -1,0 +1,1743 @@
+function isLandal() {
+	return window.location.host.indexOf('landal') > -1;
+}
+
+$(document).ready(function() {
+	SRFooterScripts.updateResultCountText();
+	if ($('#region-text').find('br').length) {
+		$('#region-text').contents().filter(function() {
+			return this.nodeType == 3;
+		}).wrap('<p></p>');
+		$('#region-text').filter('br').remove();
+	}
+	var lastchar = $('#region-text p:first-of-type').text();
+	lastchar = lastchar[lastchar.length - 1];
+	if (lastchar == " ") {
+		$('#region-text p:first-of-type').text($('#region-text p:first-of-type').text().substring(0, $('#region-text p:first-of-type').text().length - 1));
+	}
+
+
+	$('#region-text p:first-of-type').addClass('region-content-show');
+	$('#region-text p').not(':first-of-type').addClass('region-content-hide');
+	$('#region-text p:first-of-type').append('<i class="elipsis">...</i><a href="javascript:;" class="region-content-toggle"> Read more</a>');
+	$('.region-content-hide').hide();
+
+	var regionTextLength = Infinity;
+	while ($('#region-text').text().length > 1300 && $('#region-text').text().length !== regionTextLength) { // Prevent too much text from causing the div to go up and over the breadcrumb and nav
+		regionTextLength = $('#region-text').text().length;
+		$('#region-text p:last-of-type').remove();
+	}
+
+
+	$('body').on('click', '.region-content-toggle', function() {
+		var readMore = function() {
+			$('.elipsis').hide();
+			$('.region-content-hide').slideDown();
+			$('.region-content-toggle').text(' Read less');
+			$('.region-content-toggle').detach().appendTo('#region-text p:last-of-type');
+		};
+
+		var readLess = function() {
+			$('.elipsis').show();
+			$('.region-content-hide').slideUp();
+			$('.region-content-toggle').text(' Read more');
+			$('.region-content-toggle').detach().appendTo('#region-text p:first-of-type');
+		};
+
+		if ($('.region-content-hide').is(':visible')) {
+			readLess();
+		} else {
+			readMore();
+		}
+
+	});
+
+	/*
+	The If statements below are for safeguarding against potantial initial release replication issues.
+	The IFs can be removed leaving the function calls in place once release is stable, see MG
+	*/
+	if (window.GlobalJS && GlobalJS.hasOwnProperty("storeCurrentSearch")) {
+		GlobalJS.storeCurrentSearch();
+	}
+	if (window.HeaderNavigation && HeaderNavigation.hasOwnProperty("updateNavLocationHREFs")) {
+		HeaderNavigation.updateNavLocationHREFs();
+	}
+
+	// Trigger interval code on ready
+	intervalChecks();
+
+	// change search text tablet
+	var searchDatePicker = $('#datepickerdatepicker');
+	var datePickerText = searchDatePicker.val();
+	if ($(window).width() < 960 && $(window).width() > 639 && datePickerText === 'Select a date') {
+		searchDatePicker.val('Select');
+	}
+});
+
+setInterval(function() {
+	intervalChecks();
+}, 3000);
+
+function intervalChecks() {
+	var iWindowWidth = $(window).width();
+	if (iWindowWidth > 640) { // Desktop only
+		checkNumNightsDesktop();
+		checkLowStockDesktop();
+	}
+}
+
+function checkNumNightsDesktop() {
+	// Hide nights listing if there is no number text
+	if ($('.nights-number').text().trim() === "") {
+		$('.nights-listing').hide();
+	}
+}
+
+function checkLowStockDesktop() {
+	// Apply low stock remaining style
+	$('.accommodation-listing-remaining-amount').each(function() {
+		var oThis = $(this),
+			remaining = parseInt(oThis.find('.remaining-accommodation-count').html());
+		if (remaining < 4) {
+			oThis.addClass('low-stock-remaining-desktop');
+
+		}
+	});
+	// Update accomondation text
+	$('.remaining-accommodation-count').each(function() {
+		var oThis = $(this),
+			amount = parseInt(oThis.text());
+		if (amount > 1) {
+			oThis.next('span').text('accommodation types remaining');
+		} else {
+			oThis.next('span').text('accommodation type remaining');
+		}
+	});
+}
+
+// Begin filter event tracking
+$('body').on('click', '.filterfalse', function() {
+	var filter_name = $(this).text();
+	filter_name = filter_name.substring(0, filter_name.indexOf('(') - 1).trim();
+	var filter_group = $(this).parents('.form__fieldlist').find('.form__label').text();
+	var this_brand_type = brandtype.charAt(0) + brandtype.slice(1).toLowerCase();
+	recordGAEvent(this.href, 'Filter - ' + this_brand_type, 'Filter Selected', filter_group + ' ' + filter_name);
+});
+
+$('body').on('click', '.filtertrue', function() {
+	var filter_name = $(this).text();
+	filter_name = filter_name.substring(0, filter_name.indexOf('(') - 1).trim();
+	var filter_group = $(this).parents('.form__fieldlist').find('.form__label').text();
+	var this_brand_type = brandtype.charAt(0) + brandtype.slice(1).toLowerCase();
+	recordGAEvent(this.href, 'Filter - ' + this_brand_type, 'Filter Deselected', filter_group + ' ' + filter_name);
+});
+// End filter event tracking
+
+// On a non dated search on mobile, open the calendar
+$(window).load(function() {
+	if (window.location.href.indexOf('adult=') <= -1 && $(window).innerWidth() < 800) {
+		$('header .navSearch a').click();
+	}
+});
+
+// Micro search repeaters
+$(function() {
+	if ($(window).width() < 768) {
+		initMicroSearchRepeaters();
+	}
+});
+
+var searchRepeaterClickHandler = function( e ) { //only used on mobile Search repeaters
+	e.preventDefault();
+	e.stopImmediatePropagation();
+
+	var isBoats = document.body.classList.contains( 'boats' );
+
+	var reevooEl = this.querySelector( '.reevoo-box' );
+	var isReevooSelected = ( !!reevooEl )
+		?reevooEl.contains( e.target )
+		:false
+
+	if( !isReevooSelected ){
+		var href = ( isBoats )
+			?$( this ).find( '.listing' ).find( '.listing__info > a' ).attr( 'href' )
+			:$( this ).find( '.listing > a' ).attr( 'href' );
+
+		window.location = href;
+	}
+}
+
+function initMicroSearchRepeaters() {
+	initProofMicroAndLocation();
+	window.addEventListener('popstate', function (e) {
+		lazyLoadMicroRepeaters();
+		if (history.pushState) {
+			initProofMicroAndLocation();
+		}
+	});
+}
+
+function initProofMicroAndLocation() {
+	$('#SupplierList .products, #servicelist .products, #accomodationList .products').each(function() {
+		microfy(this);
+	});
+	$( '.products' ).click( searchRepeaterClickHandler )
+}
+
+$(document).ajaxComplete(function (event, request, settings) {
+	if ($(window).width() < 768) {
+		if (settings.url.indexOf('/HoseasonsSearchResultHandler') > -1 && !$('body').hasClass('microfying') && $('.products.microfied').length !== $('#SupplierList .products, #accomodationList .products, #ServiceList .products, #servicelist .products').length) {
+			$('#SupplierList .products, #servicelist .products, #accomodationList .products').each(function() {
+				microfy(this);
+			});
+			$('li.listing > div.listing__image').removeClass('loaded');
+			lazyLoadMicroRepeaters();
+			$( '.products' ).click( searchRepeaterClickHandler )
+		}
+	}
+});
+
+function microfy(el) {
+
+	var siteCode = $(el).attr('class').split(' ')[2];
+	var splitName = $(el).find('h4 > span.step-attribute:first-child').text();
+	var newText = splitName.substr(0, splitName.indexOf(','));
+	var newTextLength = newText.length;
+
+	if (newTextLength > 0) {
+		$(el).find('h4 > span.step-attribute:first-child').text(newText);
+	}
+
+	// set card sizes
+	var cardHeight = $(el).height() + 'px';
+	var imageBlock = $(el).find('li.listing > div.listing__image:first-child');
+	$(imageBlock).css({
+		'height' : cardHeight
+	});
+
+	var accomRemain = $(el).find('.large-hide .remaining-accommodation-count').text();
+	if (accomRemain > 3) {
+		$(el).find('li .accommodation-listing-remaining-amount').remove();
+	}
+
+	var iAccomRemain = parseInt(accomRemain);
+	if (iAccomRemain === 1) {
+		$(el).find('.large-hide .low-stock').text('accommodation type remaining');
+	} else if (iAccomRemain > 1 && iAccomRemain < 4){
+		$(el).find('.large-hide .low-stock').text('accommodation types remaining');
+	}
+
+}
+
+// Lazy load images
+$(window).load(function(){
+	if($(window).width() < 768) {
+		lazyLoadMicroRepeaters();
+	}
+});
+function lazyLoadMicroRepeaters() {
+	var threshold = 100,
+		$window = $(window),
+		windowHeight = $window.height() + threshold,
+		scrollTop = $window.scrollTop() + windowHeight + threshold;
+	SRFooterScripts.checkItems(windowHeight, scrollTop);
+	$(window).on('resize scroll', function() {
+			windowHeight = $window.height();
+			scrollTop = $window.scrollTop() + windowHeight + threshold;
+			SRFooterScripts.checkItems(windowHeight, scrollTop);
+	});
+}
+
+// Enhanced ecommerce tracking
+$(document).ajaxComplete(function (event, xhr, settings) {
+	if (settings.url.indexOf('HoseasonsSearchResultHandler') > -1) {
+		var RHS1 = typeof check_RHS1 === 'undefined' ? null : check_RHS1;
+		var RHS2 = typeof check_RHS2 === 'undefined' ? null : check_RHS2;
+		var RHS3 = typeof check_RHS3 === 'undefined' ? null : check_RHS3;
+		var RHS4 = typeof check_RHS4 === 'undefined' ? null : check_RHS4;
+		var RHS5 = typeof check_RHS5 === 'undefined' ? null : check_RHS5;
+
+		var activeRegion = RHS5 || RHS4 || RHS3 || RHS2 || RHS1 || 'All regions';
+		GlobalJS.gaSendProductList(xhr.responseText, SRFooterScripts.getBrand() + '\|SearchResults\|' + activeRegion);
+	}
+});
+
+var SRFooterScripts = function(){
+
+	/*
+	The intention for this namespace is to wrap all the javascript in sr-footer-scripts.js
+	Add the above code into here as and when appropriate - see MG if unclear
+	*/
+
+	var m_bIEBrowser = detectIE();
+
+	// Public Methods
+	function fnInit() {
+		processHotJarPoll();
+		fnInitGallery();
+		initFerryMessaging();
+		fnInitBreadcrumbs();
+		removeUnwantedSortBy();
+		fnAllRegionBodyClass();
+		fnSanitiseFilterLinks();
+	}
+
+	function fnAllRegionBodyClass(){
+		var bodyTag = document.getElementsByTagName('body')[0];
+		if ((window.location.pathname.indexOf('all-regions') === -1) || (window.location.search.indexOf('region=') !== -1)) {
+			bodyTag.classList.remove('all-region-true');
+			bodyTag.classList.add('all-region-false');
+		} else {
+			bodyTag.classList.remove('all-region-false');
+			bodyTag.classList.add('all-region-true');
+		}
+	}
+
+	function fnSanitiseFilterLinks() {
+		// fix for fusion control rendered feature links breaking when feature already applied on pageload
+		var filterLinks = document.getElementsByClassName('filter-accommodation'),
+			currentHref,
+			currentLink;
+		if (window.location.href.indexOf('features') > -1) {
+			for (var i = 0; i < filterLinks.length; i++) {
+				currentLink = filterLinks[i];
+				currentHref = currentLink.getAttribute('href');
+				if (currentHref && currentHref.indexOf('%2c') > 1) {
+					currentLink.setAttribute('href', currentHref.replace(/%2c/g, ','));
+				}
+			}
+		}
+	}
+
+	function initFerryMessaging() {
+		// Banner appears at the top of the search results
+		if (window.location.href.indexOf('isle-of-wight') !== -1) {
+			if (document.getElementsByClassName('step-promo-banner').length === 0) {
+				$('<div class="sr-promo-banner"><span><i class="fa fa-ship"></i>Discounted ferry crossing information</span></div>').prependTo('.listings').on('click', function () {
+					window.openSimpleLightbox($("<div><p style='padding:10px; padding-right:30px;'>Once you book your holiday through Hoseasons, you'll be able to book discounted ferry crossing by calling us on <a style='text-decoration:underline; font-size:15px;' href='tel:03454986220'>0345 498 6220</a>.</p></div>"));
+				});
+			}
+		}
+	}
+
+	// Public Methods
+	var oLowDepositDisplayHandler = function() {
+
+		var m_iMobileWidthThreshold = 481,
+			m_bUserClosedLDAFixedDisplay = false,
+			m_oLowDepositAmountGlobal = null,
+			m_oParent = null,
+			m_oElToInsertBefore = null,
+			m_bMobileLDADisplayApplied = false;
+
+		// Public Methods
+		function fnInit(oParent, oElToInsertBefore) {
+			// Handle display of Low Deposit
+			var oDeposit = GlobalJS.isQualifiedForDeposit();
+			if (oDeposit.bQualified) {
+				if (oDeposit.sType === "low") {
+					m_oParent = oParent;
+					m_oElToInsertBefore = oElToInsertBefore,
+					buildElements();
+				}
+			}
+		}
+
+		// Private Methods
+		function buildElements() {
+			var sH4 = "<h4>Secure your " + GlobalJS.getLowDepositQualifyingYear() + " holiday today with a £" + GlobalJS.getLowDepositAmount(0) + " low deposit.</h4>";
+			m_oLowDepositAmountGlobal = document.createElement('div');
+			m_oLowDepositAmountGlobal.className = "low-deposit-amount low-deposit-amount-global low-deposit-amount-global-sr-header ta-hide";
+			m_oLowDepositAmountGlobal.innerHTML = sH4;
+			m_oParent.insertBefore(m_oLowDepositAmountGlobal, m_oElToInsertBefore);
+		}
+
+		return {
+			init: fnInit
+		}
+
+	}();
+
+	/* Handles Sticky Mobile Filters*/
+	var oFiltersUIHandler = function () {
+
+		var m_iMobileWidthThreshold = 481,
+			m_bFiltersSectionOpened = false,
+			m_bShowSnackBar = false,
+			m_iNumFilters = 0,
+			m_iCachedScrollPos = 0,
+			m_oSnackbar = null,
+			m_bFiltersSectionOpen = false,
+			m_bSortSectionOpen = false,
+			m_oCurrentFilterSection = null,
+			m_oSortSectionDarkBG = null,
+			m_oListingContainer = null,
+			m_oSortByEl = null,
+			m_oMoreEl = null,
+			m_oHeadSection = null,
+			m_oSortBar = null,
+			m_oSortAndFilterButtonContainer = null,
+			m_oSortSection = null,
+			m_oFiltersSection = null,
+			m_oMoreFiltersSection = null,
+			m_oRefineListings = null,
+			m_oListingFilters = null,
+			m_oSortListings = null,
+			m_oMobNav = null,
+			m_iMobNavHeight = null,
+			m_oFilterTags = null,
+			m_oFilterDoneBtn = null,
+			m_oCustomFilter = null,
+			m_bPartnerOrTA = false,
+			m_bDisableSticky = false;
+
+		// Public
+		function fnInit() {
+
+			if (window.location.href.indexOf('partners') !== -1 || window.location.href.indexOf('travelagents') !== -1) {
+				document.getElementById('form1').style.paddingTop = 0; // Partners padding fix
+
+				// if(window.location.href.indexOf('travelagents') !== -1)
+				// 	document.querySelector('.main>.nav').style.paddingTop = "60px";
+				m_bPartnerOrTA = true;
+				m_bDisableSticky = true;
+			}
+
+			getElementReferences();
+			preventDefaultBehaviour();
+			resolveListingContainer();
+			reparentElements();
+			m_oFilterDoneBtn.classList.add('cloned-div');
+
+			windowOrientationChanged(null);
+			window.addEventListener("orientationchange", windowOrientationChanged);
+			addAjaxCompleteListener();
+		}
+		function fnHandleSearchUI() {
+			var oMobileSearch = document.getElementsByClassName('toggle--search')[0];
+			document.body.classList.remove('nav--is-active');
+
+			if (oMobileSearch.classList.contains('active')) {
+				if (document.documentElement.scrollTop === 0) {
+					oMobileSearch.classList.remove('active');
+					document.body.classList.remove('search--is-active');
+				} else {
+					document.documentElement.scrollTop = 0;
+					document.documentElement.scrollTo(0,0);
+				}
+			} else {
+				oMobileSearch.classList.add('active');
+				document.body.classList.add('search--is-active');
+				document.documentElement.scrollTop = 0;
+				document.documentElement.scrollTo(0,0);
+			}
+		}
+
+		// Private
+		function getElementReferences() {
+			m_oSortByEl = document.getElementById('sort-by');
+			m_oMoreEl = document.getElementById('more');
+			m_oHeadSection = GlobalJS.isNotLandal() ? document.getElementsByTagName('header')[0] : document.getElementsByClassName('navbar')[0];
+			m_oSortBar = document.getElementById('sort-bar-mobile');
+			m_oSortAndFilterButtonContainer = document.getElementById('SortMobile');
+			m_oSortSection = document.getElementById('sortRadiosMobile');
+			m_oFiltersSection = document.getElementsByClassName('sectionW')[0];
+			m_oMoreFiltersSection = document.getElementById('MoreFilters');
+			m_oRefineListings = document.getElementById('refine-listings');
+			m_oListingFilters = m_oRefineListings.getElementsByClassName('listing-filters')[0];
+			m_oSortListings = document.getElementById('sort-listings');
+			m_oMobNav = GlobalJS.isNotLandal() ? document.getElementsByClassName('mobile-nav')[0] : document.getElementsByClassName('navbar')[0];
+			m_oFilterTags = m_oRefineListings.getElementsByClassName('filter-tags')[0];
+			m_oFilterDoneBtn = m_oMoreFiltersSection.getElementsByClassName('done-btn')[0];
+			m_oCustomFilter = document.getElementById('custom-filter');
+
+			if (m_oMobNav){
+				m_iMobNavHeight = parseInt(getComputedStyle(m_oMobNav).height);
+			}
+
+			if (m_bPartnerOrTA) {
+				m_iMobNavHeight = 100;
+			}
+		}
+		function preventDefaultBehaviour() {
+			// prevent the user from beiong able to scroll the body when they attempt to scroll the sort section
+			m_oSortSection.addEventListener('touchmove', function(oEvent){
+				oEvent.preventDefault();
+			}, true);
+		}
+		function resolveListingContainer() {
+			switch (SRFooterScripts.getBrand()) {
+				case "lodges" :
+				case "holiday parks" :
+				case "holiday parks in europe" :
+				case "city breaks" :
+				case "landal" :
+					m_oListingContainer = document.getElementById('SupplierList');
+					break;
+				case "boats" :
+				case "cottages" :
+					m_oListingContainer = document.getElementById('servicelist');
+					break;
+			}
+		}
+		function reparentElements() {
+			if (m_oMobNav){
+				// Place m_oSortAndFilterButtonContainer into the stickyHeader
+				m_oMobNav.appendChild(m_oSortAndFilterButtonContainer);
+				// Place sort-bar into the stickyHeader
+				m_oMobNav.appendChild(m_oSortBar);
+			}
+		}
+
+		function windowOrientationChanged(oEvent){
+			setTimeout(function(oEvent){ // allow broswer catchup (document.documentElement.clientWidth not updated in time for orientation change event)
+				if (document.documentElement.clientWidth <= m_iMobileWidthThreshold) {
+
+					// Add fixed class and update top pos of filters section
+					m_oFiltersSection.classList.add('sectionW-fixed');
+					m_oFiltersSection.style.top = String(m_iMobNavHeight + "px");
+
+					// Remove inline styles
+					m_oFilterDoneBtn.setAttribute('style', '');
+
+					updateFiltersIndicators();
+					buildSnackbar();
+
+					// Add sticky Header functionality
+					toggleWindowScrollHandler(true);
+					editSearchScrollHandler(null);
+
+					// Add a no border class to the last visible radio li
+					var oaRadioButtons = m_oSortSection.getElementsByClassName('radio-button');
+					for (var i = oaRadioButtons.length - 1; i > -1; i--) {
+						// Get the last element which is visible and remove it's bottom border
+						var oLiElement = oaRadioButtons[i].getElementsByTagName('li')[0];
+						if (window.getComputedStyle(oLiElement, null).display === "block") {
+							oLiElement.classList.add('clear-border-bottom');
+							break;
+						}
+					}
+
+					/* Sort */
+					// Add open/close filter section listener
+					m_oSortByEl.addEventListener("click", toggleSortSection, false);
+					/* FILTERS */
+					// Add open/close filter section listener
+					m_oMoreEl.addEventListener("click", toggleFiltersSection, false);
+					// Add cancel button events
+					m_oFilterDoneBtn.addEventListener("click", toggleFiltersSection, false);
+					// Filters click handler
+					m_oMoreFiltersSection.addEventListener("click", moreFiltersSectionClicked, false);
+				} else {
+					toggleWindowScrollHandler(false);
+					toggleDocumentScroll(true);
+					resetBackToDefaultMarkup();
+				}
+			},50);
+		}
+
+		function addAjaxCompleteListener(){
+			// Hook into the ajax complete method to fix the scroll position after filtering so the filter section shows the drop shadow
+			$(document).ajaxComplete(function (event, xhr, settings) {
+				if (window.matchMedia("(max-width: 481px)").matches) {
+					if (settings.url.indexOf('HoseasonsSearchResultHandler') > -1) {
+						updateFiltersIndicators();
+						m_iCachedScrollPos = 0;
+						if (m_bSortSectionOpen) {
+							m_bShowSnackBar = true;
+							m_bSortSectionOpen = false;
+							toggleSection(m_oSortSection, m_bSortSectionOpen);
+						}
+						if (m_bFiltersSectionOpen) {
+							m_bShowSnackBar = true;
+							var iCount = parseInt(JSON.parse(xhr.responseText).ResultCount),
+								sLocationLabel = (iCount === 1) ? " location" : " locations";
+							setFilterDoneButtonLabel("View " + iCount + sLocationLabel);
+						}
+						// reset scroll to top
+						document.documentElement.scrollTop = 0;
+						if (window.StickyHeaderHandler) {
+							StickyHeaderHandler.showMobileNav();
+						}
+					}
+				}
+				SRFooterScripts.allRegionBodyClass();
+				if (settings.url.indexOf('HoseasonsSearchResultHandler') > -1) { //makes sure ajax complete is specific to hos sr request
+					// tidy up reevoo scores
+					var reevooSections = document.getElementsByClassName('reevoo-box'),
+						currentSection,
+						iReviewCount,
+						currentDesktopSection;
+					for (var j = 0; j < reevooSections.length -1; j++) {
+						currentSection = reevooSections[j];
+						currentDesktopSection = document.getElementsByClassName('reevoo-content-area')[j];
+						iReviewCount = parseInt(currentSection.getElementsByClassName('RevooCount')[0].innerHTML.trim());
+						if (iReviewCount !== iReviewCount || iReviewCount < 3) { // check count is not iNaN
+							currentSection.style.display = 'none';
+							currentDesktopSection.innerHTML = '<span class="no-reviews-message">No reviews<br>yet</span>';
+						} else {
+							currentSection.style.display = 'block';
+						}
+						currentDesktopSection.style.display = 'block';
+					}
+				}
+			});
+		}
+
+		function resetBackToDefaultMarkup() {
+			document.documentElement.scrollTop = 0;
+
+			m_bFiltersSectionOpened = false,
+			m_bShowSnackBar = false,
+			m_iNumFilters = 0,
+			m_iCachedScrollPos = 0,
+			m_oSnackbar = null,
+			m_bFiltersSectionOpen = false,
+			m_bSortSectionOpen = false,
+			m_oCurrentFilterSection = null,
+
+			// remove inline styles
+			m_oFiltersSection.setAttribute('style', '');
+			m_oListingFilters.setAttribute('style', '');
+			m_oFilterTags.setAttribute('style', '');
+			m_oHeadSection.setAttribute('style', '');
+			m_oSortBar.setAttribute('style', '');
+			// Change content of sort and filters controls
+			handleSortDarkBG(false);
+			// Remove fixed class
+			m_oFiltersSection.classList.remove('sectionW-fixed');
+			m_oRefineListings.classList.remove('show');
+
+			m_oSortByEl.removeEventListener("click", toggleSortSection, false);
+			m_oMoreEl.removeEventListener("click", toggleFiltersSection, false);
+			m_oFilterDoneBtn.removeEventListener("click", toggleFiltersSection, false);
+			m_oSortSection.removeEventListener("transitionend", oSortListingsAnimOutFinished, false);
+			m_oSortSection.removeEventListener("transitionend", oSortListingsAnimInFinished, false);
+			m_oRefineListings.removeEventListener("transitionend", oRefineListingsAnimInFinished, false);
+			m_oRefineListings.removeEventListener('transitionend', refineListingsAnimOutFinished, false);
+
+
+			// Add a no border class to the last visible radio li
+			var oaRadioButtons = m_oSortSection.getElementsByClassName('radio-button');
+			for (var i = oaRadioButtons.length - 1; i > -1; i--) {
+				// Get the last element which is visible and remove it's bottom border
+				var oLiElement = oaRadioButtons[i].getElementsByTagName('li')[0];
+				if (window.getComputedStyle(oLiElement, null).display === "block") {
+					oLiElement.classList.remove('clear-border-bottom');
+					break;
+				}
+			}
+
+			m_oMoreFiltersSection.appendChild(m_oFilterDoneBtn); // re-parent done button
+			m_oFilterDoneBtn.style.display = "none";
+			if (m_oCustomFilter) {
+				//document.querySelector('#custom-filter ul li .form__label').classList.remove('expand');
+				//document.querySelector('#custom-filter ul li .form__input-list').setAttribute('style', '');
+				m_oCustomFilter.querySelector('ul li .form__label').classList.remove('expand');
+				m_oCustomFilter.querySelector('ul li .form__input-list').setAttribute('style', '');
+			}
+			m_oSortAndFilterButtonContainer.classList.remove('filters-selected', 'sort-selected');
+		}
+
+		function toggleSortSection(oEvent) {
+			if (oEvent) {
+				stopEventBubbling(oEvent);
+			}
+			toggleButtonEvents(false);
+			if (m_bFiltersSectionOpen) {
+				m_bFiltersSectionOpen = false;
+				m_bShowSnackBar = false;
+				toggleSection(m_oMoreFiltersSection, m_bFiltersSectionOpen);
+			}
+			m_bSortSectionOpen = !m_bSortSectionOpen;
+			toggleSection(m_oSortSection, m_bSortSectionOpen);
+		}
+
+		function handleSortDarkBG(bToggleSortDarkBG) {
+			var oHeader = GlobalJS.isNotLandal() ? document.getElementsByTagName('header')[0] : document.getElementsByClassName('navbar')[0];
+			if (bToggleSortDarkBG) {
+				// show the dark bg
+				if (!m_oSortSectionDarkBG) {
+					m_oSortSectionDarkBG = document.createElement('div');
+					m_oSortSectionDarkBG.addEventListener('click', handleDarkBGTouchEnd);
+					m_oSortSectionDarkBG.id = 'sort-section-dark-bg';
+					oHeader.appendChild(m_oSortSectionDarkBG);
+				}
+			} else {
+				// kill the dark bg
+				if (m_oSortSectionDarkBG && m_oSortBar) {
+					m_oSortSectionDarkBG.removeEventListener('click', handleDarkBGTouchEnd);
+					oHeader.removeChild(m_oSortSectionDarkBG);
+					m_oSortSectionDarkBG = null;
+				}
+			}
+		}
+
+		function handleDarkBGTouchEnd(oEvent) {
+			toggleSortSection(null);
+		}
+
+		function toggleFiltersSection(oEvent) {
+			stopEventBubbling(oEvent);
+			toggleButtonEvents(false);
+			if (m_bSortSectionOpen) {
+				m_bSortSectionOpen = false;
+				toggleSection(m_oSortSection, m_bSortSectionOpen);
+			}
+			m_bFiltersSectionOpen = !m_bFiltersSectionOpen;
+			toggleSection(m_oMoreFiltersSection, m_bFiltersSectionOpen);
+
+			// Expand first filter accordian on first open only
+			if (!m_bFiltersSectionOpened) {
+				m_bFiltersSectionOpened = true;
+				m_oListingFilters.style.display = "block";
+				if (m_oCustomFilter) {
+					//document.querySelector('#custom-filter ul li .form__label').classList.add('expand');
+					//document.querySelector('#custom-filter ul li .form__input-list').style.display = "block";
+					m_oCustomFilter.querySelector('ul li .form__label').classList.add('expand');
+					m_oCustomFilter.querySelector('ul li .form__input-list').style.display = "block";
+				}
+			}
+			toggleFilterTags();
+		}
+
+		function blockEvents(oEvent) {
+			stopEventBubbling(oEvent);
+		}
+
+		function toggleButtonEvents(bToggle){
+			if (bToggle){
+				m_oSortAndFilterButtonContainer.removeEventListener("click", blockEvents);
+				document.body.classList.remove('kill-pointer-events');
+			} else {
+				document.body.classList.add('kill-pointer-events');
+				m_oSortAndFilterButtonContainer.addEventListener("click", blockEvents);
+			}
+		}
+
+		function setListingFiltersHeight() {
+			setTimeout(function(oEvent){
+				if (m_bFiltersSectionOpen) {
+					var iHeightTrim = m_bPartnerOrTA ? 100 : 50;
+					m_oListingFilters.style.height = String((document.documentElement.clientHeight - iHeightTrim) + "px");
+				}
+			},0);
+		}
+
+		function toggleSection(oSection, bToggle, bPreventTransitionEnd) {
+			m_oSortAndFilterButtonContainer.classList.remove("sort-selected", "filters-selected");
+			if (bToggle) {
+				// Show the section
+				// Section specific
+				if (oSection === m_oSortSection) {
+					m_oListingContainer.addEventListener('click', preventListingNavigation, true);
+					if (typeof(bPreventTransitionEnd) === 'undefined' && !bPreventTransitionEnd) {
+						m_oSortSection.addEventListener("transitionend", oSortListingsAnimInFinished, false);
+					}
+					m_oSortAndFilterButtonContainer.classList.add("sort-selected");
+					m_oSortBar.style.visibility = 'visible';
+					if(window.pageYOffset > m_iMobNavHeight) {
+						m_oSortSection.classList.add('fixed');
+					}
+					m_oSortSection.classList.add('show');
+					handleSortDarkBG(true);
+				} else { // m_oMoreFiltersSection
+					toggleWindowScrollHandler(false);
+					setFilterDoneButtonLabel("Done");
+					m_oSortAndFilterButtonContainer.classList.add("filters-selected");
+					m_oListingFilters.style.display = "block";
+					if (GlobalJS.isNotLandal()) {
+						toggleHeadScroll(false);
+					}
+					if (typeof(bPreventTransitionEnd) === 'undefined' && !bPreventTransitionEnd) {
+						m_oRefineListings.addEventListener("transitionend", oRefineListingsAnimInFinished, false);
+					}
+					setTimeout(function(oEvent){ // Allow browser catch up
+						m_oRefineListings.classList.add('show'); // animate down
+						// account for any browser chrome/addressbar etc
+						setListingFiltersHeight();
+					},0);
+				}
+			} else {
+				// Hide the section
+				// Section specific
+				if (oSection === m_oSortSection) {
+					m_oListingContainer.removeEventListener('click', preventListingNavigation, true);
+					if (typeof(bPreventTransitionEnd) === 'undefined' && !bPreventTransitionEnd) {
+						m_oSortSection.addEventListener("transitionend", oSortListingsAnimOutFinished, false);
+					}
+					handleSortDarkBG(false);
+					m_oSortSection.classList.remove('show');
+					showSnackbar("sort");
+				} else { // m_oMoreFiltersSection
+					m_oMoreFiltersSection.appendChild(m_oFilterDoneBtn); // re-parent done button
+					if (typeof(bPreventTransitionEnd) === 'undefined' && !bPreventTransitionEnd) {
+						m_oRefineListings.addEventListener('transitionend', refineListingsAnimOutFinished, false);
+					}
+					setTimeout(function(oEvent){ // Allow browser catch up
+						m_oRefineListings.classList.remove('show');
+						showSnackbar("filters");
+						toggleDocumentScroll(true);
+					},0);
+				}
+
+			}
+		}
+
+		function oSortListingsAnimInFinished(oEvent){
+			stopEventBubbling(oEvent);
+			m_oSortSection.removeEventListener("transitionend", oSortListingsAnimInFinished, false);
+			toggleButtonEvents(true);
+		}
+		function oSortListingsAnimOutFinished(oEvent){
+			stopEventBubbling(oEvent);
+			m_oSortSection.removeEventListener("transitionend", oSortListingsAnimOutFinished, false);
+			m_oSortBar.style.visibility = 'hidden';
+			toggleButtonEvents(true);
+		}
+		function oRefineListingsAnimInFinished(oEvent){
+			stopEventBubbling(oEvent);
+			m_oRefineListings.removeEventListener("transitionend", oRefineListingsAnimInFinished, false);
+			toggleDocumentScroll(false);
+			document.body.appendChild(m_oFilterDoneBtn); // re-parent done button
+			toggleButtonEvents(true);
+		}
+		function refineListingsAnimOutFinished(oEvent) {
+			stopEventBubbling(oEvent);
+			m_oRefineListings.removeEventListener('transitionend', refineListingsAnimOutFinished, false);
+			m_oRefineListings.classList.remove('show');
+			m_oListingFilters.scrollTop = 0;
+			m_oListingFilters.style.display = "none";
+			toggleWindowScrollHandler(true);
+			toggleButtonEvents(true);
+		}
+
+		function preventListingNavigation (oEvent) {
+			stopEventBubbling(oEvent);
+			toggleSortSection(oEvent);
+		}
+
+		function moreFiltersSectionClicked(oEvent) {
+			var oElement = oEvent.target;
+			if (oElement.classList.contains('form__label')) {
+				if (oElement.classList.contains('expand')) {
+					oElement.classList.remove('expand');
+				} else {
+					oElement.classList.add('expand');
+					// Scroll accordion into position
+					m_oCurrentFilterSection = oElement.parentNode.parentNode.parentNode;
+					scrollListItemIntoPosition(true);
+				}
+			}
+			if (oElement.classList.contains('filter-accommodation')) {
+				var element; //your clicked element
+				while(oElement.parentNode) {
+					if (oElement.classList.contains('form__field')) {
+						m_oCurrentFilterSection = oElement;
+						break;
+					} else {
+						oElement = oElement.parentNode;
+					}
+				}
+			}
+		}
+
+		function setFilterDoneButtonLabel(sLabel) {
+			m_oFilterDoneBtn.dataset.message = sLabel;
+
+		}
+
+		// Add number of filters indicator
+		function updateFiltersIndicators() {
+			m_iNumFilters = 0;
+			if (urlArray && urlArray.activeFilters) {
+				// Object exists
+				m_iNumFilters = Object.keys(urlArray.activeFilters).length;
+				if (urlArray.activeFilters.hasOwnProperty('page')) {
+					m_iNumFilters--; // remove the page filter from the calculation
+				}
+				if (urlArray.activeFilters.hasOwnProperty('region')) {
+					m_iNumFilters--; // remove the page filter from the calculation
+				}
+				if (urlArray.activeFilters.hasOwnProperty('sortorder')) {
+					m_iNumFilters--; // remove the sortorder from the calculation
+				}
+				if (urlArray.activeFilters.hasOwnProperty('features')) {
+					// remove one which is added because of the features property, then add on the length of the features
+					m_iNumFilters = m_iNumFilters + Object.keys(urlArray.activeFilters.features).length - 1;
+				}
+			}
+			if (m_iNumFilters > 0) {
+				// add the :after selector if not already present
+				if (!m_oMoreEl.classList.contains('add-filters-indicator')) {
+					m_oMoreEl.classList.add('add-filters-indicator');
+				}
+				m_oMoreEl.setAttribute('data-after', String(m_iNumFilters));
+			} else {
+				// remove the :after selector
+				m_oMoreEl.classList.remove('add-filters-indicator');
+			}
+			toggleFilterTags();
+		}
+
+		function toggleFilterTags() {
+			if (m_bFiltersSectionOpen) {
+				if (m_iNumFilters > 0) {
+					m_oFilterTags.style.display = "block";
+				}
+			} else {
+				if (window.matchMedia("(max-width: " + m_iMobileWidthThreshold + "px)").matches) {
+					// is going into landscape
+					m_oFilterTags.removeAttribute('style');
+				} else {
+					m_oFilterTags.style.display = "none";
+				}
+			}
+		}
+
+		function scrollListItemIntoPosition(bAnimate) {
+			// child - m_oCurrentFilterSection
+			// parent (item to scroll) - m_oListingFilters
+			if (m_oListingFilters && m_oCurrentFilterSection) {
+				var oFilterTagsSection = document.getElementsByClassName('filter-tags')[0],
+					oFilterTagsHeight = 0,
+					iParentTopPos = m_oListingFilters.offsetTop;
+				if (oFilterTagsSection) {
+					oFilterTagsHeight =  oFilterTagsSection.offsetHeight;
+				}
+				var iScrollToPos = m_oCurrentFilterSection.offsetTop - iParentTopPos + oFilterTagsHeight;
+				if (bAnimate) {
+					// JQuery animate method is very janky. The animation of the scroll can be optimised to use GPU in time
+					$(m_oListingFilters).animate({
+						scrollTop: iScrollToPos
+					}, 500);
+				} else {
+					m_oListingFilters.scrollTop = iScrollToPos;
+				}
+				m_oCurrentFilterSection = null;
+			}
+		}
+
+		function buildSnackbar() {
+			// create snack bar markup dynamically
+			m_oSnackbar = document.createElement('div');
+			var	oSnackbarContentContainer = document.createElement('div'),
+				oSnackbarTextNode = document.createTextNode("");
+			m_oSnackbar.oTextNode = oSnackbarTextNode;
+			m_oSnackbar.id = "snackbar";
+			oSnackbarContentContainer.id = "snackbar-content-container";
+			oSnackbarContentContainer.appendChild(oSnackbarTextNode);
+			m_oSnackbar.appendChild(oSnackbarContentContainer);
+		}
+
+		function showSnackbar(sType) {
+			if (m_bShowSnackBar) {
+				if (sType === "filters") {
+					if (m_oSortSection.classList.contains('show')) {
+						return false;
+					}
+					m_oSnackbar.oTextNode.nodeValue = "Filters updated";
+				} else {
+					if (m_bFiltersSectionOpen) {
+						return false;
+					}
+					m_oSnackbar.oTextNode.nodeValue = "Sort updated";
+				}
+				// Place snackbar into the stickyHeader
+				m_oMobNav.appendChild(m_oSnackbar);
+				m_bShowSnackBar = false;
+				m_oSnackbar.addEventListener("transitionend", snackBarTransitionEnd, false);
+
+				m_oSnackbar.style.display = "block";
+				setTimeout(function(oEvent){
+					m_oSnackbar.className = "snackbar-fade-out";
+				},0);
+
+				function snackBarTransitionEnd(oEvent) {
+					m_oSnackbar.removeEventListener("transitionend", snackBarTransitionEnd, false);
+					m_oSnackbar.style.display = "none";
+					m_oSnackbar.classList.remove('snackbar-fade-out');
+				}
+			}
+		}
+
+		function toggleHeadScroll(bToggle) {
+			if (!m_bDisableSticky) {
+				if (StickyHeaderHandler.hasOwnProperty('toggleScrollHandler')) {
+					StickyHeaderHandler.toggleScrollHandler(bToggle);
+				}
+				if (!bToggle) {
+					document.getElementsByTagName('header')[0].classList.add('prevent-sticky-behaviour');
+				} else {
+					document.getElementsByTagName('header')[0].classList.remove('prevent-sticky-behaviour');
+				}
+			}
+		}
+
+		function toggleDocumentScroll(bToggle) {
+			if (!bToggle) {
+				m_iCachedScrollPos = document.documentElement.scrollTop;
+				document.body.classList.add('no-scroll');
+				document.documentElement.classList.add('no-scroll');
+			} else {
+				if (GlobalJS.isNotLandal()) {
+					toggleHeadScroll(bToggle);
+				}
+				document.body.classList.remove('no-scroll');
+				document.documentElement.classList.remove('no-scroll');
+				document.documentElement.scrollTop = m_iCachedScrollPos;
+			}
+		}
+
+		function editSearchScrollHandler(oEvent) {
+			if (m_oSortSection.classList.contains('show')) {
+				m_bSortSectionOpen = false;
+				if (oEvent === null) {
+					toggleSection(m_oSortSection, m_bSortSectionOpen, true);
+				} else {
+					toggleSection(m_oSortSection, m_bSortSectionOpen);
+				}
+			}
+			if(window.pageYOffset > m_iMobNavHeight) {
+				m_oSortSection.classList.add('fixed');
+			} else {
+				m_oSortSection.classList.remove('fixed');
+			}
+		}
+
+		function toggleWindowScrollHandler(bToggle){
+			if (bToggle) {
+				window.addEventListener("scroll", editSearchScrollHandler, false);
+			} else {
+				window.removeEventListener("scroll", editSearchScrollHandler, false);
+			}
+		}
+
+		function stopEventBubbling(oEvent) {
+			oEvent.preventDefault();
+			oEvent.stopPropagation();
+			oEvent.stopImmediatePropagation();
+		}
+
+		return {
+			init: fnInit,
+			handleSearchUI: fnHandleSearchUI
+		}
+	}();
+	/* End Handle Sticky Mobile Filters */
+
+	/* TEMPORARY JS FIX */
+	// The below removes redundant filters eg.
+	// 1 bed [3]
+	// 2 bed [3]
+	// 3 bed [5]
+	// 4 bed [6]
+	// The code below will remove the 1 bed filter as it performs the same action as the 2 bed.
+	function fnPruneFilters (selector) {
+		// Get all filter anchors
+		var arrFilterAnchors = Array.prototype.slice.call(document.querySelectorAll(selector));
+		// Map over the anchors, getting their count
+		var arrFilterCount = arrFilterAnchors.map(function (filter) {
+			var filteCountNode = Array.prototype.slice.call(filter.childNodes).filter(function (node) { return /\(\d+\)/g.test(node.textContent) })[0];
+			var filterCount = filteCountNode && filteCountNode.textContent.match(/\d+/) ? filteCountNode.textContent.match(/\d+/)[0] : '';
+			return parseInt(filterCount);
+		});
+
+		// Hide filters from the beginning with matching counts
+		for (var i = 0; i < arrFilterCount.length - 1; i++) {
+			var currentCount = arrFilterCount[i];
+			var	nextCount = arrFilterCount[i + 1];
+			if (currentCount === nextCount) {
+				arrFilterAnchors[i].parentNode.style.display = 'none';
+			}
+		}
+	}
+
+	function fnCheckItems(windowHeight, scrollTop) {
+		var items = {},
+			bHotTubFilterActive = window.location.href.indexOf('features=3083') !== -1,
+			bIsLodgesOrParks = SRFooterScripts.getBrand() === 'lodges' || SRFooterScripts.getBrand() === 'holiday parks';
+
+		var oListingImages;
+		if (SRFooterScripts.getBrand() === 'cottages') {
+			oListingImages = $('#accomodationList li.listing > div.listing__image');
+		} else {
+			oListingImages = $('.listings li.listing > div.listing__image');
+		}
+
+		oListingImages.each(function(i) {
+			var $this = $(this),
+					top = $this.offset().top;
+			items[i] = {
+					'top': top,
+			};
+		});
+		$.each(items, function(i, img) {
+			if (windowHeight >= img.top || scrollTop >= img.top) {
+				var $thisImage = $('li.listing > div.listing__image').eq(i);
+				if (!$thisImage.hasClass('loaded')) {
+					$thisImage.addClass('loaded');
+					$thisImage.find('.slick-gallery').addClass('mob-hide');
+					var firstImage = null;
+					try {
+						var firstImages = $thisImage.find('.hidden.json').text(),
+							imageArray = JSON.parse((firstImages));
+						// If hot tub filter is active, search for a hot tub image to use as first image
+						if (bHotTubFilterActive && bIsLodgesOrParks) {
+							firstImage = getHotTubImageURL(imageArray);
+						}
+						// No first image set, so get using the DisplayOrder property
+						if (!firstImage) {
+							firstImage = getFirstImageByDisplayOrder(imageArray);
+							}
+					} catch(e) {
+						firstImage = '//www.hoseasons.co.uk/assets/placeholder-image.png?v=5bb30a4fdc860babededc05218b1fe03';
+					}
+					$thisImage.css({
+						'background-image' : "url('" + firstImage + "')"
+					});
+				}
+			}
+		});
+	};
+
+	function getHotTubImageURL(imageArray) {
+		for (index in imageArray) {
+			var bIsHotTubImage = checkIsHotTubImage(imageArray[index].ImageURL);
+			if (bIsHotTubImage) {
+				return imageArray[index].ImageURL;
+			}
+		}
+		return null;
+	}
+
+	function checkIsHotTubImage(sImage) {
+		return sImage.match(/(ex02|goil-01a_14)/) !== null;
+	}
+
+	function getFirstImageByDisplayOrder(imageArray) {
+		for (index in imageArray) {
+			if (imageArray[index].DisplayOrder === '1') {
+				return imageArray[index].ImageURL;
+			}
+		}
+		return null;
+	}
+
+	// -------------------------------------------------------------------------
+	// Gallery Handling
+	function fnInitGallery() {
+
+		if (document.documentElement.clientWidth > 767) { // window width is greater than 767
+			var oListAndContainer = getListingsAndContainer();
+			if (typeof(jQuery().slick) === 'undefined' || !jQuery().slick) { // slick not present, load it
+				// Load the gallery library asyncronously
+				var sSource = "/lodges/slick_custom_min.js",
+					oScriptTag = document.createElement('script');
+				oScriptTag.async = true;
+				oScriptTag.onload = function (oEvent) {
+					initGallery(oListAndContainer.oListings, oListAndContainer.oContainer);
+				}
+				oScriptTag.src = sSource;
+				document.head.appendChild(oScriptTag);
+			} else { // slick already loaded, re-init gallery
+				initGallery(oListAndContainer.oListings, oListAndContainer.oContainer);
+			}
+		}
+	}
+
+	function initGallery(oListings, oContainer) {
+
+		// SLICK
+		var iThreshold = 100,
+			$window = $(window),
+			iWindowHeight = $window.height() + iThreshold,
+			iScrollTop = $window.scrollTop() + iWindowHeight + iThreshold,
+			items = {},
+			bIsIE = detectIE();
+
+		var checkPositionOfRepeaters = function(iWindowHeight, iScrollTop) {
+			var oGallery = null,
+				oJsonData = null;
+			if (bIsIE) {
+				var oListAndContainer = getListingsAndContainer();
+				oListings = oListAndContainer.oListings;
+				oContainer = oListAndContainer.oContainer;
+			}
+			oListings.each(function(i) {
+				items[i] = {
+					'top': this.getBoundingClientRect().top + window.pageYOffset
+				};
+			});
+			$.each(items, function(i, oImgEl) {
+				if (iWindowHeight >= oImgEl.top || iScrollTop >= oImgEl.top) {
+					oGallery = oContainer.eq(i);
+					if (oGallery.hasClass('hidden')) {
+						oJsonData = $.parseJSON(oGallery.siblings('.json').html());
+						if (oJsonData) {
+							appendGalleryMarkupFromJSON(oGallery, oJsonData);
+						} else {
+							oGallery.append('<div><img data-lazy="/lodges/assets/placeholder-image.png?v=5bb30a4fdc860babededc05218b1fe03" alt="Awaiting image"></div>');
+						}
+						oGallery.removeClass('hidden').slick({
+							lazyLoad: 'next', // custom implementation to prevent previous image loading
+							speed: 200,
+							touchThreshold: 24,
+							waitForAnimate: false,
+							captions: false
+						});
+					}
+				}
+			});
+		}
+		checkPositionOfRepeaters(iWindowHeight, iScrollTop);
+		$(window).on('resize scroll', function() {
+			iWindowHeight = $window.height();
+			iScrollTop = $window.scrollTop() + iWindowHeight + iThreshold;
+			checkPositionOfRepeaters(iWindowHeight, iScrollTop);
+		});
+		if (SRFooterScripts.getBrand() === 'lodges' || SRFooterScripts.getBrand() === 'holiday parks') { // lodges and parks only
+			var $slick = $('.slick-gallery');
+			$slick.on('lazyLoaded', function() {
+				$slick.off('lazyLoaded'); // remove event after first image has lazy loaded
+				fnSetSearchRepeaterOverlays();
+			});
+		}
+		// END SLICK
+	}
+
+	function appendGalleryMarkupFromJSON(oGallery, oJsonData) {
+
+		var oaImages = [],
+			oLeadItem = null,
+			bHotTubIsLead = false,
+			bHotTubFilterActive = window.location.href.indexOf('features=3083') !== -1,
+			bIsLodgesOrParks = SRFooterScripts.getBrand() === 'lodges' || SRFooterScripts.getBrand() === 'holiday parks';
+
+		// Store all json images in an array
+		for (index in oJsonData) {
+			oaImages.push({
+				sFilename: getGalleryImageFilename(oJsonData[index].ImageURL),
+				sImageURL: oJsonData[index].ImageURL,
+				sImageAltText: oJsonData[index].ImageAltText
+			});
+		}
+
+		// Set first image as lead
+		oLeadItem = oaImages[0];
+
+		// Check if the hot tub filter is active, and the current image is of a hot tub ('ex02')
+		// Is so, make the first hot tub pic the lead image
+		if (bHotTubFilterActive && bIsLodgesOrParks) {
+			for (var i = 0; i < oaImages.length; i++) {
+				var bIsHotTubImage = checkIsHotTubImage(oaImages[i].sFilename);
+				if (bIsHotTubImage && !bHotTubIsLead) {
+					bHotTubIsLead = true;
+					oLeadItem = oaImages[i];
+				}
+			}
+		}
+
+		// re-order the array based on the filenames
+		oaImages.sort(function(a,b){
+			if (a.sFilename < b.sFilename){ return -1; }
+			if (a.sFilename > b.sFilename) { return 1; }
+			return 0;
+		});
+
+		// add the lead item back to the beginning of the array
+		if (oLeadItem !== oaImages[0]) {
+			// lead item is not the first in the list, therefore find the item and place at the start
+			var iLeadItemIndex = oaImages.indexOf(oLeadItem);
+			oaImages.unshift(oaImages.splice(iLeadItemIndex, 1)[0]);
+		}
+
+		// Append markup
+		for (var i = 0; i < oaImages.length; i++) {
+			oGallery.append('<div><img data-lazy="' + oaImages[i].sImageURL + '" title="' + oaImages[i].sImageAltText + '" alt="' + oaImages[i].sImageAltText + '"></div>');
+		}
+
+		oLeadItem = null;
+		oaImages = null;
+		bHotTubIsLead = null;
+		bHotTubFilterActive = null;
+	}
+
+	function getGalleryImageFilename(sImageURL) {
+		var saFilenameSplit = sImageURL.split('/');
+		return saFilenameSplit[saFilenameSplit.length - 1].replace('.jpg', '').replace('.png', '');
+	}
+
+	function getListingsAndContainer() {
+		var oListAndContainer = {};
+		oListAndContainer.oListings = $('#SupplierList .listing__image');
+		oListAndContainer.oContainer = $('#SupplierList .slick-gallery');
+		var sBrand = SRFooterScripts.getBrand();
+		if (sBrand === 'boats') {
+			oListAndContainer.oListings = $('.listing .listing__image');
+			oListAndContainer.oContainer = $('#servicelist .slick-gallery');
+		}
+		if (sBrand === 'cottages') {
+			oListAndContainer.oListings = $('.listing .listing__image');
+			oListAndContainer.oContainer = $('#accomodationList .slick-gallery');
+		}
+		return oListAndContainer;
+	}
+
+	// -------------------------------------------------------------------------
+	// End Gallery Handling
+
+	function fnGetBrand() {
+		if (document.location.href.indexOf('/boat-holidays') > -1) {
+			return "boats";
+		} else if (document.location.href.indexOf('/holiday-parks') > -1) {
+			if (document.location.href.indexOf('/holiday-parks-in-europe') > -1) {
+				return "holiday parks in europe";
+			}
+			return "holiday parks";
+		} else if (document.location.href.indexOf('/lodges') > -1) {
+			return "lodges";
+		} else if (document.location.href.indexOf('/cottages') > -1) {
+			return "cottages";
+		} else if (document.location.href.indexOf('/city-breaks') > -1) {
+			return "city breaks";
+		} else if (document.location.host.indexOf('landal') > -1) {
+			return 'landal';
+		}
+	}
+
+	// Private Methods
+	function detectIE() {
+		var sUa = window.navigator.userAgent,
+			iMSIE = sUa.indexOf('MSIE '),
+			iTrident = sUa.indexOf('Trident/'); // IE 11
+		if (iMSIE > 0 || iTrident > 0) {
+			// IE 10 or below, or IE 11
+			return true;
+		}
+		// other browser
+		return false;
+	}
+	// -------------------------------------------------------------------------
+	// End Gallery Handling
+
+	/**
+	 * Add pill to search repeaters, based on Date Created attribute aquired from STEP
+	 * Note: - This function was cloned for use in PDFooterScripts
+	 */
+	var fnSetSearchRepeaterPills = function () {
+
+		var oaProducts = null;
+		switch (SRFooterScripts.getBrand()) {
+			case "lodges" :
+			case "holiday parks" :
+				oaProducts = document.querySelectorAll('#SupplierList ol.products');
+				break;
+			case "boats" :
+				oaProducts = document.querySelectorAll('#servicelist ol.products');
+				break;
+			case "cottages" :
+				oaProducts = document.querySelectorAll('#accomodationList ol.products');
+				break;
+		}
+
+		if (oaProducts) {
+			for (var k = 0; k < oaProducts.length; k++) {
+				var oListingInfo = oaProducts[k].querySelector('.listing__info');
+				if (oListingInfo) {
+
+					// Check pill has not already been added
+					if (oListingInfo.querySelectorAll('.new-in-pill').length < 1) {
+
+						// Check for 'Date Created' data in step helper
+						var oDateSpan = oaProducts[k].querySelector('[data-name="Date Created"]>span') || oaProducts[k].querySelector('[data-name="Date Created"]');
+						if (oDateSpan) {
+
+							var sDate = String(oDateSpan.innerHTML);
+							if (sDate) {
+
+								var saDate = sDate.split('/'),
+									oDateCreated = new Date(saDate[2], saDate[1] - 1, saDate[0]),
+									oDateLowerThresh = new Date();
+
+								// Set data threshold
+								oDateLowerThresh.setMonth(oDateLowerThresh.getMonth() - 12); // one year ago
+
+								// Add pill if date created is after threshold
+								if (oDateCreated > oDateLowerThresh) {
+									oListingInfo.classList.add('has-pill');
+									/*
+									The brand check here is only due to a markup change for macro repeaters which has only been added to lodges and parks brands for now.
+									When macro repeaters have been added to all brands, this brand check can be removed and replaced with the line
+									$(oListingInfo).find('> h3').after('<div class="new-in-pill"><p>New in</p></div>');
+									*/
+									var sBrand = SRFooterScripts.getBrand();
+									if (sBrand === 'lodges' || sBrand === 'holiday parks') {
+										$(oListingInfo).find('> h3').after('<div class="new-in-pill"><p>New in</p></div>');
+									} else {
+										$(oListingInfo).find('> a').after('<div class="new-in-pill"><p>New in</p></div>');
+									}
+
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	};
+
+	var fnSetSearchRepeaterOverlays = function () {
+		// Leave placeholder function ready for future content
+	};
+
+	var fnUpdateFilterPillsVisibility = function () {
+
+		var oFilterPillHolder = document.getElementById('filter-pills');
+		if (oFilterPillHolder) {
+			var	oaFeaturePills = oFilterPillHolder.querySelectorAll('li a');
+
+			// For each feature pill
+			for (var i = 0; i < oaFeaturePills.length; i++) {
+				var sDataParams = oaFeaturePills[i].getAttribute('data-params'),
+					oMoreFiltersEl = document.querySelector('#MoreFilters [data-params="' + sDataParams + '"]:not(.custom-filter)');
+
+				// Check feature is available in filters panel
+				if (oMoreFiltersEl) {
+					// Show pill
+					oFilterPillHolder.classList.remove('hidden');
+					oaFeaturePills[i].parentNode.classList.remove('hidden');
+					// Check if filter has already been selected
+					var bFilterSelected = oMoreFiltersEl.parentNode.classList.contains('option-selected-true');
+					// Select/deselect pill
+					bFilterSelected ? oaFeaturePills[i].parentNode.classList.add('selected') : oaFeaturePills[i].parentNode.classList.remove('selected');
+				} else {
+					// Hide pill
+					oaFeaturePills[i].parentNode.classList.add('hidden');
+				}
+			}
+		}
+	}
+
+	function getParameterByName(url, name) {
+		name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
+		var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
+			results = regex.exec(url);
+		return results === null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
+	}
+
+	var fnChangeAndShowPetPriceWording = function() {
+		var partyPets = getParameterByName(window.location.search, 'pets'),
+			numPartyPets = partyPets === '' ? 0 : parseInt(partyPets);
+		if (numPartyPets > 0) {
+			var petPriceContainers = document.querySelectorAll('.ShowPerPetPrice'),
+				containerElement;
+			for (var i = 0; i < petPriceContainers.length; i++) {
+				containerElement = petPriceContainers[i];
+				var petChargeContainer = containerElement.querySelector('.ispetchargeabletrue span');
+				if (petChargeContainer && petChargeContainer.innerHTML.indexOf('per pet charge') < 0) {
+					petChargeContainer.innerHTML = petChargeContainer.innerHTML.split(' ')[0] + ' per pet charge';
+				}
+				containerElement.style.display = 'block';
+			}
+		}
+	}
+
+	function fnUpdateResultCountText(json) {
+
+		var bApplyDefaultLocationText = true,
+			sUrl = window.location.href,
+			sQuery = sUrl.split('?')[1],
+			oResultCountH2El = document.getElementById('resultcount--h2');
+		if (sQuery) {
+			if(sQuery.indexOf('lat=') > -1 && sQuery.indexOf('lng=') > -1) {
+				// found lat & long
+				if(sQuery.indexOf('location=') > -1 && sQuery.indexOf('miles=') > -1) {
+					// found location and distance
+					bApplyDefaultLocationText = false;
+					var saParams = sQuery.split('&'),
+						sDistance,
+						sLocation,
+						bFoundLocation = false,
+						bFoundMiles = false;
+					for (var i = 0; i < saParams.length; i++) {
+						if (saParams[i].indexOf('location=') > -1) {
+							bFoundLocation = true;
+							// also stript out %20 from url string
+							sLocation = saParams[i].split('=')[1].replace(/%20/g, ' ').trim()
+						}
+						if (saParams[i].indexOf('miles=') > -1) {
+							bFoundMiles = true;
+							sDistance = saParams[i].split('=')[1];
+						}
+						if (bFoundLocation && bFoundMiles) {
+							break;
+						}
+					}
+					var sResultCount,
+						sLocationOrBoat = (GlobalJS.getBrand() === "boats") ? "boats" : "locations";
+					if (json) {
+						sResultCount = String(json.ResultCount);
+					} else {
+						var h2Span = document.getElementById('resultcount--h2').querySelector('span');
+						sResultCount = String(h2Span.innerHTML);
+					}
+					oResultCountH2El.innerHTML = '<span id="resultcount">' + sResultCount + '</span> ' + sLocationOrBoat + ' available within ' + sDistance + ' miles of ' + sLocation;
+
+					// Update the meta tag for description
+					var oMeta = document.querySelector('meta[name=description]'),
+						sDescription = oMeta.getAttribute('content').replace('in All Regions', 'within ' + sDistance + ' miles of ' + sLocation);
+					oMeta.setAttribute('content', sDescription);
+
+					// Update the title
+					var oTitle = document.getElementsByTagName('title')[0];
+					oTitle.innerHTML = oTitle.innerHTML.replace('in All Regions', 'within ' + sDistance + ' miles of ' + sLocation);
+				}
+			}
+		}
+
+		if (bApplyDefaultLocationText && json) {
+			var regionText = $('#region-filter .option-selected-true .filter-text').text(),
+				sMarkup;
+			if(regionText.length > 0){
+				sMarkup = '<span id="resultcount">' + json.ResultCount + '</span> locations available in ' + regionText;
+			} else {
+				sMarkup = '<span id="resultcount">' + json.ResultCount + '</span> locations available';
+			}
+			oResultCountH2El.innerHTML = sMarkup;
+		}
+
+		oResultCountH2El.style.display = 'inline-block';
+
+	}
+
+	function fnTargetGetOfferSupplierList(oRequest, oServerTags) {
+		var sFilters = urlArray.activeFilters;
+		if (window.GlobalJS.hasOwnProperty('Utils') && window.GlobalJS.Utils.hasOwnProperty('getObjectAsString')) { // Condition used to prevent errors during GlobalJS replication, remove after initial release.
+			sFilters = GlobalJS.Utils.getObjectAsString(urlArray.activeFilters);
+		}
+		var oResponse = JSON.parse(oRequest.responseText);
+		var oParams = {
+			"ResultCount": oResponse.ResultCount,
+			"Flexibility": oServerTags.flexibility,
+			"Duration": oServerTags.duration,
+			"Date": oServerTags.date,
+			"PageNumber": JSON.parse(oResponse.Pagination).SelectedPage,
+			"TotalPages": JSON.parse(oResponse.Pagination).LastPageNumber,
+			"Party[Adults]":  oServerTags.adults,
+			"Party[Children]": oServerTags.children,
+			"Party[Infants]": oServerTags.infants,
+			'Party[Pets]': oServerTags.pets,
+			"Destination": oServerTags.destination,
+			"Filters": sFilters,
+			"Sort": urlArray.activeFilters.sortorder || urlArray.sortorder,
+			"at_property": 'af328973-4a2f-cfff-5b5d-46bb873d7842'
+		};
+		spreadObj(flattenObj({'DigitalData': digitalData}), oParams); // spread a flattened digitalData object into oParams
+		if(window.hasOwnProperty('adobe')) adobe.target.getOffer({
+			"mbox": "search-results-mbox",
+			"params": oParams,
+			"success": function(offer) {
+				adobe.target.applyOffer({
+					"mbox": "search-results-mbox",
+					"offer": offer
+				});
+			},
+			"error": function(status, error) {
+				console.log('Error', status, error);
+			}
+		});
+	}
+
+	// Private Methods
+	function processHotJarPoll() {
+		if (window.hj && typeof(queryDict.start) !== 'undefined'){
+			var hotjarTestDate = queryDict.start.split('-'),
+				today = new Date();
+
+			hotjarTestDate[1] = hotjarTestDate[1] - 1;
+			hotjarTestDate = new Date(hotjarTestDate[2], hotjarTestDate[1], hotjarTestDate[0]);
+
+			// Run different Hotjar functions based on the difference of days retutned from getDateDifferenceInDays
+			if (getDateDifferenceInDays (today, hotjarTestDate) <=  14) {
+				hj('trigger', '1-2-last-minute-poll');
+			} else if ((getDateDifferenceInDays (today, hotjarTestDate) > 14) && (getDateDifferenceInDays (today, hotjarTestDate) <= 28)) {
+				hj('trigger', '3-4-last-minute-poll');
+			}
+
+			  function getDateDifferenceInDays (today, hotjarTestDate) {
+				  // Returns the number of days from today and the chosen start date
+				return Math.round((hotjarTestDate - today)/(1000*60*60*24));
+			}
+		}
+	}
+
+	function fnInitBreadcrumbs() {
+		// breadcrumbs
+		var oDatedSearchContainer = document.getElementsByClassName('dated-search-bc-container')[0];
+		if (oDatedSearchContainer) {
+			var sCheckForDate = oDatedSearchContainer.getAttribute('data-date');
+			if (sCheckForDate === '') {
+				var sBCText = oDatedSearchContainer.getElementsByClassName('breadcrumbs__list')[0].innerHTML,
+					oHeroBcContainer = document.getElementsByClassName('hero-bc-background')[0];
+					oHeroBcContainer.getElementsByClassName('breadcrumbs__list')[0].innerHTML = sBCText;
+			}
+		}
+	}
+
+	function removeUnwantedSortBy() {
+		// hide hidden options on non-dated search
+		if (window.location.href.indexOf('start') < 0) {
+			$('.filter-accommodation[data-params="sortorder=5"], .filter-accommodation[data-params="sortorder=4"], .filter-accommodation[data-params="sortorder=21"], .filter-accommodation[data-params="sortorder=8"]').remove();
+		} else { // hide options on dated search
+			$('.filter-accommodation[data-params="sortorder=8"], .filter-accommodation[data-params="8"]').remove();
+		}
+	}
+
+	function fnHandleRepeatersCTANightsText() {
+		var oaNightsNumberElements = document.querySelectorAll('.nights-number');
+		for (var i = 0; i < oaNightsNumberElements.length; i++) {
+			var oNightNumberEl = oaNightsNumberElements[i];
+			if (parseInt(oNightNumberEl.innerHTML.trim()) === 1) {
+				oNightNumberEl.parentNode.innerText = '1 night from';
+			}
+		}
+	}
+
+	function fnSetUpRepeaterUSPs() {
+		// set up usps based on features from container
+		var oaRepeaters = document.getElementsByClassName('listing'),
+			saTopFeatures = ['Hot tubs', 'Coastal within 3 miles', 'Car parking - on site', 'Enclosed garden / patio ', 'Pets - no charge', 'Swimming pool - indoor', 'WiFi', 'Pub within 1 mile', 'Pets - not allowed', 'Sea view', 'Detached property'],
+			oFeatureUl,
+			saFeatureList;
+		// cycle through repeaters
+		for (var i = 0; i < oaRepeaters.length; i++) {
+			oFeatureUl = oaRepeaters[i].getElementsByClassName('accommodation-listing-perks')[0];
+			saFeatureList = oFeatureUl.getAttribute('data-features').split(',');
+			// cycle through top features
+			for (var j = 0; j < saTopFeatures.length; j++) {
+				// check if top feature matches feature at location
+				if (saFeatureList.indexOf(saTopFeatures[j]) > -1) {
+					// create list item and add to list
+					var newLi = document.createElement('li');
+					newLi.innerHTML = saTopFeatures[j];
+					oFeatureUl.insertBefore(newLi, oFeatureUl.children[3]); // using 3rd child to insert in correct order as 3 max
+					if (oFeatureUl.children.length >= 3) { //stop populating the list at 3
+						j = saTopFeatures.length;
+					}
+				}
+			}
+			// after looping show if list items exist
+			if (oFeatureUl.children.length > 0) {
+				oFeatureUl.classList.remove('hidden');
+			}
+		}
+	}
+
+	function flattenObj(oNested) {
+		var oToReturn = {};
+		for (var i in oNested) {
+			if (oNested[i]) {
+				if (oNested[i].hasOwnProperty) {
+					if (typeof oNested[i] === 'object' && !Array.isArray(oNested[i])) { // ignore arrays
+						var oFlat = flattenObj(oNested[i]);
+						for (var k in oFlat) {
+							if (oFlat.hasOwnProperty(k)) {
+								oToReturn[i + '[' + k + ']'] = oFlat[k];
+							}
+						}
+					} else {
+						oToReturn[i] = oNested[i];
+					}
+				}
+			}
+		}
+		return oToReturn;
+	}
+
+	function spreadObj(oObj1, oObj2) {
+		// Shallow spread object name/value pairs to another object
+		for (var i in oObj1) {
+			oObj2[i] = oObj1[i];
+		}
+	}
+
+	// Public object
+	return {
+		LowDepositDisplayHandler: oLowDepositDisplayHandler,
+		FiltersUIHandler: oFiltersUIHandler,
+		checkItems: fnCheckItems,
+		init: fnInit,
+		initGallery: fnInitGallery,
+		setSearchRepeaterPills: fnSetSearchRepeaterPills,
+		setSearchRepeaterOverlays: fnSetSearchRepeaterOverlays,
+		getBrand: fnGetBrand,
+		updateFilterPillsVisibility: fnUpdateFilterPillsVisibility,
+		updateResultCountText: fnUpdateResultCountText,
+		targetGetOfferSupplierList: fnTargetGetOfferSupplierList,
+		pruneFilters: fnPruneFilters,
+		handleRepeatersCTANightsText: fnHandleRepeatersCTANightsText,
+		setUpRepeaterUSPs: fnSetUpRepeaterUSPs,
+		changeAndShowPetPriceWording: fnChangeAndShowPetPriceWording,
+		allRegionBodyClass: fnAllRegionBodyClass
+	};
+
+}();
+SRFooterScripts.init();
+
+$(window).on('resize', function(oEvent){
+
+	// change search text tablet
+	var searchDatePicker = $('#datepickerdatepicker'),
+		datePickerText = searchDatePicker.val(),
+		iWindowWidth = document.documentElement.clientWidth;
+	if (iWindowWidth < 960 && iWindowWidth > 639 && datePickerText === 'Select a date') {
+		searchDatePicker.val('Select');
+	}
+	if ((iWindowWidth > 959 || iWindowWidth < 640) && datePickerText === 'Select') {
+		searchDatePicker.val('Select a date');
+	}
+
+	if (iWindowWidth < 481) { // is mobile
+		// prevent script resource from running it's resize handler (prevents janky header flicker in ios)
+		oEvent.stopPropagation();
+		oEvent.stopImmediatePropagation();
+		if (window.StickyHeaderHandler) { // remove if after replication
+			StickyHeaderHandler.reset();
+		}
+	}
+});
+
+if (window.location.hostname.indexOf('landal') < 0) {
+	//extra GA event tracking
+	var srSearchButton = document.getElementById('QuickSearch_searchBtnLnk');
+	srSearchButton.addEventListener('click', function(){
+		ga('send', 'event', 'searchPage', 'Search', 'Searched Again');
+	});
+	var mapSearchButton = document.getElementById('mapResultsLinkButton');
+	mapSearchButton.addEventListener('click', function(){
+		ga('send', 'event', 'searchPage', 'Search', 'Map View');
+	});
+}
+
+if (window.location.href.indexOf('lodges') > -1 || window.location.href.indexOf('holiday-parks') > -1 || window.location.href.indexOf('cottages') > -1) {
+	$(document).ajaxComplete(function(event, request, settings) {
+		if (settings.url.indexOf('/HoseasonsSearchResultHandler') > -1) {
+			setTimeout(function() {
+				SRFooterScripts.updateFilterPillsVisibility();
+			}, 0);
+		}
+	});
+	$(document).ready(function() {
+		SRFooterScripts.updateFilterPillsVisibility();
+	});
+}
+// document ready and ajax complete dependant functions
+document.addEventListener('DOMContentLoaded', function(){
+	SRFooterScripts.changeAndShowPetPriceWording();
+});
+$(document).ajaxComplete(function(event, request, settings) {
+	if (settings.url.indexOf('/HoseasonsSearchResultHandler') > -1) {
+		SRFooterScripts.changeAndShowPetPriceWording();
+	}
+});

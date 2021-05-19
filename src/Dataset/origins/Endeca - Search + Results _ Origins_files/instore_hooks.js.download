@@ -1,0 +1,26 @@
+var site = site || {};
+site.inStore = site.inStore || {};
+
+site.inStore.setTransactionSource = function(args) {
+  var transactionSource = args.TRANS_SOURCE;
+  generic.jsonrpc.fetch({
+    method:'trans.setTransactionSource',
+    params: [{'TRANS_SOURCE': transactionSource }],
+    onSuccess: function(jsonRpcResponse) {
+      var responseData = jsonRpcResponse.getValue();
+    }
+  });
+};
+
+site.inStore.setDoorID = function(args) {
+  var doorID= args.DOOR_ID;
+  generic.jsonrpc.fetch({
+    method:'trans.setDoorID',
+    params: [{'DOOR_ID': doorID}],
+    onSuccess: function(jsonRpcResponse) {
+      var responseData = jsonRpcResponse.getValue();
+    }
+  });
+};
+
+

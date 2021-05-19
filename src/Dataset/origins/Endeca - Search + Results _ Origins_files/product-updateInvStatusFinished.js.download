@@ -1,0 +1,28 @@
+(function($) {
+
+$(document).on('product.updateInvStatusFinished', function() {
+  prodcat.ui.grids.clean({
+    before: function(grids) {
+      _.each(grids, function(grid) {
+        var $grid = $(grid),
+          hasQuickshop = $grid.hasClass('product-grid--quickshop');
+
+        if (hasQuickshop && Drupal.behaviors.quickshop) {
+          Drupal.behaviors.quickshop.reset($grid);
+        }
+      });
+    },
+    after: function(grids) {
+      _.each(grids, function(grid) {
+        var $grid = $(grid),
+          hasQuickshop = $grid.hasClass('product-grid--quickshop');
+
+        if (hasQuickshop && Drupal.behaviors.quickshop) {
+          Drupal.behaviors.quickshop.initGrid($grid);
+        }
+      });
+    }
+  });
+});
+
+})(jQuery);

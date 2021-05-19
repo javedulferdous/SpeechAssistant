@@ -1,0 +1,9 @@
+define(["jquery"],function() {
+
+    $(document).click(function (e) {
+        if (!$(e.target).is('.submenulink')) {
+            $('#nav_dropdown.collapse').collapse('hide');
+        }
+    })
+
+});

@@ -1,0 +1,160 @@
+.product--home .navSearch{display:none!important}
+
+/*
+*********************** MISC */
+.starboardicon{display:none}
+body.Starboard .starboardicon{display:block}
+@media only screen and (min-width: 50em) and (max-width: 70em) {
+.galleria-container{padding-top:50%}
+.hero__headings{padding:6% 0 0}
+}
+
+/*
+*********************** EXTRA WIDE */
+@media only screen and (max-width: 90em) {
+#recentlyViewedFloating ul{margin:20px 0 0}
+#amenities__service{margin-left:0}
+#lodge__accommodations .services-block{padding:0 10px}
+#SupplierList .listing__actions > .listing__actions__btns > a:first-of-type{display:block}
+#paginationbottom{clear:both;position:static}
+h1{font-size:33px;font-weight:300;color:#555}
+h2{font-size:24px;color:#555}
+h3{font-size:18px;font-weight:400;color:#555}
+h4,h5{font-size:15px;color:#555}
+span{font-size:15px;color:inherit}
+p{font-size:15px;color:#555}
+}
+
+/*
+*********************** WIDE */
+@media only screen and (max-width: 70em) {
+.info .accordion__heading{cursor:default}
+.hero__summary__details{bottom:170px}
+}
+@media only screen and (max-width: 60em) {
+#resultcount--h2{padding:15px;margin:0}
+label.form__label.party__label{min-height:5.2em}
+}
+@media only screen and (max-width: 350px) {
+#resultcount--h2{padding:0 15px}
+}
+
+/*
+*********************** LARGE */
+@media only screen and (max-width: 50em) {
+#recentlyViewedFloating ul{padding:10px}
+.promo__grid .promo__image{padding:10px}
+.hero__summary__details{bottom:0}
+h3.list-new{border-bottom:0;font-size:20px}
+.products-promo__details{padding:10px 15px}
+.products-promo{padding-top:0}
+.hero__headings--simple .hero__subheading span{color:#fff}
+#lodge__accommodations .services-block{padding:0}
+.listing__actions .btn{margin:0}
+.media.promo__image{padding:0}
+.bargain-strap{z-index:1;border-top-left-radius:5px;border-top-right-radius:5px}
+.promo__grid .promo__details{padding:15px}
+.promo__grid{margin-bottom:10px}
+.party__label{min-height:4em}
+h1{font-size:24px;font-weight:400;color:#555}
+h2{font-size:20px;color:#555}
+h3{font-size:15px;font-weight:600;color:#555}
+h4,h5{font-size:15px;color:#555}
+span{color:inherit}
+p{font-size:15px;color:#555}
+}
+@media only screen and (min-width: 40em) and (max-width: 50em) {
+.info .amenities .list--checked li{width:100%!important;height:auto!important}
+.filter-bar__main{background:transparent;padding:0}
+.hero__headings{margin:20px 0 20px 20px}
+}
+@media only screen and (min-width: 50em) and (max-width: 60em) {
+.herocopy p{font-size:1.2rem;line-height:20px}
+.btn--large{font-size:13px}
+}
+@media only screen and (min-width: 30em) and (max-width: 60em) {
+.cta h3{margin:0 20px}
+}
+
+/*
+*********************** MEDIUM */
+@media only screen and (max-width: 40em) {
+.main.promo .col{margin:0 0 10px}
+.sitehero .hero__headings{max-width:100%}
+.listing__actions__price{float:left;margin-top:0!important;text-align:left;width:100%!important}
+.listing__actions__price.datesearchTrue{width:47%!important}
+#recently__service .btn{float:left}
+h3.list-new{margin:10px 0;width:100%}
+.listing:first-of-type{border:0}
+#accom--essentials{margin:0}
+.availability-list li{margin:0;width:100%}
+.availability-list li h4 span{font-size:1.6rem}
+.availability-list .btn{margin:10px 0 0}
+.accordion__content{border:0}
+.listing--product.col{margin:0 0 20px}
+.promo__header.promo__header--main{border-top:0;padding-top:0}
+.hero__subheading{display:block;font-size:14px;line-height:1.3}
+.products--heading{bottom:60px;left:25px;top:auto}
+.products-promo__details .product__info{margin-bottom:0}
+#sort-bar{text-align:center}
+#Sort .form__input{text-align:center;float:none;margin:0 5px!important}
+#Sort .btn{font-size:15px!important;float:none;margin:0 8px!important;clear:both}
+#sort-bar ol li{float:none;margin:0 5px;display:inline-block}
+#sort-bar .form__input__label{font-size:15px!important}
+#sortRadios .radio-button{margin:0 0 10px}
+#sortRadios .radio-button a{font-size:1.5rem}
+#MoreFilters .filter-grid .form__input-list.s-2col li{width:100%}
+.filter .form__label{margin-bottom:0}
+#sort-bar .form__field.form__field--checkable{border-bottom:0}
+#MoreFilters .filter-grid .form__input-list.s-2col li{margin:0;padding:10px 5px}
+}
+
+/*
+*********************** SMALL */
+@media only screen and (max-width: 30em) {
+.usp-bar ul li p{font-size:13px!important}
+.products--accommodation .listing__actions__btns{width:100%}
+.form__field--checkable .form__input{margin-top:.2em;clear:both}
+.hero__image .media .media__ratio img{top:0!important;position:relative}
+.media__ratio--3-1{padding-bottom:0}
+.galleria-container{margin:0;padding-top:0;height:220px!important}
+.filter-bar__main .btn{font-size:12px}
+.FusionCreditCardSubmision,.copy .btn{width:150px;font-size:1.2rem;margin:5px 0}
+#quotes{top:10px!important}
+.products--heading span{font-size:2.5rem}
+.products-promo__details .product__info{font-size:1.6rem}
+.products-promo__details em{font-size:inherit}
+.products-promo .more__actions{padding:10px 15px}
+.products-promo .more__actions a{font-size:1.4rem;width:auto!important}
+.hero__headings--simple .hero__subheading span{font-size:1.4rem}
+.availability-list li{border-bottom:0;margin:0 0 10px!important;padding:0 0 10px;border-bottom:1px solid #e8e8e8}
+.themetypeicons h3{font-size:1.6rem}
+.galleria-info{left:0!important;right:auto!important;bottom:0!important;top:auto!important}
+.hero__summary__details dd{position:relative;top:-4px}
+.confirmation--leftside{padding:20px;box-sizing:border-box;width:100%}
+#ServiceResultsLoadContainer h4{text-align:center}
+#ServiceResultsLoadContainer .listing__info__details{text-align:center}
+#WeRecommend .listing__actions{float:none;margin:0 auto}
+.products--featured .listing__actions{float:right;clear:none}
+.myHoseasons .hero__headings{position:absolute;top:10px;left:10px;font-size:28px;margin:0;padding:0}
+.myHoseasons .hero__headings .hero__heading{background:rgba(51,99,41,0.9)!important;font-size:28px;line-height:initial;padding:0 10px 4px!important}
+}
+@media only screen and (max-width: 20em) {
+.tabs__title__link{font-size:15px}
+.products--heading{bottom:50px;left:15px;top:auto}
+.products--heading span{font-size:2rem}
+.products-promo{margin:150px 0 0}
+}
+@media only screen and (max-width: 30em) {
+.products-promo{margin:10px 0 0}
+}
+@media only screen and (max-width: 40em) {
+.lodges--pd #sort-bar{display:none!important}
+.parks--pd #sort-bar{display:none!important}
+.boats--pd #sort-bar{display:none!important}
+.cottages--pd #sort-bar{display:none!important}
+.euparks--pd #sort-bar{display:none!important}
+.cb--pd #sort-bar{display:none!important}
+}
+.truetrue{display:block}
+.truefalse,.falsefalse{display:none}

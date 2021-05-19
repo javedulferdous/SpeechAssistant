@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<!-- saved from url=(0132)https://home-c36.nice-incontact.com/inContact/ChatClient/index.html?P0=FirstName&P1=Last%20Name&P2=first.last%40company.com&P3=-5555 -->
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<!--
+	<meta name="description" content="">-->
+	<title>Live Chat</title>
+	<link href="./screen.css" media="screen, projection" rel="stylesheet" type="text/css" id="theme_css">
+    <!--Raygun installation script,  before the closing </head> tag-->
+	<script async="" src="./analytics.js.download"></script><script async="" src="./raygun.min.js.download"></script><script type="text/javascript">
+	!function ( a, b, c, d, e, f, g, h ) {
+		a.RaygunObject = e, a[e] = a[e] || function () {
+			( a[e].o = a[e].o || [] ).push( arguments )
+		}, f = b.createElement( c ), g = b.getElementsByTagName( c )[0],
+		f.async = 1, f.src = d, g.parentNode.insertBefore( f, g ), h = a.onerror, a.onerror = function ( b, c, d, f, g ) {
+			h && h( b, c, d, f, g ), g || ( g = new Error( b ) ), a[e].q = a[e].q || [], a[e].q.push( {
+				e: g
+			} )
+		}
+	}( window, document, "script", "//cdn.raygun.io/raygun4js/raygun.min.js", "rg4js" );
+	</script>
+	<!--analytics installation script-->
+	<script type="text/javascript">
+	( function ( i, s, o, g, r, a, m ) {
+		i['GoogleAnalyticsObject'] = r; i[r] = i[r] || function () {
+			( i[r].q = i[r].q || [] ).push( arguments )
+		}, i[r].l = 1 * new Date(); a = s.createElement( o ),
+		m = s.getElementsByTagName( o )[0]; a.async = 1; a.src = g; m.parentNode.insertBefore( a, m )
+	} )( window, document, 'script', 'https://www.google-analytics.com/analytics.js', 'ga' );
+	</script>
+    <script type="text/javascript">
+        var minHeight = 600 + (window.outerHeight - window.innerHeight);
+        var minWidth = 380 + (window.outerWidth - window.innerWidth);
+        
+        function doResize() {
+            if (window.outerHeight < minHeight && window.outerWidth < minWidth) {
+                window.resizeTo(minWidth, minHeight);
+            }
+            else if (window.outerHeight < minHeight) {
+                window.resizeTo(window.outerWidth, minHeight);
+            }
+            else if (window.outerWidth < minWidth) {
+                window.resizeTo(minWidth, window.outerHeight);
+            }
+        }
+        window.onresize = doResize;
+    </script>
+</head>
+<body data-new-gr-c-s-check-loaded="14.982.0">
+	<div class="container" id="icPatronContainer"><div data-reactroot=""></div></div>
+	<script>
+		var sessionParameter  = [];
+		var args = location.search.substring(1).split('&');
+
+		for (var i = 0; i < args.length; i++) {
+			var keyVal = args[i].split('=');
+
+			if (keyVal.length > 1 ) {
+			    sessionParameter.push(decodeURIComponent(keyVal[1]));
+			}
+		}
+		sessionStorage.setItem('sessionParameter', JSON.stringify(sessionParameter));
+	</script>
+	<!--application scripts should load after container <div>-->
+	<script src="./fetch.min.js.download"></script>
+	<script src="./classListPolyfill.min.js.download"></script>
+	<script src="./bundle.min.js.download"></script>
+
+
+</body></html>

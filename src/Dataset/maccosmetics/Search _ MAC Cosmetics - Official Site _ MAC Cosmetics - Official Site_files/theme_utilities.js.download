@@ -1,0 +1,260 @@
+(function() {
+  'use strict';
+
+  /**
+   * Protect window.console method calls, e.g. console is not defined on IE
+   * unless dev tools are open, and IE doesn't define console.debug
+   */
+
+  // Union of Chrome, Firefox, IE, Opera, and Safari console methods
+  var methods = ["assert", "assert", "cd", "clear", "count", "countReset",
+    "debug", "dir", "dirxml", "dirxml", "dirxml", "error", "error", "exception",
+    "group", "group", "groupCollapsed", "groupCollapsed", "groupEnd", "info",
+    "info", "log", "log", "markTimeline", "profile", "profileEnd", "profileEnd",
+    "select", "table", "table", "time", "time", "timeEnd", "timeEnd", "timeEnd",
+    "timeEnd", "timeEnd", "timeStamp", "timeline", "timelineEnd", "trace",
+    "trace", "trace", "trace", "trace", "warn"];
+  var length = methods.length;
+  var console = (window.console = window.console || {});
+  var method;
+  var noop = function() {};
+  while (length--) {
+    method = methods[length];
+    // define undefined methods as noops to prevent errors
+    if (!console[method]) {
+      console[method] = noop;
+    }
+  }
+})();
+
+(function() {
+  'use strict';
+
+  // Add ECMA262-5 method binding if not supported natively
+  if (!('bind' in Function.prototype)) {
+    Function.prototype.bind = function(owner) {
+      var that = this;
+      if (arguments.length <= 1) {
+        return function() {
+          return that.apply(owner, arguments);
+        };
+      } else {
+        var args = Array.prototype.slice.call(arguments, 1);
+        return function() {
+          return that.apply(owner, arguments.length === 0 ? args : args.concat(Array.prototype.slice.call(arguments)));
+        };
+      }
+    };
+  }
+
+  // Add ECMA262-5 string trim if not supported natively
+  if (!String.prototype.trim) {
+    (function() {
+      // Make sure we trim BOM and NBSP
+      var rtrim = /^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/g;
+      String.prototype.trim = function() {
+        return this.replace(rtrim, '');
+      };
+    })();
+  }
+
+  // Add ECMA262-5 Array methods if not supported natively
+  if (!('indexOf' in Array.prototype)) {
+    Array.prototype.indexOf = function(find, i /*opt*/) {
+      if (i === undefined) { i = 0; }
+      if (i < 0) { i += this.length; }
+      if (i < 0) { i = 0; }
+      for (var n = this.length; i < n; i++) {
+        if (i in this && this[i] === find) {
+          return i;
+        }
+      }
+      return -1;
+    };
+  }
+
+  if (!('lastIndexOf' in Array.prototype)) {
+    Array.prototype.lastIndexOf = function(find, i /*opt*/) {
+      if (i === undefined) { i = this.length - 1; }
+      if (i < 0) { i += this.length; }
+      if (i > this.length - 1) { i = this.length - 1; }
+      for (i++; i-- > 0;) { /* i++ because from-argument is sadly inclusive */
+        if (i in this && this[i] === find) {
+          return i;
+        }
+      }
+      return -1;
+    };
+  }
+
+  if (!('forEach' in Array.prototype)) {
+    Array.prototype.forEach = function(action, that /*opt*/) {
+      for (var i = 0, n = this.length; i < n; i++) {
+        if (i in this) {
+          action.call(that, this[i], i, this);
+        }
+      }
+    };
+  }
+
+  if (!('map' in Array.prototype)) {
+    Array.prototype.map = function(mapper, that /*opt*/) {
+      var other = new Array(this.length);
+      for (var i = 0, n = this.length; i < n; i++) {
+        if (i in this) {
+          other[i] = mapper.call(that, this[i], i, this);
+        }
+      }
+      return other;
+    };
+  }
+
+  if (!('filter' in Array.prototype)) {
+    Array.prototype.filter = function(filter, that /*opt*/) {
+      var other = [], v;
+      for (var i = 0, n = this.length; i < n; i++) {
+        if (i in this && filter.call(that, v = this[i], i, this)) {
+          other.push(v);
+        }
+      }
+      return other;
+    };
+  }
+
+  if (!('every' in Array.prototype)) {
+    Array.prototype.every = function(tester, that /*opt*/) {
+      for (var i = 0, n = this.length; i < n; i++) {
+        if (i in this && !tester.call(that, this[i], i, this)) {
+          return false;
+        }
+      }
+      return true;
+    };
+  }
+
+  if (!('some' in Array.prototype)) {
+    Array.prototype.some = function(tester, that /*opt*/) {
+      for (var i = 0, n = this.length; i < n; i++) {
+        if (i in this && tester.call(that, this[i], i, this)) {
+          return true;
+        }
+      }
+      return false;
+    };
+  }
+})();
+
+(function() {
+  'use strict';
+
+  if (!Event.prototype.preventDefault) {
+    Event.prototype.preventDefault=function() {
+      this.returnValue=false;
+    };
+  }
+  if (!Event.prototype.stopPropagation) {
+    Event.prototype.stopPropagation=function() {
+      this.cancelBubble=true;
+    };
+  }
+  if (!Element.prototype.addEventListener) {
+    var eventListeners=[];
+
+    var addEventListener=function(type,listener /*, useCapture (will be ignored) */) {
+      var self=this;
+      var wrapper=function(e) {
+        e.target=e.srcElement;
+        e.currentTarget=self;
+        if (listener.handleEvent) {
+          listener.handleEvent(e);
+        } else {
+          listener.call(self,e);
+        }
+      };
+      if (type=="DOMContentLoaded") {
+        var wrapper2=function(e) {
+          if (document.readyState=="complete") {
+            wrapper(e);
+          }
+        };
+        document.attachEvent("onreadystatechange",wrapper2);
+        eventListeners.push({object:this,type:type,listener:listener,wrapper:wrapper2});
+
+        if (document.readyState=="complete") {
+          var e=new Event();
+          e.srcElement=window;
+          wrapper2(e);
+        }
+      } else {
+        this.attachEvent("on"+type,wrapper);
+        eventListeners.push({object:this,type:type,listener:listener,wrapper:wrapper});
+      }
+    };
+    var removeEventListener=function(type,listener /*, useCapture (will be ignored) */) {
+      var counter=0;
+      while (counter<eventListeners.length) {
+        var eventListener=eventListeners[counter];
+        if (eventListener.object==this && eventListener.type==type && eventListener.listener==listener) {
+          if (type=="DOMContentLoaded") {
+            this.detachEvent("onreadystatechange",eventListener.wrapper);
+          } else {
+            this.detachEvent("on"+type,eventListener.wrapper);
+          }
+          eventListeners.splice(counter, 1);
+          break;
+        }
+        ++counter;
+      }
+    };
+    Element.prototype.addEventListener=addEventListener;
+    Element.prototype.removeEventListener=removeEventListener;
+    if (HTMLDocument) {
+      HTMLDocument.prototype.addEventListener=addEventListener;
+      HTMLDocument.prototype.removeEventListener=removeEventListener;
+    }
+    if (Window) {
+      Window.prototype.addEventListener=addEventListener;
+      Window.prototype.removeEventListener=removeEventListener;
+    }
+  }
+})();
+
+(function($) {
+  'use strict';
+
+  // fix for jQuery.ui "TypeError: a.curCSS is not a function"
+  $.curCSS = function(element, attrib, val) {
+    $(element).css(attrib, val);
+  };
+
+  // add body class to use for changing mouse cursor during AJAX requests
+  $(document).ajaxStart(function() {
+    $('body').addClass('ajax-wait');
+  }).ajaxComplete(function () {
+    $('body').removeClass('ajax-wait');
+  });
+
+  // set any element height to the window height
+  $.fn.elementWindowSize = function() {
+    var element = this;
+    var debounceDelay = 300;
+    $(window).resize(_.debounce(function() {
+      element.height($(window).height());
+    }, debounceDelay)).resize();
+    return this;
+  };
+
+  // if this page is inside an iframe, communicate page loads
+  window.parent.postMessage({type: "pageChanged", src: location.href}, "*");
+
+  // Anchor position after the page load
+  $(window).bind('load', function() {
+    var hash = window.location.hash;
+    if (hash.indexOf('show-') < 0 || hash.indexOf('/') == 1) {
+      return;
+    }
+    if (!!hash && $(hash).length) {
+      $('html, body').animate({'scrollTop': $(hash).offset().top}, 1000);
+    }
+  });
+})(jQuery);

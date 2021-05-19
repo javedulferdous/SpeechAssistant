@@ -1,0 +1,13 @@
+_satellite.pushAsyncScript(function(event, target, $variables){
+  //Like A Boss 220122
+
+if(_satellite.getVar('Page Level 2') == 'movie | overview' || _satellite.getVar('Page Level 2') == 'movie times | by movie'){
+if(_satellite.getVar('Movie ID') == '220122'){
+//PXL-291
+  (function(e,t,n){if(e.snaptr)return;var a=e.snaptr=function(){a.handleRequest?a.handleRequest.apply(a,arguments):a.queue.push(arguments)};a.queue=[];var s='script';r=t.createElement(s);r.async=!0;r.src=n;var u=t.getElementsByTagName(s)[0];u.parentNode.insertBefore(r,u);})(window,document,'https://sc-static.net/scevent.min.js');
+
+snaptr('init', '0daec171-8d60-477e-9f96-2f8bad541498', {'user_email': '_INSERT_USER_EMAIL_'});
+snaptr('track', '0daec171-8d60-477e-9f96-2f8bad541498', 'PAGE_VIEW');
+}
+}
+});

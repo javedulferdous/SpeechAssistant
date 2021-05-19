@@ -1,0 +1,459 @@
+/**************************************************************/
+/****************** GLOBAL WRAPPER CLASSES ********************/
+/**************************************************************/
+.prShow{display:block;}
+.prHide{display:none;}
+.prProductReviewsDisplay,#prProductReviewsDisplay{
+padding-top:5px;
+}
+
+/**********************************/
+/******* REVIEW STARS *************/
+/**********************************/
+.rating{}
+
+/*****************************************************/
+/******* ITEM REVIEW/RATING DISPLAY STYLING **********/
+/*****************************************************/
+.prItemRating,#prItemRating{
+	color:#434343; 
+	font-family:arial,verdana,sans-serif; 
+	font-size:12px; 
+	font-weight:500;
+	padding-top:2px;
+	padding-bottom:4px;
+	text-align:left;
+}
+.prItemRating td,#prItemRating td{vertical-align:middle;}
+.prItemRating img{height:15px;vertical-align:middle;}
+
+.prItemReviewLinkNoRating{}
+.prItemReviewLinkNoRating a,
+.prItemReviewLinkNoRating a:link,
+.prItemReviewLinkNoRating a:active,
+.prItemReviewLinkNoRating a:visited{
+	color:#4975a2; 
+	font-family:arial,verdana,sans-serif; 
+	font-size:11px; 
+	font-weight:500; 
+	text-decoration:underline;
+}
+.prItemReviewLinkNoRating a:hover{
+	color:#666666; 
+	text-decoration:underline;
+}
+
+.prItemRatingCat{
+	line-height:15px; 
+	margin-top:4px; 
+	margin-bottom:6px;
+	font-family:arial,verdana,sans-serif; 
+	font-size:10px; 
+	font-weight:500; 
+	color:#666666;
+}
+.prItemRatingCat span{
+	color:#666666;
+	font-family:arial,verdana,sans-serif; 
+	font-size:12px; 
+	font-weight:500; 
+}
+.prItemRatingCat img{vertical-align:middle; height:15px; margin-right:4px;}
+
+.prItemRatingCat a,
+.prItemRatingCat a:link,
+.prItemRatingCat a:active,
+.prItemRatingCat a:visited{
+	color:#666666; 
+	font-family:arial,verdana,sans-serif; 
+	font-size:10px; 
+	font-weight:500; 
+	text-decoration:none;
+}
+.prItemRatingCat a:hover{
+	color:#222222; 
+	text-decoration:underline;
+}
+
+.prItemRatingStars{
+	padding-right:3px;
+}
+
+.prItemRatingLinks{
+	color:#888888;
+	font-size:11px;
+}
+.prItemRatingLinks a,
+.prItemRatingLinks a:link,
+.prItemRatingLinks a:active,
+.prItemRatingLinks a:visited{
+	color:#434343;
+	font-size:11px;
+}
+.prItemRatingLinks a:hover{
+	color:#000000;
+}
+.prItemRatingBar{
+	color:#cccccc;
+	font-size:11px;
+	padding-left:5px;
+	padding-right:6px;
+}
+
+
+
+/*****************************************************/
+/***** ITEM PAGE REVIEWS OVERALL RATING **************/
+/*****************************************************/
+#prOverallRating,.prOverallRating{
+	margin-bottom:18px;
+	padding:0;
+}
+#prOverallRating table,.prOverallRating table{}
+#prOverallRating table td,.prOverallRating table td{
+	color:#000000; 
+	font-family:arial,verdana,sans-serif; 
+	font-size:12px; 
+	font-weight:500;
+	vertical-align:middle;
+}
+#prOverallRating table img {
+	height:15px;
+	width:auto;
+	margin-top:1px;
+}
+#prOverallRatingTitle,.prOverallRatingTitle{
+	padding:6px;
+	border-bottom:none;
+	clear:both;
+}
+#prOverallRatingTitle h5,.prOverallRatingTitle h5{
+	color:#222222; 
+	font-family:arial,verdana,sans-serif; 
+	font-size:18px; 
+	font-weight:500;
+	padding:0;
+	margin:0;
+	padding-bottom:4px;
+font-family: 'Exo 2', sans-serif;
+display: inline-block;
+}
+
+#prOverallRatingTitle h5:after {
+content: '//';
+font-family: 'Exo 2', sans-serif;
+font-size:18px;
+font-weight:500;
+margin:0 1em;
+}
+
+#prOverallRatingTitle h5 + div {
+display:inline-block;
+}
+
+.prOverallRatingItemPrice{
+	color:#222222; 
+	font-family:arial,verdana,sans-serif; 
+	font-size:14px; 
+	font-weight:500;
+    display: inline-block;
+    font-family: 'Exo 2', sans-serif;
+    font-size: 18px;
+    color: #0090d9;
+}
+.prOverallRatingText{
+	padding-left:8px;
+	padding-right:20px;
+	font-size:14px;
+}
+.prButItemReview{
+    float: right;
+    margin-top: -4em;
+}
+.prFirstToReview{
+	color:#000000; 
+	font-family:arial,verdana,sans-serif; 
+	font-size:12px; 
+	font-weight:500;
+}
+.prFirstToReview a:link{color:#4975a2; font-family:arial,verdana,sans-serif; font-size:12px; font-weight:700; text-decoration:none;}
+.prFirstToReview a:active{color:#4975a2; font-family:arial,verdana,sans-serif; font-size:12px; font-weight:700; text-decoration:none;}
+.prFirstToReview a:visited{color:#4975a2; font-family:arial,verdana,sans-serif; font-size:12px; font-weight:700; text-decoration:none;}
+.prFirstToReview a:hover{color:#666666; font-family:arial,verdana,sans-serif; font-size:12px; font-weight:700; text-decoration:none;}
+
+/*****************************************************/
+/***** ITEM PAGE REVIEWS CONTENT STYLING *************/
+/*****************************************************/
+/*** WRAPPERS **/
+.prListWrapper{
+	color: #000000;
+	font-family: arial,verdana,sans-serif;
+	font-size: 12px;
+	font-weight: 500;
+	display: block;
+	text-align: left;
+}
+.prReviewerCell{
+	background-color: #F8F8F8;
+}
+.prReviewerWrapper{
+	color: #666;
+	padding:10px;
+	width: 225px;
+text-align: center;
+font-family: 'Arial';
+}
+.prContentWrapper{
+	padding:10px;
+	padding-left:15px;
+}
+.prReviewerCell{}
+
+.prListBar{
+	height:0;
+	background-color:rgba(255,255,255,0);
+	margin-top:8px;
+	margin-bottom:8px;
+}
+
+/*** REVIEWER INFO **/
+.prReviewerName{
+	color: #000000;
+	font-size: 14px;
+}
+.prReviewerLocation{
+	color: #555555;
+	font-size: 12px;
+	font-weight: 600;
+	padding-bottom:10px;
+    text-transform: uppercase;
+}
+.prReviewerRating{
+    color: #0090d9;
+    font-size: 16px;
+    font-weight: 400;
+    padding-bottom: 4px;
+    font-family: 'Exo 2', sans-serif;
+    font-style: italic;
+}
+.prVerifiedBuyer{
+	padding-bottom:14px;
+}
+.prListRecommend{
+	color: #666666;
+	font-family: arial,verdana,sans-serif;
+	font-size: 10px;
+	font-weight: 500;
+padding: 0 4em;
+}
+.prListRecommend h5 {
+margin: 0;
+font-weight: 400;
+font-style: italic;
+}
+
+
+/*** REVIEW BODY **/
+.prTitle{
+    color: #222222;
+    font-size: 18px;
+    font-weight: 600;
+    font-family: 'Exo 2', sans-serif;
+    display: inline-block;
+}
+.prTitle:after {
+content: '//';
+font-family: 'Exo 2', sans-serif;
+font-size: 18px;
+font-weight: 400;
+margin: 0 .25em 0 .5em;
+
+}
+.prReviewDate{
+	color: #666666;
+	font-family: arial,verdana,sans-serif;
+	font-size: 14px;
+	font-weight: 500;
+	padding-bottom:10px;
+display: inline-block;
+}
+.prListOverallRating{
+	padding-bottom:10px;
+}
+.prListOverallRating img{
+	height:15px;
+}
+.prBody{
+	color: #000000;
+	font-family: arial,verdana,sans-serif;
+	font-size: 12px;
+	font-weight: 500;
+}
+.prListPros{
+	color: #000000;
+	font-family: arial,verdana,sans-serif;
+	font-size: 12px;
+	font-weight: 500;
+	margin-top:8px;
+}
+.prListPros h5{
+	color:#006400; 
+	font-family:arial,verdana,sans-serif; 
+	font-size:12px; 
+	font-weight:700;
+	padding:0; 
+	margin-bottom:4px;
+}
+.prListCons{
+	color: #000000;
+	font-family: arial,verdana,sans-serif;
+	font-size: 12px;
+	font-weight: 500;
+	margin-top:8px;
+}
+.prListCons h5{
+	color:#7d0000; 
+	font-family:arial,verdana,sans-serif; 
+	font-size:12px; 
+	font-weight:700;
+	padding:0; 
+	margin-bottom:4px;
+}
+.prListBestUses{
+	color: #000000;
+	font-family: arial,verdana,sans-serif;
+	font-size: 12px;
+	font-weight: 500;
+	margin-top:8px;
+}
+.prListBestUses h5{
+	color:#333333; 
+	font-family:arial,verdana,sans-serif; 
+	font-size:12px; 
+	font-weight:700;
+	padding:0; 
+	margin-bottom:4px;
+}
+.prReviewPhotos{
+	clear:both; 
+	padding-top:10px;
+	margin-bottom:6px;
+}
+.prReviewPhotos img{margin-right:5px;}
+.prReviewPhotos li{
+	float:left;
+}
+
+.prMerchantResponse{
+	margin-top:10px;
+	padding:8px;
+	background-color:#fffde5;
+}
+.prMerchantResponse h5{
+	color:#333333; 
+	font-family:arial,verdana,sans-serif; 
+	font-size:12px; 
+	font-weight:700;
+	padding:0; 
+	margin:0 0 6px 0;
+	display:block;
+}
+.prViewAll{
+	text-align:right;
+	padding-right:20px;
+	padding-bottom:12px;
+}
+.prViewAll a{
+	color:#000000; 
+	font-family:arial,verdana,sans-serif; 
+	font-size:14px; 
+	font-weight:700;
+	text-decoration:underline;
+}
+
+/*****************************************************/
+/***** FEATURED REVIEWS ADDITIONAL ZONE STYLING ******/
+/*****************************************************/
+.prListFeaturedWrapper{}
+.prListFeaturedTitle{
+	font-family:arial,sans-serif;
+	font-size:12px;
+	font-weight:700;
+	color:#000000;
+	background-color:#ffffff;
+	padding:6px;
+}
+.prListFeaturedWrapper div.read{
+	padding-bottom:10px;
+}
+.prListFeaturedReview{padding:10px;}
+.prListFeaturedReview div.rating{padding-bottom:4px;}
+.prListFeaturedReview div.title{padding-bottom:4px; font-weight:700; font-size:11px; }
+.prListFeaturedReview div.body{}
+.prListFeaturedReview div.name{padding-top:8px; font-weight:700; font-size:11px; font-style:italic;}
+.prListFeaturedReview div.bar{height:6px;}
+
+
+/***********************************/
+/***** REVIEWS PAGING STYLING ******/
+/***********************************/
+.pdReviewsClear{clear:both; overflow:hidden;}
+.pdReviewsPaging table td{
+	padding-left:5px;
+	padding-right:5px;
+	color:#807d7d;
+	font-family:trebuchet ms,arial,verdana,sans-serif;
+	font-size:14px;
+	font-weight:700;
+	vertical-align:middle;
+}
+/**** Reviews RESULTS COUNT / PAGE INFO *****/
+.pdReviewsPaging table td div.pdReviewsPagination{
+	padding-right:40px;
+	font-size:12px;
+	font-weight:500;
+	color:#666666;
+}
+.pdReviewsPaging table td a:hover{color:#807d7d; text-decoration:underline;}
+.pdReviewsPaging div.on{
+	background-image: -ms-linear-gradient(bottom, #DEDEDE 0%, #FFFFFF 100%);
+	background-image: -moz-linear-gradient(bottom, #DEDEDE 0%, #FFFFFF 100%);
+	background-image: -o-linear-gradient(bottom, #DEDEDE 0%, #FFFFFF 100%);
+	background-image: -webkit-gradient(linear, left bottom, left top, color-stop(0, #DEDEDE), color-stop(1, #FFFFFF));
+	background-image: -webkit-linear-gradient(bottom, #DEDEDE 0%, #FFFFFF 100%);
+	background-image: linear-gradient(to top, #DEDEDE 0%, #FFFFFF 100%);
+	background-color:#DEDEDE;
+	border:1px solid #DEDEDE;
+	-webkit-border-radius: 4px;
+	-moz-border-radius: 4px;
+	border-radius: 4px;
+	padding:3px;
+	padding-left:7px;
+	padding-right:7px;
+	text-align:center;
+}
+
+/*****************************************************/
+/***** CATEGORY REVIEW/RATING DISPLAY STYLING ********/
+/*****************************************************/
+
+
+/*****************************************************/
+/***** MEDIA QUERY STYLING ********/
+/*****************************************************/
+
+@media (max-width: 450px) {
+.prReviewerWrapper {
+  width: 100px;
+}
+.prListRecommend {
+padding: 0 0;
+}
+.prButItemReview {
+float: none;
+margin: 10px 0 0 -3px;
+}
+#prOverallRatingTitle, .prOverallRatingTitle {
+padding: 6px 0;
+}
+}

@@ -1,0 +1,29 @@
+
+// Provide a default path to dwr.engine
+if (dwr == null) var dwr = {};
+if (dwr.engine == null) dwr.engine = {};
+if (DWREngine == null) var DWREngine = dwr.engine;
+
+if (MyHRSLogin == null) var MyHRSLogin = {};
+MyHRSLogin._path = '/web3/dwr';
+MyHRSLogin.logout = function(p0, callback) {
+  dwr.engine._execute(MyHRSLogin._path, 'MyHRSLogin', 'logout', p0, false, false, callback);
+}
+MyHRSLogin.loginUser = function(p0, p1, p2, p3, callback) {
+  dwr.engine._execute(MyHRSLogin._path, 'MyHRSLogin', 'loginUser', p0, p1, p2, p3, false, callback);
+}
+MyHRSLogin.loginUserNoTracking = function(p0, p1, p2, p3, callback) {
+  dwr.engine._execute(MyHRSLogin._path, 'MyHRSLogin', 'loginUserNoTracking', p0, p1, p2, p3, false, callback);
+}
+MyHRSLogin.loginUserBase = function(p0, p1, p2, p3, p5, callback) {
+  dwr.engine._execute(MyHRSLogin._path, 'MyHRSLogin', 'loginUserBase', p0, p1, p2, p3, false, p5, callback);
+}
+MyHRSLogin.handleMyHRSTariffSorterReloadingForLoggingIn = function(p2, callback) {
+  dwr.engine._execute(MyHRSLogin._path, 'MyHRSLogin', 'handleMyHRSTariffSorterReloadingForLoggingIn', false, false, p2, callback);
+}
+MyHRSLogin.handleMyHRSTariffSorterReloadingForLoggingOut = function(p2, callback) {
+  dwr.engine._execute(MyHRSLogin._path, 'MyHRSLogin', 'handleMyHRSTariffSorterReloadingForLoggingOut', false, false, p2, callback);
+}
+MyHRSLogin.onlyTrackLogout = function(callback) {
+  dwr.engine._execute(MyHRSLogin._path, 'MyHRSLogin', 'onlyTrackLogout', false, callback);
+}

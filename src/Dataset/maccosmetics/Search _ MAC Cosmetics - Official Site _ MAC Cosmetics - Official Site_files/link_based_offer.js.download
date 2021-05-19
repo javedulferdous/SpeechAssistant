@@ -1,0 +1,75 @@
+(function($, Drupal) {
+  Drupal.behaviors.LBO = {
+    attach: function(context, settings) {
+      //
+      // On cart update, align the banner content while panel reloads
+      //
+      $(window).on("checkout:panel:displayed", function() {
+        decodeHtmlEntities($(".js-lbo-container", context));
+      });
+      //
+      // Format LBO message
+      //
+      var decodeHtmlEntities = function(elem) {
+        if (elem.length) {
+          var formattedMessage = elem.html().replace(/&nbsp;/g, " ");
+          elem.html(formattedMessage);
+        }
+      };
+      //
+      // Insert LBO offer message into promotions page
+      //
+      if ( $.cookie('offer_info') !== '' && $.cookie('offer_info') !== null && $.cookie('offer_info') !== undefined ) {
+        var offer_code = $.cookie('offer_info').split(":")[1];
+        generic.jsonrpc.fetch({
+          method: 'offer.linkedOfferState',
+          params: [offer_code],
+          onSuccess: function(r) {
+            $('.site-banner__non-pro-user').addClass("hidden");
+            var offer = r.getValue();
+            var isActive = (offer.linked_offer !== null && offer.linked_offer.length !== 0),
+                templateResult = null;
+            if (isActive) {
+              var htmlStr = offer.linked_offer.cms_content;
+              $(htmlStr).appendTo('body');
+              var $lboPCHeaderCont = $('.js-lbo-header-container', context),
+                  $confirmMessage = $lboPCHeaderCont.find('.js-lbo-confirm-message'),
+                  $siteHeader = $('.site-header', context),
+                  $siteHeaderFixedWrapper = $('.site-header__fixed-wrapper', context),
+                  $siteHeaderContainer = $('.site-header__container', context);
+              $confirmMessage.html(offer.linked_offer.offer_message);
+              decodeHtmlEntities($confirmMessage);
+              templateResult = $lboPCHeaderCont.html();
+              if (!site.client.isMobile) { // PC
+                var $siteBanner = $('.site-banner.site-banner__enabled', context);
+                if ($siteBanner.length) {
+                  $siteBanner.first().before(templateResult);
+                } else {
+                  $siteHeaderFixedWrapper.prepend(templateResult);
+                }
+              } else { // Mobile
+                $(".site-header__container").before(templateResult);
+              }
+              // remove other offer messages when landing with LBO
+              $siteHeaderFixedWrapper.find('.site-banner.site-banner__enabled').remove();
+              $siteHeaderFixedWrapper.css("height","auto");
+              $siteHeader.css("height",$siteHeaderFixedWrapper.height());
+              $(".js-lbo-banner__close .icon--remove", context).on("click", function(e) {
+                $(".js-lbo-banner", context).slideUp();
+                $siteHeaderFixedWrapper.css("height","auto");
+                $siteHeader.css("height",$siteHeaderContainer.height());
+              });
+              //Set Height of LBO Banner on resize
+              $(window).resize(_.debounce(function() {
+                $siteHeaderFixedWrapper.css("height","auto");
+                $siteHeader.css("height",$siteHeaderFixedWrapper.height());
+              }, 50));
+            }
+          },
+          onFailure: function() {}
+        });
+      }
+    }
+  };
+})(jQuery, Drupal);
+

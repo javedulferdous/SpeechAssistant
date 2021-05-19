@@ -1,0 +1,1507 @@
+(function (global, factory) {
+  // From https://github.com/jquery/jquery/blob/58c6ca9822afa42d3b40cca8edb0abe90a2bcb34/src/wrapper.js
+  if (typeof module === 'object' && typeof module.exports === 'object') {
+    // For CommonJS and CommonJS-like environments where a proper `window`
+    // is present, execute the factory and get jQuery.
+    // For environments that do not have a `window` with a `document`
+    // (such as Node.js), expose a factory as module.exports.
+    module.exports = global.document
+      ? factory(global)
+      : function (w) {
+        if (!w.document) {
+          throw new Error(
+            'TagDeliveryContent requires a window with a document'
+          );
+        }
+        return factory(w);
+      };
+  } else {
+    factory(global);
+  }
+
+  // Pass this if window is not defined yet
+})(typeof window !== 'undefined' ? window : this, function (window) {
+  var _tdc = {};
+
+_tdc.GLOBAL_NAME = 'TagDeliveryContent';
+_tdc.HOST = 'ad.tagdelivery.com';
+_tdc.PROTOCOL = 'https://';
+_tdc.MAP_KEY = '_m';
+_tdc.RETRY = 1250;
+_tdc.TIMEOUT = 7000;
+
+_tdc.LOADED = false;
+
+_tdc.requestCount = 0;
+_tdc.requestMap = {};
+_tdc.callbacks = {};
+
+_tdc.isLoaded = function() {
+  return _tdc.LOADED;
+};
+
+_tdc.onLoadHandler = function(evnt) {
+  _tdc.LOADED = true;
+  _tdc.log('Page Loaded');
+};
+
+if (window.addEventListener) {
+  window.addEventListener('load', _tdc.onLoadHandler);
+} else {
+  window.attachEvent('onload', _tdc.onLoadHandler);
+}
+
+_tdc.log = function() {
+  this.Log.add.apply(this.Log, [].slice.call(arguments));
+};
+
+_tdc.request = function(inputs, callback) {
+  var request = new this.Request(inputs, callback);
+
+  this.requestMap[request.id] = request;
+
+  request.send();
+
+  this.requestCount++;
+
+  return request.id;
+};
+
+
+  _tdc.Util = (function() {
+    var _util = {};
+
+    // DOM reference for HEAD html element
+    _util.head = document.head || document.getElementsByTagName('head')[0];
+
+    // generate a v4 UUID
+    _util.generateUuid = function() {
+        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+            var r = (Math.random() * 16) | 0,
+                v = c == 'x' ? r : (r & 0x3) | 0x8;
+            return v.toString(16);
+        });
+    };
+
+    // add a script tag to the DOM by specifying its URL and an optional error function
+    _util.attachScript = function(url, err) {
+        var script = document.createElement('script');
+        if (typeof err == 'function') {
+            script.onerror = err;
+        }
+
+        script.type = 'text/javascript';
+
+        this.head.appendChild(script);
+
+        script.src = url;
+        return script;
+    };
+
+    // get object type
+    _util.getType = function(value) {
+        var type = typeof value;
+        if (
+            type == 'object' &&
+            Object.prototype.toString.call(value) === '[object Array]'
+        ) {
+            type = 'array';
+        }
+        return type;
+    };
+
+    _util.isArray = function(obj) {
+        return Object.prototype.toString.call(obj) == '[object Array]';
+    };
+
+    _util.isObject = function(obj) {
+        return Object.prototype.toString.call(obj) == '[object Object]';
+    };
+
+    _util.isEmptyObject = function(obj) {
+        for (var key in obj) {
+            if (obj.hasOwnProperty(key)) {
+                return false;
+            }
+        }
+        return true;
+    };
+
+    _util.arrayToQueryString = function(items) {
+        var out = [];
+        for (var i = 0, l = items.length; i < l; i++) {
+            var val = items[i]
+            if (typeof val === 'string') {
+                out.push(items[i].replace(/,/g, '%2C'));
+            } else if (typeof val === 'number') {
+                out.push(items[i])
+            }
+        }
+        return out.join(',');
+    };
+
+    _util.objectToQueryString = function(obj) {
+        var out = [];
+        for (var k in obj) {
+            if (obj[k] !== null) {
+                var t = this.getType(obj[k]);
+                var v = null;
+                if (t == 'array' && obj[k].length > 0) {
+                    v = this.arrayToQueryString(obj[k]);
+                } else if (t == 'object') {
+                    v = encodeURIComponent(this.objectToQueryString(obj[k]));
+                } else {
+                    v = encodeURIComponent(obj[k]);
+                }
+                out.push(k + '=' + v);
+            }
+        }
+        return out.join('&');
+    };
+
+    _util.inArray = function(haystack, needle) {
+        for (var i = 0, l = haystack.length; i < l; i++) {
+            if (haystack[i] === needle) {
+                return true;
+            }
+        }
+        return false;
+    };
+
+    _util.getStyle = function(className) {
+        var classes =
+            document.styleSheets[0].rules || document.styleSheets[0].cssRules;
+        for (var x = 0; x < classes.length; x++) {
+            if (classes[x].selectorText == className) {
+                classes[x].cssText ?
+                    alert(classes[x].cssText) :
+                    alert(classes[x].style.cssText);
+            }
+        }
+    };
+
+    _util.formatPrice = function(price, currency, language) {
+        if (typeof currency !== 'string') currency = 'USD';
+        return Number(price).toLocaleString(language, {
+            style: 'currency',
+            currency: currency
+        });
+    }
+
+    _util.shouldRender = function(response) {
+        var shouldRender = false;
+
+        for (var i = 0; i < response.length; i++) {
+            var r = response[i];
+
+            if (r.sponsored) {
+                shouldRender = true;
+                break;
+            }
+        }
+
+        return shouldRender;
+    }
+
+    _util.validateSponsoredCount = function(response) {
+        var sponsoredCount = 0
+        if (_tdc.Util.isArray(response)) {
+            for (var i = 0, l = response.length; i < l; i++) {
+                if (response[i].sponsored) {
+                    sponsoredCount++;
+                }
+            }
+        } else {
+            sponsoredCount += (response.sponsored ? 1 : 0);
+        }
+
+        return sponsoredCount
+    }
+
+    _util.decodeHtml = function(html) {
+        var txt = document.createElement("textarea");
+        txt.innerHTML = html;
+        return txt.value;
+    }
+
+    _util.convertToTitleCase = function(str) {
+        return str.toLowerCase().replace(/^(.)|\s(.)/g, function($1) {
+            return $1.toUpperCase();
+        })
+    }
+
+    _util.mergeObjects = function() {
+        var resObj = {};
+        for(var i=0; i < arguments.length; i += 1) {
+             var obj = arguments[i],
+                 keys = Object.keys(obj);
+             for(var j=0; j < keys.length; j += 1) {
+                 resObj[keys[j]] = obj[keys[j]];
+             }
+        }
+        return resObj;
+    }
+
+    _util.containsAny = function(source, target) {
+        var result = source.filter(function(item){ return target.indexOf(item) > -1});
+        return (result);
+    };
+
+    _util.filterTargets = function(source, toBeFiltered) {
+        return source.filter(function (x) {
+            return toBeFiltered.indexOf(x) < 0;
+        });
+    };
+
+    // targets each target in array to each other target
+    _util.crossTargetEach = function(crossTargets, targetsCategory) {
+        var contains = _util.containsAny(crossTargets, targetsCategory);
+        if (contains.length > 0) {
+            var filtered = _util.filterTargets(crossTargets, contains);
+
+            for (var j = 0; j < filtered.length; j++) {
+                targetsCategory.push(filtered[j])
+            }
+        }
+        return targetsCategory
+    };
+
+    _util.deduplicateArray = function(array) {
+        var set = new Set(array);
+        var arr = [];
+        set.forEach(function(x) {arr.push(x)});
+        return arr
+    };
+
+
+    return _util;
+})();
+
+  _tdc.Log = (function() {
+  var _log = {};
+
+  _log.entries = [];
+  _log.toConsole = false;
+
+  _log.add = function() {
+    var entry = [].slice.call(arguments);
+    entry.unshift(new Date());
+    this.entries.push(entry);
+    if (this.toConsole) {
+      this.print(entry);
+    }
+  };
+
+  _log.print = function(entry) {
+    var o = entry.slice(0);
+    o[0] =
+      o[0].toTimeString().substr(0, 8) +
+      '.' +
+      ('000' + o[0].getMilliseconds()).substr(-3);
+    o.unshift(_tdc.GLOBAL_NAME);
+    try {
+      console.log.apply(console, o);
+    } catch (e) {}
+  };
+
+  return _log;
+})();
+
+
+  _tdc.Template = (function() {
+  var _template = {
+    templates: {}
+  };
+
+  // add a link tag to the DOM by specifying its URL
+  _template.attachStylesheet = function(url) {
+    var el = document.createElement('link');
+    el.rel = 'stylesheet';
+    el.href = url;
+    _tdc.Util.head.appendChild(el);
+  };
+
+  _template.attachCss = function(css) {
+    var style = document.createElement('style');
+    style.type = 'text/css';
+    style.innerHTML = css;
+    _tdc.Util.head.appendChild(style);
+  };
+
+  _template.apply = function(template, context) {
+    if (_template.templates.hasOwnProperty(template)) {
+      return _template.templates[template](context);
+    }
+    return '';
+  };
+
+  return _template;
+})();
+_tdc.Template.templates.css = function anonymous(it
+/**/) {
+var out='.promote-iq { color: #000; font-family: Helvetica, Arial, sans-serif; font-weight: normal; font-style: normal; margin: 0;}.promote-iq .collection { float: left; position: relative; border: 1px solid #eee;}.promote-iq a:link { color: black; text-decoration: none;}.promote-iq .prod-tile { float: left;}.promote-iq .prod-img-block { float: left;}.promote-iq .prod-img-block img { max-width: 100%; max-height: 100%;}.promote-iq .prod-tile a { display: block; color: black;}.promote-iq .prod-description { float: left;}.promote-iq .prod-price-original { font-family: \'Gotham 5r\', Helvetica, Arial; font-size: 9px;}.promote-iq .prod-price-amount { font-size: 15px; font-family: \'Gotham 7r\', Helvetica, Arial; line-height: 15px;}.promote-iq .prod-name-block { font-family: "Gotham 4r", Helvetica, Arial, sans-serif; line-height: 18px; height: 36px; overflow: hidden; text-align: center;}.promote-iq .prod-name-block:hover { text-decoration: underline;}.promote-iq .prod-cta-button { color: black; background-color: transparent; font-size: 13px; margin-top: 10px; text-align: center; text-decoration: underline; font-weight: 600;}.promote-iq .promote-iq-featured-products-label { clear: both; color: black; background-color: transparent; font-size: 10px; height: 15px; line-height: 16px; position: absolute; left: 0px; right: 0px; bottom: 0px;}.promote-iq .promote-iq-featured-products-label > div { display: inline-block; padding: 0px 10px; text-align: center; background-color: #eee;}.promote-iq .prod-sale-color { color: red;}.promote-iq .prod-price-block { margin-bottom: 5px}.promote-rating { font-family: \'Gotham 5r\', Helvetica, sans-serif; font-size: 11px; display: flex; align-items: center; justify-content: center}.promote-prices { height: 40px;}.promote-price { font-family: "Gotham 5r", Helvetica, Arial, sans-serif;}.promote-iq.promote-iq-160x600 .collection .prod-tile { padding: 9px 9px 7px 6px; width: 140px;}.promote-iq.promote-iq-160x600 .collection .prod-tile a { display: flex; align-items: center; justify-content: center; flex-direction: column;}.promote-iq.promote-iq-160x600 .promote-iq-featured-products-label > div { display: block; text-align: center;}.promote-iq.promote-iq-160x600 .prod-description .prod-name-block { line-height: 18px; height: 38px; font-size: 13px;}.promote-iq.promote-iq-728x90 .prod-description .prod-name-block { line-height: 18px; height: 20px; font-size: 13px; text-align: left;}.promote-iq.promote-iq-728x90 .prod-description { padding-top: 2%; margin-left: auto;}.promote-iq.promote-iq-728x90 .prod-cta-button { font-size: 12px; text-align: left;}.promote-iq.promote-iq-728x90 .collection .prod-tile { padding: 0px 9px 0px 9px;}.promote-iq.promote-iq-728x90 .promote-iq-featured-products-label { left: auto;}.promote-iq.promote-iq-728x90 .prod-img-block { padding: 0px 10px 0px 0px;}.promote-iq.promote-iq-300x250 .prod-tile { width: 280px;}.promote-iq.promote-iq-300x250 .prod-description .prod-name-block { font-size: 13px;}.promote-iq.promote-iq-300x250 .collection .prod-tile { padding: 9px 9px 6px 9px;}.promote-iq.promote-iq-320x50 .promote-iq-featured-products-label { width: 50px; font-size: 8px; bottom: auto; left: auto; padding-top: 0px; line-height: 10px;}.promote-iq .promote-iq-featured-products-label > div { padding: 0px;}.promote-iq.promote-iq-320x50 .prod-name-block { font-size: 13px; line-height: 18px; font-family: Helvetica, Arial, sans-serif; height: 20px;}.promote-iq.promote-iq-320x50 .collection { width: 318px; height: 48px;}.promote-iq.promote-iq-320x50 .prod-tile { height: 48px;}.promote-iq.promote-iq-320x50 .prod-img-block { height: 46px; padding: 1px 10px 1px 5px;}.promote-iq.promote-iq-320x50 .prod-tile a { display: inline-flex;}.promote-iq.promote-iq-320x50 .prod-price-block { text-align: center; margin-bottom: auto; font-family: Gotham, Arial,Helvetica,sans-serif}.promote-iq.promote-iq-850x200 { font-family: \'Gotham 4r\', Helvetica, Arial;}.promote-iq.promote-iq-850x200 .prod-tile { margin-top: 10px;}.promote-iq.promote-iq-850x200 .promote-iq-featured-products-label { font-family: "Gotham 5r", Helvetica, Arial, sans-serif; font-size: 20px; height: 15px; line-height: 15px; right: auto; bottom: 95%; width: 100%; text-align: center;}.promote-iq.promote-iq-850x200 .promote-iq-featured-products-label>div { padding: 10px; background-color: white;}.promote-iq.promote-iq-850x200 .prod-name-block { font-family: "Gotham 5r", Helvetica, Arial, sans-serif; font-size: 12px; height: 39px;}.promote-iq.promote-iq-850x200 .collection { border: 1px solid #fff; padding-top: 20px;}.promote-iq.promote-iq-850x200 .collection .prod-tile a { display: flex; align-items: center; justify-content: center; flex-direction: column;}.promote-iq.promote-iq-850x200 .prod-description .prod-sale-price { text-align: center; color: #e01b22; font-family: "Gotham 5r", Helvetica, Arial, sans-serif;}.promote-iq.promote-iq-850x200 .prod-description .prod-sale-price span { color: #e01b22;}.promote-iq.promote-iq-850x200 .prod-description .prod-original-price { text-align: center; font-family: "Gotham 5r", Helvetica, Arial, sans-serif; color: rgb(70, 70, 70)}';return out;
+};
+_tdc.Template.templates.header = function anonymous(it
+/**/) {
+var out='<div class="header"> <span class="label">Featured Items</span> <span class="ctl down">&#9660;</span> <span class="ctl up inactive">&#9650;</span></div>';return out;
+};
+_tdc.Template.templates.matrix_tile = function anonymous(it
+/**/) {
+var out='<div class="prod-tile"> <a href="'+(it.click_tracker)+(it.product.landingPageUrl)+'" target="_top"> <div class="prod-img-block"> <img src="'+(it.product.imageLarge)+'" alt="'+(it.product.name)+'" /> </div> <div class="prod-description"> ';if(it.product.onSale){out+=' <div class=\'promote-prices\'> <div class="prod-sale-price" style="display: inline-block;"> <span class="sale-title" style=\'color: #e01b22;font-family: "Gotham 5r", Helvetica, Arial, sans-serif;text-transform: uppercase; font-weight: bold; font-size:10px\'>Sale </span> <span style=\'color: #e01b22;font-size: 14px;font-family: "Gotham 5r", Helvetica, Arial, sans-serif;\'>'+(it.product.priceCurrentFormatted)+'</span> </div> <div class="prod-original-price" style="display: inline-block;"> <span class="original-price-title" style=\'font-size: 10px;font-family: "Gotham 5r", Helvetica, Arial, sans-serif;\'>Original </span> <span style=\'font-size: 10px; font-family: "Gotham 5r", Helvetica, Arial, sans-serif;\'>'+(it.product.priceListFormatted)+'</span> </div> </div> ';}else{out+=' <div class=\'promote-prices\'> <div class="prod-original-price"> <span class="original-price-title" style=\'font-size: 10px;font-family: "Gotham 5r", Helvetica, Arial, sans-serif;\'>Original </span> <span style=\'font-size: 14px; font-family: "Gotham 5r", Helvetica, Arial, sans-serif;\'>'+(it.product.priceListFormatted)+'</span> </div> </div> ';}out+=' <div class="prod-name-block" title="'+(it.product.name)+'"> '+(it.product.name)+' </div> <div class="prod-cta-button"> SHOP NOW </div> </div> </a> <img style="display:none;" src="'+(it.impression_tracker)+'" alt="" /></div>';return out;
+};
+_tdc.Template.templates.mobile_tile = function anonymous(it
+/**/) {
+var out='<div class="prod-tile"> <a href="'+(it.click_tracker)+(it.product.landingPageUrl)+'" target="_top"> <div class="prod-img-block"> <img src="'+(it.product.imageLarge)+'" alt="'+(it.product.name)+'" /> </div> <div class="prod-description" style=\'width: 220px; margin-left: -20px\'> <div class="prod-price-block"> ';if(it.product.onSale){out+=' <span style="font-size: 12px; font-weight: bold;  color: #e01b22;">Sale </span> <span style="font-size: 16px; font-weight: bold; color: #e01b22;">'+(it.product.priceCurrentFormatted)+'</span> <span style="font-size: 11px; font-weight: bold; color: black;">Original </span> <span style="font-size:11px; font-weight: bold; color: black;">'+(it.product.priceListFormatted)+'</span> ';}else{out+=' <span style="font-size: 12px; font-weight: bold; color: black;">Original </span> <span style="font-size: 16px; font-weight: bold; color: black;">'+(it.product.priceListFormatted)+'</span> ';}out+=' </div> <div class="prod-name-block" title="'+(it.product.name)+'"> '+(it.product.name)+' </div> </div> </a> <img style="display:none;" src="'+(it.impression_tracker)+'" alt="" /></div>';return out;
+};
+_tdc.Template.templates.shelf = function anonymous(it
+/**/) {
+var out='<div class="prod-tile"> <a href="'+(it.click_tracker)+(it.product.landingPageUrl)+'" target="_top"> <div class="prod-img-block"> <img src="'+(it.product.imageLarge)+'" alt="'+(it.product.name)+'" /> </div> <div class="prod-description"> ';if(it.product.onSale){out+=' <div class=\'promote-prices\'> ';if(it.product.type === "PMP"){out+=' <div class="prod-sale-price pmp" style=\'display: inline-grid; padding-right: 90px; text-align:left;\'> <span class="sale-title" style=\'font-family: "Gotham 5r", Helvetica, Arial, sans-serif;text-transform: uppercase; font-weight: bold; font-size:11px\'>Sale </span> <span style=\'font-size: 16px;font-family: "Gotham 5r", Helvetica, Arial, sans-serif;\'>'+(it.product.priceCurrentFormatted)+'</span> </div> <div class="prod-original-price pmp" style"text-align:left;"> <span class="original-price-title" style=\'font-size: 11px;font-family: "Gotham 5r", Helvetica, Arial, sans-serif;\'>Original </span> <span style=\'font-size: 11px; font-family: "Gotham 5r", Helvetica, Arial, sans-serif;\'>'+(it.product.priceListFormatted)+'</span> </div> ';}else{out+=' <div class="prod-sale-price"> <span class="sale-title" style=\'font-size: 12px; font-family: "Gotham 5r", Helvetica, Arial, sans-serif;\'>Sale </span> <span style=\'font-size: 16px;font-family: "Gotham 5r", Helvetica, Arial, sans-serif;\'>'+(it.product.priceCurrentFormatted)+'</span> </div> <div class="prod-original-price"> <span class="original-price-title" style=\'font-size: 11px;font-family: "Gotham 5r", Helvetica, Arial, sans-serif;\'>Original </span> <span style=\'font-size: 11px; font-family: "Gotham 5r", Helvetica, Arial, sans-serif;\'>'+(it.product.priceListFormatted)+'</span> </div> ';}out+=' </div> ';}else{out+=' <div class=\'promote-prices\'> ';if(it.product.type === "PMP"){out+=' <div class="prod-original-price" style=\'display: inline-grid; padding-right: 90px;\'> <span class="original-price-title" style=\'font-family: "Gotham 5r", Helvetica, Arial, sans-serif; text-transform: uppercase; font-weight: bold; font-size:11px\'>Original </span><span style=\'font-size: 16px;font-family: "Gotham 5r", Helvetica, Arial, sans-serif;\'>'+(it.product.priceListFormatted)+'</span> </div> ';}else{out+=' <div class="prod-original-price"> <span class="original-price-title" style=\'font-size: 12px;font-family: "Gotham 5r", Helvetica, Arial, sans-serif;\'> Original </span> <span style=\'font-size: 16px;font-family: "Gotham 5r", Helvetica, Arial, sans-serif;\'> '+(it.product.priceListFormatted)+' </span> </div> ';}out+=' </div> ';}out+=' <div class="prod-name-block" title="'+(it.product.name)+'"> '+(it.product.name)+' </div> <div class=\'promote-rating\' style="height: 12.09px;"> ';if(it.product.rating){out+=' <div class="bd-carousel-review-count-container" style="margin-top: 20px; display: flex;"> <div class="bd-template-common-product-ratings star-small"> <div class="bd-template-common-product-rating rating-'+(it.product.ratingPart1[0])+'-'+(it.product.ratingPart2[0])+'"> </div> <div class="bd-template-common-product-rating rating-'+(it.product.ratingPart1[1])+'-'+(it.product.ratingPart2[1])+'"> </div> <div class="bd-template-common-product-rating rating-'+(it.product.ratingPart1[2])+'-'+(it.product.ratingPart2[2])+'"> </div> <div class="bd-template-common-product-rating rating-'+(it.product.ratingPart1[3])+'-'+(it.product.ratingPart2[3])+'"> </div> <div class="bd-template-common-product-rating rating-'+(it.product.ratingPart1[4])+'-'+(it.product.ratingPart2[4])+'"> </div> </div> <span class="bd-carousel-review-count" style="padding-left: 3px;" aria-label="Star rating '+(it.product.rating)+' out of 5."> ('+(it.product.reviews)+')</span> </div> ';}else{out+=' <div></div> ';}out+=' </div> </a> <img style="display:none;" src="'+(it.impression_tracker)+'" alt="" /></div>';return out;
+};
+_tdc.Template.templates.tile = function anonymous(it
+/**/) {
+var out='<div class="prod-tile"> <a href="'+(it.click_tracker)+(it.product.landingPageUrl)+'" target="_top"> <div class="prod-img-block"> <img src="'+(it.product.imageLarge)+'" alt="'+(it.product.name)+'" /> </div> <div class="prod-description"> ';if(it.width === 728){out+=' <div class="prod-price-block"> ';if(it.product.onSale){out+=' <span style="font-size: 12px; font-weight: bold;  color: red;">Sale </span><span style="font-size: 16px; font-weight: bold; color: red;">'+(it.product.priceCurrentFormatted)+'</span> <span style="font-size: 11px; font-weight: bold; color: black;">Original </span><span style="font-size: 11px; font-weight: bold; color: black;">'+(it.product.priceListFormatted)+'</span> ';}else{out+=' <span style="font-size: 12px; font-weight: bold; color: black;">Original </span><span style="font-size: 16px; font-weight: bold; color: black;">'+(it.product.priceListFormatted)+'</span> ';}out+=' </div> ';}else{out+=' <div class="prod-price-block" style="text-align: center;"> ';if(it.product.onSale){out+=' <div><span style="font-size: 12px; font-weight: bold;  color: red;">Sale </span><span style="font-size: 16px; font-weight: bold; color: red;">'+(it.product.priceCurrentFormatted)+'</span></div> <div><span style="font-size: 11px; font-weight: bold; color: black;">Original </span><span style="font-size: 11px; font-weight: bold; color: black;">'+(it.product.priceListFormatted)+'</span></div> ';}else{out+=' <div><span style="font-size: 12px; font-weight: bold; color: black;">Original </span><span style="font-size: 16px; font-weight: bold; color: black;">'+(it.product.priceListFormatted)+'</span></div> ';}out+=' </div> ';}out+=' <div class="prod-name-block" title="'+(it.product.name)+'"> '+(it.product.name)+' </div> <div class="prod-cta-button"> SHOP NOW </div> </div> </a> <img style="display:none;" src="'+(it.impression_tracker)+'" alt="" /></div>';return out;
+};
+
+  _tdc.Pub = (function () {
+    window.sfIp = null;
+    var _pub = {}
+    _pub.rendered = {}
+
+    // optional method
+    // _pub.modifyRequest = function(request){};
+
+    // required method
+    _pub.prepareDefaultResponse = function (request) {
+        return {
+            product_id: null,
+            request_id: request.id,
+            sponsored: false,
+            impression_tracker: null,
+            click_tracker: null,
+            product: null
+        }
+    };
+
+    get_gender = function (genderInputs) {
+        var new_targets = []
+        if (_tdc.Util.isArray(genderInputs) && genderInputs.length > 0 && genderInputs[0].includes(',')) {
+            new_targets = genderInputs[0].split(',').map(function (item) {
+                return item.trim().toLowerCase();
+            });
+        } else if (_tdc.Util.isArray(genderInputs) && genderInputs.length > 0) {
+            for (var i = 0, j = genderInputs; i < j.length; i++) {
+                new_targets.push(j[i].trim().toLowerCase())
+            }
+        } else if (_tdc.Util.isArray(genderInputs) && genderInputs.length === 1) {
+            new_targets = [genderInputs[0].toLowerCase()]
+        } else if (typeof genderInputs === 'string') {
+            new_targets = [genderInputs.trim().toLowerCase()]
+        }
+
+        return new_targets
+    };
+
+    _pub.evaluateTargeting = function (inputs, pageType = null) {
+        var targets = {
+            category: []
+        }
+        var path = window.location.pathname
+
+        if (path === '/' || (inputs.hasOwnProperty('unit') && inputs.unit.includes('/homepage'))) {
+            targets.category.push('/home')
+            return targets
+        }
+
+        var targetMap = [
+            ['age', 'age'],
+            ['gender', 'gen'],
+            ['brand', 'brd']
+        ]
+
+        // if inputs has 'targeting' key, map over targetMap array and translate
+        // Kohls targeting to our targeting (gen => gender) and associate that targeting
+        // with the approproate inputs value.
+        if (inputs.hasOwnProperty('targeting') && _tdc.Util.isObject(inputs.targeting)) {
+            for (var i = 0, l = targetMap.length; i < l; i++) {
+                targets[targetMap[i][0]] = null
+                if (inputs.targeting.hasOwnProperty(targetMap[i][1])) {
+                    targets[targetMap[i][0]] = inputs.targeting[targetMap[i][1]]
+                }
+            }
+        }
+
+        targets.gender = get_gender(targets.gender)
+
+        if (inputs.hasOwnProperty('unit')) {
+            var unitStr = inputs.unit
+                .toLowerCase()
+                .replace(/^\/\d+\/?(header\/)?/, '')
+
+            if (unitStr.includes('beauty')) {
+                unitStr = unitStr.replace('beauty', 'health_and_beauty', 1)
+            } else if (unitStr.includes('health_and_personal_care')) {
+                unitStr = unitStr.replace('health_and_personal_care', 'health_and_beauty', 1)
+            }
+
+            var unitParts = []
+            if (unitStr.length > 0) {
+                unitParts = unitStr.split('/')
+                if (unitParts[0] === '') {
+                    unitParts = unitParts.slice(1)
+                }
+
+                if (unitParts[0] === 'clothing') {
+                    if (targets.gender === undefined || targets.gender === null || targets.gender.length === 0) {
+                        if (targets.age === null || (targets.hasOwnProperty('age') && (targets.age.length === 0 || targets.age.toString().toLowerCase() === 'kids'))) {
+                            targets.category.push('/girls/clothing', '/boys/clothing')
+                        }
+                    } else {
+                        var gender;
+                        if (targets.gender.length > 1) {
+                            if (targets.gender.includes('womens') || targets.gender.includes('juniors')) {
+                                gender = 'womens'
+                            } else if (targets.gender.includes('mens') || targets.gender.includes('teen guys')) {
+                                gender = 'mens'
+                            }
+                        } else {
+                            gender = targets.gender.toString()
+                        }
+
+                        if (gender === 'womens' || gender === 'juniors') {
+                            unitParts.unshift('womens')
+                        } else if (gender === 'mens' || gender === 'teen guys') {
+                            unitParts.unshift('mens')
+                        } else if (gender === 'boys' || gender === 'girls') {
+                            if (targets.age.toString() === 'baby') {
+                                newGender = 'baby_' + gender
+                                unitParts.unshift(newGender)
+                            } else {
+                                unitParts.unshift(gender)
+                            }
+                        }
+                    }
+                } else if (unitParts[0] === 'shoes') {
+                    if (targets.gender.length >= 1) {
+                        unitParts.splice(1, 0, targets.gender[0])
+                    } else if (targets.age.toString() === 'Kids' && targets.gender.length === 0) {
+                        targets.category.push('/shoes/boys', '/shoes/girls')
+                    }
+
+                } else if (unitParts[0] === 'ros' && targets.hasOwnProperty('age') && targets.age !== null && targets.age.toString() === 'kids') {
+                    if (gender === 'girls') {
+                        targets.category.push('/girls/clothing')
+                    } else if (gender === 'boys') {
+                        targets.category.push('/boys/clothing')
+                    }
+                }
+
+                if (unitParts.length > 0) {
+                    var category = ''
+                    for (var x = 0, y = unitParts.length; x < y; x++) {
+                        category += '/' + unitParts[x]
+                        if (inputs.height === 52) {
+                            if (x === (y - 2)) {
+                                targets.category.push(category)
+                            }
+                        } else {
+                            targets.category.push(category)
+                        }
+                    }
+                }
+            }
+        }
+
+        if (targets.category.includes('/gift_cards')) {
+            targets.category.push('/home')
+        }
+
+        return targets
+    };
+
+    _pub.validateRequestUniqueness = function (slot) {
+        for (var requestId in _tdc.requestMap) {
+            if (_tdc.requestMap[requestId].parameters.slot == slot) {
+                return false;
+            }
+        }
+        return true;
+    };
+
+    _pub.apiRequest = function (inputs, targets, type, attachTo, label = null) {
+        var size = inputs.width + 'x' + inputs.height
+        var path = window.location.pathname
+        var slot;
+
+        if (type === 'dfp' && inputs.unit.includes('/homepage')) {
+            // home iab slot
+            slot = 1340
+        } else if (type === 'ctr' && path.includes('/product/')) {
+            slot = shelfUrlToTargets['PDP']['slot']
+        } else if (type === 'ctr' && attachTo === '#rr_result_list_page_pdp_ad_container') {
+            slot = shelfUrlToTargets['PMP']['slot']
+        } else {
+            slot = _pub.sizeMap[size].slot
+        }
+
+        if (slot !== 1450 && !_pub.validateRequestUniqueness(slot)) {
+            return;
+        }
+
+        return _tdc.request({
+                slot: slot,
+                targets: targets,
+                count: _pub.sizeMap[size].count,
+                count_fill: _pub.sizeMap[size].hasOwnProperty('count_fill') ? _pub.sizeMap[size].count_fill : null,
+                url: inputs.hasOwnProperty('url') ? inputs.url : ''
+            },
+            function (response) {
+                var sponsoredCount = _tdc.Util.validateSponsoredCount(response)
+                if (sponsoredCount >= _pub.sizeMap[size].count || sponsoredCount >= _pub.sizeMap[size].count_fill) {
+                    if (_pub.sizeMap[size].hasOwnProperty('count_fill')) {
+                        _pub._render(response.slice(0, _pub.sizeMap[size].count_fill), inputs.width, inputs.height, type, attachTo, label)
+                    } else {
+                        _pub._render(response.slice(0, _pub.sizeMap[size].count), inputs.width, inputs.height, type, attachTo, label)
+                    }
+                }
+            })
+    };
+
+    _pub._render = function (response, width, height, type, attachTo, label = null) {
+        if (!_tdc.Util.isArray(response)) response = [response]
+
+        _tdc.Template.attachCss(_tdc.Template.apply('css'))
+
+        // calculates template dimensions
+        var count;
+        if (_pub.sizeMap[width + 'x' + height].hasOwnProperty('count_fill')) {
+            var count = _pub.sizeMap[width + 'x' + height].count_fill
+        } else {
+            var count = _pub.sizeMap[width + 'x' + height].count
+        }
+        var templateInfo = _pub.calculateTemplateDimensions(width, height, count)
+
+        _pub.appendTemplateToClient(type, width, height, templateInfo.padding, response, attachTo, label)
+        _pub.applyCSS(templateInfo, type)
+    };
+
+    _pub.calculateTemplateDimensions = function (width, height, count) {
+        var imgWidth = width
+        var tileLength = height
+        var padding = 9
+        var tileDimension = descriptionCalcDimension = 'height'
+
+        if (width + 'x' + height === '160x600') {
+            imgWidth = 95
+        } else if (width + 'x' + height === '728x90') {
+            imgWidth = 80
+            tileLength = width - 2
+            tileDimension = descriptionCalcDimension = 'width'
+        } else if (width + 'x' + height === '300x250') {
+            imgWidth = 95
+            tileLength = height
+            descriptionCalcDimension = 'width'
+        } else if (width + 'x' + height === '320x50') {
+            imgWidth = 55
+            tileLength = width
+            tileDimension = descriptionCalcDimension = 'width'
+        } else if (width + 'x' + height === '850x200') {
+            imgWidth = 140
+            tileLength = width - 2
+            tileDimension = descriptionCalcDimension = 'width'
+        } else if (width + 'x' + height === '800x52') {
+            imgWidth = 41
+            tileLength = width - 2
+            tileDimension = descriptionCalcDimension = 'width'
+        }
+
+        // Adjust the tile's length (whether width or height) depending on the direction
+        // to account for the dimension size change from the added padding
+        if (width + 'x' + height === '320x50' || width + 'x' + height === '800x52') {
+            padding = 0
+        }
+        var adjustedTileLength = (tileLength / count) - padding * 2
+        var complementaryDescriptionCalcLength = imgWidth
+
+        return {
+            width: width,
+            height: height,
+            tileDimension: tileDimension,
+            padding: padding,
+            imgWidth: imgWidth,
+            descriptionCalcDimension: descriptionCalcDimension,
+            complementaryDescriptionCalcLength: complementaryDescriptionCalcLength,
+            adjustedTileLength: adjustedTileLength
+        }
+    };
+
+    _pub.applyCSS = function (templateInfo, type) {
+        var path = window.location.pathname
+        // Add additional space between image and description for wider ad units
+        if (templateInfo.width > templateInfo.height) {
+            var marginLeftOnDescription = 10
+
+            _tdc.Template.attachCss(
+                '.promote-iq .prod-description{margin-left:' + marginLeftOnDescription + 'px;}'
+            )
+
+            templateInfo.complementaryDescriptionCalcLength += marginLeftOnDescription
+        }
+
+        var sizingCss = '.promote-iq.promote-iq-' + templateInfo.width.toString() + 'x' + templateInfo.height
+        _tdc.Template.attachCss(
+            sizingCss + ' .prod-tile{' + templateInfo.tileDimension + ':' + templateInfo.adjustedTileLength + 'px;padding:' + templateInfo.padding + 'px;}' +
+            sizingCss + ' .prod-img-block{width:' + templateInfo.imgWidth + 'px;}' +
+            sizingCss + ' .collection {width:' + (templateInfo.width - 2) + 'px;height:' + (templateInfo.height - 2) + 'px;}'
+        )
+
+        if (templateInfo.width + 'x' + templateInfo.height === '850x200') {
+            _tdc.Template.attachCss(
+                '.promote-iq .prod-description {' + templateInfo.descriptionCalcDimension + ':100%;}' +
+                '.promote-iq.promote-iq-850x200 .collection{ margin-bottom: 30px; width: 850px; height: auto}'
+            )
+
+            if (path.includes('/catalog')) {
+                _tdc.Template.attachCss(
+                    ".promote-iq.promote-iq-850x200 .promote-iq-featured-products-label{" +
+                    "letter-spacing: .1em; text-transform: uppercase; font-size: 27px}" +
+                    ".promote-iq.promote-iq-850x200 .prod-tile{width:143px;}"
+                )
+            } else if (path.includes('/product/')) {
+                _tdc.Template.attachCss(
+                    '.promote-iq.promote-iq-850x200 .prod-tile {width:142px}' +
+                    '.promote-iq.promote-iq-850x200 .collection {padding-top:40px; width: 800px}' +
+                    ".promote-iq.promote-iq-850x200 .promote-iq-featured-products-label{ font-family: 'Gotham 4r', Helvetica, sans-serif; font-size: 26px; letter-spacing: 2px;}"
+                )
+
+            } else if (type === 'PMP') {
+                _tdc.Template.attachCss(
+                    sizingCss + ' .promote-iq-featured-products-label.pmp {text-align:left;}' +
+                    sizingCss + ' .promote-iq-featured-products-label.pmp div {text-align:left;font-weight: 700; font-family: "Gotham 5r",Helvetica,Arial; font-size: 13px;}' +
+                    sizingCss + ' .promote-prices {display:inline; height:60px}' +
+                    sizingCss + ' .promote-prices .prod-original-price {text-align:left}' +
+                    sizingCss + ' .prod-description {margin-left:auto}' +
+                    sizingCss + ' .prod-name-block {text-align:left}' +
+                    sizingCss + ' .promote-rating {justify-content: normal}' +
+                    sizingCss + ' .prod-tile {width:140px}' +
+                    sizingCss + ' .collection {margin-bottom:margin-bottom: 10px;}' +
+                    sizingCss + ' .collection .prod-tile a {align-items: left}' +
+                    sizingCss + '.prod-original-price.pmp {text-align:left;}'
+                )
+            } else if (path === '/feature/departments.jsp') {
+                _tdc.Template.attachCss(
+                    ".promote-iq.promote-iq-850x200 .promote-iq-featured-products-label{letter-spacing: 2px; font-size: 26px; font-family: 'Gotham 4r', Helvetica, sans-serif;}" +
+                    ".promote-iq.promote-iq-850x200 {width: 1024px; margin: auto; padding-top: 30px;} " +
+                    ".promote-iq.promote-iq-850x200 .prod-img-block {width: 200px}" +
+                    ".promote-iq.promote-iq-850x200 .prod-tile {margin-left: 20px;}" +
+                    ".promote-iq.promote-iq-850x200 .collection {width: 1024px;padding-top: 40px;}"
+                )
+            } else if (
+                path === '/sale-event/shoes.jsp' ||
+                path === '/sale-event/bed-and-bath.jsp' ||
+                path === '/sale-event/womens-clothing.jsp' ||
+                path === '/sale-event/mens-clothing.jsp' ||
+                path === '/sale-event/juniors-teens-clothing.jsp'
+            ) {
+                _tdc.Template.attachCss(
+                    '.promote-iq.promote-iq-850x200 .promote-iq-featured-products-label>div {padding: 10px 30px 10px 30px;' +
+                    'font-family: "Gotham 4r",Helvetica,Arial,sans-serif;font-size: 1.5em;letter-spacing:.0769em;' +
+                    'text-align: center;color: rgb(70, 70, 70);}'
+                )
+            } else if (path === '/sale-event/coupons-deals.jsp') {
+                _tdc.Template.attachCss(
+                    ".promote-iq.promote-iq-850x200 .promote-iq-featured-products-label :after {position: absolute; left: 0; top: -10px; height: 1px; background: #cccc; content: ''; width: 100%; display: block; z-index: 1;}" +
+                    ".promote-iq.promote-iq-850x200 .promote-iq-featured-products-label{font-family: 'Gotham 4r', Helvetica, Arial, sans-serif;" +
+                    "letter-spacing: 2px; margin-bottom: 20px;font-size: 26px;}" +
+                    ".promote-iq.promote-iq-850x200 {padding-top:45px;}" +
+                    ".promote-iq.promote-iq-850x200 .prod-tile {background-color: white;}" +
+                    ".promote-iq.promote-iq-850x200 .collection{border: none;}" +
+                    ".promote-iq.promote-iq-850x200 .promote-iq-featured-products-label > div {background-color:#f1f1f1;}"
+                )
+            } else if (path === '/') {
+                _tdc.Template.attachCss(
+                    ".promote-iq.promote-iq-850x200 .promote-iq-featured-products-label{ font-family: 'Gotham 4r', Helvetica, Arial, sans-serif; letter-spacing: 2px; padding-bottom: 10px;font-size: 26px;}" +
+                    ".promote-iq.promote-iq-850x200 .promote-iq-featured-products-label :after {position: absolute;left: 0; top: -10px; height: 1px; background: #ccc; content: ''; width: 100%; display: block; z-index: -1;}" +
+                    '.promote-iq.promote-iq-850x200 .collection {width: 1024px; margin-bottom: 40px}' +
+                    '.promote-iq.promote-iq-850x200 .prod-tile {width: 180px}' +
+                    '.promote-iq.promote-iq-850x200 {width: 1024px; position: relative; margin: 0 auto; padding-top:20px;}'
+                )
+            } else if (path === '/sale-event/gift-cards.jsp') {
+                _tdc.Template.attachCss(
+                    ".promote-iq.promote-iq-850x200 .promote-iq-featured-products-label{ font-family: 'Gotham 4r', Helvetica, Arial, sans-serif;" +
+                    "letter-spacing: 2px; padding-bottom: 10px;font-size: 26px; border-top:1px solid #cccccc;}" +
+                    '.promote-iq.promote-iq-850x200 .promote-iq-featured-products-label>div {padding: 20px 10px 10px 10px;}'
+                )
+            } else if (path === '/sale-event/jewelry.jsp') {
+                _tdc.Template.attachCss(
+                    ".promote-iq.promote-iq-850x200 .promote-iq-featured-products-label{font-size:28px}"
+                )
+            } else if (path === '/sale-event/for-the-home.jsp') {
+                _tdc.Template.attachCss(
+                    ".promote-iq.promote-iq-850x200 .promote-iq-featured-products-label > div {font-size: 26px;}" +
+                    ".promote-iq.promote-iq-850x200 .promote-iq-featured-products-label {font-family: \"Gotham 4r\",Helvetica,Arial,sans-serif;" +
+                    "letter-spacing: .0769em; padding: .384em;}" +
+                    ".promote-iq.promote-iq-850x200 .collection {margin-top: 20px;}"
+                )
+            }
+        } else if (templateInfo.width + 'x' + templateInfo.height === '320x50') {
+            _tdc.Template.attachCss(
+                '.promote-iq .prod-description{' + templateInfo.descriptionCalcDimension + ':calc(100% - 160px);}' +
+                ".promote-iq.promote-iq-320x50 .collection{background-color: white;}"
+            )
+        } else if (templateInfo.width + 'x' + templateInfo.height === '800x52') {
+            _tdc.Template.attachCss(
+                sizingCss + ' .prod-name-block {max-width: 45%; text-align:left;line-height: 16px;}' +
+                sizingCss + ' .promote-iq-featured-products-label {left:auto;}' +
+                sizingCss + ' .prod-cta-button {text-align:right; margin-right:75px;margin-top:-45px;font-family:"Gotham 5r",Helvetica,Arial;}' +
+                sizingCss + ' .promote-prices {height:auto}' +
+                sizingCss + ' .collection {margin-bottom:20px}' +
+                sizingCss + ' .prod-description {width:auto;word-wrap: normal; margin-left:auto;float: none;}' +
+                sizingCss + ' .prod-img-block {padding: 5px 10px 0px 0px;}'
+            )
+        } else {
+            _tdc.Template.attachCss(
+                '.promote-iq .prod-description{' + templateInfo.descriptionCalcDimension +
+                ':calc(100% - ' + templateInfo.complementaryDescriptionCalcLength + 'px);}'
+            )
+        }
+    };
+
+    _pub.addProductLabel = function (width, height, parentElement, label = null) {
+        var path = window.location.pathname
+        var pageHeaderClassName = []
+        var separatorCheck = []
+
+        if (path !== '/') {
+            pageHeaderClassName = path.split('/').pop()
+            pageHeaderClassName = pageHeaderClassName.split('.')[0]
+            separatorCheck = document.querySelectorAll(pageHeaderClassName)
+        }
+
+        var featuredProductsParentElement = document.createElement('div')
+        var featuredProductsChildElement = document.createElement('div')
+
+        if (path.includes('gift-cards') ||
+            separatorCheck.length === 0) {
+
+            featuredProductsParentElement.className = 'promote-iq-featured-products-label'
+
+            if (path.includes('/catalog')) {
+                featuredProductsParentElement.className += ' pmp'
+            }
+
+            if (width + 'x' + height !== '850x200') {
+                featuredProductsChildElement.innerHTML = "Kohl's Sponsored Products"
+            } else {
+                if (label != null) {
+                    featuredProductsChildElement.innerHTML = label
+                } else if (shelfUrlToTargets.hasOwnProperty(path) && shelfUrlToTargets[path].hasOwnProperty('label')) {
+                    featuredProductsChildElement.innerHTML = shelfUrlToTargets[path]['label']
+                } else {
+                    featuredProductsChildElement.innerHTML = 'FEATURED PRODUCTS'
+                }
+            }
+
+            featuredProductsParentElement.appendChild(featuredProductsChildElement)
+            if (typeof separator !== 'undefined') {
+                parentElement.appendChild(separator)
+            }
+            parentElement.appendChild(featuredProductsParentElement)
+        } else {
+            separator = document.createElement('HR')
+            separator.className = pageHeaderClassName + '--adjustment1'
+            separator.setAttribute('style', ['top:6%'].join(''))
+
+            featuredProductsParentElement.className = 'headline-callout' + ' ' + pageHeaderClassName + '--adjustment2'
+            featuredProductsParentElement.setAttribute('style', 'top: -12%; width: 40%; margin-left: 30%; background-color: transparent;')
+
+            featuredProductsChildElement.setAttribute('style', 'margin: 0px; background-color: white;')
+
+            if (width + 'x' + height !== '850x200') {
+                featuredProductsChildElement.innerHTML = "Kohl's Sponsored Products"
+            } else {
+                var insideLabel = document.createElement('H3')
+                insideLabel.setAttribute('style', "font-family: 'Gotham 5r'")
+
+                if (label != null) {
+                    featuredProductsChildElement.innerHTML = label
+                } else if (shelfUrlToTargets[path]['label']) {
+                    insideLabel.innerHTML = shelfUrlToTargets[path]['label']
+                } else {
+                    insideLabel.innerHTML = 'FEATURED PRODUCTS'
+                }
+                featuredProductsChildElement.appendChild(insideLabel)
+            }
+            featuredProductsParentElement.appendChild(featuredProductsChildElement)
+            parentElement.appendChild(separator)
+            parentElement.appendChild(featuredProductsParentElement)
+        }
+    };
+
+    createShelfContainer = function (numChildShelves) {
+        var parentContainer = document.createElement('div')
+        parentContainer.className = 'promote-container'
+
+        for (var i = 0; i < numChildShelves; i++) {
+            var childContainer = document.createElement('div')
+            var childNum = i.toString()
+            childContainer.className = 'child-container-' + childNum
+            parentContainer.appendChild(childContainer)
+        }
+
+        return parentContainer
+    };
+
+    _pub.appendTemplateToClient = function (type, width, height, padding, response, attachTo, label = null) {
+        var outerCtr = document.querySelector(attachTo)
+        var promoteCtr = document.createElement('div')
+
+        promoteCtr.className = 'promote-iq promote-iq-' + width + 'x' + height
+
+        if (attachTo === '#monetizationElements' ||
+            attachTo.includes('#bottom-right') ||
+            attachTo.includes('.equityarea') ||
+            attachTo.includes('#hl_1') ||
+            attachTo.includes('#rr_placement_0') ||
+            attachTo === '#rr_horizontal_product_recommendations_div_id' ||
+            attachTo === '#rr_result_list_page_pdp_ad_container'
+        ) {
+            var parent = outerCtr.parentNode
+            parent.insertBefore(promoteCtr, outerCtr)
+        } else if (
+            attachTo === '#content' ||
+            attachTo === '#bd-recs-placeholder' ||
+            attachTo === '#vn-box' ||
+            attachTo === '#rr_result_list_page_pdp_ad_container') {
+            $(promoteCtr).insertAfter(outerCtr)
+        } else {
+            outerCtr.appendChild(promoteCtr)
+        }
+
+        var $ctr = document.createElement('div')
+        $ctr.className = 'collection'
+
+        // apply html template per sponsored status and ad unit dimension
+        for (var i = 0, l = response.length; i < l; i++) {
+            var r = response[i]
+            if (r.sponsored) {
+                r.caption = null
+                r.height = height
+                r.padding = padding
+                r.product.priceListFormatted = _tdc.Util.formatPrice(
+                    r.product.priceList,
+                    r.product.priceCurrency,
+                    _pub.language
+                )
+                r.product.priceCurrentFormatted = _tdc.Util.formatPrice(
+                    r.product.priceCurrent,
+                    r.product.priceCurrency,
+                    _pub.language
+                )
+                r.width = width
+                r.product.attachTo = attachTo
+                r.product.type = type
+                if (r.product.rating === null || r.product.rating <= 2.5) {
+                    delete r.product.rating
+                } else {
+                    textRating = r.product.rating.toFixed(1).split('.')
+                    var rating1 = [0, 0, 0, 0, 0]
+                    var rating2 = [0, 0, 0, 0, 0]
+
+                    idx = parseInt(textRating[0]) - 1
+                    rating1[idx] = 1
+                    rating2[idx + 1] = parseInt(textRating[1])
+
+                    for (let index = 0; index < idx; index++) {
+                        rating1[index] = 1
+                    }
+
+                    r.product.ratingPart1 = rating1
+                    r.product.ratingPart2 = rating2
+                }
+
+                if (r.product.imageLarge.includes('?')) {
+                    r.product.imageLarge = r.product.imageLarge.split('?')[0]
+                }
+
+                if (width + 'x' + height === '850x200') {
+                    r.product.imageLarge = r.product.imageLarge + '?wid=140&hei=140&op_sharpen=1'
+                    $ctr.innerHTML += _tdc.Template.apply('shelf', r)
+                } else if (width + 'x' + height === '320x50') {
+                    r.product.imageLarge = r.product.imageLarge + '?wid=46&hei=46&op_sharpen=1'
+                    $ctr.innerHTML += _tdc.Template.apply('mobile_tile', r)
+                } else {
+                    r.product.imageLarge = r.product.imageLarge + '?wid=95&hei=95&op_sharpen=1'
+                    $ctr.innerHTML += _tdc.Template.apply('tile', r)
+                }
+            }
+        }
+
+        _pub.addProductLabel(width, height, $ctr, label)
+        promoteCtr.appendChild($ctr)
+    };
+
+    _pub.dfp = {}
+    _pub.ctr = {}
+
+    var shelfUrlToTargets = {
+        '/sale-event/for-the-home.jsp': {
+            attachTo: '#monetizationElements',
+            targets: {
+                category: ['/bed_and_bath', '/home_decor']
+            },
+        },
+        '/sale-event/baby.jsp': {
+            attachTo: '#monetizationElements',
+            targets: {
+                category: ['/baby_girls/clothing', '/baby_boys/clothing',
+                    '/girls/clothing', '/boys/clothing', '/baby_gear']
+            },
+        },
+        '/sale-event/jewelry.jsp': {
+            attachTo: '#monetizationElements',
+            targets: {
+                category: ['/jewelry', '/accessories',
+                    '/health_and_beauty/personal_care/vision_care/eyeglasses']
+            },
+        },
+        '/sale-event/mens-clothing.jsp': {
+            attachTo: '#monetizationElements',
+            targets: {
+                category: ['/mens/clothing', '/shoes/mens']
+            },
+        },
+        '/sale-event/shoes.jsp': {
+            attachTo: '#content > div.mid_panel.cont-department.clearfix',
+            targets: {category: ['/shoes']},
+        },
+        '/sale-event/toys.jsp': {
+            attachTo: '#monetizationElements',
+            targets: {
+                category: ['/baby_girls/clothing', '/baby_boys/clothing',
+                    '/girls/clothing', '/boys/clothing']
+            },
+        },
+        '/sale-event/womens-clothing.jsp': {
+            attachTo: '#monetizationElements',
+            targets: {category: ['/womens/clothing']},
+        },
+        '/sale-event/coupons-deals.jsp': {
+            attachTo: '#bottom-right',
+            targets: {category: ['/womens/clothing/bottoms/pants']},
+            label: 'FEATURED PRODUCTS',
+            className: 'promote-iq promote-iq-850x200 promote-home'
+        },
+        '/sale-event/gift-cards.jsp': {
+            attachTo: '#monetizationElements',
+            targets: {category: ['/home', '/gift_cards']},
+        },
+        '/sale-event/sports-and-fitness.jsp': {
+            attachTo: '#monetizationElements',
+            targets: {category: ['/sports_and_fitness']},
+        },
+        '/sale-event/juniors-teens-clothing.jsp': {
+            attachTo: '#monetizationElements',
+            targets: {category: ['/womens/clothing/bottoms/pants']},
+        },
+        '/sale-event/bed-and-bath.jsp': {
+            attachTo: '#monetizationElements',
+            targets: {
+                category: ['/bed_and_bath', '/furniture', '/home_decor']
+            },
+        },
+        '/sale-event/luggage-buying-guide.jsp': {
+            attachTo: '#monetizationElements',
+            targets: {category: ['/luggage_and_suitcases', '/accessories/accessories/garment_bags']},
+            label: 'FEATURED TRAVELING ESSENTIALS',
+        },
+        'PDP': {
+            attachTo: '#rating-content',
+            slot: 1450,
+            label: 'RELATED FEATURED PRODUCTS'
+        },
+        '/feature/departments.jsp': {
+            attachTo: '#content',
+            targets: {category: ['/home']},
+            className: 'promote-iq promote-iq-850x200 promote-home',
+            label: 'FEATURED PRODUCTS'
+        },
+        'PMP': {
+            attachTo: '#vn-box',
+            slot: 1485,
+            label: 'Featured Products'
+        },
+        '/sale-event/health-and-beauty.jsp': {
+            attachTo: '#monetizationElements',
+            targets: {category: ['/health_and_beauty']},
+        },
+        '/sale-event/furniture-and-decor.jsp': {
+            attachTo: '#monetizationElements',
+            targets: {category: ['/furniture']},
+        }
+    };
+
+    _pub.language = navigator.language.toLowerCase();
+
+    _pub.sizeMap = {
+        '160x600': {
+            count: 2,
+            slot: 1190,
+        },
+        '728x90': {
+            count: 2,
+            slot: 1185,
+        },
+        '300x250': {
+            count: 2,
+            slot: 1245,
+        },
+        '850x200': {
+            count: 5,
+            slot: 1240
+        },
+        '320x50': {
+            count: 1,
+            slot: 1255,
+        },
+        '800x52': {
+            count: 2,
+            slot: 1565
+        }
+    };
+
+    _pub.ctr.renderShelf = function (inputs) {
+        $.get('https://www.cloudflare.com/cdn-cgi/trace', function (data) {
+            var ip = data.split('ts=')[0].split('ip=')[1].trim();
+            console.log(ip)
+            window.sfIp = ip;
+        })
+
+        if (window.hasOwnProperty('googletag') && window.googletag.hasOwnProperty('pubads')) {
+            var shelfInputs = {
+                'targeting': {
+                    'gen': get_gender(googletag.pubads().getTargeting('gen')) || [],
+                    'age': googletag.pubads().getTargeting('age') || [],
+                    'brd': googletag.pubads().getTargeting('brd') || []
+                }
+            }
+        } else {
+            if (pageData.hasOwnProperty('saleDetails')) {
+                var gender = get_gender(pageData.saleDetails.genderValues) || [];
+            } else {
+                var gender = []
+            }
+
+            var shelfInputs = {
+                'targeting': {
+                    'gen': gender,
+                    'age': [],
+                    'brd': []
+                }
+            }
+        }
+
+        shelfInputs['width'] = inputs ? inputs.width ? inputs.width : 850 : 850
+        shelfInputs['height'] = inputs ? inputs.height ? inputs.height : 200 : 200
+
+        var targets
+        var attachTo
+        var label
+        var path = window.location.pathname
+
+        if (path.includes('/catalog')) {
+            if (googletag.hasOwnProperty('pubads')) {
+                var unit = googletag.pubads().getSlots()[0].getAdUnitPath()
+            } else {
+                var unit = pageData.pmpDetails.departmentName.replace('&', 'and').replace(/ /g, '_')
+            }
+
+            shelfInputs['unit'] = unit
+            shelfInputs['targeting']['gen'] = pageData.pmpDetails.genderValues
+
+            targets = _pub.evaluateTargeting(shelfInputs, 'ctr');
+            label = shelfUrlToTargets['PMP'].label;
+            return _pub.apiRequest(shelfInputs, targets, 'ctr', '#rr_result_list_page_pdp_ad_container', label)
+        } else if (path.includes('/product/')) {
+            shelfInputs['unit'] = productV2JsonData['monetizationData']['adUnit']
+            if (shelfInputs['unit'].includes('/ROS')) {
+                targets = {
+                    category: ['/ros'],
+                    match_products: [pageData.productDetails.pageItems[0].productSKU]
+                }
+            } else {
+                targets = _pub.evaluateTargeting(shelfInputs, 'ctr')
+            }
+
+            attachTo = shelfUrlToTargets['PDP'].attachTo
+            label = shelfUrlToTargets['PDP'].label
+
+            return _pub.apiRequest(shelfInputs, targets, 'ctr', attachTo, label)
+        } else if (shelfUrlToTargets[path]) {
+            targets = shelfUrlToTargets[path].targets
+            attachTo = shelfUrlToTargets[path].attachTo
+            label = !!shelfUrlToTargets[path]['label'] ? shelfUrlToTargets[path]['label'] : null
+
+            return _pub.apiRequest(shelfInputs, targets, 'ctr', attachTo, label)
+        } else {
+            console.log('Spotfront: No shelf for this page')
+        }
+    };
+
+    _pub.dfp.render = function (inputs) {
+        var targets;
+
+        if (inputs.targeting.hasOwnProperty('pgname')) {
+            var possPath = '/sale-event/' + inputs.targeting.pgname;
+            if (inputs.unit.includes('/ROS') && shelfUrlToTargets.hasOwnProperty(possPath)) {
+                targets = shelfUrlToTargets[possPath].targets;
+            } else {
+                targets = _pub.evaluateTargeting(inputs, 'dfp');
+            }
+        } else {
+            if (inputs.unit.includes('/ROS') && inputs.url.includes('/catalog')) {
+                var cats = inputs.url.split('=')[1].split('+')
+                var formattedCats = {}
+                for (let index = 0; index < cats.length; index++) {
+                    const el = cats[index].split(':');
+                    formattedCats[el[0]] = el[1].split('&')[0];
+                }
+
+                inputs['unit'] = formattedCats['Department'] + '/'
+                targets = _pub.evaluateTargeting(inputs, 'dfp');
+            } else {
+                targets = _pub.evaluateTargeting(inputs, 'dfp');
+            }
+        }
+
+        return _pub.apiRequest(inputs, targets, 'dfp', 'body')
+    };
+
+    return _pub
+})()
+
+  _tdc.Request = (function () {
+  return function (inputs, callback) {
+    this.id = _tdc.Util.generateUuid();
+    this.inputs = null;
+    this.parameters = {
+      targets: null,
+      slot: null,
+      deferred: null,
+      batch: null,
+      pos: null,
+      format: null,
+      width: null,
+      height: null,
+      callback: null,
+      passthru: null,
+      template: null,
+      count: null,
+      count_fill: null,
+      attributes: null,
+      url: null
+    };
+    this.callback = callback;
+    this.timeoutRef = {};
+    this.retryAfter = _tdc.RETRY;
+    this.timeLeft = _tdc.TIMEOUT;
+    this.numTries = 0;
+    this.locked = false;
+    this.active = true;
+    this.map = false;
+
+    this.baseUrl = _tdc.PROTOCOL + _tdc.HOST + '/request?';
+    this.url = null;
+    this.requestedAt = +new Date();
+    this.sentAt = null;
+    this.receivedAt = null;
+    this.returnedAt = null;
+    this.renderedAt = null;
+
+    _tdc.log('received request', this.id, this.inputs);
+
+    this.applyInputs = function (inputs) {
+      if (typeof inputs == 'object') {
+        this.inputs = _tdc.Util.mergeObjects(inputs)
+
+        for (var k in inputs) {
+          if (this.parameters.hasOwnProperty(k)) {
+            this.parameters[k] = inputs[k];
+          }
+        }
+      } else {
+        this.inputs = inputs
+      }
+    };
+
+    this.applyInputs(inputs);
+
+    this.modifyForPub = function () {
+      if (typeof _tdc.Pub.modifyRequest != 'function') return;
+
+      var copy = _tdc.Pub.modifyRequest(this);
+
+      if (typeof copy != 'object') return;
+
+      for (var k in copy) {
+        if (k !== 'inputs') {
+          this[k] = copy[k];
+        }
+      }
+    };
+
+    this.getCallbackKey = function () {
+      return '_' + this.id.replace(/-/g, '_');
+    };
+
+    this.registerCallback = function () {
+      var key = this.getCallbackKey();
+      if (this.parameters.callback === null) {
+        this.parameters.callback = [_tdc.GLOBAL_NAME, 'callbacks', key].join(
+          '.'
+        );
+      }
+      var id = this.id;
+      _tdc.callbacks[key] = function (response) {
+        _tdc.requestMap[id].processResponse(response);
+      };
+    };
+
+    this.setRetryTime = function (time) {
+      this.timeLeft = time || _tdc.TIMEOUT;
+      this.retryAfter = Math.min(this.timeLeft || this.retryAfter, _tdc.RETRY);
+    };
+
+    this.setRetry = function () {
+      var that = this;
+
+      this.timeoutRef = setTimeout(function () {
+        //no time left, exit
+        if (that.timeLeft <= 0) {
+          that.cancel();
+          return;
+        }
+
+        // cancel request
+        if (_tdc.isLoaded()) {
+          _tdc.log('resending after', that.id, +new Date() - that.requestedAt);
+          that.numTries++;
+          that.cancel();
+          // that.send();
+        } else {
+          _tdc.log('Pseudo timeout during loading', that.id, that.url);
+          that.setRetry();
+        }
+      }, that.retryAfter || _tdc.RETRY); //case where context is lost
+
+      // decrement remaining time on request
+      if (_tdc.isLoaded()) {
+        this.retryAfter = Math.min(this.retryAfter, this.timeLeft);
+        this.timeLeft = this.timeLeft - this.retryAfter;
+      }
+    };
+
+    this.noRetry = function () {
+      clearTimeout(this.timeoutRef);
+    };
+
+    this.setUrl = function () {
+      if (typeof _tdc.Pub.buildUrl == 'function') {
+        this.url = _tdc.Pub.buildUrl(this);
+        return;
+      }
+
+      // this is where the callback is called -> through query parameter
+      if (this.map && !this.inputs.hasOwnProperty(_tdc.MAP_KEY)) {
+        if (typeof _tdc.Pub.getMapRequest == 'function') {
+          this.url = _tdc.Pub.getMapRequest(this);
+        } else {
+          this.url =
+            'https://tools.tagdelivery.com/requests/map?request=' +
+            encodeURIComponent(
+              JSON.stringify({ id: this.id, parameters: this.parameters })
+            );
+        }
+        return;
+      }
+
+      this.url = this.baseUrl + _tdc.Util.objectToQueryString(this.parameters);
+    };
+
+    this.send = function () {
+      if (!this.locked) {
+        this.modifyForPub();
+        this.setRetryTime();
+        this.locked = true;
+      }
+
+      if (!this.active) {
+        return;
+      }
+
+      this.setRetry();
+      this.registerCallback();
+      this.setUrl();
+
+      this.sentAt = +new Date();
+
+      var self = this;
+      var tag = _tdc.Util.attachScript(
+        this.url,
+        Function.prototype.bind
+          ? this.cancel.bind(this)
+          : function () {
+            self.cancel();
+          }
+      );
+
+      tag.parentNode.removeChild(tag);
+
+      _tdc.log(
+        'url called after',
+        this.id,
+        this.sentAt - this.requestedAt,
+        this.numTries,
+        this.url
+      );
+    };
+
+    this.processResponse = function (response) {
+      if (response.length === 0 || !response) {
+        this.returnedAt = +new Date();
+        this.renderedAt = +new Date();
+
+        _tdc.log(
+          'empty/null/undefined response',
+          this.id,
+          this.returnedAt - this.returnedAt,
+          response
+        );
+      } else {
+        this.noRetry();
+        this.receivedAt = +new Date();
+
+        if (typeof _tdc.Pub.modifyResponse == 'function') {
+          response = _tdc.Pub.modifyResponse(this, response);
+        }
+      }
+      this.respond(response);
+    };
+
+    //i.e: attachScript error (ad-blocker; browser)
+    this.cancel = function () {
+      this.active = false;
+      clearTimeout(this.timeoutRef);
+      _tdc.log('cancelled request', this.id);
+      var defaultResponse = _tdc.Pub.prepareDefaultResponse(this);
+      if (this.parameters.count !== null && this.parameters.count != 1) {
+        var output = [];
+        for (var i = 0, c = this.parameters.count; i < c; i++) {
+          output.push(defaultResponse);
+        }
+        this.respond(output);
+      } else {
+        this.respond(defaultResponse);
+      }
+    };
+
+    this.respond = function (callbackObject) {
+      this.returnedAt = +new Date();
+      _tdc.log(
+        'closing request',
+        this.id,
+        this.returnedAt - this.receivedAt,
+        callbackObject
+      );
+      this.callback(callbackObject);
+      this.renderedAt = +new Date();
+      _tdc.log(
+        'callback finished',
+        this.id,
+        this.renderedAt - this.receivedAt,
+        this.renderedAt - this.returnedAt
+      );
+    };
+
+    //  Overstock called in the AWS lambda function
+    //  Zulily - called in the script tag calling Fastly edge dictionary
+    //  Kohl's - called in AWS lambda function for search requests
+    this.update = function (inputs) {
+      _tdc.log('updating request', this.id);
+
+      if (typeof _tdc.Pub.applyMapResponse == 'function') {
+        _tdc.Pub.applyMapResponse(this, inputs);
+
+        // marks this request's mapping as complete
+        this.inputs[_tdc.MAP_KEY] = 1;
+        this.map = false
+        this.noRetry();
+        this.send();
+      } else {
+        this.applyInputs(inputs);
+      }
+
+      this.locked = false;
+      if (this.map && this.inputs.hasOwnProperty(_tdc.MAP_KEY)) {
+        this.noRetry();
+        this.send();
+      }
+    };
+  };
+})();
+
+
+  if (typeof define === 'function' && define.amd) {
+    define('tagDeliveryContent', [], function () {
+      return _tdc;
+    });
+  }
+
+  window[_tdc.GLOBAL_NAME] = _tdc;
+  if (
+    _tdc.hasOwnProperty('Pub') &&
+    typeof _tdc.Pub === 'object' &&
+    _tdc.Pub.hasOwnProperty('GLOBAL_NAME') &&
+    _tdc.GLOBAL_NAME != _tdc.Pub.GLOBAL_NAME
+  ) {
+    window[_tdc.Pub.GLOBAL_NAME] = _tdc;
+  }
+
+  if (window.hasOwnProperty('TagDeliveryQueue')) {
+    for (var i = 0; i < window.TagDeliveryQueue.length; i++) {
+      var cmd = window.TagDeliveryQueue[i];
+      if (cmd == 'Pub.ctr.renderShelf') {
+        window[_tdc.GLOBAL_NAME].Pub.ctr.renderShelf();
+      }
+    }
+  }
+
+  // Polyfills
+  if (!String.prototype.includes) {
+    String.prototype.includes = function (search, start) {
+        'use strict';
+        if (typeof start !== 'number') {
+            start = 0;
+        }
+
+        if (start + search.length > this.length) {
+            return false;
+        } else {
+            return this.indexOf(search, start) !== -1;
+        }
+    };
+}
+
+if (!Array.prototype.includes) {
+    Object.defineProperty(Array.prototype, 'includes', {
+        enumerable: false,
+        value: function (obj) {
+            var newArr = this.filter(function (el) {
+                return el == obj;
+            });
+            return newArr.length > 0;
+        }
+    });
+}
+
+  return _tdc;
+});

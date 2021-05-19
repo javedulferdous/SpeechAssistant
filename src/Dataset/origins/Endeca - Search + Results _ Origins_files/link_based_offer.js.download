@@ -1,0 +1,86 @@
+var jQuery = jQuery || null;
+
+(function($) {
+  Drupal.behaviors.LBO = {
+    attach: function(context, settings) {
+
+      //
+      // Format LBO message
+      //
+      var decodeHtmlEntities = function(elem) {
+        if(elem.length) {
+          var formattedStr = elem.html().replace(/&nbsp;/g, " ");
+          elem.html(formattedStr);
+        }
+      };
+      //
+      // On cart update, strip the &nbsp; from offer message
+      //
+      $(window).on("checkout:panel:displayed", function() {
+        decodeHtmlEntities($(".js-lbo-message-container", context));
+      });
+      //
+      // Show LBO banner and messages when landing with URL
+      // Cookie based manipulation
+      //
+      if(typeof $.cookie === "function") {
+        if ($.cookie("offer_info") !== "" && $.cookie("offer_info") !== null) {
+          var offer_code = $.cookie("offer_info").split(":")[1];
+          generic.jsonrpc.fetch({
+            method: "offer.linkedOfferState",
+            params: [offer_code],
+            onSuccess: function(r) {
+              var offer = r.getValue();
+              var isActive = (offer.linked_offer !== null && offer.linked_offer.length !== 0),
+                  templateResult = null;
+              if (isActive) {
+                var htmlStr = offer.linked_offer.cms_content,
+                    $body = $("body");
+                $(htmlStr).appendTo($body);
+                var $confirmMessage = $(".js-lbo-message-content", context),
+                    $lboHeaderCont = $(".js-lbo-header-container", context),
+                    $lboMessagecontainer = $body.find(".js-lbo-message-container"),
+                    $pageHeader = null,
+                    lboWrapper = null;
+                $confirmMessage.html(offer.linked_offer.offer_message);
+                decodeHtmlEntities($confirmMessage, context);
+                templateResult = $lboHeaderCont.html();
+
+                // If offer was not configured in offer manager/CMS
+                // then skip further processing
+                if(typeof templateResult === "undefined") {
+                  return false;
+                }
+
+                // If cart is the landing page, then don't show LBO banner in the header
+                if($lboMessagecontainer.length) return;
+
+                if (!site.client.isMobile) {
+                  $pageHeader = $body.find(".page-header__nav");
+                  lboWrapper = $("<div/>");
+                  lboWrapper.append(templateResult);
+                  $pageHeader.before(lboWrapper);
+                  lboWrapper.find(".js-lbo .js-lbo-banner-close").on("click", function() {
+                    $(this).closest(".js-lbo").addClass("hidden");
+                  });
+                } else {
+                  // Mobile DOM manipulation
+                  $pageHeader = $body.find(".page-header");
+                  lboWrapper = $("<div/>");
+                  lboWrapper.append(templateResult);
+                  $pageHeader.append(lboWrapper);
+                  lboWrapper.find(".js-lbo .js-lbo-banner-close").on("click", function() {
+                    $(this).closest(".js-lbo").addClass("hidden");
+                  });
+                }
+              }
+            },
+            onFailure: function() {}
+          });
+        }
+      }
+      decodeHtmlEntities($(".lbo-msg", context));
+    }
+  };
+})(jQuery);
+

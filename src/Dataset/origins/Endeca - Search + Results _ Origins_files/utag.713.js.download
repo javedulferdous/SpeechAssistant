@@ -1,0 +1,28 @@
+//tealium universal tag - utag.713 ut4.0.202001032134, Copyright 2020 Tealium.com Inc. All Rights Reserved.
+var brontoCart=brontoCart||{};try{(function(id,loader){var u={};utag.o[loader].sender[id]=u;if(utag===undefined){utag={};}
+if(utag.ut===undefined){utag.ut={};}
+if(utag.ut.loader===undefined){u.loader=function(o){var a,b,c,l;a=document;if(o.type==="iframe"){b=a.createElement("iframe");b.setAttribute("height","1");b.setAttribute("width","1");b.setAttribute("style","display:none");b.setAttribute("src",o.src);}else if(o.type==="img"){utag.DB("Attach img: "+o.src);b=new Image();b.src=o.src;return;}else{b=a.createElement("script");b.language="javascript";b.type="text/javascript";b.async=1;b.charset="utf-8";b.src=o.src;}
+if(o.id){b.id=o.id;}
+if(typeof o.cb==="function"){if(b.addEventListener){b.addEventListener("load",function(){o.cb();},false);}else{b.onreadystatechange=function(){if(this.readyState==="complete"||this.readyState==="loaded"){this.onreadystatechange=null;o.cb();}};}}
+l=o.loc||"head";c=a.getElementsByTagName(l)[0];if(c){utag.DB("Attach to "+l+": "+o.src);if(l==="script"){c.parentNode.insertBefore(b,c);}else{c.appendChild(b);}}};}else{u.loader=utag.ut.loader;}
+u.ev={'view':1,"link":1};u.initialized=false;u.map={"bronto_pixel_id":"bronto_pixel_id","bronto_phase":"cart_phase","cart_product_bronto_image":"imageUrl","cart_product_sku":"sku","cart_product_url":"productUrl","cart_product_price":"salePrice,totalPrice","cart_product_short_desc":"description","cart_product_category_name":"category","currency_code":"order_currency"};u.extend=[];u.send=function(a,b){if(u.ev[a]||u.ev.all!==undefined){var c,d,e,f,i;u.data={"qsp_delim":"&","kvp_delim":"=","bronto_pixel_id":"","base_url":"","cart_phase":"","cart_url":"","name":[],"sku":[],"category":[],"quantity":[],"unitPrice":[],"product_discount":[],"description":[],"salePrice":[],"totalPrice":[],"imageUrl":[],"productUrl":[],"product":{},"custom":{}};for(d in utag.loader.GV(u.map)){if(b[d]!==undefined&&b[d]!==""){e=u.map[d].split(",");for(f=0;f<e.length;f++){u.data[e[f]]=b[d];}}}
+!function(o,t){var e=window.bronto=function(){"string"==typeof arguments[0]&&e.q.push(arguments),e.go&&e.go();};e.q=e.q||[];}(document,"script");u.data.order_id=u.data.order_id||b._corder||"";u.data.order_total=u.data.order_total||b._ctotal||"";u.data.order_subtotal=u.data.order_subtotal||b._csubtotal||"";u.data.order_shipping=u.data.order_shipping||b._cship||"";u.data.order_tax=u.data.order_tax||b._ctax||"";u.data.order_currency=u.data.order_currency||b._ccurrency||"";u.data.customer_id=u.data.customer_id||b._ccustid||"";if(u.data.name.length===0&&b._cprodname!==undefined){u.data.name=b._cprodname.slice(0);}
+if(u.data.sku.length===0&&b._csku!==undefined){u.data.sku=b._csku.slice(0);}
+if(u.data.category.length===0&&b._ccat!==undefined){u.data.category=b._ccat.slice(0);}
+if(u.data.quantity.length===0&&b._cquan!==undefined){u.data.quantity=b._cquan.slice(0);}
+if(u.data.unitPrice.length===0&&b._cprice!==undefined){u.data.unitPrice=b._cprice.slice(0);}
+if(u.data.product_discount.length===0&&b._cpdisc!==undefined){u.data.product_discount=b._cpdisc.slice(0);}
+if(!u.data.bronto_pixel_id){utag.DB(u.id+": Tag not fired: Required attribute not populated");return;}
+u.data.base_url="https://snip.bronto.com/v2/sites/"+u.data.bronto_pixel_id+"/assets/bundle.js";brontoCart.phase=u.data.cart_phase;brontoCart.currency=u.data.order_currency;brontoCart.subtotal=u.data.order_subtotal;brontoCart.shippingAmount=u.data.order_shipping;brontoCart.taxAmount=u.data.order_tax;brontoCart.grandTotal=u.data.order_total;brontoCart.customerOrderId=u.data.order_id;if(u.data.customer_id){brontoCart.emailAddress=u.data.customer_id;}
+brontoCart.cartUrl=u.data.cart_url;if(u.data.product_discount.length!==0){var discountSum=0;for(var i=0;i<u.data.product_discount;i++){if(u.data.product_discount[i]){discountSum+=parseFloat(u.data.product_discount[i]);}}
+brontoCart.discountAmount=discountSum;}
+if(brontoCart.subtotal===""){var subtotal=0;for(var i=0;i<u.data.totalPrice.length;i++){if(u.data.totalPrice[i]){subtotal+=parseFloat(u.data.totalPrice[i])*parseInt(u.data.quantity[i]);}}
+brontoCart.subtotal=subtotal;}
+brontoCart.lineItems=[];var standardOptional=["name","sku","category","quantity","unitPrice","description","salePrice","totalPrice","imageUrl","productUrl"];var itemLength=0;for(var i=0;i<standardOptional.length;i++){if(u.data[standardOptional[i]].length>itemLength){itemLength=u.data[standardOptional[i]].length;}}
+var toBeRemoved=[];standardOptional.forEach(function(element){if(u.data[element].length!==itemLength){utag.DB('WARNING: The product data array '+element+' does not meet the required length.  This data point has been omitted.');toBeRemoved.push(element);}});toBeRemoved.forEach(function(element){standardOptional=u.removeElement(standardOptional,element);});for(var key in u.data.product){if((u.typeOf(u.data.product[key])!=="array")||u.data.product[key].length!==itemLength){utag.DB("Custom Product Data is not an Array or does not meet the required length.");delete u.data.product[key];}}
+for(var i=0;i<itemLength;i++){var lineItemData={};for(var j=0;j<standardOptional.length;j++){lineItemData[standardOptional[j]]=u.data[standardOptional[j]][i];}
+for(var key in u.data.product){lineItemData[key]=u.data.product[key][i];}
+brontoCart.lineItems.push(lineItemData);}
+u.loader_cb=function(){bronto("cart:send",brontoCart);u.initialized=true;}
+if(!u.initialized){u.loader({"type":"script","src":u.data.base_url,"cb":u.loader_cb,"loc":"script","id":"utag_713","attrs":{}});}
+utag.DB("send:713:COMPLETE");}};utag.o[loader].loader.LOAD(id);})("713","esteelauder.origins-us2");}catch(error){utag.DB(error);}

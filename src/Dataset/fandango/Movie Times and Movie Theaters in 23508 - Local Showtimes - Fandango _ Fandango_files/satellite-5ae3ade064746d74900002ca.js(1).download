@@ -1,0 +1,64 @@
+_satellite.pushAsyncScript(function(event, target, $variables){
+  //Movie Overview Page
+if(_satellite.getVar('Page Level 2') == 'movie | overview'){
+  console.log('Movie Overview Page | Movie ID | '+ _satellite.getVar('Movie ID'));
+  
+  
+//MOP
+//Maleficient:Mistress of Evil
+if(_satellite.getVar('Movie ID') == '218843' || _satellite.getVar('Movie ID') == '220099' || _satellite.getVar('Movie ID') == '220100'){
+//PXL-269
+	 _satellite.addImage('https://www.facebook.com/tr?id=2064018563831124&ev=PageView&noscript=1')
+    _satellite.addImage('https://www.facebook.com/tr?id=2064018563831124&ev=PageView&cd[order_id]='+_satellite.getVisitorId().getMarketingCloudVisitorID())
+    _satellite.addImage('https://d.agkn.com/iframe/7043/?che=%n&uid=[third_party_user_id]&type=742700&ouid='+_satellite.getVisitorId().getMarketingCloudVisitorID())
+//PXL-269
+    _satellite.loadScript('https://www.googletagmanager.com/gtag/js?id=DC-3944448')
+    window.dataLayer = window.dataLayer || [];
+  	function gtag(){dataLayer.push(arguments);}
+  	gtag('js', new Date());
+	gtag('config', 'DC-3944448');
+  	gtag('config', 'AW-737826090');
+  	gtag('config', 'AW-103221998');
+  	gtag('event', 'conversion', { 'send_to': 'AW-1003221998/3b0gCNOa-KIBEO7nr94D', 'transaction_id': '' });
+  	gtag('event', 'conversion', {'send_to': 'AW-737826090/WtM-CPSdsakBEKqq6d8C'});
+}
+  
+  
+  //Aladdin Desktop MOP
+    if(_satellite.getVar('Movie ID') == '214978'  || _satellite.getVar('Movie ID') == '218570' || _satellite.getVar('Movie ID') == '218144' || _satellite.getVar('Movie ID') == '218145'){
+      _satellite.addImage('https://www.facebook.com/tr?id=2064018563831124&ev=PageView&noscript=1')
+      _satellite.addImage('https://www.facebook.com/tr?id=2064018563831124&ev=PageView&cd[order_id]='+_satellite.getVisitorId().getMarketingCloudVisitorID())
+      _satellite.addImage('https://d.agkn.com/iframe/7043/?che=%n&uid=[third_party_user_id]&type=p_ala006&ouid='+_satellite.getVisitorId().getMarketingCloudVisitorID())
+ //pxl-137
+      _satellite.loadScript('https://www.googletagmanager.com/gtag/js?id=AW-1003221998')
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'AW-1003221998');
+      //gtag('event', 'conversion',{ 'allow_custom_scripts': true, 'send_to': 'AW-1003221998/HbYbCNrvy5kBEO7nr94D'});
+  }    
+  //Desktop MOP Toy Story 4 185803
+  if(_satellite.getVar('Movie ID') == '185803'){
+    _satellite.addImage('https://www.facebook.com/tr?id=2064018563831124&ev=PageView&noscript=1')
+    _satellite.addImage('https://www.facebook.com/tr?id=2064018563831124&ev=PageView&cd[order_id]='+_satellite.getVisitorId().getMarketingCloudVisitorID())
+    _satellite.addImage('https://d.agkn.com/iframe/7043/?che=%n&uid=[third_party_user_id]&type=p_toy000&ouid='+_satellite.getVisitorId().getMarketingCloudVisitorID()+'&imdbid=[Numeric]')
+    _satellite.loadScript('https://www.googletagmanager.com/gtag/js?id=AW-1003221998')
+    window.dataLayer = window.dataLayer || [];function gtag()
+    {dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'AW-1003221998');
+  } 
+  //Lion King 215915
+ if(_satellite.getVar('Movie ID')== '215915'){
+  _satellite.loadScript('https://www.googletagmanager.com/gtag/js?id=AW-770113025')
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'AW-1003221998');
+        //gtag('event', 'conversion', { 'send_to': 'AW-1003221998/jv3xCODXuaIBEO7nr94D', 'transaction_id': '' });
+        _satellite.addImage('https://www.facebook.com/tr?id=2064018563831124&ev=PageView&noscript=1')
+        _satellite.addImage('https://www.facebook.com/tr?id=2064018563831124&ev=PageView&cd'+_satellite.getVisitorId().getMarketingCloudVisitorID())
+        _satellite.addImage('https://d.agkn.com/iframe/7043/?che=%n&uid=[third_party_user_id]&type=p_lio001&ouid='+_satellite.getVisitorId().getMarketingCloudVisitorID())
+  }  
+}
+});

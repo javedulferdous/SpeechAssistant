@@ -1,0 +1,23 @@
+_satellite.pushAsyncScript(function(event, target, $variables){
+  if(_satellite.getVar('Movie ID') == '219088'){
+
+
+
+
+
+//Movie Overview Page
+if(_satellite.getVar('Page Level 2') == 'movie | overview'){
+//MOP
+//PXL-244
+  _satellite.loadScript('https://www.googletagmanager.com/gtag/js?id=AW-746552734')
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'AW-746552734');
+  gtag('event', 'conversion', {'send_to': 'AW-746552734/OTBMCLninqcBEJ77_eMC'});
+	
+
+  
+}
+}
+});

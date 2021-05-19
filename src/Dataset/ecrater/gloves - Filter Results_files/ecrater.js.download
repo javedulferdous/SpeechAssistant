@@ -1,0 +1,371 @@
+$(function(){
+	/**
+	 * Accordion Collapsing
+	 */
+	
+	
+	/*Change #categories more button text upon clicking*/	
+	$('#categories').find('[data-target="#more-categories"]').click(function() {		
+		var $this = $(this);
+			text = ($this.text() == 'More Categories...' ? 'Less Categories...' : 'More Categories...');
+		
+		$this.text(text);		
+	});
+	 
+	 
+	$('body').on('click', '[data-toggle="collapse"]', function(e){
+		e.preventDefault();
+		var $parent = $(this).parents('.accordion-group');
+		
+		$(this).toggleClass('accordian-opened');
+		
+		if ($parent.hasClass('more')) {
+			$parent.remove();
+		} else {
+			var $this = $(this);
+				$icon = $this.find('i');
+				$opened = $parent.siblings().find('.icon-collapse');
+								
+				//Make sure the other items show a collapsed state.
+				$opened.each(function() {
+					$(this).removeClass('icon-collapse').addClass('icon-collapsed');
+					$(this).parent().removeClass('accordian-opened');			
+				});
+				
+			
+			if ($icon.hasClass('icon-collapse')) {
+				$icon.removeClass('icon-collapse').addClass('icon-collapsed');
+			} else {
+				$icon.removeClass('icon-collapsed').addClass('icon-collapse');
+			}
+		}
+	});
+		/**
+	 * Tooltips
+	 */
+	$('[data-toggle="tooltip"]').tooltip();
+
+	/**
+	 * Locale Widget
+	 */
+	$('.dropdown-menu a', $('#locale-widget')).click(function(e){
+		e.preventDefault();
+		var url = $(this).attr('href');
+		$('#locale-display').html($(this).html());
+		
+		//And off we go...
+		window.location = url;
+	});
+
+	/**
+	 * Checkboxes
+	 */
+	$('*[data-toggle="button"]').click(function(e){
+		var $target = null;
+		if ($(this).parent().hasClass('checkbox')) {
+			e.preventDefault();
+
+			$target = $($(this).data('target'));
+			if ($(this).hasClass('active')) {
+				$target.attr('disabled', 'disabled');
+			} else {
+				$target.removeAttr('disabled');
+			}
+		} else if ($(this).parent().hasClass('radio')) {
+			e.preventDefault();
+
+			var $this = $(this);
+			$target = $($this.data('target'));
+			$this.closest('ul').find('input').each(function(){
+				if ($(this)[0] === $target[0]) {
+					$(this).removeAttr('disabled');
+
+					// This is a hack to keep the radio option ticked... Recommend doing something else. Just can't think
+					// of anything at this time.
+					setTimeout(function(){
+						$this.addClass('active');
+					}, 1);
+				} else {
+					$(this).parent().find('.active').removeClass('active');
+					$(this).attr('disabled', 'disabled');
+				}
+			});
+		}
+	});
+
+	/**
+	 * Category Filters
+	 */
+	var $priceSlider = $('#price-slider');
+	if ($priceSlider.length) {
+		$priceSlider.slider({
+			range : true,
+			min   : 0,
+			max   : 3000,
+			step  : 5,
+			values: [0, 3000],
+			slide : function(e, ui) {
+				$('#price-min').val(ui.values[0]);
+				$('#price-max').val(ui.values[1]);
+			}
+		});
+		$('#price-min').val($priceSlider.slider('values', 0));
+		$('#price-max').val($priceSlider.slider('values', 1));
+
+		$('#reset-filters').click(function(e){
+			//e.preventDefault();
+
+			$('#price-min').val($priceSlider.slider('option', 'min'));
+			$priceSlider.slider('values', 0, $priceSlider.slider('option', 'min'));
+
+			$('#price-max').val($priceSlider.slider('option', 'max'));
+			$priceSlider.slider('values', 1, $priceSlider.slider('option', 'max'));
+
+			$('.checkbox .btn').each(function(){
+				var $target = $($(this).data('target'));
+				if ($(this).hasClass('active')) {
+					$target.attr('disabled', 'disabled');
+					$(this).removeClass('active');
+				}
+			});
+		});
+	}
+
+	/**
+	 * Contact Seller
+	 */
+	/*
+	$('button', $('#contact-seller')).click(function(e){
+		$(this).closest('.modal-body').html('<p>Your question has been <a href="#">sent</a>. The seller should contact you soon.</p>');
+	});
+	*/
+	
+
+	/**
+	 * Shipping
+	 */
+	/*
+	$('#shipping-check').click(function(e){
+		e.preventDefault();
+		$('#shipping-form').hide();
+		$('#shipping-results').show();
+	});
+
+	$('#shipping-recheck').click(function(e){
+		e.preventDefault();
+		$('#shipping-form').show();
+		$('#shipping-results').hide();
+	});
+	*/
+
+	/**
+	 * Scroll To Top
+	 */
+	var $scrollToTop = $('#scroll-to-top');
+	if ($scrollToTop.length) {
+		$scrollToTop.hide();
+		$(window).scroll(function(){
+			if ($(window).scrollTop() >= 120) {
+				$scrollToTop.fadeIn('fast');
+			} else {
+				$scrollToTop.fadeOut('fast');
+			}
+		});
+
+		$('a', $scrollToTop).click(function(e){
+			e.preventDefault();
+			$('body').animate({
+				scrollTop: 0
+			}, 'fast');
+		});
+	}
+	
+	/**
+	 * Load Modal Boxes from Ajax
+	 */
+	$('a[data-toggle^="modal-ajax"]').click(function(e){
+		e.preventDefault();
+		var $this = $(this);
+		modalID = $this.attr('href');
+		url = $this.attr('data-url');
+		
+		function toggleZip(obj)
+		{
+			if(obj.find('option:selected').attr('value') == 'United States')
+			{
+				obj.find('#zip').show();
+				obj.find('input[id^=zip]').removeAttr("disabled");
+			}
+			else
+			{
+				obj.find('#zip').hide();
+				obj.find('input[id^=zip]').attr("disabled", "disabled");
+			}
+		}
+		
+		//Load the modal content from ajax.
+		if($(modalID).length == 0)
+		{
+			$.ajax({
+				url: url,
+				type: "GET",
+				dataType: "html",
+				success: function (data) {
+					var $content = $(modalID ,data);
+					//Make sure it's actually a modal box.
+					if($content.hasClass('modal'))
+					{
+						//Prepare it.
+						$content.hide().removeClass('modal-page');
+						$('body').append($content);
+						
+						$modal = $(modalID);
+						$modal.modal();
+						
+						$modalBodyOriginal = $modal.find('.modal-body');
+						$modalForm = $modal.find('form[data-async]');
+						
+						// locate the close button and assign remove the modal when it is clicked
+						$modalHeader = $modal.find('.modal-header');
+						$modalClose = $modalHeader.find('button.close');
+						if($modalClose.length != 0)
+						{
+							$modalClose.click(function(event) {
+								//alert('remove');
+								$modal.modal('hide');
+								//$(".modal").remove();
+								if($("div#shipping-rates").length != 0)
+								{
+									$("div#shipping-rates").remove();
+								}
+								if($("div#contact-seller").length != 0)
+								{
+									$("div#contact-seller").remove();
+								}
+								if($("div#return-policy").length != 0)
+								{
+									$("div#return-policy").remove();
+								}
+								
+								event.preventDefault();
+							});
+						}
+						
+						if($modalForm.length != 0)
+						{
+							// preserve the div of the zip section. Needed when switching back to US after we chose a country that the seller does not ship to.
+							if($modalForm.find('div#zip'))
+							{
+								$zipDiv = $modalForm.find('div#zip');
+							}
+							
+							$('#country').change(function(event){
+								//alert('change1');
+								toggleZip($modalForm);
+								
+								event.preventDefault();
+							});
+						
+							//Has form, prepare it for submitting.
+							$modalForm.on('submit', function(event) {
+								var $form = $(this);
+									$formModal = $form.parents('.modal');
+									$modalBody = $formModal.find('.modal-body');
+									$modalClose = $formModal.find('button.close');
+									
+								//Submit the form contents via ajax.
+								//Return the results within the corresponding modal box.
+								$.ajax({
+									type: $form.attr('method'),
+									url: $form.attr('action'),
+									data: $form.serialize() + "&check=Check" + "&send=Send",
+									dataType: "html",
+									success: function(data, status) {
+										//Make the results a valid HTML element.
+										var doc = $('<html>').html(data);
+										$results = $('.modal-body', doc);
+										$form.empty();
+										$form.append($results);
+										
+										$('#shipping-recheck').click(function(event) {
+											$form.empty();
+											$form.append($modalBodyOriginal);
+											$form.get(0).reset();
+											
+											// if US is selected and the zip section is not there, add it
+											if($modalForm.find('option:selected').attr('value') == 'United States')
+											{
+												if($modalForm.find('div#zip').length == 0)
+												{
+													$zipDiv.insertAfter('.control-group');
+												}
+											}
+											
+											if($form.find('option:selected').attr('value') == 'United States')
+											{
+												$form.find('#zip').show();
+												$form.find('input[id^=zip]').removeAttr("disabled");
+											}
+											
+											$('#country').change(function(event){
+												//alert('change2');
+												toggleZip($modalForm);
+
+												event.preventDefault();
+											});
+											
+											event.preventDefault();
+										});
+										
+										// needed to catch the event after post when we get that the seller's does not ship to a certain country
+										$('#country').change(function(event){
+											//alert('change3');
+											// if US is selected and the zip section is not there, add it
+											if($(this).find('option:selected').attr('value') == 'United States')
+											{
+												if($modalForm.find('div#zip').length == 0)
+												{
+													$zipDiv.insertAfter('.control-group');
+												}
+											}
+											toggleZip($modalForm);
+											
+											event.preventDefault();
+										});
+									}
+								});
+								
+								event.preventDefault();
+							});
+						}
+					}
+				}
+			});
+		}
+	});
+
+	/**
+	 * Textarea Counter
+	 */
+	$('*[data-toggle="counter"]').keyup(function(e){
+		var max = parseInt($(this).data('max'));
+		var count = $(this).val().length;
+		var left = max - count;
+		var $target = $('#'+$(this).data('target'));
+
+		if (left < 0) {
+			left = 0;
+			$(this).val($(this).val().substr(0, max));
+		}
+
+		$target.find('span').text(left.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ","));
+	});
+	
+	/*! jQuery.customSelect() - v0.2.5 - 2013-02-04 */
+	(function(a){a.fn.extend({customSelect:function(c){if(typeof document.body.style.maxHeight!=="undefined"){var d={customClass:null,mapClass:true,mapStyle:true};c=a.extend(d,c);return this.each(function(){var e=a(this),g=a('<span class="customSelectInner" />'),f=a('<span class="customSelect" />').append(g);e.after(f);if(c.customClass){f.addClass(c.customClass)}if(c.mapClass){f.addClass(e.attr("class"))}if(c.mapStyle){f.attr("style",e.attr("style"))}e.on("update",function(){b(this);var i=parseInt(e.outerWidth(),10)-(parseInt(f.outerWidth(),10)-parseInt(f.width(),10));f.css({display:"inline-block"});g.css({width:i,display:"inline-block"});var h=f.outerHeight();e.css({"-webkit-appearance":"menulist-button",width:f.outerWidth(),position:"absolute",opacity:0,height:h,fontSize:f.css("font-size")})}).on("change",function(){f.addClass("customSelectChanged");b(this)}).on("keyup",function(){e.blur();e.focus()}).on("mousedown",function(){f.removeClass("customSelectChanged").toggleClass("customSelectOpen")}).focus(function(){f.removeClass("customSelectChanged").addClass("customSelectFocus")}).blur(function(){f.removeClass("customSelectFocus customSelectOpen")}).hover(function(){f.addClass("customSelectHover")},function(){f.removeClass("customSelectHover")}).trigger("update")})}}});function b(h){var g=a(h);var c=g.find(":selected");var i=g.next();var f=i.children(":first");var d=c.html()||"&nbsp;";f.html(d);setTimeout(function(){i.removeClass("customSelectOpen")},60)}})(jQuery);
+	
+	$('select').customSelect();
+	
+
+	
+});

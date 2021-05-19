@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<!-- saved from url=(0116)https://assets.adobedtm.com/7deb8111c940df73792ccb9937476cc412e87575/scripts/satellite-54cfae0464636100161c0500.html -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=windows-1252"></head><body data-new-gr-c-s-check-loaded="14.982.0">
+    <script>
+      (function(){
+        function escapeForHtml(str){
+          if (!str) return str
+          return str
+            .replace(/\&/g, '&amp;')
+            .replace(/\</g, '&lt;')
+            .replace(/\>/g, '&gt;')
+            .replace(/\"/g, '&quot;')
+            .replace(/\'/g, '&#x27;')
+            .replace(/\//g, '&#x2F;')
+        }
+
+        var regexChars = /[.*+?^${}()|[\]\\]/g;
+        function escapeForRegex(str) {
+          return str.replace(regexChars, "\\$&");
+        }
+
+        function parseQueryString(){
+          var ret = {}, parts = location.search.substring(1).split('&');
+          for (var i = parts.length; i--;) {
+            var vardef = parts[i].split('='), varname = vardef[0], value = vardef[1];
+            ret[varname] = unescape(value);
+          }
+          return ret;
+        }
+
+        var queryParams = parseQueryString();
+
+        var markup = "<script>\n  if(_satellite.getVar(\"Enable_DTM_CCPA\") === \"false\") {\n  if(window.dtmObject!=undefined && \n     window.dtmObject.BAS!=undefined && \n     window.dtmObject.BAS.ThirdPartyTags!=undefined &&\n     window.dtmObject.BAS.ThirdPartyTags.ATGsvcs != undefined\n    )\n  {\n    if(window.dtmObject.BAS.ThirdPartyTags.ATGsvcs.isEnabled)\n    {\n      var scriptTag= document.createElement(\"script\");\n      scriptTag.setAttribute(\"src\",window.dtmObject.BAS.ThirdPartyTags.ATGsvcs.Url);  \n      if(document.head===undefined)\n      {\n        document.getElementsByTagName('head')[0].appendChild(scriptTag);\n      }\n      else\n      {\n        document.head.appendChild(scriptTag);\n      }\n    }\n\n    /*if(window.dtmObject.BAS.ThirdPartyTags.EstaraLr.isEnabled)\n    {\n  \t\tvar scriptTag= document.createElement(\"script\");\n  \t\tscriptTag.setAttribute(\"src\",window.dtmObject.BAS.ThirdPartyTags.EstaraLr.Url);  \n  \t\tdocument.head.appendChild(scriptTag);\n    }\n\n    if(window.dtmObject.BAS.ThirdPartyTags.EstaraRules.isEnabled)\n    {\n  \t\tvar scriptTag= document.createElement(\"script\");\n  \t\tscriptTag.setAttribute(\"src\",window.dtmObject.BAS.ThirdPartyTags.EstaraRules.Url);  \n  \t\tdocument.head.appendChild(scriptTag);\n    }*/\n  }\n/*\n  var fileList = [\"https://www.walgreens.com/store/vpd/react/assets/common-aa6c3b8aa1db5131a99c.js\", \n                  \"https://www.walgreens.com/store/vpd/react/assets/client_bundle_atf-7363b92ea630d8c59366.js\",\n                  \"https://www.walgreens.com/store/vpd/react/assets/client_bundle_btf-633ba59403bdb424183b.js\",\n                  \"https://www.walgreens.com/store/vpd/react/assets/client_bundle_cl-42443aa5f6edb0a77efa.js\"];\n    var i;\n    for (i = 0; i < fileList.length; i++) {\n    if(fileList[i]!==\"\")\n    {\n        var scriptTag = document.createElement(\"img\");\n            scriptTag.setAttribute(\"src\", fileList[i]);\n            if (document.head === undefined) {\n              document.getElementsByTagName('head')[0].appendChild(scriptTag);\n            } else {\n              document.head.appendChild(scriptTag);\n            }\n            }\n    } */\n  }\n</scr"+"ipt>";
+
+        for (var name in queryParams){
+          var regex = new RegExp('%' + escapeForRegex(name) + '%', 'ig');
+          markup = markup.replace(regex, 
+            escapeForHtml(queryParams[name]));
+        }
+
+        document.write(markup)
+      })();
+    </script><script>
+  if(_satellite.getVar("Enable_DTM_CCPA") === "false") {
+  if(window.dtmObject!=undefined && 
+     window.dtmObject.BAS!=undefined && 
+     window.dtmObject.BAS.ThirdPartyTags!=undefined &&
+     window.dtmObject.BAS.ThirdPartyTags.ATGsvcs != undefined
+    )
+  {
+    if(window.dtmObject.BAS.ThirdPartyTags.ATGsvcs.isEnabled)
+    {
+      var scriptTag= document.createElement("script");
+      scriptTag.setAttribute("src",window.dtmObject.BAS.ThirdPartyTags.ATGsvcs.Url);  
+      if(document.head===undefined)
+      {
+        document.getElementsByTagName('head')[0].appendChild(scriptTag);
+      }
+      else
+      {
+        document.head.appendChild(scriptTag);
+      }
+    }
+
+    /*if(window.dtmObject.BAS.ThirdPartyTags.EstaraLr.isEnabled)
+    {
+  		var scriptTag= document.createElement("script");
+  		scriptTag.setAttribute("src",window.dtmObject.BAS.ThirdPartyTags.EstaraLr.Url);  
+  		document.head.appendChild(scriptTag);
+    }
+
+    if(window.dtmObject.BAS.ThirdPartyTags.EstaraRules.isEnabled)
+    {
+  		var scriptTag= document.createElement("script");
+  		scriptTag.setAttribute("src",window.dtmObject.BAS.ThirdPartyTags.EstaraRules.Url);  
+  		document.head.appendChild(scriptTag);
+    }*/
+  }
+/*
+  var fileList = ["https://www.walgreens.com/store/vpd/react/assets/common-aa6c3b8aa1db5131a99c.js", 
+                  "https://www.walgreens.com/store/vpd/react/assets/client_bundle_atf-7363b92ea630d8c59366.js",
+                  "https://www.walgreens.com/store/vpd/react/assets/client_bundle_btf-633ba59403bdb424183b.js",
+                  "https://www.walgreens.com/store/vpd/react/assets/client_bundle_cl-42443aa5f6edb0a77efa.js"];
+    var i;
+    for (i = 0; i < fileList.length; i++) {
+    if(fileList[i]!=="")
+    {
+        var scriptTag = document.createElement("img");
+            scriptTag.setAttribute("src", fileList[i]);
+            if (document.head === undefined) {
+              document.getElementsByTagName('head')[0].appendChild(scriptTag);
+            } else {
+              document.head.appendChild(scriptTag);
+            }
+            }
+    } */
+  }
+</script>
+  
+
+</body></html>

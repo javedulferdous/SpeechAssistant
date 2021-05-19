@@ -1,0 +1,282 @@
+var site = site || {};
+var prodcat = prodcat || {};
+prodcat.data = prodcat.data || {};
+var POWERREVIEWS = POWERREVIEWS || '';
+
+(function($) {
+  var pr_products = [];
+  var drupalPRSettings = Drupal.settings.analytics ? Drupal.settings.analytics.power_reviews_enh_enabled : false;
+  // Set up PowerReviews data on product.init
+  $(document).on('product.init-pr', '.js-product-pr', function() {
+    if (typeof POWERREVIEWS != 'undefined' && typeof Drupal.settings.power_reviews != 'undefined') {
+      var product = prodcat.data.getProduct($(this).data('product-id'));
+      var sku = prodcat.data.getSku($(this).data('sku-base-id'));
+
+      if (product != null) {
+        var skuId = sku !== null ? sku.SKU_BASE_ID + '-' : '';
+        var finderClassLength = $('.js_finder_quiz').find('.js-foundation-finder-result-page').length;
+        var reviewsnippet_id = 'pr-reviewsnippet-' + product.PROD_BASE_ID + '-' + (new Date()).getTime();
+        if (finderClassLength > 0) {
+          reviewsnippet_id = 'pr-reviewsnippet-' + skuId + product.PROD_BASE_ID + '-' + (new Date()).getTime();
+        }
+        var $reviewsnippet = $('.review-snippet', this);
+        $reviewsnippet.attr('id', reviewsnippet_id);
+
+        if (product && $reviewsnippet.length && !$reviewsnippet.hasClass('reviews-processed')) {
+          $reviewsnippet.addClass('reviews-processed');
+
+          var page_id = Drupal.settings.power_reviews.page_id || product.PROD_BASE_ID;
+          var review_wrapper_url = (Drupal.settings.power_reviews.review_wrapper_url || '/review/create') + '?page_id=' + page_id;
+
+          var pr_product = {
+            api_key: Drupal.settings.power_reviews.api_key,
+            locale: Drupal.settings.power_reviews.locale,
+            merchant_group_id: Drupal.settings.power_reviews.merchant_group_id,
+            merchant_id: Drupal.settings.power_reviews.merchant_id,
+            page_id: page_id,
+            review_wrapper_url: review_wrapper_url,
+            on_render: function(config, data) {
+              // MTA-222 Analytics enhancements for read/write reviews Starts
+              if (drupalPRSettings) {
+                // Track sort option in reviews page
+                $('#pr-rd-sort-by').once().on('change', function() {
+                  if (typeof site !== 'undefined' && typeof site.track !== 'undefined') {
+                    var obj = {
+                      sort_option: $('option:selected', this).text()
+                    };
+                    site.track.sortReviews(obj);
+                  }
+                });
+
+                // Track read revew button in reviews section
+                $('.pr-snippet-stars-container').once().on('click', function() {
+                  if (typeof site !== 'undefined' && typeof site.track !== 'undefined') {
+                    site.track.reviewRead();
+                  }
+                });
+              }
+              // MTA-222 Analytics enhancements for read/write reviews Ends
+            },
+            components: {
+              ReviewSnippet: reviewsnippet_id,
+            }
+          };
+
+          if ($(this).hasClass('product-full')) {
+            pr_product.on_read_reviews_click = function() {
+              $('.js-pr-rating-tab', $('.js-responsive-tabs--powerreviews')).click();
+              $('html, body').animate({
+                'scrollTop': $('#pr-reviewdisplay').offset().top
+              }, 1000);
+              if (typeof site !== 'undefined' && typeof site.track !== 'undefined') {
+                site.track.reviewRead();
+              }
+            };
+            pr_product.on_write_review_click = function(config, data) {
+              if (typeof site !== 'undefined' && typeof site.track !== 'undefined') {
+                site.track.reviewWriteStart();
+              }
+              var war_link = $('.pr-snippet-write-review-link').attr('href');
+              if (typeof war_link !== 'undefined' && war_link !== '') {
+                window.location.href = war_link;
+              }
+            };
+            pr_product.components.ReviewDisplay = 'pr-reviewdisplay';
+            var image_url = typeof product.IMAGE_L == 'object' ? encodeURI(product.IMAGE_L[0]) : encodeURI(product.IMAGE_L);
+            var url = encodeURI(product.url);
+            var price = product.defaultSku.PRICE;
+            pr_product.structured_data_product_id = 'pr_seo_snippet';
+            pr_product.product = {
+              name: product.PROD_RGN_NAME,
+              url: 'http://' + document.location.hostname + url,
+              image_url: 'http://' + document.location.hostname + image_url,
+              description: strip_html_tags(product.DESCRIPTION),
+              category_name: product.DEFAULT_CAT_ID,
+              upc: product.defaultSku.UPC_CODE,
+              brand_name: 'Origins',
+              price: price,
+              in_stock: product.isShoppable ? true : false
+            };
+          }
+
+          pr_products.push(pr_product);
+        }
+
+        if (Drupal.settings.power_reviews.show_ask_question && $(this).hasClass('product-full') && !$('#pr-questionsnippet').hasClass('question-processed')) {
+          $('#pr-questionsnippet').addClass('question-processed');
+          var page_id = Drupal.settings.power_reviews.page_id || product.PROD_BASE_ID;
+
+          var pr_product_question = {
+            api_key: Drupal.settings.power_reviews.api_key,
+            locale: Drupal.settings.power_reviews.locale,
+            merchant_group_id: Drupal.settings.power_reviews.merchant_group_id,
+            merchant_id: Drupal.settings.power_reviews.merchant_id,
+            page_id: page_id,
+            review_wrapper_url: review_wrapper_url,
+            on_render: function(config, data) {
+            // MTA-222 Analytics enhancements for Ask Answer section Starts
+              if (drupalPRSettings) {
+                //To disable community answer button from ask and answer section
+                if (Drupal.settings.power_reviews.hide_add_answer_button) {
+                  $('.pr-qa-display-question').addClass('add-your-answer-link--hide');
+                }
+                // Tracking while start asking a question
+                $('#pr-question-form-link').once().on('click', function() {
+                  if (typeof site !== 'undefined' && typeof site.track !== 'undefined' && $(this).text() !== 'Cancel') {
+                    site.track.questionAsk();
+                  }
+                });
+
+                // Tracking sort option in ask and answer section
+                $('#pr-qa-sort-by').once().on('change', function() {
+                  if (typeof site !== 'undefined' && typeof site.track !== 'undefined') {
+                    var obj = {
+                      sort_option: $('option:selected', this).text()
+                    };
+                    site.track.sortAnswers(obj);
+                  }
+                });
+
+                // Tracking search action in ask and answer section
+                $('.pr-qa-search-btn').once().on('click', function() {
+                  if (typeof site !== 'undefined' && typeof site.track !== 'undefined') {
+                    var searchTerm = $(this).siblings('#pr-query').attr('value');
+                    if (searchTerm && searchTerm !== '') {
+                      var obj = {
+                        search_term: searchTerm
+                      };
+                      site.track.questionAskSearch(obj);
+                    }
+                  }
+                });
+              }
+            },
+            // Tracking while submitting a question
+            on_submit: function(config, data) {
+              if (typeof site !== 'undefined' && typeof site.track !== 'undefined' && drupalPRSettings) {
+                site.track.questionAnswer();
+              }
+            },
+            on_view_answers_click: function() {
+              $('.js-pr-ask-tab', $('.js-responsive-tabs--powerreviews')).click();
+              $('html, body').animate({
+                'scrollTop': $('#pr-questiondisplay').offset().top
+              }, 1000);
+              // MTA-222 Tracking while start reading Q & A section
+              if (typeof site !== 'undefined' && typeof site.track !== 'undefined' && drupalPRSettings) {
+                site.track.questionAsk();
+              }
+            },
+            components: {
+              QuestionSnippet: 'pr-questionsnippet',
+              QuestionDisplay: 'pr-questiondisplay',
+            }
+          };
+          pr_products.push(pr_product_question);
+        }
+      }
+    }
+  });
+
+  // Remove ticker flagged products from the pr_products array to prevent displaying power reviews on removed products from grid
+  $(document).on('products.remove-ticker-flagged', '.js-product-grid-item', function(e, passedProdId) {
+    pr_products.forEach(function(pr_product) {
+      var productId = pr_product.page_id.toString().indexOf('PROD') !== -1 ? pr_product.page_id : 'PROD' + pr_product.page_id;
+      if (productId === passedProdId) {
+        pr_products.splice(pr_product, 1);
+      }
+    });
+  });
+
+  // Render power reviews after products have been initialized
+  $(document).on('products.init-start', function() {
+    pr_products = [];
+  });
+
+  // Tracking while start adding an answer for a question
+  $(document).on('click', '.pr-btn-answer .pr-qa-display-text', function() {
+    if (typeof site !== 'undefined' && typeof site.track !== 'undefined' && $(this).text() !== 'Cancel' && drupalPRSettings) {
+      site.track.addAnswerStart();
+    }
+  });
+
+  // MTA-222 Tracking while submitting an answer for question
+  $(document).on('click', '.pr-answer-form .pr-submit .pr-btn-review', function() {
+    if (typeof site !== 'undefined' && typeof site.track !== 'undefined' && drupalPRSettings) {
+      site.track.addAnswerEnd();
+    }
+  });
+
+  // MTA-222 Track thumbs up rating for a review
+  $(document).on('click', '.pr-rd-helpful-action .pr-helpful-yes', function() {
+    if (typeof site !== 'undefined' && typeof site.track !== 'undefined' && drupalPRSettings) {
+      var obj = {
+        event_action: 'thumbs up'
+      };
+      site.track.rateReviews(obj);
+    }
+  });
+
+  // MTA-222 Track thumbs down  rating for a review
+  $(document).on('click', '.pr-rd-helpful-action .pr-helpful-no', function() {
+    if (typeof site !== 'undefined' && typeof site.track !== 'undefined' && drupalPRSettings) {
+      var obj = {
+        event_action: 'thumbs down'
+      };
+      site.track.rateReviews(obj);
+    }
+  });
+
+  // MTA-222 Track flagging reviews in review page
+  $(document).on('click', '.pr-rd-flag-review-container .pr-underline, .pr-flag-review .pr-flag-review-btn-submit', function() {
+    if (typeof site !== 'undefined' && typeof site.track !== 'undefined' && drupalPRSettings) {
+      var obj = {
+        event_action: 'flag this review'
+      };
+      site.track.rateReviews(obj);
+    }
+  });
+
+  // MTA-222 Track thumbs up rating for an answer
+  $(document).on('click', '.pr-qa-display-answer-details .pr-helpful-yes', function() {
+    if (typeof site !== 'undefined' && typeof site.track !== 'undefined' && drupalPRSettings) {
+      var obj = {
+        event_action: 'thumbs up'
+      };
+      site.track.rateAnswers(obj);
+    }
+  });
+
+  // MTA-222 Track thumbs down  rating for an answer
+  $(document).on('click', '.pr-qa-display-answer-details .pr-helpful-no', function() {
+    if (typeof site !== 'undefined' && typeof site.track !== 'undefined' && drupalPRSettings) {
+      var obj = {
+        event_action: 'thumbs down'
+      };
+      site.track.rateAnswers(obj);
+    }
+  });
+
+  // MTA-222 Tracking show more answers click
+  $(document).on('click', '.pr-qa-display-show-more-questions', function() {
+    if (typeof site !== 'undefined' && typeof site.track !== 'undefined' && drupalPRSettings) {
+      site.track.showMoreAnswers();
+    }
+  });
+
+  // Render power reviews after products have been initialized
+  $(document).on('products.init-finish', function() {
+    if (typeof POWERREVIEWS != 'undefined' && typeof Drupal.settings.power_reviews != 'undefined') {
+      POWERREVIEWS.display.render(pr_products);
+    }
+  });
+
+  function strip_html_tags(str) {
+    if ((str === null) || (str === '')) {
+      return false;
+    } else {
+      str = str.toString();
+      return str.replace(/<[^>]*>/g, '');
+    }
+  }
+})(jQuery);

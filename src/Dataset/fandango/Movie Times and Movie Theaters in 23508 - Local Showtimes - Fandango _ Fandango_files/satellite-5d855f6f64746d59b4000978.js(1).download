@@ -1,0 +1,39 @@
+_satellite.pushAsyncScript(function(event, target, $variables){
+  //Uncut Gems 220344 MOP
+if(_satellite.getVar('Page Level 2') == 'movie | overview'){
+if(_satellite.getVar('Movie ID') == '220344'){
+	//PXL-278
+	_satellite.loadScript("https://www.googletagmanager.com/gtag/js?id=AW-709485747")
+	window.dataLayer = window.dataLayer || [];
+	function gtag(){dataLayer.push(arguments);}
+	gtag('js', new Date());
+	gtag('config', 'AW-709485747');
+	//event for Movie Overview Page
+	gtag('event', 'conversion', {'send_to': 'AW-709485747/qEWSCIOJ16sBELPJp9IC'});
+
+	//PXL-279
+	_satellite.addImage('//insight.adsrvr.org/track/conv/?adv=y80w81u&ct=0:q9kejnr&fmt=4')
+
+}
+}
+
+//Uncut Gems 220344 MSP
+if(_satellite.getVar('Page Level 2') == 'movie times | by movie'){
+if(_satellite.getVar('Movie ID') == '220344'){
+	//PXL-278
+	_satellite.loadScript("https://www.googletagmanager.com/gtag/js?id=AW-709485747")
+	window.dataLayer = window.dataLayer || [];
+	function gtag(){dataLayer.push(arguments);}
+	gtag('js', new Date());
+	gtag('config', 'AW-709485747');
+	//event for Movie Overview Page
+	gtag('event', 'conversion', {'send_to': 'AW-709485747/6ru5CJS4z6sBELPJp9IC'});
+
+	//PXL-279
+	_satellite.addImage('//insight.adsrvr.org/track/conv/?adv=y80w81u&ct=0:2ggggk7&fmt=4')
+
+}
+}
+
+
+});

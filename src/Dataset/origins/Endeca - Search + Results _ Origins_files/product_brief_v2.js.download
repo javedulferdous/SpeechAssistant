@@ -1,0 +1,2 @@
+var prodcat=prodcat||{};prodcat.data=prodcat.data||{},function(t){t(document).on("product.skuSelect",".js-product",(function(r,a){var e=t(this),o={},n=t();if((o=prodcat.data.getSku(a))&&o.hasOwnProperty("SHADENAME")&&t(".js-shadename",t(".product-brief__subtitle",e)).html(o.SHADENAME),o&&o.hasOwnProperty("MEDIUM_IMAGE_V2")&&o.MEDIUM_IMAGE_V2.length>0){if(!(n=t(".js-spp-link img",e)).length)return;for(var M=0,c=n.length;M<=c;M++)n.eq(M)&&o.MEDIUM_IMAGE_V2[M]&&n.eq(M).attr("src",o.MEDIUM_IMAGE_V2[M])}}))}(jQuery);
+//# sourceMappingURL=product_brief_v2.js.map

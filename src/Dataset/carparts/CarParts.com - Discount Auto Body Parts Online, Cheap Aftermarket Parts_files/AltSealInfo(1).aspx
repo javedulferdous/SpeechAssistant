@@ -1,0 +1,1 @@
+bs_R.AltSeal("_GUARANTEE_SealSpan","buysafeseal_1","uHBSOgdoj1aFU3XIypd45W9ei0AP9UsJ5NfUPQoeBbex4hqbkzLW4%2fStlMT61aHvBs%2bVtbulNNVElvfzoj2nYA%3d%3d","","Large","M","<filename>dot.gif</filename>");

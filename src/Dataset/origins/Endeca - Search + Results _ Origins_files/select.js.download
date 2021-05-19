@@ -1,0 +1,53 @@
+(function($) {
+
+'use strict';
+
+Drupal.behaviors.selectBox = {
+  attach: function(context) {
+    $('.selectBox:not(.selectBox-attached)', context).each(function() {
+      var selectBoxObj = $(this).addClass('selectBox-attached').selectBox({
+        mobile: $(this).hasClass('selectBox--yes-even-for-mobile')
+      });
+      // Adding role and aria-live to custom selectbox for ADA compilance
+      var control = selectBoxObj.data('selectBox-control');
+      var selectObjLabel = selectBoxObj.attr('name');
+      var selectLabel = "" ;
+      if (selectObjLabel) {
+        selectLabel = selectBoxObj.attr('name');
+      } else {
+        selectLabel = selectBoxObj.children().first().text();
+      }
+      if (control) {
+        control.attr({'role': 'combobox', 'aria-expanded': 'false'});
+        control.children('.selectBox-arrow').attr({'aria-label': selectLabel.trim()});
+        var selectElements = control.attr("aria-expanded");
+        control.keydown(function(e) {
+          if (site.getKeycode(e) === 13) {
+            selectElements = "false";
+            if (control.hasClass('selectBox-menuShowing')) {
+              selectElements = "true";
+            }
+          }
+          $(this).attr('aria-expanded', selectElements);
+        });
+        control.focusout(function(e) {
+          $(this).attr('aria-expanded', 'false');
+        });
+      }
+    });
+  },
+
+  // Use this instead of direclty invoking $('.selectBox').selectBox('refresh').
+  // The plugin doesn't take into account the fact that the selectBox may be
+  // disabled for touch and will blow up if it is.
+  refresh: function($selects) {
+    $selects.each(function() {
+      var control = $(this).data('selectBox-control');
+      if (control && control.length) {
+        $(this).selectBox('refresh');
+      }
+    });
+  }
+};
+
+})(jQuery);

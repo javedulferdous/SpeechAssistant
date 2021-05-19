@@ -1,0 +1,705 @@
+var site = (function($, Drupal, _, site, prodcat, undefined) {
+  'use strict';
+
+  var Product = site.prodProto;
+
+  /**
+   * The overall application of a page that may have zero or many Product objects
+   * Contains an array of Products and a way to search and retrieve. However,
+   * most Products are fine on their own. site.productApp instead can be used to
+   * render and interact with non-standard Products, like what is seen on
+   * Collections detail pages.
+   *
+   * @constructor
+   */
+  site.productApp = {
+    // defaults!
+    products: [], // Store Product objects here
+    templates: {}, // Inline template definitions
+    defaultTemplate: 'molecules_product_detail', // A fallback for Product rendering
+    productModules: {}, // Things we'll bind within Products, see product_modules.js for implementation
+    isPL: false,
+    invStatus: {
+      ACTIVE: 1,
+      TEMP_OUT_OF_STOCK: 2, //  can add to bag but ships when in stock
+      COMING_SOON: 3, // currently not shoppable
+      DO_NOT_DISPLAY: 4, // not shoppable
+      INACTIVE: 5, // not shoppable and removed from cart
+      PROMOTIONAL: 6, // not shoppable but not removed from cart (usually samples added to order)
+      SOLD_OUT: 7, // not shoppable and removed from cart
+      PROMOTIONAL_SOLD_OUT: 8 // not shoppable and removed from cart
+    },
+
+    // Kick it all off when called (currently from script.js)
+    init: function() {
+      this.isPL = $('html').hasClass('pl');
+      // Set data and templates
+      this.getPageData();
+      // Cache reusable elements
+      this.cacheElements();
+      // Bind events used in the app
+      this.bindEvents();
+      // getTemplates is now called at the time of rendering from Products
+      this.getTemplates();
+    },
+
+    // for initial shade routing upon page load
+    initialShadeRoute: window.location.href.split('#/shade/')[1],
+    initialShadeInit: false,
+
+    /**
+     * Load up all data useful for dealing with products.
+     * Put all setup steps in here, *synchronously*. page_data MUST be available
+     * by this point. Relies on methods in product_data.js, requiring DOM elements
+     * with the data-product-id="PROD12345" attribute.
+     */
+    getPageData: function() {
+      var productApp = this;
+
+      // ONLY the products we should care about are in pids arg from product_data.js
+      // This event is fired from with product_ui.js, after it scrapes the page
+      $(window).on('prodcat:UiInitialized', function(e, productsInPage) {
+        // Using page_data.js, load product data and add to our app
+        _.forEach(productsInPage, function(productInPage) {
+          // Create a product, returns a full Product object, or empty object
+          var product = productApp.createProduct(
+            {'prodid': productInPage.prodId}, // info
+            productInPage.$element // Actual DOM element
+          );
+
+          // Empty products will NOT be added to the array
+          if (!_.isEmpty(product)) {
+            // Attach dom events to product and add to product array
+            productApp.addProduct(product.attachDOM());
+          }
+        });
+        // Sometimes other things need to know all products are available
+        $(window).trigger('productApp:products_added');
+      });
+    },
+
+    /**
+     * Add a product to the productApp products collection (site.productApp.products)
+     *
+     * @param {Product} product
+     *  Fully created Product object
+     */
+    addProduct: function(product) {
+      // Add Product objects to our app so we can ask them to do things later
+      this.products.push(product);
+    },
+
+    /**
+     * Return a full Product
+     * This allows creation of a Product without all its events/modules wired up yet
+     * @param {Object} productInfo
+     * @param {jQuery} $productElement
+     * @param {Object} providedProdData, optional, send over data to avoid lookup
+     */
+    createProduct: function(productInfo, $productElement, providedProdData) {
+      // Give a chance to provide data or lookup instead
+      var prodData = _.isUndefined(providedProdData) ? prodcat.data.getProduct(productInfo.prodid) : providedProdData;
+
+      if (_.isNull(prodData)) {
+        //console.log('No page data from prodcat for ' + productInfo.prodid);
+        return {};
+      } else {
+        // Create Product
+        var product = !productInfo ? {} : new Product(
+          productInfo, // Default state
+          prodData, // Use existing functionality (product_data.js) to load an entire Product object
+          $productElement // Actual element in DOM
+        );
+        // Set state on Product from the DOM. Do NOT have it rewrite visual data
+        if (!_.isNull(product.$element)) {
+          product.setState(product.$element.data('product'), false);
+        }
+
+        return product;
+      }
+    },
+
+    /**
+     * Wipe out all products in siteApp. Useful in ajax applications where products
+     * in page need to be swept and re-initialized.
+     */
+    nukeProducts: function() {
+      this.products = [];
+    },
+
+    /**
+     * Mustache template prep
+     * Pull in data and templates used for rendering product info on frontend
+     *
+     */
+    getTemplates: function() {
+      var productApp = this;
+
+      // Now pick up the templates that are inline (this is what we eventually
+      // want full time)
+      $('.js-inline-template').each(function(index) {
+        productApp.templates[$(this).attr('id')] = $(this).html();
+      });
+
+      _.extend(productApp.templates, Drupal.settings.productAppTemplates);
+
+      // Now merge site.templates in here too
+      _.forEach(productApp.templates, function(includeName, partialName) {
+        // value here looks like 'product_detail_v1'
+        if (!_.isUndefined(site.templates[includeName])) {
+          productApp.templates[partialName] = site.templates[includeName].content;
+        }
+      });
+    },
+
+    /**
+     * Cache these repeatedly used things
+     */
+    cacheElements: function() {
+      this.$productApp = $('.js-product-app'); // Overall app
+    },
+
+    /**
+     * Wire up all possible product events
+     */
+    bindEvents: function() {
+      var productApp = this;
+
+      // By clicking .js-product-render-trigger, render a full Product and place
+      // it elsewhere, based on attributes found within js-product-render-trigger element
+      productApp.$productApp.on('quickshop:trigger', productApp.quickShopTrigger.bind(productApp));
+      // Bind specifically to click (removed from collections click because
+      // sly.js include 'active' event we ride on instead
+      productApp.$productApp.on('click', '.js-product-render-trigger', function(e) {
+        productApp.$productApp.trigger('quickshop:trigger', [$(e.currentTarget)]);
+      });
+
+      // Inventory check
+      $(window).on('l2_inv_status:updated', productApp.updateProductsData.bind(productApp));
+      // Gnav data check for reorder status, resorting etc
+      $(window).on('gnavdata_success', productApp.personalization.bind(productApp));
+      // Gnav data check for user pro status
+      $(window).on('gnavdata_success', productApp.isPro.bind(productApp));
+      // Gnav data check for product restricted status
+      //$(window).on('gnavdata_success', productApp.isRestricted.bind(productApp));
+      // Init personalization profile once the prodcat is set.
+      $(window).on('prodcat:UiInitialized', productApp.profile.bind(productApp));
+    },
+
+    isPro: function(event, gData) {
+      var self = this;
+
+      if (_.isNull(gData)) {
+        return;
+      }
+
+      // If this is not a PRO user
+      if (!gData.IS_PRO) {
+        // check if a sku has PRO_FLAG
+        var hasProFlag = function(sku) {
+          return !!sku.PRO_FLAG;
+        };
+
+        // remove MPP items
+        var removeProduct = function(product) {
+          self.products = _.without(self.products, product);
+          $(document).find('[data-product]').each(function() {
+            if ($(this).data('product').prodid === product.data.PRODUCT_ID) {
+              $(this).parents('.grid--mpp__item').remove();
+              $(this).remove();
+            }
+          });
+        };
+
+        // remove sku items
+        var removeSku = function(product, sku) {
+          // @TODO update shade select dropdown on SPP: Product.prototype.modules.shadePickerDropdown
+          product.data.skus = _.without(product.data.skus, sku);
+          // update the product sku to pro sku
+          var proSkuId = product.getProSkuObject().SKU_ID;
+          product.$element.trigger('product:change_shade', [{sku: proSkuId}]);
+          var isProductsPage = $('body').hasClass('page-products');
+          var removeSkuId = site.client.isMobile === 1 && !!isProductsPage ? proSkuId : sku.SKU_ID;
+          $(document).find('[data-product]').each(function() {
+            if ($(this).data('product').sku === removeSkuId) {
+              // update shade counts on MPP
+              var sku_count = $(this).parents('.grid--mpp__item').find('#sku_count');
+              if (sku_count.length > 0) {
+                sku_count.html(parseInt(product.data.skus.length));
+              }
+
+              var skuCountSppMobile = $(this).parents('.page--spp__product').find('.view-all-shades__text #sku_count');
+              if (skuCountSppMobile.length > 0) {
+                skuCountSppMobile.html(parseInt(product.data.skus.length));
+              }
+
+              // update shade counts on SPP
+              if ($(this).hasClass('shade-picker__color')) {
+                var shade_count = $(this).parents('.product__shade-column').siblings('.view-all-shades__wrapper').find('#sku_count.count');
+                if (shade_count.length > 0) {
+                  shade_count.html(parseInt(product.data.skus.length));
+                }
+                // finally, remove it
+                $(this).remove();
+                $("#js-shade-picker-dropdown--product-full option[value='" + sku.SKU_ID + "']").remove();
+              }
+              //Pc Add to bag sticky bar Shade list removed
+              var bodySppDevicePc = $('body.page-product').hasClass('device-pc');
+              if (!!bodySppDevicePc) {
+                $('#shade-picker-float__color--' + sku.SKU_ID).remove();
+              }
+            }
+          });
+        };
+
+        _.forEach(self.products, function(product) {
+          // does the product have PRO skus?
+          var enableRoute = true;
+          _.forEach(product.data.skus, function(sku) {
+            if (hasProFlag(sku)) {
+              product.setState({hasProSkus: true}, false);
+              removeSku(product, sku);
+            }
+          });
+
+          // is the entire product PRO (all skus match PRO_FLAG)?
+          if (product.getState('hasProSkus') && product.data.skus.every(hasProFlag)) {
+            removeProduct(product);
+          }
+        });
+      }
+    },
+
+    isRestricted: function($product, skuData) {
+      // ignore custom palettes
+      if ($product.parents('.page--spp__custom_palette').length > 0) {
+        return;
+      }
+
+      function _isPro() {
+        var is_pro = parseInt(site.userInfoCookie.getValue('is_pro'));
+        return is_pro === 1;
+      }
+
+      function _isRewardsEligible() {
+        // LOYALTY_ACTIVE_FLAG && ACCEPTED_LOYALTY_TERMS
+        var is_rewards_eligible = parseInt(site.userInfoCookie.getValue('is_rewards_eligible'));
+        return is_rewards_eligible === 1;
+      }
+
+      if (skuData && skuData.RESTRICT_GROUP) {
+        $product.find('.product__restricted-eligible').removeClass('hidden');
+        if (_isRewardsEligible() || _isPro()) {
+          $product.find('.product__add-to-bag').removeClass('disabled');
+        } else {
+          $product.find('.product__add-to-bag').addClass('disabled');
+        }
+      } else {
+        $product.find('.product__restricted-eligible').addClass('hidden');
+        $product.find('.product__add-to-bag').removeClass('disabled').addClass('js-add-to-bag');
+      }
+    },
+
+    /**
+     * productApp contains an array of products. Return a useful array of
+     * Product objects
+     *
+     * @param {Object} prodInfo
+     *  object that looks like {"prodid":"PROD123"}
+     * @returns {Array} of found Product objects
+     */
+    lookupProducts: function(prodInfo) {
+      // Have we even made any Product objects yet? (did page_data come over?)
+      if (_.isEmpty(this.products)) {
+        // console.warn('No Product data found in page.');
+        //var prodData = prodcat.data.getProduct(prodInfo.prodid);
+        //return this.createProduct(prodData);
+        return null;
+      }
+
+      // Return multiple products because we have the potential to have multiple on page
+      var foundProducts = _.filter(this.products, function(prod) {
+        //return prod.data.PRODUCT_ID === prodInfo.prodid;
+        return _.result(prod.data, 'PRODUCT_ID') === _.result(prodInfo, 'prodid');
+      });
+
+      if (_.isUndefined(foundProducts)) {
+        // commented out console for ie
+        //console.warn(prodInfo, 'prodInfo searched for is not found. See output.');
+        return null;
+      } else {
+        // Add in our id/sku information initially used to search
+        //
+        // Why do we merge in the data we're looking for? Doesn't this falsely
+        // set a "state" that we may not actually be in?
+        // @TODO: Test the above by removing this extend
+        _.forEach(foundProducts, function(foundProduct) {
+          _.extend(foundProduct.info, prodInfo);
+        });
+      }
+
+      return foundProducts;
+    },
+
+    /**
+     * Ask each Product to search its skus, return product list to work with
+     * @param {String} facet
+     *   Field within the Product's sku we want to search against: 'FINISH'
+     * @param {Array} search
+     *  Array of string values we'll search the facet for: ['SHINY', 'PEARL']
+     *
+     */
+    findProductsBySkuAttribute: function(facet, search) {
+      var skuResults = [];
+      return _.filter(this.products, function(prod) {
+        // Returns an entire array of Sku objects, search is array
+        skuResults = prod.filterSkusByAttribute(facet, search);
+
+        return !_.isEmpty(skuResults);
+      });
+    },
+
+    findProductsByProductAttribute: function(facet, search) {
+      var productResults = [];
+      return _.filter(this.products, function(prod) {
+        // Returns an entire array of product objects, search is array
+        productResults = prod.filterProductsByAttribute(facet, search);
+        return !_.isEmpty(productResults);
+      });
+    },
+
+    /**
+     * Respond to order, favorite data and update products
+     *
+     * @param event
+     * @param gData
+     */
+    personalization: function personalization(event, gData) {
+      var productApp = this;
+
+      //console.log(gData);
+
+      // Start with past purchases
+      var pastOrders = _.result(gData, 'PAST_PURCHASED_SKUS', false);
+      if (!pastOrders) {
+        return null;
+      }
+
+      // Build array of clean skus with "SKU"
+      var pastOrdersClean = _.chain(pastOrders)
+        .keys()
+        .map(function(id) {
+          return 'SKU' + id;
+        })
+        .value();
+
+      // Run through each past order SKUID
+      _.each(pastOrdersClean, function(skuid) {
+        // Object we'll use to extend inside 'updateData'
+        var productData = {
+          'skus': [{'SKU_ID': skuid, 'isPurchased': true}]
+        };
+
+        var foundProducts = productApp.findProductsBySkuAttribute('SKU_ID', [skuid]);
+
+        // If product is not available in products array, do not try to update its data
+        //if (!_.isUndefined(foundProducts)) {
+        // Run the 'updateData' method on each Product, send productData arg
+        //_.invoke(foundProducts, 'updateData', productData);
+        // ^^ commented out to disable Replenish button per JIRA#MAC-957
+        //}
+      });
+    },
+
+    /**
+     * Asynchronously update inventory status for all products on a page.
+     *
+     * @param {Object} event
+     *  Standard event first arg
+     * @param {Object} newProductData
+     *  Data returned from an RPC call checking inventory status of Products
+     */
+    updateProductsData: function updateProductsData(event, newProductData) {
+      var productApp = this;
+
+      // Verify we have something to work with
+      if (!_.isUndefined(newProductData.result.value.products)) {
+        var newProductDataClean = newProductData.result.value.products;
+
+        // If more than one of the same Product on page (ie when a
+        // Product appears as SPP as well as in the secondary menu), the RPC
+        // call may return duplicate RPC data for the products. Reduce these down.
+        var uniqueNewProductDataClean = _.uniq(newProductDataClean, 'PRODUCT_ID');
+
+        // Run through each new product data returned from RPC, tell each product
+        // to update itself with the new values
+        _.forEach(uniqueNewProductDataClean, function(productData) {
+          var foundProducts = productApp.lookupProducts({prodid: productData.PRODUCT_ID});
+
+          // If product is not available in products array, do not try to update its data
+          if (!_.isUndefined(foundProducts)) {
+            // Run the 'updateData' method on each Product, send productData arg
+            _.invoke(foundProducts, 'updateData', productData);
+          }
+        });
+        productApp.sortCustomMPPMobile();
+        productApp.sortProductGrids();
+
+        // Fire off an event to indicate that the re-rendering post L2 cache is done.
+        // Important for BV rendering which must be sequenced afterwards
+        $(window).trigger('l2_re-render:complete');
+      } else {
+        // commented out console for ie
+        //console.warn('No product data in rpc updates');
+        return null;
+      }
+    },
+
+    sortCustomMPPMobile: function() {
+      if (site.client.isMobile && !!Drupal.settings.globals_variables.sort_custom_mpp) {
+        $(window).trigger('customMPP:inventory_sort:started');
+        var products = this.products;
+        var iS = this.invStatus;
+        $('.js-mobile-collection-single-products-wrapper').each(function() {
+          var mpp_container = $(this);
+          products = $.grep(products, function(n, i) {
+            return n.$element.parents('.collection-products__list--item').length === 1;
+          });
+          var $prod_set = $('.mobile-collection-products-carousel', mpp_container);
+          $prod_set.each(function() {
+            var has_one_valid_sku = false;
+            var prod_sku_inv_status;
+            var $sku_set = $(this).children('.collection-products__list--item');
+            var $sku_set_wrapper = $sku_set.parent();
+            var product_index = $prod_set.index($sku_set_wrapper);
+            $sku_set.each(function() {
+              var $sku = $(this);
+              var index = $sku_set.index($sku);
+              var skuData = _.filter(products, function(n, i) {
+                if (n.$element['0'] === $('.product', $sku)[0]) {
+                  // products = _.omit(products, i);
+                  prod_sku_inv_status = n.data.INVENTORY_STATUS;
+                  var $currentElement = n.$element.parents('.collection-products__list--item');
+                  var unShoppable = _.includes([iS.TEMP_OUT_OF_STOCK, iS.COMING_SOON, iS.SOLD_OUT], parseInt(prod_sku_inv_status));
+                  $currentElement.data('sku_grid_position', unShoppable ? (prod_sku_inv_status * 1000) + $sku_set.length + index : index);
+                  has_one_valid_sku = has_one_valid_sku || !unShoppable;
+                  return true;
+                }
+              });
+              if (typeof skuData === 'undefined') {
+                $sku.data('sku_grid_position', index);
+              }
+            });
+            $sku_set_wrapper.data('grid_position', has_one_valid_sku ? product_index : (prod_sku_inv_status * 1000) + $prod_set.length + product_index);
+            $sku_set.sort(function(a, b) {
+              var sku_posA = $(a).data('sku_grid_position');
+              var sku_posB = $(b).data('sku_grid_position');
+              return sku_posA < sku_posB ? -1 : sku_posA > sku_posB ? 1 : 0;
+            });
+            $sku_set_wrapper.append($sku_set);
+          });
+          $prod_set.sort(function(a, b) {
+            var sku_posA = $(a).data('grid_position');
+            var sku_posB = $(b).data('grid_position');
+            return sku_posA < sku_posB ? -1 : sku_posA > sku_posB ? 1 : 0;
+          });
+          /**
+             Guaranteed only products in container.
+            */
+          mpp_container.append($prod_set);
+        });
+        $(window).trigger('customMPP:inventory_sort:completed');
+      }
+    },
+
+    /**
+     * Sort product grids per inventory status
+     * called by updateProductsData which is bound to the 'l2_inv_status:updated' window event.
+     *
+     */
+    sortProductGrids: function() {
+      var products = this.products;
+      var iS = this.invStatus;
+      // look for grids and sort'em
+      $('.grid--mpp, .shop-the-collection__carousel-slidee, .shop-the-collection__list-items').each(function() {
+        var $mppContainer = $(this);
+        var $mppItems = $mppContainer.children('.grid--mpp__item, .shop-the-collection__carousel-item, .shop-the-collection__list-item');
+        var isMppView = $mppContainer.hasClass('grid--mpp');
+        var isCustomMpp = $mppContainer.parents('.mpp-custom').length > 0;
+        var isCustomOverride = $mppContainer.parents('.js-mpp-custom-override-layout').length > 0;
+        var backorderStat = Drupal.settings.globals_variables.allow_backorder && isCustomOverride ? null : iS.TEMP_OUT_OF_STOCK;
+        var comingSoonStat = isCustomOverride ? null : iS.COMING_SOON;
+        // Simply sorting based on inventory status jumbles products of the same status.
+        // To respect the initial order from either .NET or CMS, first assign a position value, then sort using that value
+        $.each($mppItems, function(index, elem) {
+          var $prodEl = $(elem);
+          // pull the product object given the dom element
+          var prod = isMppView ?
+            $.grep(products, function(n, i) {
+              return n.$element['0'] === $('.product', $prodEl)[0];
+            })[0]
+            :
+            $.grep(products, function(n, i) {
+              return n.$element['0'] === $($prodEl)[0];
+            })[0];
+          // grab the inventory status - lowest sku inventory status within a product (only listed skus for collections)
+          if (typeof prod === 'undefined') {
+            $('.node', $prodEl).data('grid_position', index);
+          } else {
+            var isIndividualSku = !!Drupal.settings.globals_variables.sort_custom_mpp && isCustomMpp && prod.$element.find('.shade-picker').length < 1 || prod.$element.hasClass('js-sku-as-product');
+            var isSkuAsProduct = prod.$element.hasClass('js-sku-as-product');
+            var productId = parseInt(prod.data.PRODUCT_ID.replace('PROD', ''));
+
+            var skuInvStatus = _.filter(prod.data.skus, function(sku) {
+              if (sku.SKU_BASE_ID === parseInt($(prod.$element).data().skuBaseId)) {
+                return sku.INVENTORY_STATUS;
+              }
+            });
+
+            var skuLowestInvStatus = _.sortBy(prod.data.skus, function(n) {
+              return n.INVENTORY_STATUS;
+            })[0].INVENTORY_STATUS;
+
+            // prod.data.INVENTORY_STATUS - will be used only for custom MPP. using product-level inv status per #235055/#CX-3667
+            var customSkuInvStatus = !isSkuAsProduct ? prod.data.INVENTORY_STATUS : $(skuInvStatus)[0].INVENTORY_STATUS;
+
+            var mppSkuInvStatus = isIndividualSku ? customSkuInvStatus : skuLowestInvStatus;
+
+            // grabs the lowest inv status within a product's skus **that are listed as part of the collection**
+            var collectionLowestInvStatus = $(_.sortBy($('[data-product-id="' + prod.data.PRODUCT_ID + '"][data-inv-status]', $mppContainer), function(n) {
+              return $(n).attr('data-inv-status');
+            })[0]).attr('data-inv-status');
+
+            var prodInvStatus = isMppView ? mppSkuInvStatus : collectionLowestInvStatus;
+
+            // use this line if wanting lowest inv status from among *all* of a product's skus
+            //(_.sortBy(prod.data.skus, function(n) { return n.INVENTORY_STATUS })[0]).INVENTORY_STATUS;
+            // set position value and attach to dom element, respect the original position unless temp out of stock (2), coming soon (3), or sold out (7)
+            // + (isIndividualSku ? productId * 2 : 0) Groups the similar sku if they are TEMP_OUT_OF_STOCK, COMING_SOON, SOLD_OUT (* 2 to avoiding immediate product id)
+            $(prod.$element[0]).data('grid_position', _.includes([backorderStat, comingSoonStat, iS.SOLD_OUT], parseInt(prodInvStatus)) ?
+              (prodInvStatus * 99999) + $($mppItems).size() + $($mppItems).index($(this)) + (isIndividualSku ? productId * 2 : 0)
+              :
+              $($mppItems).index($(this))
+            );
+          }
+        });
+        // now sort the product elements based on their grid_position values
+        $mppItems.sort(function(a, b) {
+          var gridPosA = isMppView ? $($('.product, .node', a)[0]).data('grid_position') : $($(a)[0]).data('grid_position');
+          var gridPosB = isMppView ? $($('.product, .node', b)[0]).data('grid_position') : $($(b)[0]).data('grid_position');
+          return gridPosA < gridPosB ? -1 : gridPosA > gridPosB ? 1 : 0;
+        });
+        $($mppContainer).append($mppItems);
+        // notify container that its products have been sorted
+        $($mppContainer).trigger('products:inventory_sorted');
+      });
+    },
+
+    /**
+     * START INLINE, JS RENDERING COLLECTIONS AND QUICKSHOP FUNCTIONS
+     *
+     * The following methods are used to:
+     * A) Render much simpler Products (or their sku representations) via JS
+     * B) Trigger the rendering of a full Product to some other place (Quickshop)
+     *
+     */
+
+    /**
+     * Click a random element with specific attributes, cause a full Product to
+     * render elsewhere based on this interaction. This is mainly here to bind
+     * to specific DOM elements and is meant to be triggered on it's own.
+     */
+    quickShopTrigger: function(e, $product) {
+      var productInfo = $product.data('product');
+
+      // Assign default product rendering template if undefined
+      var template = $product.data('render-template');
+      if (_.isUndefined(template)) {
+        template = 'organisms-product';
+      }
+
+      // Rendered products need to be placed on page. If not indicated, inject in place
+      var $renderLocation;
+      if (_.isUndefined($product.data('render-location'))) {
+        $renderLocation = $product;
+      } else {
+        $renderLocation = $product.parents('.js-quickshop-container').find('.' + $product.data('render-location'));
+      }
+      // commented out console for ie
+      //console.log(productInfo, 'Quickshop triggered!');
+
+      // Render it in place
+      this.renderProductAndPlace(productInfo, template, $renderLocation);
+    },
+
+    /**
+     * Render and place a product VIA JAVASCRIPT
+     * The product is not always rendered in the same location it is triggered,
+     * ie quickshop
+     *
+     * @param {object} productInfo Object containing prodid and sku
+     * @param {string} template Template index on site.productApp.templates to render product with
+     * @param {jQuery} $renderLocation Location on the page we should render product output to
+     */
+    renderProductAndPlace: function(productInfo, template, $renderLocation) {
+      // Setup up product data details, do first pass render to get dom
+      var product = this.createProduct(productInfo, null).setSkuDetails(productInfo);
+
+      // Figure out current shade for routing. Since sku data has been _.extended()
+      // into product.data, we can safely assume that SHADENAME exists on
+      // product.data (if shaded product). Also replace spaces with underscores
+
+      // Coerce true/false from shadename here (hope we dont' have a shade
+      // that is named "0"
+      if (!!_.result(product.data, 'SHADENAME')) {
+        var shadeNameNoSpaces = _.result(product.data, 'SHADENAME').toString().split(' ').join('_');
+        product.data.url_route = '#/shade/' + shadeNameNoSpaces;
+        // dupe this var so our hardcoded path updates accordingly
+        product.data.qs_shade_route = '#/shade/' + shadeNameNoSpaces;
+      }
+
+      // product_detail_v1.mustache can use these vars on the js side
+      product.data.quickshop = true; // Prevent coloring .product__product-details-shade-name on quickshop
+
+      // Render product DOM
+      product.render(template);
+
+      // Stick this dom on page
+      $renderLocation.html(product.rendered);
+
+      // Assign new page location to $element
+      product.$element = $renderLocation.find('.product');
+
+      // Now finally attach the events and modules we need for full interaction
+      product.attachDOM();
+
+      // Change sku
+      product.$element.trigger('product:change_sku', [productInfo]);
+    },
+
+    /**
+      * Integration point for initializing the personalization profile class.
+      * Uses Drupal.MAC.hasPersonalization() to check if it's available on the site.
+      * Then calls site.profile.products if available and passes page_data and this.products.
+      * The files for this live in /themes/mac_base/js/shared/site/profile/.
+      */
+    profile: function() {
+      if (Drupal.MAC.hasPersonalization()) {
+        if (site.profile && site.profile.products) {
+          /*global page_data */
+          site.profile.products(page_data, this.products);
+        }
+      }
+    }
+
+    /**
+     * END INLINE, JS RENDERING COLLECTIONS AND QUICKSHOP FUNCTIONS
+     */
+
+  };
+
+  // Make it so
+  site.productApp.init();
+
+  return site;
+})(jQuery, Drupal, _, site || {}, this.prodcat || {});

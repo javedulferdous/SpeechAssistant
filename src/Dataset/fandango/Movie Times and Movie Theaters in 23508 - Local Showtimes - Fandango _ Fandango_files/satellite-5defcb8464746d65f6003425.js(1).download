@@ -1,0 +1,23 @@
+_satellite.pushAsyncScript(function(event, target, $variables){
+  //Desktop MOP Template
+//Hidden Life 219830
+if(_satellite.getVar('Movie ID') == '219830'){
+  if(_satellite.getVar('Page Level 2') == 'movie | overview'){
+//pxl-397
+ _satellite.addImage('https://d.agkn.com/iframe/7043/?che=[cachebuster]&uid=[third_party_user_id]&type=144830&ouid='+_satellite.getVisitorId().getMarketingCloudVisitorID())
+
+
+}
+}
+//Desktop MSP Template
+
+//Hidden Life 219830
+if(_satellite.getVar('Movie ID') == '219830'){
+  if(_satellite.getVar('Page Level 2') == 'movie times | by movie'){
+//pxl-397
+ _satellite.addImage('https://d.agkn.com/iframe/7043/?che=[cachebuster]&uid=[third_party_user_id]&type=1448300&ouid='+_satellite.getVisitorId().getMarketingCloudVisitorID())
+
+
+}
+}
+});

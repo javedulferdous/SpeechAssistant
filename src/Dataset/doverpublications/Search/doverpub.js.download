@@ -1,0 +1,30 @@
+jQuery(document).ready(function ($) {
+    // TRIGGER TOOLTIPS
+    $("[rel=tooltip]").tooltip({
+        delay: {
+            show: 10,
+            hide: 200
+        },
+        placement: 'bottom'
+    });
+	$('.subscribe-tip').popover({ trigger: "hover" });
+	$('a.new-window').click(function(){
+        window.open(this.href);
+        return false;
+    });
+	// ADD ELLIPSIS TO THUMBNAIL DESCRIPTIONS AND UPDATE WHEN TABBING
+	$('.book-title, .book-author').dotdotdot({
+    	watch: true,
+	});
+	// ADD TOGGLES TO ACCORDION
+    $(".accordion-body").on("show", function (event) {
+        $('i', $(this).prev()).addClass("icon-minus-sign");
+    });
+    $(".accordion-body").on("hide", function (event) {
+        $('i', $(this).prev()).addClass("icon-plus-sign").removeClass("icon-minus-sign");
+    });
+	// ADD Carousel
+	$('#myCarousel1').carousel({
+	interval: 10000
+	})
+});

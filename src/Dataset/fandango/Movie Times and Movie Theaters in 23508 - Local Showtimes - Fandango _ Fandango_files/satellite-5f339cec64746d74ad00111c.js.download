@@ -1,0 +1,70 @@
+_satellite.pushAsyncScript(function(event, target, $variables){
+   //Movie Showtimes Page
+if(_satellite.getVar('Page Level 2') == 'movie times | by movie'){
+ //The New Mutants 206666 || 223287
+if(_satellite.getVar('Movie ID') == '206666' || _satellite.getVar('Movie ID') == '223287'){
+//PXL-598 snap
+
+(function(e,t,n){if(e.snaptr)return;var a=e.snaptr=function(){a.handleRequest?a.handleRequest.apply(a,arguments):a.queue.push(arguments)};a.queue=[];var s='script';r=t.createElement(s);r.async=!0;r.src=n;var u=t.getElementsByTagName(s)[0];u.parentNode.insertBefore(r,u);})(window,document,'https://sc-static.net/scevent.min.js');
+
+snaptr('init', 'b372d472-9cfb-492d-84f5-93c6d73dd157', {'user_email': '_INSERT_USER_EMAIL_'});
+snaptr('track', 'b372d472-9cfb-492d-84f5-93c6d73dd157', 'PAGE_VIEW');
+      
+  
+  
+  _satellite.addImage('https://d.agkn.com/iframe/7043/?che=%n&uid=[third_party_user_id]&type=6834900d&ouid='+_satellite.getVisitorId().getMarketingCloudVisitorID())
+
+     //pxl-589 MSP
+  _satellite.loadScript('https://www.googletagmanager.com/gtag/js?id=AW-709805659');
+window.dataLayer = window.dataLayer || [];  function gtag(){dataLayer.push(arguments);}  
+gtag('js', new Date());  
+gtag('config', 'AW-709805659')
+gtag('event', 'conversion', { 'send_to': 'AW-709805659/ILoWCKre1dIBENuMu9IC', 'transaction_id': '' });
+
+
+  _satellite.loadScript('https://www.googletagmanager.com/gtag/js?id=AW-627503187');
+window.dataLayer = window.dataLayer || [];  function gtag(){dataLayer.push(arguments);}  
+gtag('js', new Date());  
+gtag('config', 'AW-627503187')
+gtag('event', 'conversion', {'send_to': 'AW-627503187/xKXFCOrBttIBENPgm6sC'});
+
+
+}
+}
+
+
+//Movie Overview Page
+if(_satellite.getVar('Page Level 2') == 'movie | overview'){
+  
+  //PXL-598
+
+(function(e,t,n){if(e.snaptr)return;var a=e.snaptr=function(){a.handleRequest?a.handleRequest.apply(a,arguments):a.queue.push(arguments)};a.queue=[];var s='script';r=t.createElement(s);r.async=!0;r.src=n;var u=t.getElementsByTagName(s)[0];u.parentNode.insertBefore(r,u);})(window,document,'https://sc-static.net/scevent.min.js');
+
+snaptr('init', 'b372d472-9cfb-492d-84f5-93c6d73dd157', {'user_email': '_INSERT_USER_EMAIL_'});
+snaptr('track', 'b372d472-9cfb-492d-84f5-93c6d73dd157', 'PAGE_VIEW');
+  
+       _satellite.addImage('https://d.agkn.com/iframe/7043/?che=%n&uid=[third_party_user_id]&type=6834900c&ouid='+_satellite.getVisitorId().getMarketingCloudVisitorID())
+
+
+ //The New Mutants 206666 || 223287
+if(_satellite.getVar('Movie ID') == '206666' || _satellite.getVar('Movie ID') == '223287'){
+
+     //pxl-589 MOP
+  _satellite.loadScript('https://www.googletagmanager.com/gtag/js?id=AW-709805659');
+window.dataLayer = window.dataLayer || [];  function gtag(){dataLayer.push(arguments);}  
+gtag('js', new Date());  
+gtag('config', 'AW-709805659')
+gtag('event', 'conversion', { 'send_to': 'AW-709805659/ILoWCKre1dIBENuMu9IC', 'transaction_id': '' }); 
+
+
+  _satellite.loadScript('https://www.googletagmanager.com/gtag/js?id=AW-627503187');
+window.dataLayer = window.dataLayer || [];  function gtag(){dataLayer.push(arguments);}  
+gtag('js', new Date());  
+gtag('config', 'AW-627503187')
+gtag('event', 'conversion', {'send_to': 'AW-627503187/22TfCM6lx9IBENPgm6sC'}); 
+
+}
+
+}
+
+});

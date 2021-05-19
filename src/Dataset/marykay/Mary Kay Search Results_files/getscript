@@ -1,0 +1,135 @@
+var guards = [];            // Holds all active Guards instances, one is declared for each Guards Group (validation group) found on the current page.
+var guardsGroupsObjs;       // Holds all page elements that contain a 'data-guards-group' attribute. Used to determine all unique Guards Groups on the current page.
+var guardsGroupsNames = []; // All unique/distinct Guards Groups on the current page.
+
+var guardsTypeDefinitions = [];
+guards.isLiveGuard = 'false';
+
+guardsTypeDefinitions.push({
+'typeName': "required",
+'associatedGuards': { "required":"" },
+'matchingPattern': "",
+'matchingWords': "",
+'minimumValue': "",
+'maximumValue': "",
+'comparisonClass': "",
+'errorClass': "error",
+'hasPrecondition': "False",
+'hasPreconditionTargetClass': "",
+'hasPreconditionTargetId': "",
+'useGroupedValidation': "False",
+'excludeEmptyValue': "False",
+});
+
+guardsTypeDefinitions.push({
+'typeName': "password",
+'associatedGuards': { "required":"" },
+'matchingPattern': "",
+'matchingWords': "",
+'minimumValue': "",
+'maximumValue': "",
+'comparisonClass': "",
+'errorClass': "error",
+'hasPrecondition': "False",
+'hasPreconditionTargetClass': "",
+'hasPreconditionTargetId': "",
+'useGroupedValidation': "False",
+'excludeEmptyValue': "False",
+});
+
+guardsTypeDefinitions.push({
+'typeName': "passwordCompare",
+'associatedGuards': { "required":"","same":"Password must match" },
+'matchingPattern': "",
+'matchingWords': "",
+'minimumValue': "",
+'maximumValue': "",
+'comparisonClass': "ComparePasswords",
+'errorClass': "error",
+'hasPrecondition': "False",
+'hasPreconditionTargetClass': "",
+'hasPreconditionTargetId': "",
+'useGroupedValidation': "False",
+'excludeEmptyValue': "False",
+});
+
+guardsTypeDefinitions.push({
+'typeName': "phoneUS",
+'associatedGuards': { "required":"","phoneUS":"[[Validation.ValidPhoneNumber]]" },
+'matchingPattern': "",
+'matchingWords': "",
+'minimumValue': "",
+'maximumValue': "",
+'comparisonClass': "",
+'errorClass': "error",
+'hasPrecondition': "False",
+'hasPreconditionTargetClass': "",
+'hasPreconditionTargetId': "",
+'useGroupedValidation': "False",
+'excludeEmptyValue': "False",
+});
+
+guardsTypeDefinitions.push({
+'typeName': "emailSignUpEmail",
+'associatedGuards': { "required":"This field is required","string":"[[Validation_Max_255_Characters]]","email":"Sorry, the email address format is invalid." },
+'matchingPattern': "",
+'matchingWords': "",
+'minimumValue': "",
+'maximumValue': "64",
+'comparisonClass': "",
+'errorClass': "error",
+'hasPrecondition': "False",
+'hasPreconditionTargetClass': "",
+'hasPreconditionTargetId': "",
+'useGroupedValidation': "False",
+'excludeEmptyValue': "False",
+});
+
+guardsTypeDefinitions.push({
+'typeName': "emailSignUpEmailConfirm",
+'associatedGuards': { "required":"This field is required","same":"The email addresses must match.","email":"Sorry, the email address format is invalid." },
+'matchingPattern': "",
+'matchingWords': "",
+'minimumValue': "",
+'maximumValue': "64",
+'comparisonClass': "emailaddressSignUp",
+'errorClass': "error",
+'hasPrecondition': "False",
+'hasPreconditionTargetClass': "",
+'hasPreconditionTargetId': "",
+'useGroupedValidation': "False",
+'excludeEmptyValue': "False",
+});
+
+guardsTypeDefinitions.push({
+'typeName': "SignUpEmailConfirm",
+'associatedGuards': { "required":"This field is required","same":"The email addresses must match.","email":"Sorry, the email address format is invalid." },
+'matchingPattern': "",
+'matchingWords': "",
+'minimumValue': "",
+'maximumValue': "",
+'comparisonClass': "emailaddressSignUp",
+'errorClass': "error",
+'hasPrecondition': "False",
+'hasPreconditionTargetClass': "",
+'hasPreconditionTargetId': "",
+'useGroupedValidation': "False",
+'excludeEmptyValue': "False",
+});
+
+guardsTypeDefinitions.push({
+'typeName': "emailSignUpCheckbox",
+'associatedGuards': { "mk_checkbox_required":"" },
+'matchingPattern': "",
+'matchingWords': "",
+'minimumValue': "",
+'maximumValue': "",
+'comparisonClass': "",
+'errorClass': "error",
+'hasPrecondition': "False",
+'hasPreconditionTargetClass': "",
+'hasPreconditionTargetId': "",
+'useGroupedValidation': "False",
+'excludeEmptyValue': "False",
+});
+

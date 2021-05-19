@@ -1,0 +1,169 @@
+
+<!-- saved from url=(0587)https://servedby.flashtalking.com/container/8416;62459;6532;iframe/?ft_referrer=https%3A%2F%2Fwww.premierinn.com%2Fgb%2Fen%2Fsearch.html%3FsearchModel.searchTerm%3DFrankfurt%2C%2520Germany%26PLACEID%3DChIJxZZwR28JvUcRAMawKVBDIgQ%26ARRdd%3D12%26ARRmm%3D11%26ARRyyyy%3D2020%26NIGHTS%3D3%26ROOMS%3D1%26ADULT1%3D1%26CHILD1%3D0%26COT1%3D0%26INTTYP1%3DDB%26BOOKINGCHANNEL%3DWEB%26SORT%3D1%26VIEW%3D2&ftXRef=N/A&ftXValue=N/A&U1=FRAHOF&U2=12/11/2020&U3=15/11/2020&U4=3&U5=1&U6=double&U7=Hotel%20room&U8=N/A&U9=FRAHOF&U10=premier%20inn%20search%20results&U11=1&U12=0&U13=&U14=N/A636487.0743274711 -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=windows-1252"></head><body data-new-gr-c-s-check-loaded="14.983.0">
+
+<script>var urlHarvest = true;</script>
+<img style="width:1px; height:1px;" src="./saved_resource">
+<script>
+var ft_hSeg = {
+		ref_url:document.referrer,
+		ref_protocol:'',
+		ref_domain:'',
+		ref_path:'',
+		ref_queryStr:'',
+		spot_gID:6532, 
+		seg_set_QStr:false, 
+		seg_uri:'',
+		seg_dom:'',
+		ad_domains:['servedby.flashtalking.com','servedby.flashtalking.com'],
+		parseUri:function(str){
+						var o = this,
+							splitObj = /^(https[s]?):\/\/?([^\/\s]+)\/([\w\.]+[^#?;\s]+)(.*)?/.exec(str);
+							if(splitObj===null) return false;
+						var	retObj = {
+									protocol:splitObj[1],
+									domain:splitObj[2],
+									path:splitObj[3],
+									queryString:splitObj[4]
+									}
+						return retObj;
+				},
+		set_seg:function(){
+								var	split_obj = this.parseUri(this.check_ref(this.ref_url)),
+									seg_path = '/segment/2/read/a;;pixel/?s='+this.spot_gID+'&d=';
+								if(split_obj===false) return false;
+								this.ref_protocol = split_obj.protocol;
+								this.ref_domain = split_obj.domain;
+								this.ref_queryStr = split_obj.queryString;
+								this.ref_path = split_obj.path.replace(new RegExp(decodeURIComponent('%5E/%7C/%24/g')), '');
+								this.seg_dom = this.ad_domains[(this.ref_protocol == 'https')? 0 : 1];
+								this.seg_uri = this.ref_protocol+'://'+this.seg_dom+seg_path+this.ref_domain+'&r='+this.ref_path+(this.seg_set_QStr?'&q='+decodeURIComponent(this.ref_queryStr):'');
+								new Image().src=this.seg_uri;
+								return true;
+						},
+		check_ref:function(url){
+			if(url==''){
+				var st=window.location.search.indexOf('ft_referrer=')+12,
+					en=(window.location.search.substring(st)).indexOf('&ns=');
+				return decodeURIComponent(window.location.search.substring(st,en+st));
+			}else{
+				return this.ref_url;
+			}
+		}
+	};
+
+		ft_hSeg.set_seg();
+</script>
+
+<script>
+
+(function(){
+
+var uncode = function(s) {
+   try {
+    return decodeURIComponent(s);
+   } catch (e ) {
+    return unescape(s);
+   }
+  },
+  sanitiser = function(s) {
+   return uncode(s).replace(/[^a-z0-9_]/gi, "").toLowerCase();
+  };
+
+var U1 = sanitiser("FRAHOF"),
+    U10 = sanitiser("premier inn search results"),
+    transactionVal = ("N/A"),
+    searchPagesTest = /^ndpremierinn$/.test(U10),
+    searchResultsPagesTest = /ndpremierinnsearchresults/.test(U10),
+    listingPagesTest = /ndpremierinnhoteldirectory/.test(U10),
+    productPagesTest = /ndpremierinnseo/.test(U10),
+    hotelBookingTest = /ndpremierinnhoteldetails/.test(U10),
+    bookingPagesTest = /yourdetails/.test(U10),
+    confirmationTest =/confirmation/.test(U10),
+    bookConfirmation = /bbtbookahotelbookingconfirmation/.test(U10),
+    ftRandom = Math.random()*1000000;
+    ifrm = document.createElement('iframe');
+    ifrm.style.cssText='width:1px;height:1px;position:absolute;display:none;';
+    var ftProtocol = 'https';
+    // var ftProtocol = 'https';
+
+if ( searchPagesTest || searchResultsPagesTest || listingPagesTest ){
+
+  // console.log('searchPagesTest');
+
+ifrm.src=ftProtocol+"://servedby.flashtalking.com/container/8416;66124;6836;iframe/?spotName=SearchPages&U1=FRAHOF&U2=12/11/2020&U3=15/11/2020&U4=3&U5=1&U6=double&U7=Hotel room&U8=N/A&U9=FRAHOF&U10=premier inn search results&U11=1&U12=0&U13=&U14=N/A636487.0743274711&cachebuster="+ftRandom;
+  document.body.appendChild(ifrm);
+
+} else if ( productPagesTest || hotelBookingTest ){
+
+ifrm.src=ftProtocol+"://servedby.flashtalking.com/container/8416;66125;6836;iframe/?spotName=ProductPages&U1=FRAHOF&U2=12/11/2020&U3=15/11/2020&U4=3&U5=1&U6=double&U7=Hotel room&U8=N/A&U9=FRAHOF&U10=premier inn search results&U11=1&U12=0&U13=&U14=N/A636487.0743274711&cachebuster="+ftRandom;
+  document.body.appendChild(ifrm);
+
+  } else if ( bookConfirmation ){ 
+// Conversion
+ifrm.src=ftProtocol+"://servedby.flashtalking.com/container/8416;110773;6836;iframe/?spotName=Booking_confirmation_page_Business_Booker&ftXRef=N/A&ftXValue=N/A&U1=FRAHOF&U2=12/11/2020&U3=15/11/2020&U4=3&U5=1&U6=double&U7=Hotel room&U8=N/A&U9=FRAHOF&U10=premier inn search results&U11=1&U12=0&U13=&U14=N/A636487.0743274711&U15=&U16=&cachebuster="+ftRandom;
+  document.body.appendChild(ifrm);
+
+} else if ( confirmationTest ){ 
+// Conversion
+  ifrm.src=ftProtocol+"://servedby.flashtalking.com/container/8416;66126;6836;iframe/?spotName=BookingPages&ftXRef=N/A&ftXValue=N/A&U1=FRAHOF&U2=12/11/2020&U3=15/11/2020&U4=3&U5=1&U6=double&U7=Hotel room&U8=N/A&U9=FRAHOF&U10=premier inn search results&U11=1&U12=0&U13=&U14=N/A636487.0743274711&cachebuster="+ftRandom;
+  document.body.appendChild(ifrm);
+
+} 
+
+
+}());
+
+</script><script>
+//Pixel Manager | Export Date: Oct. 14, 2020 @ 10:55am UTC
+var ft_hSeg = {
+    ref_url:document.referrer,
+    ref_protocol:'',
+    ref_domain:'',
+    ref_path:'',
+    ref_queryStr:'',
+    spot_gID:'6532',
+    seg_set_QStr:false,
+    seg_uri:'',
+    seg_dom:'',
+    ad_domains:['servedby.flashtalking.com','servedby.flashtalking.com'],
+    parseUri:function(str){
+            var o = this,
+              splitObj = /^(http[s]?):\/\/?([^\/\s]+)\/([\w\.]+[^#?;\s]+)(.*)?/.exec(str);
+              if(splitObj===null) return false;
+            var retObj = {
+                  protocol:splitObj[1],
+                  domain:splitObj[2],
+                  path:splitObj[3],
+                  queryString:splitObj[4]
+                  }
+            return retObj;
+        },
+    set_seg:function(run){
+                            if(run == false) { return false };
+                var split_obj = this.parseUri(this.check_ref(this.ref_url)),
+                  seg_path = '/segment/2/read/a;;pixel/?s='+this.spot_gID+'&d=';
+                if(split_obj===false) return false;
+                this.ref_protocol = 'https';
+                this.ref_domain = split_obj.domain;
+                this.ref_queryStr = split_obj.queryString;
+                this.ref_path = split_obj.path.replace(new RegExp(decodeURIComponent('%5E/%7C/%24/g')), '');
+                this.seg_dom = this.ad_domains[(this.ref_protocol == 'http')? 0 : 1];
+                this.seg_uri = this.ref_protocol+'://'+this.seg_dom+seg_path+this.ref_domain+'&r='+this.ref_path+(this.seg_set_QStr?'&q='+decodeURIComponent(this.ref_queryStr):'');
+                new Image().src=this.seg_uri;
+                return true;
+            },
+    check_ref:function(url){
+            var st=window.location.search.indexOf('ft_referrer=')+12,
+                en=(window.location.search.substring(st)).indexOf('&ns=');
+                if(en === -1) en = 9e9;
+                cont_ref = decodeURIComponent(window.location.search.substring(st,en+st));
+            if (url === ''|| this.ref_url !== cont_ref){
+                return  cont_ref;
+            }else{
+                return this.ref_url;
+            }
+    }
+  };
+  ft_hSeg.set_seg(urlHarvest);
+</script></body></html>

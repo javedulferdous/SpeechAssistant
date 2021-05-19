@@ -1,0 +1,38 @@
+(function($, settings) {
+
+// --------------------
+// This is a temporary fix put in during launch
+//
+// On the old website, CA users would use the .com
+// domain to view the site after clicking on an interstitial.
+// This caused their LOCALE cookie to be set to en_CA instead
+// of en_US. So now, post launch, any CA user coming to the .com
+// domain likely still has the en_CA LOCALE cookie.
+// This code just resets their LOCALE cookie back to 'en_US'
+// when they're on the .com domain.
+// This may break things if/when a spanish version of the US site
+// is launched, so keep this in mind.
+// --------------------
+
+if ($.isFunction($.cookie)) {
+  var host = settings.origins.host;
+
+  if (host.indexOf('www.') == 0) {
+    host = host.substr(4, host.length);
+  }
+
+  if (host.indexOf('m.') == 0) {
+    host = host.substr(2, host.length);
+  }
+
+  host  = '.' + $.trim(host);
+
+  // Technically, we can set this cookie to anything other than en_CA and the frontend RPC request will reset it to en_US
+  $.cookie('LOCALE', 'en_US', {
+    expires: 365,
+    domain: host,
+    path: '/'
+  });
+}
+
+})(jQuery, Drupal.settings);

@@ -1,0 +1,2 @@
+define("./_base/kernel ./has require ./sniff ./_base/lang ./_base/array ./_base/config ./ready ./_base/declare ./_base/connect ./_base/Deferred ./_base/json ./_base/Color ./has!dojo-firebug?./_firebug/firebug ./has!host-browser?./_base/browser ./has!dojo-sync-loader?./_base/loader".split(" "),function(c,d,b,k,f,g,e,h){d.add("dojo-config-require",1);if(d("dojo-config-require")){var a=e.require;a&&(a=g.map(f.isArray(a)?a:[a],function(a){return a.replace(/\./g,"/")}),
+c.isAsync?b(a):h(1,function(){b(a)}))}return c});

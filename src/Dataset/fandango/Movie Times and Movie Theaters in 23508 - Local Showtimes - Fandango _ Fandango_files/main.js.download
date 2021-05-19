@@ -1,0 +1,887 @@
+
+///////////////////////////////////////////////////
+/*                  HELPERS                      */
+///////////////////////////////////////////////////
+
+
+var util = (function() {
+	
+	var _this = {};
+
+	// element selector
+	_this.ele = function(elem) {
+		return document.querySelector(elem);
+	}
+
+	_this.elemQ = function(elem) {
+        return document.querySelectorAll(elem);
+    }
+
+    _this.autoSizeText = function(copy) {
+      var el, elements, _i, _len, _results;
+      elements = _this.elemQ(copy);
+      //console.log(elements);
+      if (elements.length < 0) {
+        return;
+      }
+      _results = [];
+      for (_i = 0, _len = elements.length; _i < _len; _i++) {
+        el = elements[_i];
+        _results.push((function(el) {
+          var resizeText, _results1;
+          resizeText = function() {
+            var elNewFontSize;
+            //elNewFontSize = (parseInt($(el).css('font-size').slice(0, -2)) - 1) + 'px';
+            elNewFontSize =  (parseInt(window.getComputedStyle(_this.ele(copy), null).getPropertyValue('font-size').slice(0, -2))-1) + 'px';
+            //console.log(window.getComputedStyle(_this.ele(copy), null).getPropertyValue('font-size'));
+            //return $(el).css('font-size', elNewFontSize);
+            return _this.ele(copy).style.fontSize = elNewFontSize;
+          };
+          _results1 = [];
+          while (el.scrollHeight > el.offsetHeight) {
+            _results1.push(resizeText());
+          }
+          return _results1;
+        })(el));
+      }
+      return _results;
+    };
+
+	_this.toTitleCase = function (str)
+	{
+	    //return str.replace(/\w\S*/g, function(txt){return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();});
+	    str=true ? str.toLowerCase() : str;
+	    return str.replace(/(^([a-zA-Z\p{M}]))|([ -][a-zA-Z\p{M}])/g,
+	    function(firstLetter){
+	    return firstLetter.toUpperCase();
+	    });
+	}
+
+	_this.strLang;
+	_this.strSLang;
+	_this.strULang;
+	_this.strSep;
+	_this.strPair;
+	_this.strOnError;
+	_this.strTypeLng;
+	_this.strTypeBrLng;
+	_this.strTypeSysLng;
+	_this.strTypeUsrLng;
+	_this.strOut;
+
+	_this.checkLang =  function() {
+	    "use strict";
+	    _this.strSep = "|";
+	    _this.strPair = "=";
+	    _this.strOnError = "Error";
+	    _this.strLang = null;
+	    _this.strSLang = null;
+	    _this.strULang = null;
+	    _this.strTypeLng = null;
+	    _this.strTypeBrLng = null;
+	    _this.strTypeSysLng = null;
+	    _this.strTypeUsrLng = null;
+	    _this.strOut = null;
+
+	    try {
+	        _this.strTypeLng = typeof (navigator.language);
+	        _this.strTypeBrLng = typeof (navigator.browserLanguage);
+	        _this.strTypeSysLng = typeof (navigator.systemLanguage);
+	        _this.strTypeUsrLng = typeof (navigator.userLanguage);
+
+	        if (_this.strTypeLng !== "undefined") {
+	            _this.strLang = navigator.language;
+	        } else if (_this.strTypeBrLng !== "undefined") {
+	            _this.strLang = navigator.browserLanguage;
+	        } else {
+	            _this.strLang = null;
+	        }
+
+	        if (_this.strTypeSysLng !== "undefined") {
+	            _this.strSLang = navigator.systemLanguage;
+	        } else {
+	            _this.strSLang = null;
+	        }
+
+	        if (_this.strTypeUsrLng !== "undefined") {
+	            _this.strULang = navigator.userLanguage;
+	        } else {
+	            _this.strULang = null;
+	        }
+	        _this.strOut = _this.strLang || _this.strSLang || _this.strULang;
+	        return _this.strOut.toLowerCase();
+
+	    } catch (err) {
+	        return _this.strOnError;
+	    }
+	}
+
+	_this.autoresizeText = function (el) {
+		// If argument is not a DOMelement, return false
+		if (el.nodeType !== 1) return false;
+		var txt = el.innerHTML,
+		// Get styles of original element
+		styles = window.getComputedStyle(el, null),
+		fontsize = parseInt(styles['font-size'], 10),
+		padding = parseInt(styles['padding-left'], 10) + parseInt(styles['padding-right'], 10),
+		indent = parseInt(styles['text-indent'], 10),
+		fontfamily = styles['font-family'],
+		// Set width of the original element
+		elx = parseInt(el.offsetWidth, 10) - padding - indent,
+		// New placeholder element
+		placeholder = document.createElement('div'),
+		newfontsize;
+		// Set the placeholder to fit the text precisely
+		placeholder.setAttribute('style', 'float:left;white-space:nowrap;visibility:hidden;font-size:' + fontsize + 'px;font-family:' + fontfamily);
+		placeholder.innerHTML = txt;
+		// And add to the current DOM
+		document.body.appendChild(placeholder);
+		if (placeholder.offsetWidth > elx) {
+		// If the text is too big, decrease font-size until it fits
+		while (placeholder.offsetWidth > elx) {
+			placeholder.style.fontSize = parseInt(placeholder.style.fontSize, 10) - 1 + 'px';
+		};
+		} else {
+		// If the text is too small, increase font-size until it fits
+		while (placeholder.offsetWidth < elx) {
+			placeholder.style.fontSize = parseInt(placeholder.style.fontSize, 10) + 1 + 'px';
+		};
+		}
+		newfontsize = parseInt(placeholder.style.fontSize, 10) - 1;
+		// Default the maximum fontsize is the initial fontsize.
+		// If you want the text to grow bigger too, change the following line to
+		// el.style.fontSize = newfontsize + 'px';
+		el.style.fontSize = (newfontsize < fontsize ? newfontsize : fontsize) + 'px';
+		// Clean up the placeholder
+		placeholder.parentElement.removeChild(placeholder);
+        
+	}
+
+    _this.addSuff = function(url, string) { 
+      var urlSuffix = string; 
+      var _url = ''; 
+
+      if (url) { 
+        var symbol = (url.indexOf('?') > -1) ? '&': '?'; 
+        if(urlSuffix) { 
+          while (urlSuffix.charAt(0) == '?' || urlSuffix.charAt(0) == '&') { 
+            urlSuffix = urlSuffix.substring(1); 
+          } 
+          if (urlSuffix.indexOf('?') > -1) { 
+            urlSuffix = urlSuffix.replace(/\?/g, '&'); 
+          } 
+        } 
+        _url = url + symbol + urlSuffix; 
+      } 
+      return _url; 
+    } 
+
+    _this.applyAutoresize = function (eleId, options) {
+        var settings = extend({
+           maximum   : 9999,
+           minimum   : 1,
+           maxFont   : 9999,
+           minFont   : 1,
+           fontRatio : 35
+        }, options),
+
+        changes = function(el) {
+
+             var el = _this.ele(eleId),
+             elw = el.offsetWidth,
+             width = elw > settings.maximum ? settings.maximum : elw < settings.minimum ? settings.minimum : elw,
+             fontBase = width / settings.fontRatio,
+             fontSize = fontBase > settings.maxFont ? settings.maxFont : fontBase < settings.minFont ? settings.minFont : fontBase;
+             TweenMax.set(el,{fontSize:fontSize+'px'});
+
+         };
+
+        window.onresize = function(){changes(eleId);}
+        changes(eleId);
+    };
+
+    var extend = function(out) {
+      out = out || {};
+
+      for (var i = 1; i < arguments.length; i++) {
+        if (!arguments[i])
+          continue;
+
+        for (var key in arguments[i]) {
+          if (arguments[i].hasOwnProperty(key))
+            out[key] = arguments[i][key];
+        }
+      }
+
+      return out;
+    };
+    _this.scaleFactor = 1;
+    _this.scaleIt = function (element,holder,transO) {
+    	if(util.ele(element).offsetWidth > util.ele(holder).offsetWidth || util.ele(element).offsetHeight > util.ele(holder).offsetHeight) {
+    		var sca;
+    		var scaW = util.ele(holder).offsetWidth/util.ele(element).offsetWidth;
+    		var scaH = util.ele(holder).offsetHeight/util.ele(element).offsetHeight;
+    		console.log('>>>>>>>>>>>> ',element,holder,' <<<<<<<<<<<<')
+    		console.log('scaW >>> ',scaW,'scaH >>> ',scaH);
+
+    		if(scaW > scaH){
+    			sca = scaH;
+    		}
+    		else if(scaH > scaW) {
+    			sca = scaW;
+    		}
+    		console.log('sca >>>',sca);
+    		console.log('');
+    		console.log('');
+    		TweenMax.set(element,{scale:sca,transformOrigin:transO});
+    		_this.scaleFactor = sca;
+
+
+    	}
+    }
+
+    _this.transformIt = function(point) {
+        switch(point.toLowerCase()) {
+            case 'lt':
+                return '0% 0%';
+            break;
+
+            case 'mt':
+                return '50% 0%';
+            break;
+
+            case 'rt':
+                return '100% 0%';
+            break;
+
+            case 'lm':
+                return '0% 50%';
+            break;
+
+            case 'mm':
+                return '50% 50%';
+            break;
+
+            case 'rm':
+                return '100% 50%';
+            break;
+
+            case 'lb':
+                return '0% 100%';
+            break;
+
+            case 'mb':
+                return '50% 100%';
+            break;
+
+            case 'rb':
+                return '100% 100%';
+            break;
+        }
+    }
+
+	return _this;
+
+}());
+
+
+///////////////////////////////////////////////////
+/*               RMDA CONTENT LOAD               */
+///////////////////////////////////////////////////
+
+var rmda = (function() {
+	var _this = {};
+
+	Enabler.setProfileId(10456792);
+    var devDynamicContent = {};
+
+    devDynamicContent.Google_Merchant_Center = [{},{},{},{}];
+    devDynamicContent.Google_Merchant_Center[0]._id = 0;
+    devDynamicContent.Google_Merchant_Center[0].offer_title = "Slice USA";
+    devDynamicContent.Google_Merchant_Center[0].offer_description = "Classic court style from back in the day. These shoes have a clean retro look inspired by \'90s tennis shoes. The vulcanized-look rubber outsole is grippy and supportive whether you\'re on your board or cruising around on foot. Textile upper Vulcanized-look rubber outsole Imported";
+    devDynamicContent.Google_Merchant_Center[0].offer_regular_price = {};
+    devDynamicContent.Google_Merchant_Center[0].offer_regular_price.value = 65.0;
+    devDynamicContent.Google_Merchant_Center[0].offer_regular_price.currency = "USD";
+    devDynamicContent.Google_Merchant_Center[0].offer_regular_price.priceString = "65.00 USD";
+    devDynamicContent.Google_Merchant_Center[0].offer_regular_price.formattedPrice = "";
+    devDynamicContent.Google_Merchant_Center[0].merlot_category = ["Electronics > Television"];
+    devDynamicContent.Google_Merchant_Center[0].languages = ["en"];
+    devDynamicContent.Google_Merchant_Center[0].countries = ["US"];
+    devDynamicContent.Google_Merchant_Center[0].offer_brand = "Reebok";
+    devDynamicContent.Google_Merchant_Center[0].offer_landing_page_derived = {};
+    devDynamicContent.Google_Merchant_Center[0].offer_landing_page_derived.Url = "https://ad.doubleclick.net/ddm/clk/320797030;150054910;r?https://www.reebok.com/us/slice-usa/DV5567.html?cm_mmc=ReebokDisplay_RM-_-google-_-dynamic_remarketing-_-image-_-dv:eCom-_-cn:{ifdbm:${CAMPAIGN_ID}}-_-pc:Court,Lifestyle&cm_mmc1=US";
+    devDynamicContent.Google_Merchant_Center[0].offer_image_derived = {};
+    devDynamicContent.Google_Merchant_Center[0].offer_image_derived.image200 = {};
+    devDynamicContent.Google_Merchant_Center[0].offer_image_derived.image200.url = "https://encrypted-tbn2.gstatic.com/shopping?q=tbn:ANd9GcTqWc9PfadmsW2p9cNAkz1ZZOdRG6Pe7rD4uzhPIy_siLBsvujq4Gb0Yg742hc";
+    devDynamicContent.Google_Merchant_Center[0].offer_image_derived.image200.w = 200;
+    devDynamicContent.Google_Merchant_Center[0].offer_image_derived.image200.h = 200;
+    devDynamicContent.Google_Merchant_Center[0].offer_image_derived.image400 = {};
+    devDynamicContent.Google_Merchant_Center[0].offer_image_derived.image400.url = "https://encrypted-tbn2.gstatic.com/shopping?q=tbn:ANd9GcQ3xIX4dm7IZw4tQSSYZ99yYBY0Yf0NRPfJmRnyUulQ2GFcj0vd5G3T8ct-8MI";
+    devDynamicContent.Google_Merchant_Center[0].offer_image_derived.image400.w = 400;
+    devDynamicContent.Google_Merchant_Center[0].offer_image_derived.image400.h = 400;
+    devDynamicContent.Google_Merchant_Center[0].offer_image_derived.original = {};
+    devDynamicContent.Google_Merchant_Center[0].offer_image_derived.original.url = "";
+    devDynamicContent.Google_Merchant_Center[0].offer_image_derived.original.w = 0;
+    devDynamicContent.Google_Merchant_Center[0].offer_image_derived.original.h = 0;
+    devDynamicContent.Google_Merchant_Center[0].offer_sale_price = {};
+    devDynamicContent.Google_Merchant_Center[0].offer_sale_price.value = 0.99;
+    devDynamicContent.Google_Merchant_Center[0].offer_sale_price.currency = "USD";
+    devDynamicContent.Google_Merchant_Center[0].offer_sale_price.priceString = "0.99 USD";
+    devDynamicContent.Google_Merchant_Center[0].offer_sale_price.formattedPrice = "";
+    devDynamicContent.Google_Merchant_Center[1].offer_title = "Slice USA";
+    devDynamicContent.Google_Merchant_Center[1].offer_description = "Classic court style from back in the day. These shoes have a clean retro look inspired by \'90s tennis shoes. The vulcanized-look rubber outsole is grippy and supportive whether you\'re on your board or cruising around on foot. Textile upper Vulcanized-look rubber outsole Imported";
+    devDynamicContent.Google_Merchant_Center[1].offer_regular_price = {};
+    devDynamicContent.Google_Merchant_Center[1].offer_regular_price.value = 65.0;
+    devDynamicContent.Google_Merchant_Center[1].offer_regular_price.currency = "USD";
+    devDynamicContent.Google_Merchant_Center[1].offer_regular_price.priceString = "65.00 USD";
+    devDynamicContent.Google_Merchant_Center[1].offer_regular_price.formattedPrice = "";
+    devDynamicContent.Google_Merchant_Center[1].merlot_category = ["Electronics > Television"];
+    devDynamicContent.Google_Merchant_Center[1].languages = ["en"];
+    devDynamicContent.Google_Merchant_Center[1].countries = ["US"];
+    devDynamicContent.Google_Merchant_Center[1].offer_brand = "Reebok";
+    devDynamicContent.Google_Merchant_Center[1].offer_landing_page_derived = {};
+    devDynamicContent.Google_Merchant_Center[1].offer_landing_page_derived.Url = "https://ad.doubleclick.net/ddm/clk/320797030;150054910;r?https://www.reebok.com/us/slice-usa/DV5567.html?cm_mmc=ReebokDisplay_RM-_-google-_-dynamic_remarketing-_-image-_-dv:eCom-_-cn:{ifdbm:${CAMPAIGN_ID}}-_-pc:Court,Lifestyle&cm_mmc1=US";
+    devDynamicContent.Google_Merchant_Center[1].offer_image_derived = {};
+    devDynamicContent.Google_Merchant_Center[1].offer_image_derived.image200 = {};
+    devDynamicContent.Google_Merchant_Center[1].offer_image_derived.image200.url = "https://encrypted-tbn2.gstatic.com/shopping?q=tbn:ANd9GcTqWc9PfadmsW2p9cNAkz1ZZOdRG6Pe7rD4uzhPIy_siLBsvujq4Gb0Yg742hc";
+    devDynamicContent.Google_Merchant_Center[1].offer_image_derived.image200.w = 200;
+    devDynamicContent.Google_Merchant_Center[1].offer_image_derived.image200.h = 200;
+    devDynamicContent.Google_Merchant_Center[1].offer_image_derived.image400 = {};
+    devDynamicContent.Google_Merchant_Center[1].offer_image_derived.image400.url = "https://encrypted-tbn2.gstatic.com/shopping?q=tbn:ANd9GcQ3xIX4dm7IZw4tQSSYZ99yYBY0Yf0NRPfJmRnyUulQ2GFcj0vd5G3T8ct-8MI";
+    devDynamicContent.Google_Merchant_Center[1].offer_image_derived.image400.w = 400;
+    devDynamicContent.Google_Merchant_Center[1].offer_image_derived.image400.h = 400;
+    devDynamicContent.Google_Merchant_Center[1].offer_image_derived.original = {};
+    devDynamicContent.Google_Merchant_Center[1].offer_image_derived.original.url = "";
+    devDynamicContent.Google_Merchant_Center[1].offer_image_derived.original.w = 0;
+    devDynamicContent.Google_Merchant_Center[1].offer_image_derived.original.h = 0;
+    devDynamicContent.Google_Merchant_Center[1].offer_sale_price = {};
+    devDynamicContent.Google_Merchant_Center[1].offer_sale_price.value = 0.99;
+    devDynamicContent.Google_Merchant_Center[1].offer_sale_price.currency = "USD";
+    devDynamicContent.Google_Merchant_Center[1].offer_sale_price.priceString = "0.99 USD";
+    devDynamicContent.Google_Merchant_Center[1].offer_sale_price.formattedPrice = "";
+    devDynamicContent.Google_Merchant_Center[2].offer_title = "Slice USA";
+    devDynamicContent.Google_Merchant_Center[2].offer_description = "Classic court style from back in the day. These shoes have a clean retro look inspired by \'90s tennis shoes. The vulcanized-look rubber outsole is grippy and supportive whether you\'re on your board or cruising around on foot. Textile upper Vulcanized-look rubber outsole Imported";
+    devDynamicContent.Google_Merchant_Center[2].offer_regular_price = {};
+    devDynamicContent.Google_Merchant_Center[2].offer_regular_price.value = 65.0;
+    devDynamicContent.Google_Merchant_Center[2].offer_regular_price.currency = "USD";
+    devDynamicContent.Google_Merchant_Center[2].offer_regular_price.priceString = "65.00 USD";
+    devDynamicContent.Google_Merchant_Center[2].offer_regular_price.formattedPrice = "";
+    devDynamicContent.Google_Merchant_Center[2].merlot_category = ["Electronics > Television"];
+    devDynamicContent.Google_Merchant_Center[2].languages = ["en"];
+    devDynamicContent.Google_Merchant_Center[2].countries = ["US"];
+    devDynamicContent.Google_Merchant_Center[2].offer_brand = "Reebok";
+    devDynamicContent.Google_Merchant_Center[2].offer_landing_page_derived = {};
+    devDynamicContent.Google_Merchant_Center[2].offer_landing_page_derived.Url = "https://ad.doubleclick.net/ddm/clk/320797030;150054910;r?https://www.reebok.com/us/slice-usa/DV5567.html?cm_mmc=ReebokDisplay_RM-_-google-_-dynamic_remarketing-_-image-_-dv:eCom-_-cn:{ifdbm:${CAMPAIGN_ID}}-_-pc:Court,Lifestyle&cm_mmc1=US";
+    devDynamicContent.Google_Merchant_Center[2].offer_image_derived = {};
+    devDynamicContent.Google_Merchant_Center[2].offer_image_derived.image200 = {};
+    devDynamicContent.Google_Merchant_Center[2].offer_image_derived.image200.url = "https://encrypted-tbn2.gstatic.com/shopping?q=tbn:ANd9GcTqWc9PfadmsW2p9cNAkz1ZZOdRG6Pe7rD4uzhPIy_siLBsvujq4Gb0Yg742hc";
+    devDynamicContent.Google_Merchant_Center[2].offer_image_derived.image200.w = 200;
+    devDynamicContent.Google_Merchant_Center[2].offer_image_derived.image200.h = 200;
+    devDynamicContent.Google_Merchant_Center[2].offer_image_derived.image400 = {};
+    devDynamicContent.Google_Merchant_Center[2].offer_image_derived.image400.url = "https://encrypted-tbn2.gstatic.com/shopping?q=tbn:ANd9GcQ3xIX4dm7IZw4tQSSYZ99yYBY0Yf0NRPfJmRnyUulQ2GFcj0vd5G3T8ct-8MI";
+    devDynamicContent.Google_Merchant_Center[2].offer_image_derived.image400.w = 400;
+    devDynamicContent.Google_Merchant_Center[2].offer_image_derived.image400.h = 400;
+    devDynamicContent.Google_Merchant_Center[2].offer_image_derived.original = {};
+    devDynamicContent.Google_Merchant_Center[2].offer_image_derived.original.url = "";
+    devDynamicContent.Google_Merchant_Center[2].offer_image_derived.original.w = 0;
+    devDynamicContent.Google_Merchant_Center[2].offer_image_derived.original.h = 0;
+    devDynamicContent.Google_Merchant_Center[2].offer_sale_price = {};
+    devDynamicContent.Google_Merchant_Center[2].offer_sale_price.value = 0.99;
+    devDynamicContent.Google_Merchant_Center[2].offer_sale_price.currency = "USD";
+    devDynamicContent.Google_Merchant_Center[2].offer_sale_price.priceString = "0.99 USD";
+    devDynamicContent.Google_Merchant_Center[2].offer_sale_price.formattedPrice = "";
+    devDynamicContent.Google_Merchant_Center[3].offer_title = "Slice USA";
+    devDynamicContent.Google_Merchant_Center[3].offer_description = "Classic court style from back in the day. These shoes have a clean retro look inspired by \'90s tennis shoes. The vulcanized-look rubber outsole is grippy and supportive whether you\'re on your board or cruising around on foot. Textile upper Vulcanized-look rubber outsole Imported";
+    devDynamicContent.Google_Merchant_Center[3].offer_regular_price = {};
+    devDynamicContent.Google_Merchant_Center[3].offer_regular_price.value = 65.0;
+    devDynamicContent.Google_Merchant_Center[3].offer_regular_price.currency = "USD";
+    devDynamicContent.Google_Merchant_Center[3].offer_regular_price.priceString = "65.00 USD";
+    devDynamicContent.Google_Merchant_Center[3].offer_regular_price.formattedPrice = "";
+    devDynamicContent.Google_Merchant_Center[3].merlot_category = ["Electronics > Television"];
+    devDynamicContent.Google_Merchant_Center[3].languages = ["en"];
+    devDynamicContent.Google_Merchant_Center[3].countries = ["US"];
+    devDynamicContent.Google_Merchant_Center[3].offer_brand = "Reebok";
+    devDynamicContent.Google_Merchant_Center[3].offer_landing_page_derived = {};
+    devDynamicContent.Google_Merchant_Center[3].offer_landing_page_derived.Url = "https://ad.doubleclick.net/ddm/clk/320797030;150054910;r?https://www.reebok.com/us/slice-usa/DV5567.html?cm_mmc=ReebokDisplay_RM-_-google-_-dynamic_remarketing-_-image-_-dv:eCom-_-cn:{ifdbm:${CAMPAIGN_ID}}-_-pc:Court,Lifestyle&cm_mmc1=US";
+    devDynamicContent.Google_Merchant_Center[3].offer_image_derived = {};
+    devDynamicContent.Google_Merchant_Center[3].offer_image_derived.image200 = {};
+    devDynamicContent.Google_Merchant_Center[3].offer_image_derived.image200.url = "https://encrypted-tbn2.gstatic.com/shopping?q=tbn:ANd9GcTqWc9PfadmsW2p9cNAkz1ZZOdRG6Pe7rD4uzhPIy_siLBsvujq4Gb0Yg742hc";
+    devDynamicContent.Google_Merchant_Center[3].offer_image_derived.image200.w = 200;
+    devDynamicContent.Google_Merchant_Center[3].offer_image_derived.image200.h = 200;
+    devDynamicContent.Google_Merchant_Center[3].offer_image_derived.image400 = {};
+    devDynamicContent.Google_Merchant_Center[3].offer_image_derived.image400.url = "https://encrypted-tbn2.gstatic.com/shopping?q=tbn:ANd9GcQ3xIX4dm7IZw4tQSSYZ99yYBY0Yf0NRPfJmRnyUulQ2GFcj0vd5G3T8ct-8MI";
+    devDynamicContent.Google_Merchant_Center[3].offer_image_derived.image400.w = 400;
+    devDynamicContent.Google_Merchant_Center[3].offer_image_derived.image400.h = 400;
+    devDynamicContent.Google_Merchant_Center[3].offer_image_derived.original = {};
+    devDynamicContent.Google_Merchant_Center[3].offer_image_derived.original.url = "";
+    devDynamicContent.Google_Merchant_Center[3].offer_image_derived.original.w = 0;
+    devDynamicContent.Google_Merchant_Center[3].offer_image_derived.original.h = 0;
+    devDynamicContent.Google_Merchant_Center[3].offer_sale_price = {};
+    devDynamicContent.Google_Merchant_Center[3].offer_sale_price.value = 0.99;
+    devDynamicContent.Google_Merchant_Center[3].offer_sale_price.currency = "USD";
+    devDynamicContent.Google_Merchant_Center[3].offer_sale_price.priceString = "0.99 USD";
+    devDynamicContent.Google_Merchant_Center[3].offer_sale_price.formattedPrice = "";
+    devDynamicContent.ReebokDynamicProductRemarketingFeed_Main_Asset_Feed = [{}];
+    devDynamicContent.ReebokDynamicProductRemarketingFeed_Main_Asset_Feed[0]._id = 0;
+    devDynamicContent.ReebokDynamicProductRemarketingFeed_Main_Asset_Feed[0].Unique_ID = "main_uid_1";
+    devDynamicContent.ReebokDynamicProductRemarketingFeed_Main_Asset_Feed[0].Reporting_Label = "main_reporting_label_300x250_classics";
+    devDynamicContent.ReebokDynamicProductRemarketingFeed_Main_Asset_Feed[0].Tracking_Strings = "cm_mmc=ReebokDisplay_PR-_-DBM-_-General-_-Competitive_M-_-Other-_-Standard_banner-_-dv:eCom-_-cn:AlwaysClassic-_-pc:General&cm_mmc1=US&cm_mmc2=reebok-NA-eCom-Display-Other-General-PR-US-AlwaysClassic-CL_LEATHER-1901";
+    devDynamicContent.ReebokDynamicProductRemarketingFeed_Main_Asset_Feed[0].Logo = {};
+    devDynamicContent.ReebokDynamicProductRemarketingFeed_Main_Asset_Feed[0].Logo.Type = "file";
+    devDynamicContent.ReebokDynamicProductRemarketingFeed_Main_Asset_Feed[0].Logo.Url = "https://s0.2mdn.net/ads/richmedia/studio/1681/1681_20190628072234674_300x250_logo.png";
+    devDynamicContent.ReebokDynamicProductRemarketingFeed_Main_Asset_Feed[0].Logo_Btn = "0,0|52x85";
+    devDynamicContent.ReebokDynamicProductRemarketingFeed_Main_Asset_Feed[0].Headline = "FREE<br>SHIPPING<br>ON ORDERS<br>$49+";
+    devDynamicContent.ReebokDynamicProductRemarketingFeed_Main_Asset_Feed[0].Headline_Config = "18px|left|#000|20,134|93x68";
+    devDynamicContent.ReebokDynamicProductRemarketingFeed_Main_Asset_Feed[0].Price_BG_Color = "#cf222f";
+    devDynamicContent.ReebokDynamicProductRemarketingFeed_Main_Asset_Feed[0].Price_Font_Color = "#fff";
+    devDynamicContent.ReebokDynamicProductRemarketingFeed_Main_Asset_Feed[0].CTA_Text = "SHOP NOW";
+    devDynamicContent.ReebokDynamicProductRemarketingFeed_Main_Asset_Feed[0].CTA_Arrow = {};
+    devDynamicContent.ReebokDynamicProductRemarketingFeed_Main_Asset_Feed[0].CTA_Arrow.Type = "file";
+    devDynamicContent.ReebokDynamicProductRemarketingFeed_Main_Asset_Feed[0].CTA_Arrow.Url = "https://s0.2mdn.net/ads/richmedia/studio/1681/1681_20190628072222633_300x250_cta_arrow.png";
+    devDynamicContent.ReebokDynamicProductRemarketingFeed_Main_Asset_Feed[0].CTA_Bg = {};
+    devDynamicContent.ReebokDynamicProductRemarketingFeed_Main_Asset_Feed[0].CTA_Bg.Type = "file";
+    devDynamicContent.ReebokDynamicProductRemarketingFeed_Main_Asset_Feed[0].CTA_Bg.Url = "https://s0.2mdn.net/ads/richmedia/studio/1681/1681_20190628072229341_300x250_cta_bg.png";
+    devDynamicContent.ReebokDynamicProductRemarketingFeed_Main_Asset_Feed[0].CTA_Config = "transparent|202,214|89x27|9px|#fff";
+    devDynamicContent.ReebokDynamicProductRemarketingFeed_Main_Asset_Feed[0].Dot_Navigator = "#cf222f|#b2b2b2";
+    devDynamicContent.ReebokDynamicProductRemarketingFeed_Main_Asset_Feed[0].ACTIVE = true;
+    devDynamicContent.ReebokDynamicProductRemarketingFeed_Main_Asset_Feed[0].DEFAULT = false;
+    Enabler.setDevDynamicContent(devDynamicContent);
+
+    var main = dynamicContent.ReebokDynamicProductRemarketingFeed_Main_Asset_Feed[0];
+    var product = dynamicContent.Google_Merchant_Center;
+    _global_main  = main;
+
+    _this.productimg = [];
+    _this.productnameprice = [];
+    _this.productimgdiv = [];
+    _this.dotbtn = [];
+    _this.dotimg = [];
+    _this.exitUrls = [];
+    _this.currProd = 0;
+
+    // set exit urls
+
+     for(var i=0;i<product.length;i++) {
+        //_this.exitUrls.push(product[i].offer_landing_page_derived.Url+'?'+main.Tracking_Strings);
+        _this.exitUrls.push(util.addSuff(product[i].offer_landing_page_derived.Url,main.Tracking_Strings));
+     }
+     console.log(_this.exitUrls)
+	// CONSOLE LOGS FOR MONITORING
+	console.log('===================================================');
+	console.log('           CONSOLE LOGS FOR RMDA VALUES            ');
+	console.log('===================================================');
+	console.log('Profile ID >>>', Enabler.getProfileId());
+	console.log('');
+    console.log('Unique ID >>>', main.Unique_ID);
+	console.log('Reporting Label >>>', main.Reporting_Label);
+	console.log('is it Default >>>', main.DEFAULT);
+    console.log('');
+    console.log('PRODUCTS ++++++++++++++++++++++++++++++++++++++++++');
+	for(var i=0;i<product.length;i++) {
+        console.log('Product',i,product[i].offer_title,product[i].merlot_category,product[i].offer_landing_page_derived.Url);
+        //console.log(product[i].merlot_category);
+    }
+    console.log('===================================================');
+    console.log('');
+    
+    // SET DYNAMIC ELEMENTS
+
+    // product images
+    for(var i=0;i<product.length;i++) {
+        _this.productimg.push(product[i].offer_image_derived.image400.url);
+        var prodImgHolder = document.createElement("div");
+        prodImgHolder.setAttribute("id","product_img_"+i);
+        prodImgHolder.setAttribute("class","img");
+        prodImgHolder.style.backgroundImage = 'url('+product[i].offer_image_derived.image400.url+')';
+        util.ele('#product_holder').appendChild(prodImgHolder);
+        _this.productimgdiv.push("#product_img_"+i);
+    }
+
+    // product name and price
+    for(var i=0;i<product.length;i++) {
+        var prodNamePrice = document.createElement("div");
+        prodNamePrice.setAttribute("id","product_name_price_"+i);
+        prodNamePrice.setAttribute("class","product_name_price");
+        prodNamePrice.innerHTML = product[i].offer_title+'<br>'+'$'+product[i].offer_regular_price.value;
+        util.ele('#product_info').appendChild(prodNamePrice);
+        _this.productnameprice.push("#product_name_price_"+i);
+
+    }
+
+    // dot navs
+    _this.activeDot = main.Dot_Navigator.split('|')[0];
+    _this.inactiveDot = main.Dot_Navigator.split('|')[1];
+    for(var i=0;i<product.length;i++) {
+        var dotBtn = document.createElement("div");
+        dotBtn.setAttribute("id","dot_btn_"+i);
+        dotBtn.setAttribute("class","dot_btn");
+        dotBtn.style.left = 15*i+1*i+'px';
+        util.ele("#dot_holder").appendChild(dotBtn);
+        _this.dotbtn.push("#dot_btn_"+i);
+
+        var dotImg = document.createElement("div");
+        dotImg.setAttribute("id","dot_img_"+i);
+        dotImg.setAttribute("class","dot");
+        dotImg.style.backgroundColor = _this.activeDot;
+        dotBtn.appendChild(dotImg);
+        _this.dotimg.push("#dot_img_"+i);
+    }
+
+    util.ele('#dot_holder').style.width = 15*product.length+1*(product.length-1)+'px';
+    
+    // price panel bg
+    util.ele('#price_bg').style.backgroundColor = main.Price_BG_Color;
+    util.ele('#product_info').style.color = main.Price_Font_Color;
+    
+    // images
+    util.ele('#logo').style.backgroundImage = 'url('+main.Logo.Url+')';
+
+    // headline
+    var hlconfig = main.Headline_Config.split('|');
+    util.ele('#headline').innerHTML = main.Headline;
+    util.ele('#headline').style.fontSize = hlconfig[0];
+    util.ele('#headline').style.textAlign = hlconfig[1];
+    util.ele('#headline').style.color = hlconfig[2];
+    util.ele('#headline').style.left = hlconfig[3].split(',')[0]+'px';
+    util.ele('#headline').style.top = hlconfig[3].split(',')[1]+'px';
+    util.ele('#headline').style.width = hlconfig[4].split('x')[0]+'px';
+    util.ele('#headline').style.height = hlconfig[4].split('x')[1]+'px';
+
+    // set invisible logo btn
+    
+    var logobtnconfig = main.Logo_Btn.split('|');
+    util.ele('#logo_btn').style.width = logobtnconfig[1].split('x')[0]+'px';
+    util.ele('#logo_btn').style.height = logobtnconfig[1].split('x')[1]+'px';
+    util.ele('#logo_btn').style.left = logobtnconfig[0].split(',')[0]+'px';
+    util.ele('#logo_btn').style.top = logobtnconfig[0].split(',')[1]+'px'; 
+
+    // set cta btn
+
+    util.ele('#cta_bg').style.backgroundImage = 'url('+main.CTA_Bg.Url+')';
+    util.ele('#cta_text').innerHTML = main.CTA_Text;
+    var ctabtnconfig = main.CTA_Config.split('|');
+    util.ele('#cta_btn').style.backgroundColor = ctabtnconfig[0];
+    util.ele('#cta_btn').style.width = ctabtnconfig[2].split('x')[0]+'px';
+    util.ele('#cta_btn').style.height = ctabtnconfig[2].split('x')[1]+'px';
+    util.ele('#cta_btn').style.left = ctabtnconfig[1].split(',')[0]+'px';
+    util.ele('#cta_btn').style.top = ctabtnconfig[1].split(',')[1]+'px';
+    util.ele('#cta_text').style.fontSize = ctabtnconfig[3];
+    util.ele('#cta_text').style.color = ctabtnconfig[4];
+
+    
+    // for getting cta copy accent
+
+    var UID = {
+        _current: 0,
+        getNew: function(){
+            this._current++;
+            return this._current;
+        }
+    };
+
+    HTMLElement.prototype.pseudoStyle = function(element,prop,value){
+        var _this = this;
+        var _sheetId = "pseudoStyles";
+        var _head = document.head || document.getElementsByTagName('head')[0];
+        var _sheet = document.getElementById(_sheetId) || document.createElement('style');
+        _sheet.id = _sheetId;
+        var className = "pseudoStyle" + UID.getNew();
+        
+        _this.className +=  " "+className; 
+        
+        _sheet.innerHTML += " ."+className+":"+element+"{"+prop+":"+value+"}";
+        _head.appendChild(_sheet);
+        return this;
+    };
+
+    var div = document.getElementById("cta_text");
+    div.pseudoStyle("after","content","url("+main.CTA_Arrow.Url+")");
+
+	return _this;
+}());
+
+
+
+
+///////////////////////////////////////////////////
+/*                    INIT                       */
+///////////////////////////////////////////////////
+
+// This is where we initiallize everything.
+
+var init = (function() {
+	var _this = {};
+
+    
+
+    // show ad unit
+    TweenMax.set(('#container_dc'),{display:'block'});
+
+   
+
+    // initial state of products and dots
+    for(var i=1;i<rmda.productnameprice.length;i++) {
+        util.ele(rmda.productnameprice[i]).style.opacity = 0;
+        util.ele(rmda.productimgdiv[i]).style.opacity = 0;
+        util.ele(rmda.dotimg[i]).style.backgroundColor = rmda.inactiveDot;
+    }
+
+
+
+    
+    // METHODS THAT NEEDS DELAY
+
+    TweenMax.delayedCall(0.5,function(){
+        
+        
+
+        for(var i=0;i<rmda.productnameprice.length;i++) {
+            util.autoSizeText(rmda.productnameprice[i]);
+            
+        }
+        
+
+       
+
+    });
+
+    // INITIAL STATES
+    TweenMax.set('#logo',{alpha:0});
+    TweenMax.set('#headline',{alpha:0,y:50});
+    TweenMax.set('#product_holder',{alpha:0});
+    TweenMax.set('#info_holder',{alpha:0});
+    TweenMax.set('#dot_holder',{alpha:0,y:20});
+    TweenMax.set('#cta_btn',{autoAlpha:0});
+    TweenMax.set('#price_bg',{y:85});
+    
+
+
+	return _this;
+}());
+
+///////////////////////////////////////////////////
+/*                   ANIMATE                     */
+///////////////////////////////////////////////////
+
+var animate = (function() {
+	var _this = {};
+
+	
+    preloadImages(rmda.productimg, initAnim);
+
+    
+
+    function initAnim() {
+
+        TweenMax.delayedCall(0.5,startAnim);
+
+    }
+
+    
+    function startAnim() {
+        TweenMax.set('#content_dc',{alpha:1});
+        TweenMax.to('#logo',0.5,{alpha:1,ease:Cubic.easeOut});
+        TweenMax.to('#price_bg',0.5,{y:0,ease:Power3.easeOut});
+
+        TweenMax.to('#product_holder',1.0,{alpha:1,ease:Cubic.easeOut,delay:0.2});
+        TweenMax.to('#info_holder',1.0,{alpha:1,ease:Cubic.easeOut,delay:0.3});
+        TweenMax.to('#headline',0.75,{alpha:1,y:0,ease:Power3.easeOut,delay:0.3});
+        TweenMax.to('#dot_holder',0.75,{alpha:1,y:0,ease:Power3.easeOut,delay:0.4});
+
+        TweenMax.to('#cta_btn',0.5,{autoAlpha:1,ease:Cubic.easeOut,delay:0.8,onComplete:function(){
+            TweenMax.delayedCall(2.0,animateCarousel);
+        }});
+        
+    }
+    
+    var cycle = 0;
+    
+    function animateCarousel() {
+        //console.log(rmda.currProd,rmda.exitUrls[rmda.currProd]);
+        if(rmda.currProd < rmda.dotimg.length-1 && cycle == 0) {
+            rmda.currProd++;
+            TweenMax.delayedCall(1.5,changeProd);
+        }
+        else {
+            cycle = 1;
+            rmda.currProd = 0;
+            TweenMax.delayedCall(1.5,changeProd);
+        }
+    }
+
+    function changeProd() {
+        clicks.url = clicks.addSuffix(rmda.exitUrls[rmda.currProd], 'exit_suffix');
+        // for dots
+        for(var i=0;i<rmda.dotimg.length;i++) {
+            util.ele(rmda.dotimg[i]).style.backgroundColor = rmda.inactiveDot;
+        }
+        util.ele(rmda.dotimg[rmda.currProd]).style.backgroundColor = rmda.activeDot;
+
+        // for name and price
+        for(var i=0;i<rmda.productnameprice.length;i++) {
+            TweenMax.to(rmda.productnameprice[i],0.5,{alpha:0,ease:Cubic.easeIn});
+        }
+        TweenMax.to(rmda.productnameprice[rmda.currProd],0.5,{alpha:1,delay:0.3,ease:Cubic.easeOut});
+
+        // for images
+        for(var i=0;i<rmda.productimgdiv.length;i++) {
+            TweenMax.to(rmda.productimgdiv[i],0.5,{alpha:0,ease:Cubic.easeIn});
+        }
+        TweenMax.to(rmda.productimgdiv[rmda.currProd],0.5,{alpha:1,delay:0.3,ease:Cubic.easeOut});
+
+        if(cycle == 1) {
+
+        }
+        else{
+
+            TweenMax.delayedCall(0.5,animateCarousel);
+        }
+        
+    }
+   
+    //animateCarousel();
+    
+    function preloadImages(imgArray, callbackFunction) {
+        var totalImages = imgArray.length,
+        loadedImages = 0,
+        img = null,
+        i;
+        for (i = 0; i < totalImages; i++) {
+            img = document.createElement("img");
+            img.src = imgArray[i];
+            img.onload = function () {
+                loadedImages++;
+                if (loadedImages === totalImages) {
+                    callbackFunction();
+                    console.log("images loaded!");
+                    console.log('');
+    				console.log('');
+                }
+            };
+        }   
+    }
+
+	return _this;
+
+}());
+
+
+
+///////////////////////////////////////////////////
+/*                 CLICK EVENTS                  */
+///////////////////////////////////////////////////
+
+var clicks = (function() {
+	var _this = {};
+
+    _this.addSuffix = function(url, dcmParameter) { 
+      var urlSuffix = Enabler.getParameter(dcmParameter); 
+      var _url = ''; 
+
+      if (url) { 
+        var symbol = (url.indexOf('?') > -1) ? '&': '?'; 
+        if(urlSuffix) { 
+          while (urlSuffix.charAt(0) == '?' || urlSuffix.charAt(0) == '&') { 
+            urlSuffix = urlSuffix.substring(1); 
+          } 
+          if (urlSuffix.indexOf('?') > -1) { 
+            urlSuffix = urlSuffix.replace(/\?/g, '&'); 
+          } 
+        } 
+        _url = url + symbol + urlSuffix; 
+      } 
+      return _url; 
+    } 
+
+    _this.url = _this.addSuffix(rmda.exitUrls[rmda.currProd], 'exit_suffix'); 
+
+
+    util.ele('#background_exit_dc').addEventListener('click',clickEvent,false);
+    util.ele('#cta_hotspot').addEventListener('click',clickEvent,false);
+    util.ele('#logo_btn').addEventListener('click',clickEvent,false);
+    util.ele('#product_exit').addEventListener('click',clickEvent,false);
+
+    util.ele('#cta_btn').addEventListener('mouseover',overEvent,false);
+    util.ele('#cta_btn').addEventListener('mouseout',outEvent,false);
+
+
+    function overEvent(e) {
+        TweenMax.to('#cta_btn',0.3,{alpha:0.7,ease:Cubic.easeInOut});
+    }
+
+    function outEvent(e) {
+        TweenMax.to('#cta_btn',0.3,{alpha:1.0,ease:Cubic.easeInOut});
+    }
+
+
+    function clickEvent(e) {
+        
+        TweenMax.killAll(true, true, true, true);
+        switch(e.target.id) {
+
+            case 'background_exit_dc':
+                Enabler.exitOverride('Background Exit',_this.url);
+            break;
+
+            case 'cta_hotspot':
+                Enabler.exitOverride('CTA exit',_this.url);
+            break;
+
+            case 'logo_btn':
+                Enabler.exitOverride('Logo exit',_this.url);
+            break;
+
+            case 'product_exit':
+                Enabler.exitOverride('Product exit',_this.url);
+            break;
+            
+        }
+
+        console.log(_this.url);
+    }
+
+    // dot navs
+    function activeNavBtn() {
+        for(var i=0;i<rmda.dotbtn.length;i++) {
+            util.ele(rmda.dotbtn[i]).addEventListener('click',navEvent,false);
+            util.ele(rmda.dotbtn[rmda.currProd]).removeEventListener('click',navEvent,false);
+        }
+    }
+        
+
+    function navEvent(e) {
+        TweenMax.killAll(true, true, true, true);
+        rmda.currProd = Number(e.target.id.substring(8));
+        _this.url = _this.addSuffix(rmda.exitUrls[rmda.currProd], 'exit_suffix'); 
+        activeNavBtn();
+
+        // for dots
+        for(var i=0;i<rmda.dotimg.length;i++) {
+            util.ele(rmda.dotimg[i]).style.backgroundColor = rmda.inactiveDot;
+        }
+        util.ele(rmda.dotimg[rmda.currProd]).style.backgroundColor = rmda.activeDot;
+
+        // for name and price
+        for(var i=0;i<rmda.productnameprice.length;i++) {
+            TweenMax.to(rmda.productnameprice[i],0.2,{alpha:0,ease:Cubic.easeIn});
+        }
+        TweenMax.to(rmda.productnameprice[rmda.currProd],0.2,{alpha:1,delay:0.3,ease:Cubic.easeOut});
+
+        // for images
+        for(var i=0;i<rmda.productimgdiv.length;i++) {
+            TweenMax.to(rmda.productimgdiv[i],0.2,{alpha:0,ease:Cubic.easeIn});
+        }
+        TweenMax.to(rmda.productimgdiv[rmda.currProd],0.2,{alpha:1,delay:0.3,ease:Cubic.easeOut});
+
+        Enabler.counter('Dot Navigator Clicked');
+
+    }
+	
+    activeNavBtn();
+
+    
+
+
+	return _this;
+
+}());

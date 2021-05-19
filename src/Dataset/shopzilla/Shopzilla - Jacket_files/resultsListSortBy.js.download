@@ -1,0 +1,30 @@
+define(['global', 'jquery'], function(global, $) {
+
+	$(document).ready(function() {
+
+		SZ.searchResultsSortByDropdown = function() {		
+
+			var selector = $('.resultsListSortBy select');
+
+			selector.on('change', function() {
+				document.location.href = this.value;
+			});
+
+		} 
+
+		new SZ.searchResultsSortByDropdown();
+
+		$(".sort a").click(function(){
+			if( $(".sort .tab").hasClass("selected")){
+				$("#sortByOptions.dropdown").addClass("hidden");
+				$(".sort .tab").removeClass("selected");
+			}
+			else{
+				$("#sortByOptions.dropdown").removeClass("hidden");
+				$(".sort .tab").addClass("selected");
+			}
+		});
+		
+	});
+
+});

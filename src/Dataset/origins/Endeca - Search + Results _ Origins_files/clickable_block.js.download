@@ -1,0 +1,24 @@
+/**
+ * Clickable blocks - entire block will be clickable
+ * Styles are in _links.scss under .clickable-processed
+ *
+ * Usage:
+ * {{#link}} data-clickable="{{link_path}}"{{/link}}
+ * {{#url}} data-clickable="{{href}}"{{/url}}
+ */
+
+
+(function($){
+
+  Drupal.behaviors.clickable = {
+    attach: function(context, settings) {
+      $('[data-clickable!=""][data-clickable]', context).once('clickable').on('click', function() {
+        if (window.location.hash) {
+          history.replaceState('', '', $(this).data('clickable')); // fix for hitchhiking hashes
+        }
+        window.location.href = $(this).data('clickable');
+      });
+    }
+  };
+
+})(jQuery);

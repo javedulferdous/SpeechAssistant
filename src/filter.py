@@ -231,7 +231,7 @@ def write_CSV(tlist):
 
 def write_header():
     list_of_header = ["NumOfButton", "NumOfLinks", "commonURL","is_page", "NumberOfValues","pageClass", "name_url"]
-    save_path = 'test/'
+    save_path = 'folder/'
     file_name = "filterList_test_1.csv"
     completeName = os.path.join(save_path, file_name)
 

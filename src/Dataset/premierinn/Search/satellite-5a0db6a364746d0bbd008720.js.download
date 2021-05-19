@@ -1,0 +1,34 @@
+_satellite.pushAsyncScript(function(event, target, $variables){
+  window.reportSessionId = function() {
+if (window.sessionCamRecorder) {
+sessionCamRecorder.subscribe('session/started', function() {
+/*Foresee set CPP */	
+FSR.CPPS.set('SessionCamReplayLink','https://console.sessioncam.com/Console/Recordings/PlaybackSession?sessionId=' + window.sessionCamRecorder.sessionId());
+});
+} else {
+window.setTimeout(window.reportSessionId, 100);
+}
+};
+var i = setInterval(function () {
+if (typeof fsReady != "undefined") {
+clearInterval(i);
+fsReady (function () {
+reportSessionId();
+});
+}
+}, 100);
+
+if(!window.sessioncamConfiguration) {
+window.sessioncamConfiguration = new Object();
+window.sessioncamConfiguration.SessionCamHostname= window.location.protocol + "//" + window.location.hostname;
+}
+
+ <!-- SessionCam Client Integration v6.0 -->
+ //<![CDATA[ 
+ var scRec=document.createElement('SCRIPT'); 
+ scRec.type='text/javascript'; 
+ scRec.src="//d2oh4tlt9mrke9.cloudfront.net/Record/js/sessioncam.recorder.js" 
+ document.getElementsByTagName('head')[0].appendChild(scRec); 
+ //]]>
+ <!-- End SessionCam -->
+});

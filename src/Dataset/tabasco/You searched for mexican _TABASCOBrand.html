@@ -1,0 +1,831 @@
+<!DOCTYPE html>
+<!-- saved from url=(0034)https://www.tabasco.com/?s=mexican -->
+<html lang="en" style="margin-top:0 !important;" class=""><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    
+<meta http-equiv="x-ua-compatible" content="ie=edge"><script type="text/javascript" src="./You searched for mexican _ TABASCO® Brand_files/417e0df734"></script><script src="./You searched for mexican _ TABASCO® Brand_files/nr-1184.min.js.download"></script><script src="./You searched for mexican _ TABASCO® Brand_files/1521600537933796" async=""></script><script async="" src="./You searched for mexican _ TABASCO® Brand_files/fbevents.js.download"></script><script type="text/javascript" async="" src="./You searched for mexican _ TABASCO® Brand_files/3014.js.download"></script><script type="text/javascript" async="" src="./You searched for mexican _ TABASCO® Brand_files/analytics.js.download"></script><script type="text/javascript" async="" src="./You searched for mexican _ TABASCO® Brand_files/f.txt"></script><script type="text/javascript" async="" src="./You searched for mexican _ TABASCO® Brand_files/3987ca"></script><script async="" src="./You searched for mexican _ TABASCO® Brand_files/gtm.js.download"></script><script type="text/javascript">(window.NREUM||(NREUM={})).loader_config={licenseKey:"417e0df734",applicationID:"46289075"};window.NREUM||(NREUM={}),__nr_require=function(e,t,n){function r(n){if(!t[n]){var i=t[n]={exports:{}};e[n][0].call(i.exports,function(t){var i=e[n][1][t];return r(i||t)},i,i.exports)}return t[n].exports}if("function"==typeof __nr_require)return __nr_require;for(var i=0;i<n.length;i++)r(n[i]);return r}({1:[function(e,t,n){function r(){}function i(e,t,n){return function(){return o(e,[u.now()].concat(c(arguments)),t?null:this,n),t?void 0:this}}var o=e("handle"),a=e(6),c=e(7),f=e("ee").get("tracer"),u=e("loader"),s=NREUM;"undefined"==typeof window.newrelic&&(newrelic=s);var d=["setPageViewName","setCustomAttribute","setErrorHandler","finished","addToTrace","inlineHit","addRelease"],p="api-",l=p+"ixn-";a(d,function(e,t){s[t]=i(p+t,!0,"api")}),s.addPageAction=i(p+"addPageAction",!0),s.setCurrentRouteName=i(p+"routeName",!0),t.exports=newrelic,s.interaction=function(){return(new r).get()};var m=r.prototype={createTracer:function(e,t){var n={},r=this,i="function"==typeof t;return o(l+"tracer",[u.now(),e,n],r),function(){if(f.emit((i?"":"no-")+"fn-start",[u.now(),r,i],n),i)try{return t.apply(this,arguments)}catch(e){throw f.emit("fn-err",[arguments,this,e],n),e}finally{f.emit("fn-end",[u.now()],n)}}}};a("actionText,setName,setAttribute,save,ignore,onEnd,getContext,end,get".split(","),function(e,t){m[t]=i(l+t)}),newrelic.noticeError=function(e,t){"string"==typeof e&&(e=new Error(e)),o("err",[e,u.now(),!1,t])}},{}],2:[function(e,t,n){function r(){return c.exists&&performance.now?Math.round(performance.now()):(o=Math.max((new Date).getTime(),o))-a}function i(){return o}var o=(new Date).getTime(),a=o,c=e(8);t.exports=r,t.exports.offset=a,t.exports.getLastTimestamp=i},{}],3:[function(e,t,n){function r(e,t){var n=e.getEntries();n.forEach(function(e){"first-paint"===e.name?d("timing",["fp",Math.floor(e.startTime)]):"first-contentful-paint"===e.name&&d("timing",["fcp",Math.floor(e.startTime)])})}function i(e,t){var n=e.getEntries();n.length>0&&d("lcp",[n[n.length-1]])}function o(e){e.getEntries().forEach(function(e){e.hadRecentInput||d("cls",[e])})}function a(e){if(e instanceof m&&!g){var t=Math.round(e.timeStamp),n={type:e.type};t<=p.now()?n.fid=p.now()-t:t>p.offset&&t<=Date.now()?(t-=p.offset,n.fid=p.now()-t):t=p.now(),g=!0,d("timing",["fi",t,n])}}function c(e){d("pageHide",[p.now(),e])}if(!("init"in NREUM&&"page_view_timing"in NREUM.init&&"enabled"in NREUM.init.page_view_timing&&NREUM.init.page_view_timing.enabled===!1)){var f,u,s,d=e("handle"),p=e("loader"),l=e(5),m=NREUM.o.EV;if("PerformanceObserver"in window&&"function"==typeof window.PerformanceObserver){f=new PerformanceObserver(r);try{f.observe({entryTypes:["paint"]})}catch(v){}u=new PerformanceObserver(i);try{u.observe({entryTypes:["largest-contentful-paint"]})}catch(v){}s=new PerformanceObserver(o);try{s.observe({type:"layout-shift",buffered:!0})}catch(v){}}if("addEventListener"in document){var g=!1,y=["click","keydown","mousedown","pointerdown","touchstart"];y.forEach(function(e){document.addEventListener(e,a,!1)})}l(c)}},{}],4:[function(e,t,n){function r(e,t){if(!i)return!1;if(e!==i)return!1;if(!t)return!0;if(!o)return!1;for(var n=o.split("."),r=t.split("."),a=0;a<r.length;a++)if(r[a]!==n[a])return!1;return!0}var i=null,o=null,a=/Version\/(\S+)\s+Safari/;if(navigator.userAgent){var c=navigator.userAgent,f=c.match(a);f&&c.indexOf("Chrome")===-1&&c.indexOf("Chromium")===-1&&(i="Safari",o=f[1])}t.exports={agent:i,version:o,match:r}},{}],5:[function(e,t,n){function r(e){function t(){e(a&&document[a]?document[a]:document[i]?"hidden":"visible")}"addEventListener"in document&&o&&document.addEventListener(o,t,!1)}t.exports=r;var i,o,a;"undefined"!=typeof document.hidden?(i="hidden",o="visibilitychange",a="visibilityState"):"undefined"!=typeof document.msHidden?(i="msHidden",o="msvisibilitychange"):"undefined"!=typeof document.webkitHidden&&(i="webkitHidden",o="webkitvisibilitychange",a="webkitVisibilityState")},{}],6:[function(e,t,n){function r(e,t){var n=[],r="",o=0;for(r in e)i.call(e,r)&&(n[o]=t(r,e[r]),o+=1);return n}var i=Object.prototype.hasOwnProperty;t.exports=r},{}],7:[function(e,t,n){function r(e,t,n){t||(t=0),"undefined"==typeof n&&(n=e?e.length:0);for(var r=-1,i=n-t||0,o=Array(i<0?0:i);++r<i;)o[r]=e[t+r];return o}t.exports=r},{}],8:[function(e,t,n){t.exports={exists:"undefined"!=typeof window.performance&&window.performance.timing&&"undefined"!=typeof window.performance.timing.navigationStart}},{}],ee:[function(e,t,n){function r(){}function i(e){function t(e){return e&&e instanceof r?e:e?f(e,c,o):o()}function n(n,r,i,o){if(!p.aborted||o){e&&e(n,r,i);for(var a=t(i),c=v(n),f=c.length,u=0;u<f;u++)c[u].apply(a,r);var d=s[w[n]];return d&&d.push([b,n,r,a]),a}}function l(e,t){h[e]=v(e).concat(t)}function m(e,t){var n=h[e];if(n)for(var r=0;r<n.length;r++)n[r]===t&&n.splice(r,1)}function v(e){return h[e]||[]}function g(e){return d[e]=d[e]||i(n)}function y(e,t){u(e,function(e,n){t=t||"feature",w[n]=t,t in s||(s[t]=[])})}var h={},w={},b={on:l,addEventListener:l,removeEventListener:m,emit:n,get:g,listeners:v,context:t,buffer:y,abort:a,aborted:!1};return b}function o(){return new r}function a(){(s.api||s.feature)&&(p.aborted=!0,s=p.backlog={})}var c="nr@context",f=e("gos"),u=e(6),s={},d={},p=t.exports=i();p.backlog=s},{}],gos:[function(e,t,n){function r(e,t,n){if(i.call(e,t))return e[t];var r=n();if(Object.defineProperty&&Object.keys)try{return Object.defineProperty(e,t,{value:r,writable:!0,enumerable:!1}),r}catch(o){}return e[t]=r,r}var i=Object.prototype.hasOwnProperty;t.exports=r},{}],handle:[function(e,t,n){function r(e,t,n,r){i.buffer([e],r),i.emit(e,t,n)}var i=e("ee").get("handle");t.exports=r,r.ee=i},{}],id:[function(e,t,n){function r(e){var t=typeof e;return!e||"object"!==t&&"function"!==t?-1:e===window?0:a(e,o,function(){return i++})}var i=1,o="nr@id",a=e("gos");t.exports=r},{}],loader:[function(e,t,n){function r(){if(!E++){var e=b.info=NREUM.info,t=p.getElementsByTagName("script")[0];if(setTimeout(u.abort,3e4),!(e&&e.licenseKey&&e.applicationID&&t))return u.abort();f(h,function(t,n){e[t]||(e[t]=n)});var n=a();c("mark",["onload",n+b.offset],null,"api"),c("timing",["load",n]);var r=p.createElement("script");r.src="https://"+e.agent,t.parentNode.insertBefore(r,t)}}function i(){"complete"===p.readyState&&o()}function o(){c("mark",["domContent",a()+b.offset],null,"api")}var a=e(2),c=e("handle"),f=e(6),u=e("ee"),s=e(4),d=window,p=d.document,l="addEventListener",m="attachEvent",v=d.XMLHttpRequest,g=v&&v.prototype;NREUM.o={ST:setTimeout,SI:d.setImmediate,CT:clearTimeout,XHR:v,REQ:d.Request,EV:d.Event,PR:d.Promise,MO:d.MutationObserver};var y=""+location,h={beacon:"bam.nr-data.net",errorBeacon:"bam.nr-data.net",agent:"js-agent.newrelic.com/nr-1184.min.js"},w=v&&g&&g[l]&&!/CriOS/.test(navigator.userAgent),b=t.exports={offset:a.getLastTimestamp(),now:a,origin:y,features:{},xhrWrappable:w,userAgent:s};e(1),e(3),p[l]?(p[l]("DOMContentLoaded",o,!1),d[l]("load",r,!1)):(p[m]("onreadystatechange",i),d[m]("onload",r)),c("mark",["firstbyte",a.getLastTimestamp()],null,"api");var E=0},{}],"wrap-function":[function(e,t,n){function r(e){return!(e&&e instanceof Function&&e.apply&&!e[a])}var i=e("ee"),o=e(7),a="nr@original",c=Object.prototype.hasOwnProperty,f=!1;t.exports=function(e,t){function n(e,t,n,i){function nrWrapper(){var r,a,c,f;try{a=this,r=o(arguments),c="function"==typeof n?n(r,a):n||{}}catch(u){p([u,"",[r,a,i],c])}s(t+"start",[r,a,i],c);try{return f=e.apply(a,r)}catch(d){throw s(t+"err",[r,a,d],c),d}finally{s(t+"end",[r,a,f],c)}}return r(e)?e:(t||(t=""),nrWrapper[a]=e,d(e,nrWrapper),nrWrapper)}function u(e,t,i,o){i||(i="");var a,c,f,u="-"===i.charAt(0);for(f=0;f<t.length;f++)c=t[f],a=e[c],r(a)||(e[c]=n(a,u?c+i:i,o,c))}function s(n,r,i){if(!f||t){var o=f;f=!0;try{e.emit(n,r,i,t)}catch(a){p([a,n,r,i])}f=o}}function d(e,t){if(Object.defineProperty&&Object.keys)try{var n=Object.keys(e);return n.forEach(function(n){Object.defineProperty(t,n,{get:function(){return e[n]},set:function(t){return e[n]=t,t}})}),t}catch(r){p([r])}for(var i in e)c.call(e,i)&&(t[i]=e[i]);return t}function p(t){try{e.emit("internal-error",t)}catch(n){}}return e||(e=i),n.inPlace=u,n.flag=a,n}},{}]},{},["loader"]);</script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>You searched for mexican | TABASCO® Brand</title>
+<script>window.onTBExistsFunctions=[];</script>
+<!-- Sitelinks Search Box -->
+ <script type="application/ld+json">
+ {
+   "@context": "http://schema.org",
+   "@type": "WebSite",
+   "url": "https://www.tabasco.com",
+   "isAccessibleForFree":true,
+   "inLanguage":"en-US",
+   "accessibilityFeature":"alternativeText",
+   "accessibilityControl":["fullKeyboardControl","fullMouseControl"],
+   "accessibilityHazard":["noFlashingHazard","noMotionSimulationHazard","noSoundHazard"],
+   "accessibilityAPI":"ARIA"
+}
+</script>
+<script src="./You searched for mexican _ TABASCO® Brand_files/jquery.min.js.download"></script>
+
+<script>(function(html){html.className = html.className.replace(/\bno-js\b/,'js')})(document.documentElement);</script>
+
+	<!-- This site is optimized with the Yoast SEO Premium plugin v14.9 - https://yoast.com/wordpress/plugins/seo/ -->
+	<meta name="robots" content="noindex, follow">
+	<meta property="og:locale" content="en_US">
+	<meta property="og:type" content="article">
+	<meta property="og:title" content="You searched for mexican | TABASCO® Brand">
+	<meta property="og:url" content="https://www.tabasco.com/search/mexican/">
+	<meta property="og:site_name" content="TABASCO® Brand">
+	<meta property="og:image" content="https://www.tabasco.com/wp-content/uploads/2020/04/tabasco-logo-3x.png">
+	<meta property="og:image:width" content="270">
+	<meta property="og:image:height" content="266">
+	<meta name="twitter:card" content="summary">
+	<meta name="twitter:title" content="You searched for mexican | TABASCO® Brand">
+	<meta name="twitter:site" content="@TABASCO">
+	<script type="application/ld+json" class="yoast-schema-graph">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://www.tabasco.com/#website","url":"https://www.tabasco.com/","name":"TABASCO\u00ae Brand","description":"Welcome","potentialAction":[{"@type":"SearchAction","target":"https://www.tabasco.com/?s={search_term_string}","query-input":"required name=search_term_string"}],"inLanguage":"en-US"},{"@type":["CollectionPage","SearchResultsPage"],"@id":"#webpage","url":"","name":"You searched for mexican | TABASCO\u00ae Brand","isPartOf":{"@id":"https://www.tabasco.com/#website"},"inLanguage":"en-US","potentialAction":[{"@type":"ReadAction","target":[""]}]}]}</script>
+	<!-- / Yoast SEO Premium plugin. -->
+
+
+<link rel="dns-prefetch" href="https://s.w.org/">
+<link rel="alternate" type="application/rss+xml" title="TABASCO® Brand » Search Results for “mexican” Feed" href="https://www.tabasco.com/search/mexican/feed/rss2/">
+<link rel="https://api.w.org/" href="https://www.tabasco.com/wp-json/"><link rel="EditURI" type="application/rsd+xml" title="RSD" href="https://www.tabasco.com/xmlrpc.php?rsd">
+<link rel="wlwmanifest" type="application/wlwmanifest+xml" href="https://www.tabasco.com/wp-includes/wlwmanifest.xml"> 
+<meta name="generator" content="WordPress 5.5">
+<link rel="icon" href="https://www.tabasco.com/wp-content/uploads/2017/06/cropped-Favicon-32x32.png" sizes="32x32">
+<link rel="icon" href="https://www.tabasco.com/wp-content/uploads/2017/06/cropped-Favicon-192x192.png" sizes="192x192">
+<link rel="apple-touch-icon" href="https://www.tabasco.com/wp-content/uploads/2017/06/cropped-Favicon-180x180.png">
+<meta name="msapplication-TileImage" content="https://www.tabasco.com/wp-content/uploads/2017/06/cropped-Favicon-270x270.png">
+<script>
+    var ajaxUrl = 'https://www.tabasco.com/wp-admin/admin-ajax.php';
+    // Picture element HTML5 shiv
+    function polyfillImages() {
+    var img = document.createElement('img');
+    var supportSrcset = ('srcset' in img) && ('sizes' in img);
+    if (!supportSrcset) {
+        document.createElement( "picture" );
+        var script = document.createElement('script');
+        script.type = 'text/javascript';
+        script.src = 'https://cdnjs.cloudflare.com/ajax/libs/picturefill/3.0.3/picturefill.min.js';
+        script.setAttribute('async', '')
+        var head = document.getElementsByTagName('head')[0];
+        head.appendChild(script);
+
+        var script = document.createElement('script');
+        script.type = 'text/javascript';
+        script.src = 'https://cdn.jsdelivr.net/respimage/1.4.2/respimage.min.js';
+        script.setAttribute('async', '')
+        var head = document.getElementsByTagName('head')[0];
+        head.appendChild(script);
+    }
+}
+polyfillImages();
+</script>
+
+   <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-NP2X6HL');</script>
+<!-- End Google Tag Manager -->
+
+<meta name="google-site-verification" content="UJMLKKK_ZPE808b5VBwEh3wkgwGCYwZxk99oxZy2C2M">
+
+<!-- Global site tag (gtag.js) - Google Ads: 776339575 --> <script async="" src="./You searched for mexican _ TABASCO® Brand_files/js"></script> <script> window.dataLayer = window.dataLayer || []; function gtag()
+
+{dataLayer.push(arguments);}
+gtag('js', new Date()); gtag('config', 'AW-776339575'); </script>    <script type="text/javascript" src="./You searched for mexican _ TABASCO® Brand_files/webfonts.js.download"></script><style type="text/css">@font-face{font-family: VivaBeautiful;src:url(https://www.tabasco.com/wp-content/themes/tabasco-redesign-2017/assets/webfonts/3987CA_0_0.woff2)format("woff2");}@font-face{font-family: TradeGothic;src:url(https://www.tabasco.com/wp-content/themes/tabasco-redesign-2017/assets/webfonts/3987CA_1_0.woff2)format("woff2");font-weight: normal;font-style: normal;}@font-face{font-family: TradeGothic;src:url(https://www.tabasco.com/wp-content/themes/tabasco-redesign-2017/assets/webfonts/3987CA_2_0.woff2)format("woff2");font-weight: normal;font-style: italic;}@font-face{font-family: TradeGothic;src:url(https://www.tabasco.com/wp-content/themes/tabasco-redesign-2017/assets/webfonts/3987CA_3_0.woff2)format("woff2");font-weight: bold;font-style: normal;}@font-face{font-family: TradeGothic;src:url(https://www.tabasco.com/wp-content/themes/tabasco-redesign-2017/assets/webfonts/3987CA_4_0.woff2)format("woff2");font-weight: bold;font-style: italic;}</style>
+<style>
+    html{box-sizing:border-box;-webkit-font-smoothing:antialiased}.green{color:#00833e}.black{color:#000}.gray75{color:#333}.gray45{color:#454545}.white{color:#fff}.mine-shaft{color:#303030}.bg-mine-shaft{background-color:#303030}.earls-green{color:#b7bb32}.bg-earls-green{background-color:#b7bb32}.ripe-lemon{color:#f6cc16}.bg-ripe-lemon{background-color:#f6cc16}.alizarin-crimson{color:#e2231a}.bg-alizarin-crimson{background-color:#e2231a}.persian-red{color:#d0392b}.bg-persian-red{background-color:#d0392b}.white{color:#fff}.bg-white{background-color:#fff}.light-gray{color:#f8f8f8}.bg-light-gray{background-color:#f8f8f8}.gray30{color:#303030}.bg-gray30{background-color:#303030}.gray45{color:#454545}.bg-gray45{background-color:#454545}.gray75{color:#333}.bg-gray75{background-color:#333}.border-gray{color:#e5e5e5}.bg-border-gray{background-color:#e5e5e5}.red{color:#e2231a}.bg-red{background-color:#e2231a}.legal-gray{color:#9b9b9b}.bg-legal-gray{background-color:#9b9b9b}.main-menu,.sub-menu{border:0;clip:rect(0 0 0 0);height:1px;margin:-1px;overflow:hidden;padding:0;position:absolute;width:1px}.burger-open .main-menu,.sub-menu[aria-hidden=false]{clip:auto;height:auto;margin:0;overflow:hidden;padding:0;position:relative;width:auto}body{overflow-x:hidden;font-family:TradeGothic,Arial,sans-serif}svg{max-width:100px;opacity:0}@media screen and (min-width:0){body::before,body:before{content:"mobile";display:none}}@media screen and (min-width:26.25em){body::before,body:before{content:"first-sustainability-switch";display:none}}@media screen and (min-width:37.5em){body::before,body:before{content:"recipe-archive-grid-2-colum-switch";display:none}}@media screen and (min-width:37.5em){body::before,body:before{content:"footer-switch";display:none}}@media screen and (min-width:37.5em){body::before,body:before{content:"collection-switch";display:none}}@media screen and (min-width:37.5em){body::before,body:before{content:"archive-header-switch";display:none}}@media screen and (min-width:48em){body::before,body:before{content:"sodium-switch";display:none}}@media screen and (min-width:37.5em){body::before,body:before{content:"email-collection";display:none}}@media screen and (min-width:37.5em){body::before,body:before{content:"mobile-desktop-first-switch";display:none}}@media screen and (min-width:37.5em){body::before,body:before{content:"compare-switch";display:none}}@media screen and (min-width:37.5em){body::before,body:before{content:"our-brand-switch";display:none}}@media screen and (min-width:37.5em){body::before,body:before{content:"international-switch";display:none}}@media screen and (min-width:48em){body::before,body:before{content:"ipad";display:none}}@media screen and (min-width:48em){body::before,body:before{content:"icon-information-switch";display:none}}@media screen and (min-width:48em){body::before,body:before{content:"ipad-vertical";display:none}}@media screen and (min-width:75em){body::before,body:before{content:"blog-switch";display:none}}@media screen and (min-width:48em){body::before,body:before{content:"ipad-portrait";display:none}}@media screen and (min-width:50em){body::before,body:before{content:"profit-calculator-switch";display:none}}@media screen and (min-width:50em){body::before,body:before{content:"single-recipe-2-columns";display:none}}@media screen and (min-width:50em){body::before,body:before{content:"legal-copy-switch";display:none}}@media screen and (min-width:50em){body::before,body:before{content:"search-switch";display:none}}@media screen and (min-width:50em){body::before,body:before{content:"history-switch";display:none}}@media screen and (min-width:59.375em){body::before,body:before{content:"second-sustainability-switch";display:none}}@media screen and (min-width:62.5em){body::before,body:before{content:"finder-desktop";display:none}}@media screen and (min-width:62.5em){body::before,body:before{content:"restaurant-map-switch";display:none}}@media screen and (min-width:62.5em){body::before,body:before{content:"generic-form-switch";display:none}}@media screen and (min-width:64em){body::before,body:before{content:"finder-switch";display:none}}@media screen and (min-width:801px){body::before,body:before{content:"four-slides-on-scroller";display:none}}@media screen and (min-width:67.5em){body::before,body:before{content:"recipe-skinny-contain";display:none}}@media screen and (min-width:64em){body::before,body:before{content:"mobile-nav-switch";display:none}}@media screen and (min-width:80em){body::before,body:before{content:"beyond-max-width";display:none}}body,img{image-rendering:-moz-crisp-edges;image-rendering:-o-crisp-edges;image-rendering:-webkit-optimize-contrast;-ms-interpolation-mode:bicubic}body:after{content:'("mobile": 0, "first-sustainability-switch": 26.25em, "recipe-archive-grid-2-colum-switch": 37.5em, "footer-switch": 37.5em, "collection-switch": 37.5em, "archive-header-switch": 37.5em, "sodium-switch": 48em, "email-collection": 37.5em, "mobile-desktop-first-switch": 37.5em, "compare-switch": 37.5em, "our-brand-switch": 37.5em, "international-switch": 37.5em, "ipad": 48em, "icon-information-switch": 48em, "ipad-vertical": 48em, "blog-switch": 75em, "ipad-portrait": 48em, "profit-calculator-switch": 50em, "single-recipe-2-columns": 50em, "legal-copy-switch": 50em, "search-switch": 50em, "history-switch": 50em, "second-sustainability-switch": 59.375em, "finder-desktop": 62.5em, "restaurant-map-switch": 62.5em, "generic-form-switch": 62.5em, "finder-switch": 64em, "four-slides-on-scroller": 801px, "recipe-skinny-contain": 67.5em, "mobile-nav-switch": 64em, "beyond-max-width": 80em)';display:none}.footer__text-logo img{max-width:300px}.search-form{transition:none;transform:translateY(-100%)}.generic-wrapper{padding:30px 20px}.lazy{opacity:0;transition:opacity .2s ease-out}.done{opacity:1}*,:after,:before{box-sizing:inherit}p:last-child{margin-bottom:0}img{width:100%;max-width:100%;height:auto}.block-img{display:block}.recipe-sauces__circle img{max-width:30px}main{z-index:1;margin-top:60px}.main--relative{position:relative}.main-menu{height:100%;margin:0;height:calc(100% - 60px);padding:60px 0 0 0;text-align:left;font-size:23px;font-family:TradeGothic,Arial,sans-serif;font-weight:700;line-height:1.15}.main-menu a{color:#000}.main-menu>li{display:block}.main-menu>li>a{padding:20px;display:block;text-transform:uppercase}.main-menu>li[aria-expanded=true]>a{color:#e2231a}.country-selector__trigger[aria-expanded=true]:after,.main-menu>li[aria-expanded=true]>a:after{transform:translateY(-2px) rotate(225deg)}.sub-menu{font-size:18px;letter-spacing:.5px;font-family:TradeGothic,Arial,sans-serif;list-style:none}.sub-menu a{color:#00833e;display:block;padding:10px 20px}.sub-menu a:active,.sub-menu a:focus,.sub-menu a:hover{text-decoration:none;color:#e2231a}.country-selector__trigger,.menu-item-has-children{position:relative}.country-selector__trigger:after,.menu-item-has-children>a:after{position:absolute;top:32px;right:40px;display:inline-block;border-bottom:3px solid #e2231a;border-right:3px solid #e2231a;transform:translateY(-50%) rotate(45deg);width:10px;height:10px;content:" ";transition:.2s transform ease-in-out}.burger-open .main-menu{padding:60px 0 0 0}.burger-open .header{overflow:visible;height:100vh}.header{position:fixed;height:60px;overflow:visible;top:0;z-index:10;left:0;background:#fff;width:100%;text-align:center;max-width:100vw;box-shadow:0 5px 10px 0 rgba(0,0,0,.1)}.post-header-shadow{background:rgba(255,255,255,0);transform-origin:center center;transform:rotate(45deg) translate(-17%,56%);top:0;left:50%;position:fixed;height:65px;width:65px;z-index:9;display:block!important;box-shadow:5px 5px 10px 0 rgba(0,0,0,.1)}.header__logo{width:80px;height:80px;position:absolute;left:50%;top:10px;transform:translateX(-50%);z-index:2}.header__logo img{position:relative;z-index:2}.header__logo:before{display:block;width:80px;height:10px;background:#fff;content:" ";position:absolute;transform:rotate(45deg);width:52px;height:52px;left:14px;top:24px;border-right:1px solid #e5e5e5;border-bottom:1px solid #e5e5e5;z-index:1}.header__hamburger-square{width:20px;height:17px;background:#000;margin:auto auto;position:absolute;left:50%;top:50%;transition:background .15s linear;transform:translate(-50%,-50%)}.header__hamburger-square:after,.header__hamburger-square:before{height:4px;position:absolute;width:100%;background:#fff;content:" ";display:block;left:0;transition:background .15s linear,transform .15s linear;transform-origin:center center}.header__hamburger-square:before{top:3px}.header__hamburger-square:after{bottom:3px}.burger-open .header__hamburger-square{background:#fff}.burger-open .header__hamburger-square:after,.burger-open .header__hamburger-square:before{background:#000;height:3px}.burger-open .header__hamburger-square:before{transform:rotate(-45deg) translate(-3px,3px)}.burger-open .header__hamburger-square:after{transform:rotate(45deg) translate(-3px,-2px)}.header__hamburger-toggle,.header__search-toggle{height:60px;padding:0;text-align:center;text-indent:-999em;background:0 0;outline:0;border:none;position:relative;min-width:60px}.psearch__trigger{height:60px;width:60px;color:transparent;background:0 0;border:0;position:absolute;top:0;left:0;bottom:0}.psearch__trigger svg{opacity:1;position:absolute;top:0;right:0;bottom:0;left:0;margin:auto}.psearch__label--hidden{display:none}.header__hamburger-toggle{float:right}.header__contain{height:60px;border-bottom:1px solid #e5e5e5;z-index:2;position:relative;background:#fff}.header__nav{position:relative;z-index:1;transition:transform .3s ease-out;transform:translateY(-100%);background:#fff;height:calc(100% - 60px);overflow:auto;-webkit-overflow-scrolling:touch;padding-bottom:74px}.burger-open .header__nav{transform:translateY(0)}.header__white-block{position:absolute;left:50%;height:65px;width:65px;top:17px;transform:translateX(-50%) rotate(45deg);background:#fff;z-index:1}.sub-template img{display:none}.sub-menu__headline,.sub-menu__tagline{display:none}.sub-menu--country-selector{margin-top:20px}.sub-menu{max-height:0;transition:max-height .3s ease-out}.sub-menu p{display:none}.sub-menu p.sub-template__title{display:block;font-family:TradeGothic,Arial,sans-serif;color:#00833e;text-transform:none;font-size:16px}.sub-menu[aria-hidden=false]{max-height:100vh;padding-left:30px}.sub-menu[aria-hidden=false].sub-menu--country-selector{width:100vw}.sub-template--products__title{color:#00833e;font-family:TradeGothic,Arial,sans-serif;font-size:16px;letter-spacing:.5px;line-height:24px}.country-selector{text-align:left;padding:40px 20px 20px}.country-selector__trigger{border-radius:20px;overflow:hidden;width:40px;height:40px;-webkit-appearance:none;appearance:none;background:#fff;text-indent:-999em;border:1px solid #e5e5e5;position:relative;overflow:visible}.country-selector__trigger:after{left:60px;top:50%;right:auto}.country-selector__flag{position:absolute;left:5%;top:5%;width:90%;height:90%;pointer-events:none;overflow:hidden;border-radius:18px}.privacy-policy-notice{background:#00833e;color:#fff;padding:50px 20px;width:100%;position:absolute;top:60px;z-index:2;left:0}.privacy-policy-notice__text{margin:0;padding:0 30px}.privacy-policy-notice .privacy-policy-notice__link{color:#fff}.privacy-policy-notice .privacy-policy-notice__link:focus,.privacy-policy-notice .privacy-policy-notice__link:hover{color:#e2231a}.privacy-policy-notice .privacy-policy-notice__link--text{text-decoration:underline}.privacy-policy-notice .privacy-policy-notice__link--close{position:absolute;display:block;width:20px;height:20px;text-indent:-999em;right:20px;top:50%;transform:translateY(-50%)}.privacy-policy-notice .privacy-policy-notice__link--close:after,.privacy-policy-notice .privacy-policy-notice__link--close:before{display:block;content:" ";background:#fff;width:3px;height:16px}.privacy-policy-notice .privacy-policy-notice__link--close:before{transform:rotate(-45deg) translate(4px,7px)}.privacy-policy-notice .privacy-policy-notice__link--close:after{transform:rotate(45deg) translate(-4px,-15px)}@media only screen and (min-width:64em){.psearch__trigger{height:90px}.privacy-policy-notice{position:relative;top:auto;left:auto;padding:20px;z-index:1}.full-drop-down,.full-drop-down.sub-menu,.sub-menu{transition-property:none}.post-header-shadow{left:0;height:100px;width:100px;transform:rotate(45deg);top:10px}.sub-menu p{display:block}.menu-item{display:inline}.menu-item>a{color:#000}.country-selector{width:150px;text-align:right;position:absolute;z-index:4;right:70px;top:0;left:auto;padding:28px 29px 29px 0;font-size:16px}.country-selector__trigger{width:32px;height:32px;margin-bottom:0;float:right;display:block}.country-selector__trigger:after{left:46px;top:14px}.country-selector__flag{max-height:29px;max-width:29px}.menu-item-has-children{position:static}.main-menu:after{content:"";display:table;clear:both}.main-menu a:active,.main-menu a:focus,.main-menu a:hover{color:#303030}.sub-menu{background:#f8f8f8;pointer-events:none;border-bottom:1px solid #e5e5e5;transform:none;top:100%;transition:opacity .2s ease-out;margin:0;max-height:100vh;clip:auto;text-transform:none;padding:23px;position:absolute;left:0;font-size:16px;font-family:TradeGothic,Arial,sans-serif;width:100%;clear:both;display:block;text-align:center}.sub-menu a{color:#00833e;padding:0 30px;display:inline}.sub-menu a:active,.sub-menu a:focus,.sub-menu a:hover{text-decoration:none;color:#e2231a}.sub-menu[aria-hidden=false]{position:absolute;width:100%;padding:23px;transform:none}.sub-menu[aria-hidden=false].sub-menu--country-selector{position:fixed}.sub-menu--country-selector{border-top:1px solid #e5e5e5;width:100vw;padding:10px 20px;margin-top:0;clip:auto;min-height:20px;overflow:visible;transform:none;max-height:none;line-height:7px;pointer-events:none;z-index:1;left:0;top:89px;position:fixed;pointer-events:none}.sub-menu--country-selector a{padding:0 10px;pointer-events:none;display:none}.sub-menu[aria-hidden=false]{opacity:1;pointer-events:auto;z-index:2}.sub-menu--country-selector[aria-hidden=false]{padding:10px 20px}.sub-menu--country-selector[aria-hidden=false] a{pointer-events:auto;display:inline}.country-selector-sub-menu,.sub-menu{opacity:0}.country-selector-sub-menu,.sub-menu--country-selector{height:auto;min-height:62px;padding:0}.country-selector-sub-menu__list{max-width:764px;margin:0 auto;padding:0}.country-selector-sub-menu__list .menu-item{margin:20px 10px;display:inline-block}.sub-menu.full-drop-down{transform:scale(1,0);opacity:1}.country-selector__trigger[aria-expanded=true]+.sub-menu,.sub-menu--country-selector[aria-hidden=false]{opacity:1;pointer-events:auto}.sub-template{float:left;margin:30px 0 0 0;font-size:16px;opacity:0;transition-property:opacity,transform;transition-duration:.4s;transition-timing-function:ease-in-out;color:#333;transform:translate(0,-15px);will-change:opacity,transform}.sub-template img{display:block;margin:0 auto;will-change:transform;transition:transform .15s ease-out}.sub-template a{display:block;color:#333}.sub-template a .sub-template__title{color:#000;font-family:TradeGothic,Arial,sans-serif;font-weight:700;line-height:1.15;text-transform:uppercase}.sub-template a:focus .sub-template__title,.sub-template a:hover .sub-template__title{text-decoration:none}.sub-template a:focus p,.sub-template a:hover p{color:#333}.header__nav--b2c .sub-template--products{max-width:290px;width:24%}.header__nav--b2c .sub-template--products:nth-child(4):after{content:"";display:table;clear:both}.header__nav--b2c .sub-template img{width:32%}.sub-template--products:nth-child(1){transition-delay:.3s}.sub-template--products:nth-child(2){transition-delay:.45s}.sub-template--products:nth-child(3){transition-delay:.6s}.sub-template--products:nth-child(4){transition-delay:.75s}.sub-template--products:nth-child(5){transition-delay:.9s}.sub-template--products:nth-child(6){transition-delay:1.05s}.sub-template--products:nth-child(7){transition-delay:1.2s}.sub-template--products:nth-child(8){transition-delay:1.35s}.sub-template--products:nth-child(9){transition-delay:1.5s}.sub-template--products:nth-child(10){transition-delay:1.65s}.sub-template--products:nth-child(11){transition-delay:1.8s}[aria-hidden=false] .sub-template{opacity:1;transform:translate(0,0)}.sub-template--find-a-broker a:focus,.sub-template--find-a-broker a:hover,.sub-template--products a:focus,.sub-template--products a:hover{text-decoration:none;color:#333}.sub-template--find-a-broker a:focus .sub-template__title,.sub-template--find-a-broker a:hover .sub-template__title,.sub-template--products a:focus .sub-template__title,.sub-template--products a:hover .sub-template__title{color:#e2231a}.header__nav--b2c .sub-template a:focus img,.header__nav--b2c .sub-template a:hover img{transform:rotate(-10deg)}.sub-template__note{font-size:16px;line-height:21px}.sub-template__title,.sub-template__title.h6{text-transform:uppercase;font-family:TradeGothic,Arial,sans-serif;font-weight:700;line-height:1.15;color:#000;font-size:20px;margin:10px;line-height:24px}.header__nav--b2b .sub-menu p{background:#fff;z-index:2;border-radius:3px;position:relative;padding:8px}.header__nav--b2b .sub-menu p.sub-template__title,.header__nav--b2b .sub-template__title{font-size:42px;line-height:48px}.sub-menu__headline,.sub-menu__headline.h2{font-size:68px;line-height:68px;text-transform:uppercase;font-family:TradeGothic,Arial,sans-serif;font-weight:700;line-height:1.15;margin:0 0 10px}.sub-menu__headline,.sub-menu__tagline{display:block;will-change:transform,opacity;transform:translateY(-30px);transition-property:opacity,transform;transition-timing-function:ease-out;transition-duration:.2s;opacity:0;transition-delay:.2s}[aria-hidden=false] .sub-menu__headline,[aria-hidden=false] .sub-menu__tagline{opacity:1;transition-duration:.4s;transform:translateY(0)}.sub-menu.full-drop-down{height:100%;overflow:auto;-webkit-overflow-scrolling:touch;height:calc(100vh - 90px);background:#fff;text-align:center;padding:80px 20px}.full-drop-down{transform-origin:center top;transition:transform .3s ease-out}.full-drop-down[aria-hidden=true]{display:block;transform:scale(1,0);transition-delay:.5s}.full-drop-down[aria-hidden=true] .sub-menu__headline,.full-drop-down[aria-hidden=true] .sub-menu__tagline{transition-delay:0}.full-drop-down[aria-hidden=false]{transform:scale(1,1)}.full-drop-down[aria-hidden=true] .sub-template--products:nth-child(1){transition-delay:0s}.full-drop-down[aria-hidden=true] .sub-template--products:nth-child(2){transition-delay:0s}.full-drop-down[aria-hidden=true] .sub-template--products:nth-child(3){transition-delay:0s}.full-drop-down[aria-hidden=true] .sub-template--products:nth-child(4){transition-delay:0s}.full-drop-down[aria-hidden=true] .sub-template--products:nth-child(5){transition-delay:0s}.full-drop-down[aria-hidden=true] .sub-template--products:nth-child(6){transition-delay:0s}.full-drop-down[aria-hidden=true] .sub-template--products:nth-child(7){transition-delay:0s}.full-drop-down[aria-hidden=true] .sub-template--products:nth-child(8){transition-delay:0s}.full-drop-down[aria-hidden=true] .sub-template--products:nth-child(9){transition-delay:0s}.full-drop-down[aria-hidden=true] .sub-template--products:nth-child(10){transition-delay:0s}.full-drop-down[aria-hidden=true] .sub-template--products:nth-child(11){transition-delay:0s}.full-drop-down[aria-hidden=true].sub-menu--leaving .sub-template--products,.sub-menu--leaving .sub-template--products{transform:translateY(-20px);opacity:0;transition-duration:.4s}.full-drop-down[aria-hidden=false]{display:block;transform:scale(1,1)}.header__hamburger-toggle{display:none}.header__search-toggle{position:absolute;right:0;top:0;height:90px}.header{height:auto;overflow:visible;min-height:90px}.header__logo{float:left;width:100px;z-index:2;position:absolute;transform:none;left:60px;top:21px}.header__logo img{display:block;z-index:2;position:relative}.header__logo:before{width:58px;left:21px;top:40px;height:58px;border-right:1px solid #e5e5e5;border-bottom:1px solid #e5e5e5;z-index:1}.header__white-block{transform:rotate(45deg);height:100px;width:100px;top:10px;left:60px}.main-menu{font-size:16px;line-height:14px;display:block;z-index:3}.main-menu>li{display:inline-block}.main-menu>li>a{display:inline}.main-menu>li.menu-item-has-children>a,.menu-item-has-children>a{padding:0 40px 38px 20px;position:relative;display:inline-block}.main-menu>li.menu-item-has-children>a:after,.menu-item-has-children>a:after{position:absolute;top:0;right:20px;display:inline-block;border-bottom:3px solid #e2231a;border-right:3px solid #e2231a;transform:rotate(45deg);width:10px;height:10px;content:" "}.menu-item>a{position:relative}.menu-main-container .menu-item>a:before{width:4px;height:4px;display:inline-block;background:#c8c8c8;margin-left:20px;transform:rotate(45deg);left:-30px;pointer-events:none;top:25px;content:" ";position:absolute}.menu-main-container{position:relative}.menu-main-container .menu-item-has-children>a:before{top:5px;left:-30px}.menu-item .sub-menu a:before,.menu-item:first-child a:before{display:none}.main-menu{margin:0 auto;text-align:center;padding:0;position:relative;clip:auto;height:auto;margin:0;overflow:hidden;padding:0;position:relative;width:auto;margin:0 auto;padding:38px 0 0 0;overflow:visible}.header__nav{transform:none;overflow:visible;height:auto;min-height:90px;padding-bottom:0}.main-menu{min-height:90px}.main-menu>li{margin:0 0 0 12px;text-transform:uppercase}.header__contain{max-width:1280px;margin:0 auto;position:relative;z-index:3;border-bottom:none;height:auto}.header__contain:after{content:"";display:table;clear:both}.main-menu:after{position:absolute;right:0;bottom:0;width:100%;height:1px;background:#e5e5e5;display:block;content:" "}.header__nav{position:relative;z-index:2}.main{margin-top:90px}.full-drop-down a{display:block;padding:0;background:#fff;transition-timing-function:ease-in-out;transition-property:transform;transition-duration:.3s}.sub-template--b2b img{max-width:100%;height:auto;width:65%;position:absolute;bottom:0;left:50%;transform:translate(-50%,15%)}.sub-menu--count-2 .sub-template{display:flex;flex-direction:column;justify-content:center;margin-top:0;z-index:1;display:inline-block;width:50%;clear:none;float:left;text-align:center;height:auto;padding:0;position:absolute;top:0;transform:none}.sub-menu--count-2 .sub-template:after{content:"";display:table;clear:both}.sub-menu--count-2 .sub-template:nth-child(1){left:0}.sub-menu--count-2 .sub-template:nth-child(2){left:50%}.header__nav--b2b .full-drop-down a{padding-top:calc(25vh);height:calc(100vh - 90px)}.header__nav--b2b .full-drop-down a:hover{transform:translateY(-5%)}.header__nav--b2b .sub-menu p{display:block;max-width:368px;line-height:21px;margin-right:auto;margin-left:auto;width:100%}.header__nav--b2b .sub-menu p.sub-template__title{max-width:490px}.header__nav--b2b .full-drop-down{overflow:hidden}.header__nav--b2b .full-drop-down:after{position:absolute;height:100%;width:1px;left:50%;top:0;transform:translateX(-50%);content:" ";display:block;background:#f4f4f4}.header__nav--b2b .sub-menu.full-drop-down{padding:0}.post-header-shadow{left:60px}}@media only screen and (min-width:80em){.header__nav--b2b .sub-template--products:first-child{margin-left:0}.header__nav--b2b .sub-template--find-a-broker:first-child{margin-left:calc((100vw - 1280px)/ 2)}.post-header-shadow{left:calc((100% - 1280px)/ 2 + 60px);transform:rotate(45deg)}.header__search-toggle{right:40px}.country-selector{right:calc((100vw - 1160px)/ 2 + 50px)}.sub-menu--country-selector[aria-hidden=false]{opacity:1}.sub-menu--country-selector,.sub-menu--country-selector.sub-menu[aria-hidden=false],.sub-menu--country-selector[aria-hidden=false]{left:0;top:90px;transform:none;top:89px;position:fixed}.sub-template--products-1,.sub-template--products-5{margin-left:calc((100vw - 1220px)/ 2)}}@media(max-width:359px){.header .header__buy-button>span{display:none}}@media(min-width:1024px){.header .mobile__header__logo{display:none!important}.header .header__buy-button{display:none}.psearch__trigger{left:auto}.menu-main-container .menu-item.primary-cta>a:before{display:none}.main-menu>li.primary-cta{font-size:inherit;margin-top:-12px;padding:0;border:0}.main-menu>li.primary-cta>a{display:inline-block;padding:10px 20px;background-color:#0146ad;border-color:#0146ad;color:#fff;border-radius:3px}.main-menu>li.primary-cta>a:hover,.main-menu>li.primary-cta>a:active,.main-menu>li.primary-cta>a:focus{text-decoration:none;background-color:#0061ff;border-color:#0061ff}}@media(max-width:1023.8px){.header{height:80px}.header__contain{height:80px}.header__hamburger-toggle,.header__search-toggle{height:80px}main{margin-top:80px}#psearch__trigger{display:none}.header .header__logo,.header .header__white-block,.post-header-shadow{display:none!important}.header .mobile__header__logo{width:140px;height:70px;position:absolute;text-align:center;left:50%;top:5px;transform:translateX(-50%);z-index:2}.header .header__buy-button{font-family:TradeGothic,"Arial Narrow",Arial,sans-serif;font-weight:700;line-height:75px;font-size:18px;color:#000;text-transform:uppercase;display:block;position:absolute;top:5px;left:20px}.header .header__buy-button:active,.header .header__buy-button:focus,.header .header__buy-button:hover{color:#e2231a;text-decoration:none}}
+
+
+.header .header__buy-button {
+    border-color:#0146ad;
+    background-color:#0146ad;
+    color:#ffffff;
+    border-radius: 3px;
+    font-size: 18px;
+    font-family: TradeGothic,"Arial Narrow",Arial,sans-serif;
+    font-weight: 700;
+    line-height: 1.15;
+    padding: 10px 10px;
+    text-transform: uppercase;
+    letter-spacing: .5px;
+    margin:16px 0;
+}
+.header .header__buy-button:hover,
+.header .header__buy-button:active,
+.header .header__buy-button:focus {
+    border-color:#0061ff;
+    background-color:#0061ff;
+    color:#ffffff;
+}        .green{color:#00833e}.black{color:#000}.gray75{color:#333333}.gray45{color:#454545}.white{color:#fff}.mine-shaft{color:#303030}.bg-mine-shaft{background-color:#303030}.earls-green{color:#b7bb32}.bg-earls-green{background-color:#b7bb32}.ripe-lemon{color:#f6cc16}.bg-ripe-lemon{background-color:#f6cc16}.alizarin-crimson{color:#e2231a}.bg-alizarin-crimson{background-color:#e2231a}.persian-red{color:#d0392b}.bg-persian-red{background-color:#d0392b}.white{color:#fff}.bg-white{background-color:#fff}.light-gray{color:#F8F8F8}.bg-light-gray{background-color:#F8F8F8}.gray30{color:#303030}.bg-gray30{background-color:#303030}.gray45{color:#454545}.bg-gray45{background-color:#454545}.gray75{color:#333333}.bg-gray75{background-color:#333333}.border-gray{color:#E5E5E5}.bg-border-gray{background-color:#E5E5E5}.red{color:#e2231a}.bg-red{background-color:#e2231a}.legal-gray{color:#9b9b9b}.bg-legal-gray{background-color:#9b9b9b}.search-results-wrapper{padding:80px 0}.search-results-wrapper--empty{padding-bottom:0}.search-results-wrapper__top{border-bottom:1px solid #E5E5E5;margin-bottom:0;margin-left:auto;margin-right:auto;padding:0 20px 60px}.search-results-wrapper__top a{color:#00833e}.search-results-wrapper__top a:hover,.search-results-wrapper__top a:focus,.search-results-wrapper__top a:active{color:#e2231a}.search-results-wrapper__top-container{margin-left:auto;margin-right:auto;max-width:1280px}.search-results-wrapper input[type='search'],.search-results-wrapper__search-term{font-family:TradeGothic, "Arial Narrow", Arial, sans-serif;font-weight:900;letter-spacing:auto;line-height:1.15;-moz-appearance:none;-webkit-appearance:none;appearance:none;border:0;border-radius:0;display:block;font-size:20px;letter-spacing:auto;line-height:23px;margin-top:6px;padding-bottom:5px;padding-left:27px;text-transform:uppercase}.search-results-wrapper input[type='search']::-webkit-input-placeholder,.search-results-wrapper__search-term::-webkit-input-placeholder{color:#dadada}.search-results-wrapper input[type='search']::-moz-placeholder,.search-results-wrapper__search-term::-moz-placeholder{color:#dadada}.search-results-wrapper input[type='search']:-ms-input-placeholder,.search-results-wrapper__search-term:-ms-input-placeholder{color:#dadada}.search-results-wrapper input[type='search']:-moz-placeholder,.search-results-wrapper__search-term:-moz-placeholder{color:#dadada}.search-results-wrapper__results-total{margin:0 20px 40px;padding-top:30px}.search-results-wrapper__results-total span{font-style:italic}.search-results-wrapper__results-total--empty{margin-right:0;margin-left:0}.search-results-wrapper__search-term-label{display:none}@media only screen and (min-width: 50em){.search-results-wrapper input[type="search"],.search-results-wrapper__search-term{font-size:34px;line-height:1.15;margin-top:0;padding-left:40px}.search-results-wrapper__search-term-label{color:#333333;display:block;font-family:TradeGothic,Arial,sans-serif;font-size:16px;float:right;letter-spacing:0.5px}.search-results-wrapper__results-total{color:#333333;font-size:16px;max-width:1280px;margin-right:auto;padding-right:60px;padding-left:60px;margin-left:auto;margin-top:50px}.search-results-wrapper__results-total--empty{margin-right:0;margin-left:0;padding-right:0;padding-left:0}.search-results-wrapper__top{margin-bottom:0;padding-bottom:0;border-bottom:0}.search-results-wrapper__top-container{padding:0 60px 60px}}
+/*# sourceMappingURL=search-results.php.map */
+        .country-selector__flag{background-image:url(https://www.tabasco.com/wp-content/uploads/2020/09/flags.png); background-size:100% auto; transition: background-position .15s ease-out;}.country-selector--united-states .country-selector__flag{background-position: 0 0;}
+    .country-selector__flag--canada,.country-selector--canada .country-selector__flag{background-position:0 8.33%;}.country-selector__flag--spain,.country-selector--spain .country-selector__flag{background-position:0 16.66%;}.country-selector__flag--austria,.country-selector--austria .country-selector__flag{background-position:0 24.99%;}.country-selector__flag--brazil,.country-selector--brazil .country-selector__flag{background-position:0 33.32%;}.country-selector__flag--costa-rica,.country-selector--costa-rica .country-selector__flag{background-position:0 41.65%;}.country-selector__flag--finland,.country-selector--finland .country-selector__flag{background-position:0 49.98%;}.country-selector__flag--germany,.country-selector--germany .country-selector__flag{background-position:0 58.31%;}.country-selector__flag--mexico,.country-selector--mexico .country-selector__flag{background-position:0 66.64%;}.country-selector__flag--switzerland,.country-selector--switzerland .country-selector__flag{background-position:0 74.97%;}.country-selector__flag--poland,.country-selector--poland .country-selector__flag{background-position:0 83.3%;}.country-selector__flag--russia,.country-selector--russia .country-selector__flag{background-position:0 91.63%;}.country-selector__flag--japan,.country-selector--japan .country-selector__flag{background-position:0 99.96%;}</style>
+
+<link rel="stylesheet" href="./You searched for mexican _ TABASCO® Brand_files/style.min.css">
+<link rel="stylesheet" href="./You searched for mexican _ TABASCO® Brand_files/print.min.css">
+
+
+<style>
+* {image-rendering: auto !important; image-rendering: -webkit-optimize-contrast !important;}
+.header__logo {image-rendering: auto !important;}
+</style>    <script async="" src="./You searched for mexican _ TABASCO® Brand_files/hotjar-1694059.js.download"></script><script src="./You searched for mexican _ TABASCO® Brand_files/f(1).txt"></script><script async="" src="./You searched for mexican _ TABASCO® Brand_files/modules.1866edf2114e6450e7c9.js.download" charset="utf-8"></script><style type="text/css">iframe#_hjRemoteVarsFrame {display: none !important; width: 1px !important; height: 1px !important; opacity: 0 !important; pointer-events: none !important;}</style><script src="./You searched for mexican _ TABASCO® Brand_files/f(2).txt"></script></head>
+    <body class="search search-results" data-new-gr-c-s-check-loaded="14.983.0">
+    <!-- Google Tag Manager (noscript) -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-NP2X6HL"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<!-- End Google Tag Manager (noscript) -->
+    <a href="https://www.tabasco.com/?s=mexican#main" id="main-focus" class="offscreen onscreen-with-focus">Skip To Main Content</a>
+<header class="header">
+	<div class="header__contain">
+		<button class="header__hamburger-toggle" aria-haspopup="true" aria-expanded="false" aria-controls="menu-main" aria-pressed="false" aria-label="Navigation">Toggle Menu Open/Close<div class="header__hamburger-square"></div></button>
+		<div class="header__white-block"></div>
+        <a class="header__logo" title="Home" href="https://www.tabasco.com/"><img alt="Tabasco Logo" srcset="https://www.tabasco.com/wp-content/themes/tabasco-redesign-2017/assets/tabasco-logo-3x.png 270w" sizes="100px"></a>
+        <a class="mobile__header__logo" title="Home" href="https://www.tabasco.com/"><img alt="Tabasco Flavor Your World Logo" src="./You searched for mexican _ TABASCO® Brand_files/flavoryourworld@2x.png"></a>
+        <a class="header__buy-button" href="https://countrystore.tabasco.com/">Buy<span> Now</span></a>
+        <div class="psearch__trigger psearch__toggle psearch__trigger--active" id="psearch__trigger">
+                Search
+                <svg aria-label="Search Icon" width="18" height="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg"> <path d="M13.6 12l4 4c.5.4.5 1 0 1.6-.5.5-1.2.5-1.7 0l-4-4c-1.5 1-3 1.4-4.6 1.4-4 0-7.5-3.3-7.5-7.5C0 3.5 3.3 0 7.4 0 11.7 0 15 3.4 15 7.5c0 1.6-.5 3-1.4 4.4zm-6 .5c2.7 0 5-2.2 5-5s-2.3-5-5-5c-3 0-5 2.2-5 5s2 5 5 5z" fill="currentColor" fill-rule="evenodd"></path></svg>            </div><!-- .psearch__trigger -->
+	</div>
+<nav class="header__nav header__nav--b2c" tabindex="-1" aria-hidden="false">
+	<div class="menu-main-container"><ul id="menu-main" class="main-menu"><li id="menu-item-4816" class="menu-item menu-item-type-post_type_archive menu-item-object-product menu-item-4816"><a href="https://www.tabasco.com/hot-sauces/">Hot Sauces</a></li>
+<li id="menu-item-4817" class="menu-item menu-item-type-post_type_archive menu-item-object-recipe menu-item-4817"><a href="https://www.tabasco.com/recipe/">Recipes</a></li>
+<li id="menu-item-3459" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-has-children menu-item-3459" aria-haspopup="true" aria-expanded="false" tabindex="0"><a href="https://www.tabasco.com/?s=mexican#">About</a><ul class=" sub-menu sub-menu--count-6 " tabindex="0" aria-hidden="true" aria-label="submenu">	<li id="menu-item-2679" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-2679"><a href="https://www.tabasco.com/tabasco-history/">History</a></li>
+	<li id="menu-item-4611" class="menu-item menu-item-type-post_type_archive menu-item-object-blog menu-item-4611"><a href="https://www.tabasco.com/blog/">Blog</a></li>
+	<li id="menu-item-5324" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-5324"><a href="https://www.tabasco.com/careers/">Careers</a></li>
+	<li id="menu-item-2574" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-2574"><a href="https://www.tabasco.com/contact-us/">Contact Us</a></li>
+	<li id="menu-item-2687" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-2687"><a href="https://www.tabasco.com/international/">International</a></li>
+	<li id="menu-item-4066" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-4066"><a target="_blank" href="https://www.tabascofoodservice.com/?utm_source=tabasco.com&amp;utm_medium=link&amp;utm_campaign=main_nav">Foodservice</a></li>
+</ul></li>
+<li id="menu-item-8" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-8"><a href="https://www.tabasco.com/visit-avery-island/">Avery Island</a></li>
+<li id="menu-item-3460" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-3460"><a href="https://www.tabasco.com/find-a-store/">Find Us</a></li>
+<li id="menu-item-3461" class="primary-cta menu-item menu-item-type-custom menu-item-object-custom menu-item-3461"><a target="_blank" href="https://countrystore.tabasco.com/">Buy Online</a></li>
+</ul></div>		<div class="country-selector country-selector--united-states">
+		<button aria-haspopup="true" aria-expanded="false" class="country-selector__trigger">United States<div class="country-selector__flag"></div></button>
+		<div id="country-selector-sub-menu" class="sub-menu--country-selector sub-menu" tabindex="0" aria-hidden="true" aria-label="Country Selector">
+			<ul class="country-selector-sub-menu__list">
+			<li class="menu-item"><a rel="noopener noreferrer" data-slug="canada" title="View Canada" target="_blank" href="http://www.tabascocanada.ca/">Canada</a></li><li class="menu-item"><a rel="noopener noreferrer" data-slug="spain" title="View Spain" target="_blank" href="https://www.tabasco.com.es/">Spain</a></li><li class="menu-item"><a rel="noopener noreferrer" data-slug="austria" title="View Austria" target="_blank" href="http://www.tabasco.at/">Austria</a></li><li class="menu-item"><a rel="noopener noreferrer" data-slug="brazil" title="View Brazil" target="_blank" href="http://www.tabascobrasil.com.br/">Brazil</a></li><li class="menu-item"><a rel="noopener noreferrer" data-slug="costa-rica" title="View Costa Rica" target="_blank" href="http://www.tabasco.cr/">Costa Rica</a></li><li class="menu-item"><a rel="noopener noreferrer" data-slug="finland" title="View Finland" target="_blank" href="https://www.tabasco.fi/">Finland</a></li><li class="menu-item"><a rel="noopener noreferrer" data-slug="germany" title="View Germany" target="_blank" href="https://www.tabasco.de/">Germany</a></li><li class="menu-item"><a rel="noopener noreferrer" data-slug="mexico" title="View Mexico" target="_blank" href="https://salsatabasco.mx/">Mexico</a></li><li class="menu-item"><a rel="noopener noreferrer" data-slug="switzerland" title="View Switzerland" target="_blank" href="https://tabasco.ch/">Switzerland</a></li><li class="menu-item"><a rel="noopener noreferrer" data-slug="poland" title="View Poland" target="_blank" href="http://www.sostabasco.pl/">Poland</a></li><li class="menu-item"><a rel="noopener noreferrer" data-slug="russia" title="View Russia" target="_blank" href="http://tabasco.com.ru/">Russia</a></li><li class="menu-item"><a rel="noopener noreferrer" data-slug="japan" title="View Japan" target="_blank" href="https://tabasco.co.jp/">Japan</a></li>			</ul>
+		</div>
+	</div>
+	</nav>
+
+
+
+</header>
+<div class="post-header-shadow" aria-hidden="true"></div>
+    <main class="main" id="main">
+
+        <div class="search-results-wrapper ">
+            <div class="search-results-wrapper__top">
+                <form class="search-results-wrapper__top-container" method="get" action="https://www.tabasco.com/">
+
+                    <input type="search" placeholder="Search Recipes" name="s" id="s" class="search-results-wrapper__search-term" value="mexican">
+                    <label class="search-results-wrapper__search-term-label" for="s">Press Enter</label>
+                </form>
+            </div>
+
+                            <!-- Multi Filter Group -->
+
+<div class="mfilter__wrap" id="mfilter__wrap">
+    <div class="mfilter__toggle-bar">
+        <button class="mfilter__toggle mfilter__toggle--trigger">filter</button><!-- .mfilter__toggle -->
+
+        <div class="mfilter__sort">
+            <label class="mfilter__sort-label" for="mfilter__sort-select">Sort</label>
+            <select name="sort-order" id="mfilter__sort-select" class="mfilter__sort-select" data-attribute="sort">
+                <option disabled="" value="">Sort Order:</option>
+                <option value="date" selected="">Newest</option>
+                <option data-order="DESC" value="ingredient-count-desc">Ingredients: Most - Fewest</option>
+                <option data-order="ASC" value="ingredient-count-asc">Ingredients: Fewest - Most</option>
+            </select>
+        </div><!-- .mfilter__sort -->
+    </div><!-- .mfilter__toggle-bar -->
+
+    <div class="mfilter" id="mfilter">
+        <div class="mfilter__header">
+            <h4 class="mfilter__header-heading">Filters</h4>
+            <div class="mfilter__header-close mfilter__toggle--trigger"></div><!-- .mfilter__close-overlay -->
+        </div><!-- .mfilter__header -->
+
+        <div class="mfilter__bar">
+            <div class="mfilter__flex-wrap">
+                                                                                                                        <div class="mfilter__tab mfilter__tab--desktop" data-attribute="filter">
+                        <button class="mfilter__tab-btn mfilter__tab-btn--arrowed" data-target-group="sauce"><span class="mfilter__tab-span--arrowed">products</span></button>
+                    </div><!-- .mfilter__tab -->
+                                                                                                                        <div class="mfilter__tab mfilter__tab--desktop" data-attribute="filter">
+                        <button class="mfilter__tab-btn mfilter__tab-btn--arrowed" data-target-group="dish-type"><span class="mfilter__tab-span--arrowed">dish</span></button>
+                    </div><!-- .mfilter__tab -->
+                                                                                                                        <div class="mfilter__tab mfilter__tab--desktop" data-attribute="filter">
+                        <button class="mfilter__tab-btn mfilter__tab-btn--arrowed" data-target-group="cuisine-type"><span class="mfilter__tab-span--arrowed">Cuisine</span></button>
+                    </div><!-- .mfilter__tab -->
+                                                                                                                        <div class="mfilter__tab mfilter__tab--desktop" data-attribute="filter">
+                        <button class="mfilter__tab-btn mfilter__tab-btn--arrowed" data-target-group="ingredient"><span class="mfilter__tab-span--arrowed">Ingredient</span></button>
+                    </div><!-- .mfilter__tab -->
+                                                                                                                        <div class="mfilter__tab mfilter__tab--desktop" data-attribute="filter">
+                        <button class="mfilter__tab-btn mfilter__tab-btn--arrowed" data-target-group="cooking-method"><span class="mfilter__tab-span--arrowed">Cooking Method</span></button>
+                    </div><!-- .mfilter__tab -->
+                            </div><!-- .mfilter__flex-wrap -->
+        </div><!-- .mfilter__bar -->
+
+        <div class="mfilter__groups-wrap">
+                                                                                
+                <div class="mfilter__group" data-group="sauce">
+                    <div class="mfilter__tab mfilter__tab--mobile">
+                        <button class="mfilter__tab-btn mfilter__tab-btn--plus" data-target-group="sauce">products</button>
+                    </div><!-- .mfilter__tab -->
+
+                                        <div class="mfilter__options-wrap">
+                                                    <div data-c="0" class="mfilter__groupwrap"><label data-term-slug="buffalo-style-sauce" data-term-id="1" for="sauce-filter-term-buffalo-style-sauce" class="mfilter__option">
+
+                <input type="checkbox" id="sauce-filter-term-buffalo-style-sauce" name="Buffalo Style Sauce" value="buffalo-style-sauce" class="mfilter__option-input">Buffalo Style Sauce</label><label data-term-slug="garlic-pepper-sauce" data-term-id="3" for="sauce-filter-term-garlic-pepper-sauce" class="mfilter__option">
+
+                <input type="checkbox" id="sauce-filter-term-garlic-pepper-sauce" name="Cayenne Garlic Pepper Sauce" value="garlic-pepper-sauce" class="mfilter__option-input">Cayenne Garlic Pepper Sauce</label><label data-term-slug="chipotle-sauce" data-term-id="2" for="sauce-filter-term-chipotle-sauce" class="mfilter__option">
+
+                <input type="checkbox" id="sauce-filter-term-chipotle-sauce" name="Chipotle Sauce" value="chipotle-sauce" class="mfilter__option-input">Chipotle Sauce</label><label data-term-slug="green-jalapeno-sauce" data-term-id="4" for="sauce-filter-term-green-jalapeno-sauce" class="mfilter__option">
+
+                <input type="checkbox" id="sauce-filter-term-green-jalapeno-sauce" name="Green Jalapeño Sauce" value="green-jalapeno-sauce" class="mfilter__option-input">Green Jalapeño Sauce</label><label data-term-slug="habanero-sauce" data-term-id="5" for="sauce-filter-term-habanero-sauce" class="mfilter__option">
+
+                <input type="checkbox" id="sauce-filter-term-habanero-sauce" name="Habanero Sauce" value="habanero-sauce" class="mfilter__option-input">Habanero Sauce</label></div><!-- close when 4--><div data-c="5" class="mfilter__groupwrap"><label data-term-slug="original-red-sauce" data-term-id="6" for="sauce-filter-term-original-red-sauce" class="mfilter__option">
+
+                <input type="checkbox" id="sauce-filter-term-original-red-sauce" name="Original Red Sauce" value="original-red-sauce" class="mfilter__option-input">Original Red Sauce</label><label data-term-slug="sriracha-sauce" data-term-id="7" for="sauce-filter-term-sriracha-sauce" class="mfilter__option">
+
+                <input type="checkbox" id="sauce-filter-term-sriracha-sauce" name="Sriracha Sauce" value="sriracha-sauce" class="mfilter__option-input">Sriracha Sauce</label><label data-term-slug="sweet-spicy-sauce" data-term-id="8" for="sauce-filter-term-sweet-spicy-sauce" class="mfilter__option">
+
+                <input type="checkbox" id="sauce-filter-term-sweet-spicy-sauce" name="SWEET &amp; Spicy Sauce" value="sweet-spicy-sauce" class="mfilter__option-input">SWEET &amp; Spicy Sauce</label></div><!-- close when 7-->                                            </div><!-- .mfilter__options-wrap -->
+                </div><!-- .mfilter__group -->
+                                                                                
+                <div class="mfilter__group" data-group="dish-type">
+                    <div class="mfilter__tab mfilter__tab--mobile">
+                        <button class="mfilter__tab-btn mfilter__tab-btn--plus" data-target-group="dish-type">dish</button>
+                    </div><!-- .mfilter__tab -->
+
+                                        <div class="mfilter__options-wrap">
+                                                    <div data-c="0" class="mfilter__groupwrap"><label data-term-slug="appetizers" data-term-id="20" for="dish-type-filter-term-appetizers" class="mfilter__option">
+
+                <input type="checkbox" id="dish-type-filter-term-appetizers" name="Appetizers" value="appetizers" class="mfilter__option-input">Appetizers</label><label data-term-slug="brunch" data-term-id="26" for="dish-type-filter-term-brunch" class="mfilter__option">
+
+                <input type="checkbox" id="dish-type-filter-term-brunch" name="Brunch" value="brunch" class="mfilter__option-input">Brunch</label><label data-term-slug="desserts" data-term-id="25" for="dish-type-filter-term-desserts" class="mfilter__option">
+
+                <input type="checkbox" id="dish-type-filter-term-desserts" name="Desserts" value="desserts" class="mfilter__option-input">Desserts</label><label data-term-slug="main-dishes" data-term-id="23" for="dish-type-filter-term-main-dishes" class="mfilter__option">
+
+                <input type="checkbox" id="dish-type-filter-term-main-dishes" name="Main Dishes" value="main-dishes" class="mfilter__option-input">Main Dishes</label><label data-term-slug="salads" data-term-id="21" for="dish-type-filter-term-salads" class="mfilter__option">
+
+                <input type="checkbox" id="dish-type-filter-term-salads" name="Salads" value="salads" class="mfilter__option-input">Salads</label></div><!-- close when 4--><div data-c="5" class="mfilter__groupwrap"><label data-term-slug="sandwiches" data-term-id="27" for="dish-type-filter-term-sandwiches" class="mfilter__option">
+
+                <input type="checkbox" id="dish-type-filter-term-sandwiches" name="Sandwiches" value="sandwiches" class="mfilter__option-input">Sandwiches</label><label data-term-slug="sides" data-term-id="24" for="dish-type-filter-term-sides" class="mfilter__option">
+
+                <input type="checkbox" id="dish-type-filter-term-sides" name="Sides" value="sides" class="mfilter__option-input">Sides</label><label data-term-slug="snacks" data-term-id="93" for="dish-type-filter-term-snacks" class="mfilter__option">
+
+                <input type="checkbox" id="dish-type-filter-term-snacks" name="Snacks" value="snacks" class="mfilter__option-input">Snacks</label><label data-term-slug="soups" data-term-id="22" for="dish-type-filter-term-soups" class="mfilter__option">
+
+                <input type="checkbox" id="dish-type-filter-term-soups" name="Soups" value="soups" class="mfilter__option-input">Soups</label></div><!-- close when 8-->                                            </div><!-- .mfilter__options-wrap -->
+                </div><!-- .mfilter__group -->
+                                                                                
+                <div class="mfilter__group" data-group="cuisine-type">
+                    <div class="mfilter__tab mfilter__tab--mobile">
+                        <button class="mfilter__tab-btn mfilter__tab-btn--plus" data-target-group="cuisine-type">Cuisine</button>
+                    </div><!-- .mfilter__tab -->
+
+                                        <div class="mfilter__options-wrap">
+                                                    <div data-c="0" class="mfilter__groupwrap"><label data-term-slug="american" data-term-id="9" for="cuisine-type-filter-term-american" class="mfilter__option">
+
+                <input type="checkbox" id="cuisine-type-filter-term-american" name="American" value="american" class="mfilter__option-input">American</label><label data-term-slug="asian" data-term-id="10" for="cuisine-type-filter-term-asian" class="mfilter__option">
+
+                <input type="checkbox" id="cuisine-type-filter-term-asian" name="Asian" value="asian" class="mfilter__option-input">Asian</label><label data-term-slug="bbq" data-term-id="11" for="cuisine-type-filter-term-bbq" class="mfilter__option">
+
+                <input type="checkbox" id="cuisine-type-filter-term-bbq" name="BBQ" value="bbq" class="mfilter__option-input">BBQ</label><label data-term-slug="big-poppa" data-term-id="94" for="cuisine-type-filter-term-big-poppa" class="mfilter__option">
+
+                <input type="checkbox" id="cuisine-type-filter-term-big-poppa" name="Big Poppa" value="big-poppa" class="mfilter__option-input">Big Poppa</label><label data-term-slug="cajun-creole" data-term-id="12" for="cuisine-type-filter-term-cajun-creole" class="mfilter__option">
+
+                <input type="checkbox" id="cuisine-type-filter-term-cajun-creole" name="Cajun / Creole" value="cajun-creole" class="mfilter__option-input">Cajun / Creole</label></div><!-- close when 4--><div data-c="5" class="mfilter__groupwrap"><label data-term-slug="caribbean" data-term-id="13" for="cuisine-type-filter-term-caribbean" class="mfilter__option">
+
+                <input type="checkbox" id="cuisine-type-filter-term-caribbean" name="Caribbean" value="caribbean" class="mfilter__option-input">Caribbean</label><label data-term-slug="french" data-term-id="14" for="cuisine-type-filter-term-french" class="mfilter__option">
+
+                <input type="checkbox" id="cuisine-type-filter-term-french" name="French" value="french" class="mfilter__option-input">French</label><label data-term-slug="italian" data-term-id="15" for="cuisine-type-filter-term-italian" class="mfilter__option">
+
+                <input type="checkbox" id="cuisine-type-filter-term-italian" name="Italian" value="italian" class="mfilter__option-input">Italian</label><label data-term-slug="mediterranean" data-term-id="16" for="cuisine-type-filter-term-mediterranean" class="mfilter__option">
+
+                <input type="checkbox" id="cuisine-type-filter-term-mediterranean" name="Mediterranean" value="mediterranean" class="mfilter__option-input">Mediterranean</label><label data-term-slug="mexican" data-term-id="17" for="cuisine-type-filter-term-mexican" class="mfilter__option">
+
+                <input type="checkbox" id="cuisine-type-filter-term-mexican" name="Mexican" value="mexican" class="mfilter__option-input">Mexican</label></div><!-- close when 9--><div data-c="10" class="mfilter__groupwrap"><label data-term-slug="southern-soul-food" data-term-id="18" for="cuisine-type-filter-term-southern-soul-food" class="mfilter__option">
+
+                <input type="checkbox" id="cuisine-type-filter-term-southern-soul-food" name="Southern / Soul Food" value="southern-soul-food" class="mfilter__option-input">Southern / Soul Food</label><label data-term-slug="spanish" data-term-id="19" for="cuisine-type-filter-term-spanish" class="mfilter__option">
+
+                <input type="checkbox" id="cuisine-type-filter-term-spanish" name="Spanish" value="spanish" class="mfilter__option-input">Spanish</label></div><!-- close when 11-->                                            </div><!-- .mfilter__options-wrap -->
+                </div><!-- .mfilter__group -->
+                                                                                
+                <div class="mfilter__group" data-group="ingredient">
+                    <div class="mfilter__tab mfilter__tab--mobile">
+                        <button class="mfilter__tab-btn mfilter__tab-btn--plus" data-target-group="ingredient">Ingredient</button>
+                    </div><!-- .mfilter__tab -->
+
+                                        <div class="mfilter__options-wrap mfilter__options-wrap--nowrap">
+                                                    <div class="mfilter__column"><h4 class="mfilter__column-title">Beef</h4><label data-term-slug="all-beef" data-term-id="77" for="ingredient-filter-term-all-beef" class="mfilter__option mfilter__option--full">
+                            <input type="checkbox" id="ingredient-filter-term-all-beef" name="All" value="all-beef" class="mfilter__option-input">All</label><label data-term-slug="ground-beef" data-term-id="74" for="ingredient-filter-term-ground-beef" class="mfilter__option mfilter__option--full">
+                            <input type="checkbox" id="ingredient-filter-term-ground-beef" name="Ground Beef" value="ground-beef" class="mfilter__option-input">Ground Beef</label><label data-term-slug="other-beef" data-term-id="76" for="ingredient-filter-term-other-beef" class="mfilter__option mfilter__option--full">
+                            <input type="checkbox" id="ingredient-filter-term-other-beef" name="Other" value="other-beef" class="mfilter__option-input">Other</label><label data-term-slug="steak" data-term-id="75" for="ingredient-filter-term-steak" class="mfilter__option mfilter__option--full">
+                            <input type="checkbox" id="ingredient-filter-term-steak" name="Steak" value="steak" class="mfilter__option-input">Steak</label></div><div class="mfilter__column"><h4 class="mfilter__column-title">Pork</h4><label data-term-slug="all" data-term-id="71" for="ingredient-filter-term-all" class="mfilter__option mfilter__option--full">
+                            <input type="checkbox" id="ingredient-filter-term-all" name="All" value="all" class="mfilter__option-input">All</label><label data-term-slug="bacon" data-term-id="67" for="ingredient-filter-term-bacon" class="mfilter__option mfilter__option--full">
+                            <input type="checkbox" id="ingredient-filter-term-bacon" name="Bacon" value="bacon" class="mfilter__option-input">Bacon</label><label data-term-slug="other-pork" data-term-id="70" for="ingredient-filter-term-other-pork" class="mfilter__option mfilter__option--full">
+                            <input type="checkbox" id="ingredient-filter-term-other-pork" name="Other" value="other-pork" class="mfilter__option-input">Other</label><label data-term-slug="ribs" data-term-id="69" for="ingredient-filter-term-ribs" class="mfilter__option mfilter__option--full">
+                            <input type="checkbox" id="ingredient-filter-term-ribs" name="Ribs" value="ribs" class="mfilter__option-input">Ribs</label><label data-term-slug="sausage" data-term-id="68" for="ingredient-filter-term-sausage" class="mfilter__option mfilter__option--full">
+                            <input type="checkbox" id="ingredient-filter-term-sausage" name="Sausage" value="sausage" class="mfilter__option-input">Sausage</label></div><div class="mfilter__column"><h4 class="mfilter__column-title">Poultry</h4><label data-term-slug="all-poultry" data-term-id="82" for="ingredient-filter-term-all-poultry" class="mfilter__option mfilter__option--full">
+                            <input type="checkbox" id="ingredient-filter-term-all-poultry" name="All" value="all-poultry" class="mfilter__option-input">All</label><label data-term-slug="chicken" data-term-id="79" for="ingredient-filter-term-chicken" class="mfilter__option mfilter__option--full">
+                            <input type="checkbox" id="ingredient-filter-term-chicken" name="Chicken" value="chicken" class="mfilter__option-input">Chicken</label><label data-term-slug="other-poultry" data-term-id="81" for="ingredient-filter-term-other-poultry" class="mfilter__option mfilter__option--full">
+                            <input type="checkbox" id="ingredient-filter-term-other-poultry" name="Other" value="other-poultry" class="mfilter__option-input">Other</label><label data-term-slug="turkey" data-term-id="80" for="ingredient-filter-term-turkey" class="mfilter__option mfilter__option--full">
+                            <input type="checkbox" id="ingredient-filter-term-turkey" name="Turkey" value="turkey" class="mfilter__option-input">Turkey</label></div><div class="mfilter__column"><h4 class="mfilter__column-title">Seafood</h4><label data-term-slug="all-seafood" data-term-id="72" for="ingredient-filter-term-all-seafood" class="mfilter__option mfilter__option--full">
+                            <input type="checkbox" id="ingredient-filter-term-all-seafood" name="All" value="all-seafood" class="mfilter__option-input">All</label><label data-term-slug="crab" data-term-id="64" for="ingredient-filter-term-crab" class="mfilter__option mfilter__option--full">
+                            <input type="checkbox" id="ingredient-filter-term-crab" name="Crab" value="crab" class="mfilter__option-input">Crab</label><label data-term-slug="fish" data-term-id="63" for="ingredient-filter-term-fish" class="mfilter__option mfilter__option--full">
+                            <input type="checkbox" id="ingredient-filter-term-fish" name="Fish" value="fish" class="mfilter__option-input">Fish</label><label data-term-slug="other" data-term-id="65" for="ingredient-filter-term-other" class="mfilter__option mfilter__option--full">
+                            <input type="checkbox" id="ingredient-filter-term-other" name="Other" value="other" class="mfilter__option-input">Other</label><label data-term-slug="shrimp" data-term-id="62" for="ingredient-filter-term-shrimp" class="mfilter__option mfilter__option--full">
+                            <input type="checkbox" id="ingredient-filter-term-shrimp" name="Shrimp" value="shrimp" class="mfilter__option-input">Shrimp</label></div>                                            </div><!-- .mfilter__options-wrap -->
+                </div><!-- .mfilter__group -->
+                                                                                
+                <div class="mfilter__group" data-group="cooking-method">
+                    <div class="mfilter__tab mfilter__tab--mobile">
+                        <button class="mfilter__tab-btn mfilter__tab-btn--plus" data-target-group="cooking-method">Cooking Method</button>
+                    </div><!-- .mfilter__tab -->
+
+                                        <div class="mfilter__options-wrap">
+                                                    <div data-c="0" class="mfilter__groupwrap"><label data-term-slug="food-processor" data-term-id="87" for="cooking-method-filter-term-food-processor" class="mfilter__option">
+
+                <input type="checkbox" id="cooking-method-filter-term-food-processor" name="Food Processor" value="food-processor" class="mfilter__option-input">Food Processor</label><label data-term-slug="fryer" data-term-id="88" for="cooking-method-filter-term-fryer" class="mfilter__option">
+
+                <input type="checkbox" id="cooking-method-filter-term-fryer" name="Fryer" value="fryer" class="mfilter__option-input">Fryer</label><label data-term-slug="grill" data-term-id="86" for="cooking-method-filter-term-grill" class="mfilter__option">
+
+                <input type="checkbox" id="cooking-method-filter-term-grill" name="Grill" value="grill" class="mfilter__option-input">Grill</label><label data-term-slug="microwave" data-term-id="90" for="cooking-method-filter-term-microwave" class="mfilter__option">
+
+                <input type="checkbox" id="cooking-method-filter-term-microwave" name="Microwave" value="microwave" class="mfilter__option-input">Microwave</label><label data-term-slug="no-cook" data-term-id="85" for="cooking-method-filter-term-no-cook" class="mfilter__option">
+
+                <input type="checkbox" id="cooking-method-filter-term-no-cook" name="No Cook" value="no-cook" class="mfilter__option-input">No Cook</label></div><!-- close when 4--><div data-c="5" class="mfilter__groupwrap"><label data-term-slug="oven" data-term-id="84" for="cooking-method-filter-term-oven" class="mfilter__option">
+
+                <input type="checkbox" id="cooking-method-filter-term-oven" name="Oven" value="oven" class="mfilter__option-input">Oven</label><label data-term-slug="slow-cooker" data-term-id="89" for="cooking-method-filter-term-slow-cooker" class="mfilter__option">
+
+                <input type="checkbox" id="cooking-method-filter-term-slow-cooker" name="Slow Cooker" value="slow-cooker" class="mfilter__option-input">Slow Cooker</label><label data-term-slug="smoker" data-term-id="91" for="cooking-method-filter-term-smoker" class="mfilter__option">
+
+                <input type="checkbox" id="cooking-method-filter-term-smoker" name="Smoker" value="smoker" class="mfilter__option-input">Smoker</label><label data-term-slug="stovetop" data-term-id="83" for="cooking-method-filter-term-stovetop" class="mfilter__option">
+
+                <input type="checkbox" id="cooking-method-filter-term-stovetop" name="Stovetop" value="stovetop" class="mfilter__option-input">Stovetop</label></div><!-- close when 8-->                                            </div><!-- .mfilter__options-wrap -->
+                </div><!-- .mfilter__group -->
+            
+            <div class="mfilter__apply-bar">
+                <button class="mfilter__submit primary-cta" id="mfilter__submit" disabled="">
+                    <div class="loader">
+                        <div class="loader__rect loader__rect1"></div>
+                        <div class="loader__rect loader__rect2"></div>
+                        <div class="loader__rect loader__rect3"></div>
+                        <div class="loader__rect loader__rect4"></div>
+                        <div class="loader__rect loader__rect5"></div>
+                    </div>
+                    Apply Filters&nbsp;<span class="mfilter__btn-count"></span>
+                </button><!-- #test-btn -->
+                <button class="mfilter__clear mfilter__clear--hidden" id="mfilter__clear">Clear Filters</button><!-- #test-btn -->
+            </div><!-- .mfilter__submit-bar -->
+        </div><!-- .mfilter__groups-wrap -->
+    </div><!-- .mfilter -->
+</div><!-- .mfilter__wrap -->
+<div class="mfilter__info mfilter__info--hidden" id="mfilter__info">
+    <div class="mfilter__info-wrap">
+        <span class="mfilter__result-count" id="mfilter__result-count">40 Results Available</span>
+        <div class="mfilter__tag-wrap" id="mfilter__tag-wrap">
+        </div><!-- .mfilter__tag-wrap -->
+    </div><!-- .mfilter_info-wrap -->
+</div><!-- .mfilter__info -->
+                <p class="search-results-wrapper__results-total">We found <span class="search-results-wrapper__results-total-count">40</span> results for <span class="search-results-wrapper__results-term">“mexican”</span>. Try a unique collections or search again!</p>
+                        <div class="recipe-grid recipe-grid--ajax">
+                <div class="recipe-grid__ajax-content" id="ajax-content">					<div class="recipe-card recipe-card--in-grid recipe-card--animate-in">
+						<div data-orderby="date" class="recipe-card__img-wrap">
+							<a aria-label="View Iced-spiced Mexican Coffee Paletas Recipe" href="https://www.tabasco.com/recipe/iced-spiced-mexican-coffee-paletas/" class="recipe-card__link recipe-card__link--img">
+								<span class="visuallyhidden">View Iced-spiced Mexican Coffee Paletas Recipe</span>
+																	<img srcset="https://www.tabasco.com/wp-content/uploads/2020/07/Iced-spiced-Mexican-Coffee-Paletas-320x180.jpg 320w,https://www.tabasco.com/wp-content/uploads/2020/07/Iced-spiced-Mexican-Coffee-Paletas-640x360.jpg 640w,https://www.tabasco.com/wp-content/uploads/2020/07/Iced-spiced-Mexican-Coffee-Paletas-960x540.jpg 960w,https://www.tabasco.com/wp-content/uploads/2020/07/Iced-spiced-Mexican-Coffee-Paletas.jpg 1278w" sizes="(min-width: 1280px) 320vw, (min-width:) 25vw, 100vw" alt="Iced-spiced Mexican Coffee Paletas">															</a>
+						</div>
+						<div class="recipe-card__info">
+							<h6 class="recipe-card__title uc recipe-card__title">
+								<a href="https://www.tabasco.com/recipe/iced-spiced-mexican-coffee-paletas/" class="recipe-card__link">
+									Iced-spiced Mexican Coffee Paletas								</a>
+							</h6>
+																						<div class="recipe-sauces"><div class="recipe-sauces recipe-sauces--"><div class="recipe-sauces__circles"><div class="recipe-sauces__circle recipe-sauces__circle--"><img src="./You searched for mexican _ TABASCO® Brand_files/Chipotle-Pepper-Sauce-5-oz-Bottle-3-100x200.png" alt="Recipe uses Chipotle Sauce"></div></div><div class="recipe-sauces__names">Chipotle Sauce</div></div></div>
+													</div>
+					</div>
+										<div class="recipe-card recipe-card--in-grid recipe-card--animate-in">
+						<div data-orderby="date" class="recipe-card__img-wrap">
+							<a aria-label="View Mexican Street Corn Chowder Recipe" href="https://www.tabasco.com/recipe/mexican-street-corn-chowder/" class="recipe-card__link recipe-card__link--img">
+								<span class="visuallyhidden">View Mexican Street Corn Chowder Recipe</span>
+																	<img srcset="https://www.tabasco.com/wp-content/uploads/2020/06/Easy-Mexican-Street-Corn-Soup-2-270x180.jpg 270w,https://www.tabasco.com/wp-content/uploads/2020/06/Easy-Mexican-Street-Corn-Soup-2-540x360.jpg 540w,https://www.tabasco.com/wp-content/uploads/2020/06/Easy-Mexican-Street-Corn-Soup-2-810x540.jpg 810w,https://www.tabasco.com/wp-content/uploads/2020/06/Easy-Mexican-Street-Corn-Soup-2-1080x720.jpg 1080w" sizes="(min-width: 1280px) 320vw, (min-width:) 25vw, 100vw" alt="Mexican Street Corn Chowder">															</a>
+						</div>
+						<div class="recipe-card__info">
+							<h6 class="recipe-card__title uc recipe-card__title">
+								<a href="https://www.tabasco.com/recipe/mexican-street-corn-chowder/" class="recipe-card__link">
+									Mexican Street Corn Chowder								</a>
+							</h6>
+																						<div class="recipe-sauces"><div class="recipe-sauces recipe-sauces--"><div class="recipe-sauces__circles"><div class="recipe-sauces__circle recipe-sauces__circle--"><img src="./You searched for mexican _ TABASCO® Brand_files/Original-Red-Sauce-5-oz-Bottle-2-100x200.png" alt="Recipe uses Original Red Sauce"></div></div><div class="recipe-sauces__names">Original Red Sauce</div></div></div>
+													</div>
+					</div>
+										<div class="recipe-card recipe-card--in-grid recipe-card--animate-in">
+						<div data-orderby="date" class="recipe-card__img-wrap">
+							<a aria-label="View Mexican Hot Dogs with Pico Verde Recipe" href="https://www.tabasco.com/recipe/mexican-hot-dogs-with-pico-verde/" class="recipe-card__link recipe-card__link--img">
+								<span class="visuallyhidden">View Mexican Hot Dogs with Pico Verde Recipe</span>
+																	<img srcset="https://www.tabasco.com/wp-content/uploads/2019/08/DSCF5308-270x180.jpg 270w,https://www.tabasco.com/wp-content/uploads/2019/08/DSCF5308-540x360.jpg 540w,https://www.tabasco.com/wp-content/uploads/2019/08/DSCF5308-810x540.jpg 810w,https://www.tabasco.com/wp-content/uploads/2019/08/DSCF5308-1080x720.jpg 1080w" sizes="(min-width: 1280px) 320vw, (min-width:) 25vw, 100vw" alt="Mexican Hot Dogs with Pico Verde">															</a>
+						</div>
+						<div class="recipe-card__info">
+							<h6 class="recipe-card__title uc recipe-card__title">
+								<a href="https://www.tabasco.com/recipe/mexican-hot-dogs-with-pico-verde/" class="recipe-card__link">
+									Mexican Hot Dogs with Pico Verde								</a>
+							</h6>
+																						<div class="recipe-sauces"><div class="recipe-sauces recipe-sauces--"><div class="recipe-sauces__circles"><div class="recipe-sauces__circle recipe-sauces__circle--"><img src="./You searched for mexican _ TABASCO® Brand_files/Green-Jalapeno-Pepper-Sauce-5-oz-Bottle-1-100x200.png" alt="Recipe uses Green Jalapeño Sauce"></div></div><div class="recipe-sauces__names">Green Jalapeño Sauce</div></div></div>
+													</div>
+					</div>
+										<div class="recipe-card recipe-card--in-grid recipe-card--animate-in">
+						<div data-orderby="date" class="recipe-card__img-wrap">
+							<a aria-label="View Mexican Seafood Salad Recipe" href="https://www.tabasco.com/recipe/mexican-seafood-salad/" class="recipe-card__link recipe-card__link--img">
+								<span class="visuallyhidden">View Mexican Seafood Salad Recipe</span>
+																	<img srcset="https://www.tabasco.com/wp-content/uploads/2019/05/Tabasco-Q3-TW-SEAFOOD1-320x180.png 320w,https://www.tabasco.com/wp-content/uploads/2019/05/Tabasco-Q3-TW-SEAFOOD1-640x360.png 640w,https://www.tabasco.com/wp-content/uploads/2019/05/Tabasco-Q3-TW-SEAFOOD1-960x540.png 960w,https://www.tabasco.com/wp-content/uploads/2019/05/Tabasco-Q3-TW-SEAFOOD1-1280x720.png 1280w" sizes="(min-width: 1280px) 320vw, (min-width:) 25vw, 100vw" alt="View  Recipe">															</a>
+						</div>
+						<div class="recipe-card__info">
+							<h6 class="recipe-card__title uc recipe-card__title">
+								<a href="https://www.tabasco.com/recipe/mexican-seafood-salad/" class="recipe-card__link">
+									Mexican Seafood Salad								</a>
+							</h6>
+																						<div class="recipe-sauces"><div class="recipe-sauces recipe-sauces--"><div class="recipe-sauces__circles"><div class="recipe-sauces__circle recipe-sauces__circle--"><img src="./You searched for mexican _ TABASCO® Brand_files/Original-Red-Sauce-5-oz-Bottle-2-100x200.png" alt="Recipe uses Original Red Sauce"></div></div><div class="recipe-sauces__names">Original Red Sauce</div></div></div>
+													</div>
+					</div>
+										<div class="recipe-card recipe-card--in-grid recipe-card--animate-in">
+						<div data-orderby="date" class="recipe-card__img-wrap">
+							<a aria-label="View Mexican Street Corn Pinwheels Recipe" href="https://www.tabasco.com/recipe/mexican-street-corn-pinwheels/" class="recipe-card__link recipe-card__link--img">
+								<span class="visuallyhidden">View Mexican Street Corn Pinwheels Recipe</span>
+																	<img srcset="https://www.tabasco.com/wp-content/uploads/2018/09/Pinwheels-105-1-320x180.jpg 320w,https://www.tabasco.com/wp-content/uploads/2018/09/Pinwheels-105-1-640x360.jpg 640w,https://www.tabasco.com/wp-content/uploads/2018/09/Pinwheels-105-1-960x540.jpg 960w,https://www.tabasco.com/wp-content/uploads/2018/09/Pinwheels-105-1-1280x720.jpg 1280w" sizes="(min-width: 1280px) 320vw, (min-width:) 25vw, 100vw" alt="View  Recipe">															</a>
+						</div>
+						<div class="recipe-card__info">
+							<h6 class="recipe-card__title uc recipe-card__title">
+								<a href="https://www.tabasco.com/recipe/mexican-street-corn-pinwheels/" class="recipe-card__link">
+									Mexican Street Corn Pinwheels								</a>
+							</h6>
+																						<div class="recipe-sauces"><div class="recipe-sauces recipe-sauces--"><div class="recipe-sauces__circles"><div class="recipe-sauces__circle recipe-sauces__circle--"><img src="./You searched for mexican _ TABASCO® Brand_files/Original-Red-Sauce-5-oz-Bottle-2-100x200.png" alt="Recipe uses Original Red Sauce"></div></div><div class="recipe-sauces__names">Original Red Sauce</div></div></div>
+													</div>
+					</div>
+										<div class="recipe-card recipe-card--in-grid recipe-card--animate-in">
+						<div data-orderby="date" class="recipe-card__img-wrap">
+							<a aria-label="View Mexican Style Chicken in Salsa Verde Recipe" href="https://www.tabasco.com/recipe/mexican-style-chicken-salsa-verde/" class="recipe-card__link recipe-card__link--img">
+								<span class="visuallyhidden">View Mexican Style Chicken in Salsa Verde Recipe</span>
+																	<img srcset="https://www.tabasco.com/wp-content/uploads/2017/05/salsaverde-chicken.jpg 320w" sizes="(min-width: 1280px) 320vw, (min-width:) 25vw, 100vw" alt="salsa verde chicken">															</a>
+						</div>
+						<div class="recipe-card__info">
+							<h6 class="recipe-card__title uc recipe-card__title">
+								<a href="https://www.tabasco.com/recipe/mexican-style-chicken-salsa-verde/" class="recipe-card__link">
+									Mexican Style Chicken in Salsa Verde								</a>
+							</h6>
+																						<div class="recipe-sauces"><div class="recipe-sauces recipe-sauces--"><div class="recipe-sauces__circles"><div class="recipe-sauces__circle recipe-sauces__circle--"><img src="./You searched for mexican _ TABASCO® Brand_files/Green-Jalapeno-Pepper-Sauce-5-oz-Bottle-1-100x200.png" alt="Recipe uses Green Jalapeño Sauce"></div></div><div class="recipe-sauces__names">Green Jalapeño Sauce</div></div></div>
+													</div>
+					</div>
+										<div class="recipe-card recipe-card--in-grid recipe-card--animate-in">
+						<div data-orderby="date" class="recipe-card__img-wrap">
+							<a aria-label="View Chipotle Cream &amp; Mexican Cheese Recipe" href="https://www.tabasco.com/recipe/chipotle-cream-and-mexican-cheese/" class="recipe-card__link recipe-card__link--img">
+								<span class="visuallyhidden">View Chipotle Cream &amp; Mexican Cheese Recipe</span>
+																	<img srcset="https://www.tabasco.com/wp-content/uploads/2017/08/CHIPOTLE_CREAM__MEXICAN_CHEESE.jpg 320w" sizes="(min-width: 1280px) 320vw, (min-width:) 25vw, 100vw" alt="View  Recipe">															</a>
+						</div>
+						<div class="recipe-card__info">
+							<h6 class="recipe-card__title uc recipe-card__title">
+								<a href="https://www.tabasco.com/recipe/chipotle-cream-and-mexican-cheese/" class="recipe-card__link">
+									Chipotle Cream &amp; Mexican Cheese								</a>
+							</h6>
+																						<div class="recipe-sauces"><div class="recipe-sauces recipe-sauces--"><div class="recipe-sauces__circles"><div class="recipe-sauces__circle recipe-sauces__circle--"><img src="./You searched for mexican _ TABASCO® Brand_files/Chipotle-Pepper-Sauce-5-oz-Bottle-3-100x200.png" alt="Recipe uses Chipotle Sauce"></div></div><div class="recipe-sauces__names">Chipotle Sauce</div></div></div>
+													</div>
+					</div>
+										<div class="recipe-card recipe-card--in-grid recipe-card--animate-in">
+						<div data-orderby="date" class="recipe-card__img-wrap">
+							<a aria-label="View Shrimp Tacos with Cabbage Recipe" href="https://www.tabasco.com/recipe/shrimp-tacos-with-cabbage/" class="recipe-card__link recipe-card__link--img">
+								<span class="visuallyhidden">View Shrimp Tacos with Cabbage Recipe</span>
+																	<img srcset="https://www.tabasco.com/wp-content/uploads/2017/04/284-320x178.jpg 320w,https://www.tabasco.com/wp-content/uploads/2017/04/284-640x356.jpg 640w,https://www.tabasco.com/wp-content/uploads/2017/04/284.jpg 840w" sizes="(min-width: 1280px) 320vw, (min-width:) 25vw, 100vw" alt="Shrimp Tacos with Cabbage">															</a>
+						</div>
+						<div class="recipe-card__info">
+							<h6 class="recipe-card__title uc recipe-card__title">
+								<a href="https://www.tabasco.com/recipe/shrimp-tacos-with-cabbage/" class="recipe-card__link">
+									Shrimp Tacos with Cabbage								</a>
+							</h6>
+																						<div class="recipe-sauces"><div class="recipe-sauces recipe-sauces--"><div class="recipe-sauces__circles"><div class="recipe-sauces__circle recipe-sauces__circle--"><img src="./You searched for mexican _ TABASCO® Brand_files/Green-Jalapeno-Pepper-Sauce-5-oz-Bottle-1-100x200.png" alt="Recipe uses Green Jalapeño Sauce"></div></div><div class="recipe-sauces__names">Green Jalapeño Sauce</div></div></div>
+													</div>
+					</div>
+										<div class="recipe-card recipe-card--in-grid recipe-card--animate-in">
+						<div data-orderby="date" class="recipe-card__img-wrap">
+							<a aria-label="View Taco Dip Recipe" href="https://www.tabasco.com/recipe/taco-dip/" class="recipe-card__link recipe-card__link--img">
+								<span class="visuallyhidden">View Taco Dip Recipe</span>
+																	<img srcset="https://www.tabasco.com/wp-content/uploads/2019/11/TACO_DIP-320x180.jpg 320w,https://www.tabasco.com/wp-content/uploads/2019/11/TACO_DIP-640x360.jpg 640w,https://www.tabasco.com/wp-content/uploads/2019/11/TACO_DIP-960x540.jpg 960w,https://www.tabasco.com/wp-content/uploads/2019/11/TACO_DIP-1280x720.jpg 1280w" sizes="(min-width: 1280px) 320vw, (min-width:) 25vw, 100vw" alt="View  Recipe">															</a>
+						</div>
+						<div class="recipe-card__info">
+							<h6 class="recipe-card__title uc recipe-card__title">
+								<a href="https://www.tabasco.com/recipe/taco-dip/" class="recipe-card__link">
+									Taco Dip								</a>
+							</h6>
+																						<div class="recipe-sauces"><div class="recipe-sauces recipe-sauces--"><div class="recipe-sauces__circles"><div class="recipe-sauces__circle recipe-sauces__circle--"><img src="./You searched for mexican _ TABASCO® Brand_files/Chipotle-Pepper-Sauce-5-oz-Bottle-3-100x200.png" alt="Recipe uses Chipotle Sauce"></div></div><div class="recipe-sauces__names">Chipotle Sauce</div></div></div>
+													</div>
+					</div>
+										<div class="recipe-card recipe-card--in-grid recipe-card--animate-in">
+						<div data-orderby="date" class="recipe-card__img-wrap">
+							<a aria-label="View Spiced Up Cheesy Chicken Enchilada Casserole Recipe" href="https://www.tabasco.com/recipe/spiced-up-cheesy-chicken-enchilada-casserole/" class="recipe-card__link recipe-card__link--img">
+								<span class="visuallyhidden">View Spiced Up Cheesy Chicken Enchilada Casserole Recipe</span>
+																	<img srcset="https://www.tabasco.com/wp-content/uploads/2019/10/DSCF5261-270x180.jpg 270w,https://www.tabasco.com/wp-content/uploads/2019/10/DSCF5261-540x360.jpg 540w,https://www.tabasco.com/wp-content/uploads/2019/10/DSCF5261-810x540.jpg 810w,https://www.tabasco.com/wp-content/uploads/2019/10/DSCF5261-1080x720.jpg 1080w" sizes="(min-width: 1280px) 320vw, (min-width:) 25vw, 100vw" alt="Spiced Up Cheesy Chicken Enchilada Casserole">															</a>
+						</div>
+						<div class="recipe-card__info">
+							<h6 class="recipe-card__title uc recipe-card__title">
+								<a href="https://www.tabasco.com/recipe/spiced-up-cheesy-chicken-enchilada-casserole/" class="recipe-card__link">
+									Spiced Up Cheesy Chicken Enchilada Casserole								</a>
+							</h6>
+																						<div class="recipe-sauces"><div class="recipe-sauces recipe-sauces--"><div class="recipe-sauces__circles"><div class="recipe-sauces__circle recipe-sauces__circle--"><img src="./You searched for mexican _ TABASCO® Brand_files/Original-Red-Sauce-5-oz-Bottle-2-100x200.png" alt="Recipe uses Original Red Sauce"></div></div><div class="recipe-sauces__names">Original Red Sauce</div></div></div>
+													</div>
+					</div>
+										<div class="recipe-card recipe-card--in-grid recipe-card--animate-in">
+						<div data-orderby="date" class="recipe-card__img-wrap">
+							<a aria-label="View Mushroom and Epazote Queso Fundido Recipe" href="https://www.tabasco.com/recipe/mushroom-and-epazote-queso-fundido/" class="recipe-card__link recipe-card__link--img">
+								<span class="visuallyhidden">View Mushroom and Epazote Queso Fundido Recipe</span>
+																	<img srcset="https://www.tabasco.com/wp-content/uploads/2019/09/Mushroom-and-Epazote-Queso-Fundido-320x180.jpg 320w,https://www.tabasco.com/wp-content/uploads/2019/09/Mushroom-and-Epazote-Queso-Fundido-640x360.jpg 640w,https://www.tabasco.com/wp-content/uploads/2019/09/Mushroom-and-Epazote-Queso-Fundido-960x540.jpg 960w,https://www.tabasco.com/wp-content/uploads/2019/09/Mushroom-and-Epazote-Queso-Fundido-1280x720.jpg 1280w" sizes="(min-width: 1280px) 320vw, (min-width:) 25vw, 100vw" alt="Mushroom and Epazote Queso Fundido">															</a>
+						</div>
+						<div class="recipe-card__info">
+							<h6 class="recipe-card__title uc recipe-card__title">
+								<a href="https://www.tabasco.com/recipe/mushroom-and-epazote-queso-fundido/" class="recipe-card__link">
+									Mushroom and Epazote Queso Fundido								</a>
+							</h6>
+																						<div class="recipe-sauces"><div class="recipe-sauces recipe-sauces--"><div class="recipe-sauces__circles"><div class="recipe-sauces__circle recipe-sauces__circle--"><img src="./You searched for mexican _ TABASCO® Brand_files/Original-Red-Sauce-5-oz-Bottle-2-100x200.png" alt="Recipe uses Original Red Sauce"></div></div><div class="recipe-sauces__names">Original Red Sauce</div></div></div>
+													</div>
+					</div>
+										<div class="recipe-card recipe-card--in-grid recipe-card--animate-in">
+						<div data-orderby="date" class="recipe-card__img-wrap">
+							<a aria-label="View Three Layer Chipotle Bean Dip Recipe" href="https://www.tabasco.com/recipe/three-layer-chipotle-bean-dip/" class="recipe-card__link recipe-card__link--img">
+								<span class="visuallyhidden">View Three Layer Chipotle Bean Dip Recipe</span>
+																	<img srcset="https://www.tabasco.com/wp-content/uploads/2019/09/BEAN_LIFESTYLE_5C_0120-320x180.jpg 320w,https://www.tabasco.com/wp-content/uploads/2019/09/BEAN_LIFESTYLE_5C_0120-640x360.jpg 640w,https://www.tabasco.com/wp-content/uploads/2019/09/BEAN_LIFESTYLE_5C_0120-960x540.jpg 960w,https://www.tabasco.com/wp-content/uploads/2019/09/BEAN_LIFESTYLE_5C_0120-1280x720.jpg 1280w" sizes="(min-width: 1280px) 320vw, (min-width:) 25vw, 100vw" alt="Three Layer Chipotle Bean Dip">															</a>
+						</div>
+						<div class="recipe-card__info">
+							<h6 class="recipe-card__title uc recipe-card__title">
+								<a href="https://www.tabasco.com/recipe/three-layer-chipotle-bean-dip/" class="recipe-card__link">
+									Three Layer Chipotle Bean Dip								</a>
+							</h6>
+																						<div class="recipe-sauces"><div class="recipe-sauces recipe-sauces--"><div class="recipe-sauces__circles"><div class="recipe-sauces__circle recipe-sauces__circle--"><img src="./You searched for mexican _ TABASCO® Brand_files/Chipotle-Pepper-Sauce-5-oz-Bottle-3-100x200.png" alt="Recipe uses Chipotle Sauce"></div></div><div class="recipe-sauces__names">Chipotle Sauce</div></div></div>
+													</div>
+					</div>
+										<div class="recipe-card recipe-card--in-grid recipe-card--animate-in">
+						<div data-orderby="date" class="recipe-card__img-wrap">
+							<a aria-label="View Spicy Salsa Hot Dog Recipe" href="https://www.tabasco.com/recipe/spicy-salsa-hot-dog/" class="recipe-card__link recipe-card__link--img">
+								<span class="visuallyhidden">View Spicy Salsa Hot Dog Recipe</span>
+																	<img srcset="https://www.tabasco.com/wp-content/uploads/2019/05/Hot-and-Spicy-Fiesta-Hot-Dog-320x180.jpg 320w,https://www.tabasco.com/wp-content/uploads/2019/05/Hot-and-Spicy-Fiesta-Hot-Dog-640x360.jpg 640w,https://www.tabasco.com/wp-content/uploads/2019/05/Hot-and-Spicy-Fiesta-Hot-Dog-960x540.jpg 960w,https://www.tabasco.com/wp-content/uploads/2019/05/Hot-and-Spicy-Fiesta-Hot-Dog-1280x720.jpg 1280w" sizes="(min-width: 1280px) 320vw, (min-width:) 25vw, 100vw" alt="View  Recipe">															</a>
+						</div>
+						<div class="recipe-card__info">
+							<h6 class="recipe-card__title uc recipe-card__title">
+								<a href="https://www.tabasco.com/recipe/spicy-salsa-hot-dog/" class="recipe-card__link">
+									Spicy Salsa Hot Dog								</a>
+							</h6>
+																						<div class="recipe-sauces"><div class="recipe-sauces recipe-sauces--"><div class="recipe-sauces__circles"><div class="recipe-sauces__circle recipe-sauces__circle--"><img src="./You searched for mexican _ TABASCO® Brand_files/Original-Red-Sauce-5-oz-Bottle-2-100x200.png" alt="Recipe uses Original Red Sauce"></div></div><div class="recipe-sauces__names">Original Red Sauce</div></div></div>
+													</div>
+					</div>
+										<div class="recipe-card recipe-card--in-grid recipe-card--animate-in">
+						<div data-orderby="date" class="recipe-card__img-wrap">
+							<a aria-label="View Chicken Taquitos Recipe" href="https://www.tabasco.com/recipe/chicken-taquitos/" class="recipe-card__link recipe-card__link--img">
+								<span class="visuallyhidden">View Chicken Taquitos Recipe</span>
+																	<img srcset="https://www.tabasco.com/wp-content/uploads/2018/09/Taquitos-105-1.jpg 320w" sizes="(min-width: 1280px) 320vw, (min-width:) 25vw, 100vw" alt="View  Recipe">															</a>
+						</div>
+						<div class="recipe-card__info">
+							<h6 class="recipe-card__title uc recipe-card__title">
+								<a href="https://www.tabasco.com/recipe/chicken-taquitos/" class="recipe-card__link">
+									Chicken Taquitos								</a>
+							</h6>
+																						<div class="recipe-sauces"><div class="recipe-sauces recipe-sauces--"><div class="recipe-sauces__circles"><div class="recipe-sauces__circle recipe-sauces__circle--"><img src="./You searched for mexican _ TABASCO® Brand_files/Chipotle-Pepper-Sauce-5-oz-Bottle-3-100x200.png" alt="Recipe uses Chipotle Sauce"></div></div><div class="recipe-sauces__names">Chipotle Sauce</div></div></div>
+													</div>
+					</div>
+										<div class="recipe-card recipe-card--in-grid recipe-card--animate-in">
+						<div data-orderby="date" class="recipe-card__img-wrap">
+							<a aria-label="View Tomatillo Michelada Recipe" href="https://www.tabasco.com/recipe/tomatillo-michelada/" class="recipe-card__link recipe-card__link--img">
+								<span class="visuallyhidden">View Tomatillo Michelada Recipe</span>
+																	<img srcset="https://www.tabasco.com/wp-content/uploads/2018/02/Michelada.jpg 320w" sizes="(min-width: 1280px) 320vw, (min-width:) 25vw, 100vw" alt="View  Recipe">															</a>
+						</div>
+						<div class="recipe-card__info">
+							<h6 class="recipe-card__title uc recipe-card__title">
+								<a href="https://www.tabasco.com/recipe/tomatillo-michelada/" class="recipe-card__link">
+									Tomatillo Michelada								</a>
+							</h6>
+																						<div class="recipe-sauces"><div class="recipe-sauces recipe-sauces--"><div class="recipe-sauces__circles"><div class="recipe-sauces__circle recipe-sauces__circle--"><img src="./You searched for mexican _ TABASCO® Brand_files/Original-Red-Sauce-5-oz-Bottle-2-100x200.png" alt="Recipe uses Original Red Sauce"></div></div><div class="recipe-sauces__names">Original Red Sauce</div></div></div>
+													</div>
+					</div>
+										<div class="recipe-card recipe-card--in-grid recipe-card--animate-in">
+						<div data-orderby="date" class="recipe-card__img-wrap">
+							<a aria-label="View Pozole Salad Tostada Recipe" href="https://www.tabasco.com/recipe/pozole-salad-tostada/" class="recipe-card__link recipe-card__link--img">
+								<span class="visuallyhidden">View Pozole Salad Tostada Recipe</span>
+																	<img srcset="https://www.tabasco.com/wp-content/uploads/2017/12/IMG_2462-1.jpg 270w" sizes="(min-width: 1280px) 320vw, (min-width:) 25vw, 100vw" alt="View  Recipe">															</a>
+						</div>
+						<div class="recipe-card__info">
+							<h6 class="recipe-card__title uc recipe-card__title">
+								<a href="https://www.tabasco.com/recipe/pozole-salad-tostada/" class="recipe-card__link">
+									Pozole Salad Tostada								</a>
+							</h6>
+																						<div class="recipe-sauces"><div class="recipe-sauces recipe-sauces--"><div class="recipe-sauces__circles"><div class="recipe-sauces__circle recipe-sauces__circle--"><img src="./You searched for mexican _ TABASCO® Brand_files/Original-Red-Sauce-5-oz-Bottle-2-100x200.png" alt="Recipe uses Original Red Sauce"></div></div><div class="recipe-sauces__names">Original Red Sauce</div></div></div>
+													</div>
+					</div>
+										<div class="recipe-card recipe-card--in-grid recipe-card--animate-in">
+						<div data-orderby="date" class="recipe-card__img-wrap">
+							<a aria-label="View Spicy Cochinita (Roast Pork) Tacos Recipe" href="https://www.tabasco.com/recipe/spicy-cochinita-roast-pork-tacos/" class="recipe-card__link recipe-card__link--img">
+								<span class="visuallyhidden">View Spicy Cochinita (Roast Pork) Tacos Recipe</span>
+																	<img srcset="https://www.tabasco.com/wp-content/uploads/2017/10/Tabasco-320x180.jpg 320w,https://www.tabasco.com/wp-content/uploads/2017/10/Tabasco-640x360.jpg 640w,https://www.tabasco.com/wp-content/uploads/2017/10/Tabasco-960x540.jpg 960w,https://www.tabasco.com/wp-content/uploads/2017/10/Tabasco-1280x720.jpg 1280w" sizes="(min-width: 1280px) 320vw, (min-width:) 25vw, 100vw" alt="View  Recipe">															</a>
+						</div>
+						<div class="recipe-card__info">
+							<h6 class="recipe-card__title uc recipe-card__title">
+								<a href="https://www.tabasco.com/recipe/spicy-cochinita-roast-pork-tacos/" class="recipe-card__link">
+									Spicy Cochinita (Roast Pork) Tacos								</a>
+							</h6>
+																						<div class="recipe-sauces"><div class="recipe-sauces recipe-sauces--"><div class="recipe-sauces__circles"><div class="recipe-sauces__circle recipe-sauces__circle--"><img src="./You searched for mexican _ TABASCO® Brand_files/Chipotle-Pepper-Sauce-5-oz-Bottle-3-100x200.png" alt="Recipe uses Chipotle Sauce"></div><div class="recipe-sauces__circle recipe-sauces__circle--"><img src="./You searched for mexican _ TABASCO® Brand_files/Green-Jalapeno-Pepper-Sauce-5-oz-Bottle-1-100x200.png" alt="Recipe uses Chipotle Sauce, Green Jalapeño Sauce"></div></div><div class="recipe-sauces__names">Chipotle Sauce, Green Jalapeño Sauce</div></div></div>
+													</div>
+					</div>
+										<div class="recipe-card recipe-card--in-grid recipe-card--animate-in">
+						<div data-orderby="date" class="recipe-card__img-wrap">
+							<a aria-label="View Ahi Tuna Steak Recipe" href="https://www.tabasco.com/recipe/ahi-tuna-steak/" class="recipe-card__link recipe-card__link--img">
+								<span class="visuallyhidden">View Ahi Tuna Steak Recipe</span>
+																	<img srcset="https://www.tabasco.com/wp-content/uploads/2017/09/Screen-Shot-2017-09-27-at-8.56.17-PM.png 282w" sizes="(min-width: 1280px) 320vw, (min-width:) 25vw, 100vw" alt="Ahi Tuna Steak">															</a>
+						</div>
+						<div class="recipe-card__info">
+							<h6 class="recipe-card__title uc recipe-card__title">
+								<a href="https://www.tabasco.com/recipe/ahi-tuna-steak/" class="recipe-card__link">
+									Ahi Tuna Steak								</a>
+							</h6>
+																						<div class="recipe-sauces"><div class="recipe-sauces recipe-sauces--"><div class="recipe-sauces__circles"><div class="recipe-sauces__circle recipe-sauces__circle--"><img src="./You searched for mexican _ TABASCO® Brand_files/Green-Jalapeno-Pepper-Sauce-5-oz-Bottle-1-100x200.png" alt="Recipe uses Green Jalapeño Sauce"></div></div><div class="recipe-sauces__names">Green Jalapeño Sauce</div></div></div>
+													</div>
+					</div>
+										<div class="recipe-card recipe-card--in-grid recipe-card--animate-in">
+						<div data-orderby="date" class="recipe-card__img-wrap">
+							<a aria-label="View Pizza Taco Recipe" href="https://www.tabasco.com/recipe/pizza-taco/" class="recipe-card__link recipe-card__link--img">
+								<span class="visuallyhidden">View Pizza Taco Recipe</span>
+																	<img srcset="https://www.tabasco.com/wp-content/uploads/2017/08/Tabasco-Pizza-Taco-320x180.jpg 320w,https://www.tabasco.com/wp-content/uploads/2017/08/Tabasco-Pizza-Taco-640x360.jpg 640w,https://www.tabasco.com/wp-content/uploads/2017/08/Tabasco-Pizza-Taco-960x540.jpg 960w,https://www.tabasco.com/wp-content/uploads/2017/08/Tabasco-Pizza-Taco-1280x720.jpg 1280w" sizes="(min-width: 1280px) 320vw, (min-width:) 25vw, 100vw" alt="View  Recipe">															</a>
+						</div>
+						<div class="recipe-card__info">
+							<h6 class="recipe-card__title uc recipe-card__title">
+								<a href="https://www.tabasco.com/recipe/pizza-taco/" class="recipe-card__link">
+									Pizza Taco								</a>
+							</h6>
+																						<div class="recipe-sauces"><div class="recipe-sauces recipe-sauces--"><div class="recipe-sauces__circles"><div class="recipe-sauces__circle recipe-sauces__circle--"><img src="./You searched for mexican _ TABASCO® Brand_files/Original-Red-Sauce-5-oz-Bottle-2-100x200.png" alt="Recipe uses Original Red Sauce"></div></div><div class="recipe-sauces__names">Original Red Sauce</div></div></div>
+													</div>
+					</div>
+									<div data-post-count="40" data-current-page="1" data-total-pages="4" class="pagination pagination--archive" id="pagination--ajax" data-attribute="page">
+										<span aria-current="page" class="page-numbers current">1</span>
+<a class="page-numbers" href="https://www.tabasco.com/page/2?order_by=date&amp;action=ajax-recipes&amp;course&amp;current_page=1&amp;is_search=true&amp;search_term=mexican">2</a>
+<a class="page-numbers" href="https://www.tabasco.com/page/3?order_by=date&amp;action=ajax-recipes&amp;course&amp;current_page=1&amp;is_search=true&amp;search_term=mexican">3</a>
+<a class="page-numbers" href="https://www.tabasco.com/page/4?order_by=date&amp;action=ajax-recipes&amp;course&amp;current_page=1&amp;is_search=true&amp;search_term=mexican">4</a>
+<a class="next page-numbers" href="https://www.tabasco.com/page/2?order_by=date&amp;action=ajax-recipes&amp;course&amp;current_page=1&amp;is_search=true&amp;search_term=mexican">Next »</a>				</div></div>
+            </div>
+        </div>
+    </main>
+    <script type="text/javascript" src="./You searched for mexican _ TABASCO® Brand_files/wp-embed.min.js.download" id="wp-embed-js"></script>
+<footer class="footer footer--b2c">
+	<a title="Go to Homepage - Tabasco" href="https://www.tabasco.com/" class="footer__text-logo">Tabasco®<img alt="Tabasco" srcset="https://www.tabasco.com/wp-content/themes/tabasco-redesign-2017/assets/text-logo-1x.png 112w, https://www.tabasco.com/wp-content/themes/tabasco-redesign-2017/assets/text-logo-2x.png 224w, https://www.tabasco.com/wp-content/themes/tabasco-redesign-2017/assets/text-logo-3x.png 336w" sizes="112px"></a>
+	<!-- todo: make this an editable post -->
+	<div class="menu-footer-menu-container"><ul id="menu-footer-menu" class="footer__menu"><li id="menu-item-2585" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-2585"><a href="https://www.tabasco.com/privacy-policy/">Privacy Policy</a></li>
+<li id="menu-item-2582" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-2582"><a href="https://www.tabasco.com/terms-and-conditions/">Terms &amp; Conditions</a></li>
+<li id="menu-item-5325" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-5325"><a href="https://www.tabasco.com/careers/">Careers</a></li>
+<li id="menu-item-4648" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-4648"><a href="https://www.tabasco.com/sitemap/">Sitemap</a></li>
+<li id="menu-item-34" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-34"><a target="_blank" rel="noopener noreferrer" href="https://countrystore.tabasco.com/">Shop Online</a></li>
+</ul></div>	<div class="generic-max-width-container">
+	<p class="footer__copy">TABASCO and the DIAMOND and BOTTLE LOGOS are trademarks of McIlhenny Company</p>
+</div>
+			<div class="foodservice-callout">
+			<div class="foodservice-callout__content">
+				<h6 class="foodservice-callout__header">Looking to Buy Wholesale?</h6>
+				<div class="generic-max-width-container generic-max-width-container--no-pad">
+				<p class="foodservice-callout__copy">Spice up your business with a splash of TABASCO® Sauce. Visit our Foodservice website to learn more about our solutions in the kitchen, on the table, and behind the bar. </p>
+				</div>
+				<a rel="noopener noreferrer" class="primary-cta foodservice-callout__cta" href="https://www.tabascofoodservice.com/?utm_source=tabasco.com&amp;utm_medium=link&amp;utm_campaign=footer" target="_blank">Go To Foodservice</a>
+			</div>
+		<!--todo: make this a post so they can edit it -->
+		</div>
+		<div class="footer__container footer__container--dark">
+
+			<p class="footer__copy footer__copy--dark">© 2020 McIlhenny Company. All rights reserved.</p>
+
+
+	<div class="menu-social-menu-container"><ul id="menu-social-menu" class="footer__social-menu"><li id="menu-item-36" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-36 svg-twitter"><a target="_blank" href="https://twitter.com/tabasco">Twitter<svg aria-label="Twitter Icon" width="16px" height="14px" viewBox="0 0 16 14" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"> <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd"> <g transform="translate(-140.000000, -599.000000)" fill="currentColor"> <g transform="translate(20.000000, 520.000000)"> <g transform="translate(0.000000, 75.000000)"> <g transform="translate(84.000000, 2.000000)"> <path d="M51.5587002,2.24649561 C50.9238779,2.6318319 50.2224121,2.91207647 49.4726724,3.0620244 C48.8754439,2.4084052 48.0218941,2 47.0769231,2 C45.2655862,2 43.7955838,3.50716899 43.7955838,5.36592529 C43.7955838,5.62993619 43.8237791,5.88583024 43.8801698,6.13232585 C41.1520572,5.99177636 38.7336662,4.6533522 37.1137159,2.61431661 C36.8309081,3.11328866 36.6694257,3.69214749 36.6694257,4.30860011 C36.6694257,5.47571623 37.2487117,6.50612768 38.1300296,7.10976424 C37.5926094,7.09353056 37.0855205,6.94059221 36.6420847,6.69025178 L36.6420847,6.73126318 C36.6420847,8.36274798 37.7737431,9.72381385 39.2766401,10.0318266 C39.0015219,10.1108589 38.7110245,10.1505887 38.4115558,10.1505887 C38.2000908,10.1505887 37.9937522,10.130083 37.7938216,10.0907804 C38.2116252,11.4274958 39.4231704,12.4010894 40.859851,12.4271487 C39.7367367,13.3302539 38.3205618,13.8685286 36.7830614,13.8685286 C36.5181961,13.8685286 36.2563213,13.8531493 36,13.8223907 C37.4524871,14.7759058 39.1788108,15.3334045 41.0320135,15.3334045 C47.070515,15.3334045 50.3715056,10.2052706 50.3715056,5.75681521 C50.3715056,5.61028489 50.3689424,5.46418177 50.3633888,5.32064187 C51.0046191,4.84602035 51.5616907,4.25349104 52,3.57851173 C51.4121699,3.84594025 50.7790564,4.02707393 50.1151844,4.10824233 C50.7931541,3.69214749 51.3134862,3.03254746 51.5587002,2.24649561"></path> </g> </g> </g> </g> </g></svg></a></li>
+<li id="menu-item-35" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-35 svg-facebook"><a target="_blank" href="https://www.facebook.com/TabascoUS/">Facebook<svg width="16" height="16" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" aria-label="Facebook Icon"><path d="M16 15c0 .6-.4 1-1 1h-4V9.8h2l.4-2.4H11V5.8c0-.7.2-1 1.2-1h1.3V2.4h-1.8c-2 0-3.2 1-3.2 3v2h-2v2.3h2V16H1c-.6 0-1-.4-1-1V1c0-.6.4-1 1-1h14c.6 0 1 .4 1 1v14" fill="currentColor" fill-rule="evenodd"></path></svg></a></li>
+<li id="menu-item-37" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-37 svg-instagram"><a target="_blank" href="https://www.instagram.com/tabasco/">Instagram<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-label="Instagram Icon">
+  <g fill-rule="evenodd" fill="currentColor">
+    <path d="M12 .05c-3.26 0-3.67 0-4.95.07-1.28.06-2.15.26-2.9.55-.8.3-1.47.72-2.14 1.38-.6.65-1 1.33-1.3 2.1-.3.77-.5 1.65-.5 2.9C0 8.33 0 8.73 0 11.97s0 3.64.07 4.92c.06 1.2.26 2.1.56 2.8.3.8.72 1.4 1.38 2.1.7.6 1.4 1.1 2.2 1.4.8.3 1.7.5 2.9.5 1.3.03 1.7.04 5 .04s3.7 0 5-.08c1.28-.08 2.15-.28 2.9-.57.8-.3 1.47-.7 2.14-1.38.67-.7 1.08-1.36 1.38-2.14.3-.75.5-1.6.6-2.9.05-1.26.06-1.66.06-4.9s0-3.64-.07-4.9c-.1-1.25-.3-2.1-.6-2.9-.3-.76-.7-1.43-1.4-2.1-.7-.6-1.36-1.03-2.15-1.34-.76-.3-1.63-.5-2.9-.55H12.1m0 2.16c3.2 0 3.57 0 4.83.06 1.17.06 1.8.25 2.23.4.55.23.95.5 1.37.9.4.4.67.8.9 1.38.15.4.35 1.04.4 2.2.06 1.3.07 1.64.07 4.8s0 3.58-.07 4.84c-.05 1.14-.25 1.77-.4 2.2-.23.55-.5.95-.9 1.36-.43.42-.83.7-1.4.9-.4.16-1.05.35-2.22.4-1.2.06-1.6.1-4.8.1s-3.6 0-4.8-.1c-1.2-.03-1.8-.22-2.25-.4-.56-.2-.96-.46-1.4-.9-.4-.4-.7-.8-.9-1.35-.15-.43-.35-1.06-.4-2.2-.06-1.28-.1-1.66-.1-4.84s0-3.53.1-4.8c.04-1.12.24-1.8.4-2.2.22-.53.5-.93.9-1.34.42-.4.82-.67 1.4-.9.4-.15 1.04-.34 2.2-.4H12"></path>
+    <path d="M12 15.94c-2.2 0-4-1.78-4-3.97C8 9.77 9.8 8 12 8s4 1.78 4 3.97c0 2.2-1.8 3.97-4 3.97m0-10.1c-3.4 0-6.16 2.75-6.16 6.13S8.6 18.1 12 18.1c3.4 0 6.16-2.75 6.16-6.13S15.4 5.85 12 5.85m7.84-.25c0 .8-.65 1.44-1.44 1.44-.8 0-1.44-.64-1.44-1.43 0-.7.64-1.4 1.44-1.4.8 0 1.44.7 1.44 1.5"></path>
+  </g>
+</svg>
+</a></li>
+<li id="menu-item-38" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-38 svg-youtube"><a target="_blank" href="https://www.youtube.com/channel/UCdWgVh97gg1i3CMwTP1ls9g">YouTube<svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 26 20" style="enable-background:new 0 0 26 20;" xml:space="preserve">
+<path fill="currentColor" d="M10.2,13.8V6.3l7.2,3.7L10.2,13.8z M25.7,5c0,0,0-1.6-1-2.6s-2-1-2.6-1C18.5,1.1,13,1.1,13,1.1s-5.5,0-9.1,0.3
+	c-0.7,0-1.6,0-2.6,1C0.4,3.3,0.3,5,0.3,5l-0.3,4.2v2.1l0.3,4.4c0,0,0,1.6,1,2.4c1,1,2.3,1,2.9,1.1h17.9c0.5,0,1.6,0,2.6-1.1
+	c0.8-0.8,1-2.6,1-2.6l0.3-4.9V9.3C26,9.3,25.7,5,25.7,5z"></path>
+</svg>
+</a></li>
+<li id="menu-item-39" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-39 svg-pinterest"><a target="_blank" href="https://www.pinterest.com/tabasco/">Pinterest<svg aria-label="Pinterest Icon" width="16" height="16" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg"><path d="M80.0004704,1 C75.5825248,1 72,4.58158405 72,9.00047039 C72,12.2753572 73.9700123,15.0901982 76.7895572,16.3273358 C76.7669783,15.7694479 76.7857941,15.0977245 76.9278532,14.4899747 C77.0821426,13.8408302 77.9570765,10.1312989 77.9570765,10.1312989 C77.9570765,10.1312989 77.7021227,9.6204504 77.7021227,8.86499677 C77.7021227,7.67960252 78.3898395,6.79431999 79.2450168,6.79431999 C79.9722467,6.79431999 80.3241018,7.34091845 80.3241018,7.99570765 C80.3241018,8.72670077 79.8574705,9.82083848 79.6175692,10.8340683 C79.4171812,11.6836009 80.0428059,12.3750808 80.8801082,12.3750808 C82.3957194,12.3750808 83.4164756,10.4285882 83.4164756,8.12177339 C83.4164756,6.36908332 82.2357853,5.05668254 80.0879638,5.05668254 C77.6616687,5.05668254 76.1498207,6.86581996 76.1498207,8.88663492 C76.1498207,9.58470042 76.3549127,10.0757923 76.6766626,10.4558711 C76.8253072,10.6317987 76.8450638,10.7014171 76.7914388,10.9027459 C76.7538073,11.0485682 76.6653731,11.4041865 76.6286823,11.5443641 C76.5750573,11.7466337 76.41136,11.8200153 76.2288469,11.7447522 C75.1102487,11.2884695 74.5899924,10.0645029 74.5899924,8.68812842 C74.5899924,6.41612277 76.5063797,3.689716 80.3071676,3.689716 C83.3619098,3.689716 85.3723761,5.90151114 85.3723761,8.27324043 C85.3723761,11.4117128 83.6281531,13.7561592 81.055095,13.7561592 C80.1923914,13.7561592 79.3795496,13.2895278 79.101076,12.7598636 C79.101076,12.7598636 78.6363262,14.6028694 78.5384842,14.9584877 C78.3691421,15.5747045 78.0370436,16.1918622 77.7331687,16.6716646 C78.4528723,16.8842829 79.2130299,17 80.0004704,17 C84.4184159,17 88,13.4184159 88,9.00047039 C88,4.58158405 84.4184159,1 80.0004704,1" transform="translate(-72 -1)" fill="currentColor" fill-rule="evenodd"></path></svg></a></li>
+</ul></div>	</div>
+</footer>
+<script src="./You searched for mexican _ TABASCO® Brand_files/body.min.bd617ebe.js.download"></script>
+			<script src="./You searched for mexican _ TABASCO® Brand_files/multi-filtering.js.download"></script> 
+<script type="text/javascript" id="">!function(b,e,f,g,a,c,d){b.fbq||(a=b.fbq=function(){a.callMethod?a.callMethod.apply(a,arguments):a.queue.push(arguments)},b._fbq||(b._fbq=a),a.push=a,a.loaded=!0,a.version="2.0",a.queue=[],c=e.createElement(f),c.async=!0,c.src=g,d=e.getElementsByTagName(f)[0],d.parentNode.insertBefore(c,d))}(window,document,"script","https://connect.facebook.net/en_US/fbevents.js");fbq("init","1521600537933796");fbq("track","PageView");</script> 
+<noscript><img height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id=1521600537933796&amp;ev=PageView&amp;noscript=1"></noscript> 
+ 
+
+<script type="text/javascript" id="">(function(a,c,e,f,d,b){a.hj=a.hj||function(){(a.hj.q=a.hj.q||[]).push(arguments)};a._hjSettings={hjid:1694059,hjsv:6};d=c.getElementsByTagName("head")[0];b=c.createElement("script");b.async=1;b.src=e+a._hjSettings.hjid+f+a._hjSettings.hjsv;d.appendChild(b)})(window,document,"https://static.hotjar.com/c/hotjar-",".js?sv\x3d");</script>
+		<script src="https://100003113.collect.igodigital.com/collect.js"></script>
+<script>
+_etmc.push(["setOrgId", "100003113"]);
+_etmc.push(["trackPageView"]);
+</script>
+    <div class="modal__blocker" aria-hidden="true"></div>
+<div class="modal-wrap" aria-hidden="true">
+    </div>    <div class="psearch__wrap" id="psearch__wrap" role="search">
+    <div class="psearch__bar">
+        <form class="psearch__form" id="psearch__form" method="get" action="https://www.tabasco.com/" data-attribute="search">
+            <label for="psearch__input" class="psearch__label psearch__label--hidden">Search Recipes By...</label>
+            <input id="psearch__input" class="psearch__input" type="text" name="s" autocomplete="off" title="Enter text to search recipes" placeholder="Search recipes">
+            <input class="psearch__submit-btn" type="submit" value="Search">
+            <div class="psearch__close psearch__toggle">
+                <span class="psearch__close-text">Press Enter</span>
+            </div><!-- .psearch__close -->
+
+            <!--
+            <div id="loader__overlay--nav" class="loader__overlay loader__overlay--nav loader__overlay--hidden">
+                <div class="loader loader--nav">
+                    <div class="loader__rect loader__rect1"></div>
+                    <div class="loader__rect loader__rect2"></div>
+                    <div class="loader__rect loader__rect3"></div>
+                    <div class="loader__rect loader__rect4"></div>
+                    <div class="loader__rect loader__rect5"></div>
+                </div>
+            </div>
+            -->
+        </form>
+    </div><!-- .psearch__bar -->
+
+    <div class="psearch__results-wrap" id="psearch__results-wrap">
+        <div class="psearch__results" id="psearch__results"></div><!-- .psearch__results -->
+        <div class="psearch__results-count" id="psearch__results-count">
+            <p class="psearch__arrow-span">See all <span id="psearch__qty"></span> results</p>
+        </div>
+
+        <div class="psearch__collection-wrap" id="psearch__collection-wrap">
+            <div class="psearch__collection-grid">
+                
+<div class="recipe-card recipe-card-- recipe-card--in-grid recipe-card--search">
+	<div class="recipe-card__img-wrap">
+	<a aria-label="View Bloody Marys Recipe" href="https://www.tabasco.com/recipe/collection/bloody-marys/" class="recipe-card__link recipe-card__link--img">
+		<span class="visuallyhidden">View Bloody Marys Recipe</span>
+			<img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" width="1420" height="2524" class="lazy" data-srcset="https://www.tabasco.com/wp-content/uploads/2017/05/Bloody_Mary-mobile.jpg 320w" sizes="(min-width: 1280px) 320vw, (min-width:50em) 25vw, 100vw" alt="View  Recipe">
+
+		</a>
+	</div>
+	<div class="recipe-card__info recipe-card__info--">
+				<h6 class="recipe-card__title uc recipe-card__title">
+			<a href="https://www.tabasco.com/recipe/collection/bloody-marys/" class="recipe-card__link">
+				Bloody Marys			</a>
+		</h6>
+					<div class="recipe-description recipe-card__description">Make them spicy and authentic.</div>
+					</div>
+</div>
+
+<div class="recipe-card recipe-card-- recipe-card--in-grid recipe-card--search">
+	<div class="recipe-card__img-wrap">
+	<a aria-label="View Game Day Eats Recipe" href="https://www.tabasco.com/recipe/collection/game-day/" class="recipe-card__link recipe-card__link--img">
+		<span class="visuallyhidden">View Game Day Eats Recipe</span>
+			<img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" width="1420" height="2524" class="lazy" data-srcset="https://www.tabasco.com/wp-content/uploads/2017/05/Game_Day-mobile.jpg 320w" sizes="(min-width: 1280px) 320vw, (min-width:50em) 25vw, 100vw" alt="View  Recipe">
+
+		</a>
+	</div>
+	<div class="recipe-card__info recipe-card__info--">
+				<h6 class="recipe-card__title uc recipe-card__title">
+			<a href="https://www.tabasco.com/recipe/collection/game-day/" class="recipe-card__link">
+				Game Day Eats			</a>
+		</h6>
+					<div class="recipe-description recipe-card__description">Score with winning food everyone loves!</div>
+					</div>
+</div>
+
+<div class="recipe-card recipe-card-- recipe-card--in-grid recipe-card--search">
+	<div class="recipe-card__img-wrap">
+	<a aria-label="View Mexican Classics Recipe" href="https://www.tabasco.com/recipe/collection/mexican-classics/" class="recipe-card__link recipe-card__link--img">
+		<span class="visuallyhidden">View Mexican Classics Recipe</span>
+			<img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" width="1420" height="2524" class="lazy" data-srcset="https://www.tabasco.com/wp-content/uploads/2017/05/Mexican-mobile.jpg 320w" sizes="(min-width: 1280px) 320vw, (min-width:50em) 25vw, 100vw" alt="View  Recipe">
+
+		</a>
+	</div>
+	<div class="recipe-card__info recipe-card__info--">
+				<h6 class="recipe-card__title uc recipe-card__title">
+			<a href="https://www.tabasco.com/recipe/collection/mexican-classics/" class="recipe-card__link">
+				Mexican Classics			</a>
+		</h6>
+					<div class="recipe-description recipe-card__description">Recipes from south of the border full of flavor.</div>
+					</div>
+</div>
+
+<div class="recipe-card recipe-card-- recipe-card--in-grid recipe-card--search">
+	<div class="recipe-card__img-wrap">
+	<a aria-label="View Smithfield Pork Recipe" href="https://www.tabasco.com/recipe/collection/smithfield-pork/" class="recipe-card__link recipe-card__link--img">
+		<span class="visuallyhidden">View Smithfield Pork Recipe</span>
+		</a>
+	</div>
+	<div class="recipe-card__info recipe-card__info--">
+				<h6 class="recipe-card__title uc recipe-card__title">
+			<a href="https://www.tabasco.com/recipe/collection/smithfield-pork/" class="recipe-card__link">
+				Smithfield Pork			</a>
+		</h6>
+					<div class="recipe-description recipe-card__description">Slow-smoked, hand-crafted pork dishes with a touch of TABASCO® Sauce.</div>
+					</div>
+</div>
+            </div><!-- .psearch__collection-grid -->
+        </div><!-- .psearch__collection-wrap -->
+    </div><!-- .psearch__results-wrap -->
+
+    <div class="psearch__bg-close psearch__toggle psearch__trigger--active"></div><!-- .psearch__bg-close -->
+</div><!-- .psearch__wrap -->
+    <script type="text/javascript">!function(e){"use strict";var n=function(n,t,o){function i(e){return a.body?e():void setTimeout(function(){i(e)})}function r(){l.addEventListener&&l.removeEventListener("load",r),l.media=o||"all"}var d,a=e.document,l=a.createElement("link");if(t)d=t;else{var s=(a.body||a.getElementsByTagName("head")[0]).childNodes;d=s[s.length-1]}var f=a.styleSheets;l.rel="stylesheet",l.href=n,l.media="only x",i(function(){d.parentNode.insertBefore(l,t?d:d.nextSibling)});var u=function(e){for(var n=l.href,t=f.length;t--;)if(f[t].href===n)return e();setTimeout(function(){u(e)})};return l.addEventListener&&l.addEventListener("load",r),l.onloadcssdefined=u,u(r),l};"undefined"!=typeof exports?exports.loadCSS=n:e.loadCSS=n}("undefined"!=typeof global?global:this);!function(t){if(t.loadCSS){var e=loadCSS.relpreload={};if(e.support=function(){try{return t.document.createElement("link").relList.supports("preload")}catch(e){return!1}},e.poly=function(){for(var e=t.document.getElementsByTagName("link"),r=0;r<e.length;r++){var n=e[r];"preload"===n.rel&&"style"===n.getAttribute("as")&&(t.loadCSS(n.href,n,n.getAttribute("media")),n.rel=null)}},!e.support()){e.poly();var r=t.setInterval(e.poly,300);t.addEventListener&&t.addEventListener("load",function(){e.poly(),t.clearInterval(r)}),t.attachEvent&&t.attachEvent("onload",function(){t.clearInterval(r)})}}}(this);</script>    <script type="text/javascript">window.NREUM||(NREUM={});NREUM.info={"beacon":"bam.nr-data.net","licenseKey":"417e0df734","applicationID":"46289075","transactionName":"Y1NRY0BYVxFTAhFeDVoZclRGUFYMHRIAVhBXXg==","queueTime":0,"applicationTime":336,"atts":"TxRSFQhCRB8=","errorBeacon":"bam.nr-data.net","agent":""}</script>
+<iframe name="_hjRemoteVarsFrame" title="_hjRemoteVarsFrame" id="_hjRemoteVarsFrame" src="./You searched for mexican _ TABASCO® Brand_files/box-469cf41adb11dc78be68c1ae7f9457a4.html" style="display: none !important; width: 1px !important; height: 1px !important; opacity: 0 !important; pointer-events: none !important;"></iframe></body></html>

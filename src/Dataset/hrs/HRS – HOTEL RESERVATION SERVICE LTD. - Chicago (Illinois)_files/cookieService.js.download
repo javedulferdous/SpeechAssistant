@@ -1,0 +1,83 @@
+(function(){function CookieService(){}var HRS_PUW=window.HRS_PUW;
+var GTM=HRS_PUW.GTM;
+GTM.CookieService=new CookieService();
+var COOKIE_CONSENT_STATUS={DEFAULT:"default",ACCEPTED:"accepted",DECLINED:"declined"};
+CookieService.getUserConsentStatus=function getUserConsentStatus(){var regex=/consentCookie=([^%]+)/;
+var result=regex.exec(document.cookie);
+if(result===null){return COOKIE_CONSENT_STATUS.DEFAULT
+}return result[1]
+};
+CookieService.trackElementEvent=function trackElementEvent(data){var GTM_HELPER=window.GTMHelper;
+var basicData;
+if(!HRS_PUW.isHotelListPage){basicData=GTM_HELPER.getBasicDataObject()
+}else{basicData={pageName:"Hotel List",pageProduct:"Public Web",pageKKey:s&&s.eVar25,pageFKey:undefined}
+}GTM_HELPER.pushObject({event:data.eventName,elementClickName:data.clickName,elementClickPosition:data.clickPosition,elementClickAdditionalInfo:data.clickAdditionalInfo,pageName:basicData.pageName,pageProduct:basicData.pageProduct,pageKKey:basicData.pageKKey,pageFKey:basicData.pageFKey,userConsent:CookieService.getUserConsentStatus()})
+};
+CookieService.trackCookieBannerView=function trackCookieBannerView(){CookieService.trackElementEvent({eventName:"puwElementView",clickName:"View",clickPosition:"0",clickAdditionalInfo:"Cookie Banner"})
+};
+CookieService.trackElementClick=function trackElementClick(data){CookieService.trackElementEvent(Object.assign({},data,{eventName:"puwElementClick",}))
+};
+CookieService.trackCookieBannerClick=function trackCookieBannerClick(data){CookieService.trackElementClick(Object.assign({},data,{clickAdditionalInfo:"Cookie Banner"}))
+};
+CookieService.trackCookiePolicyToggleClick=function trackCookiePolicyToggleClick(data){CookieService.trackElementClick(Object.assign({},data,{clickAdditionalInfo:"Cookie Policy"}))
+};
+function CookieBanner(){var cookieBanner=document.getElementById("cookieBanner");
+function calculateRootDomain(){var temp=location.host.split(".").reverse();
+if(temp.length>1){return"."+temp[1]+"."+temp[0]
+}return location.host
+}function setCookieWithValue(val){var date=new Date();
+var timeOffset=365*24*60*60*1000;
+date.setTime(date.getTime()+timeOffset);
+var expires="expires="+date.toGMTString();
+var domain=calculateRootDomain();
+document.cookie="consentCookie="+encodeURIComponent(val+" "+new Date().toGMTString())+";domain="+domain+";path=/;"+expires
+}function cookieBannerTracking(el,status){s.linkTrackVars="events,channel,pageName,prop28,eVar27,eVar35";
+s.linkTrackEvents="";
+s.prop28=s.pageName+";"+el+";"+status+";Cookie Banner";
+s.events="";
+s.eVar27=s.pageName;
+s.channel="Public Web";
+if(status===2){s.eVar35=COOKIE_CONSENT_STATUS.ACCEPTED
+}else{if(status===0){s.eVar35=COOKIE_CONSENT_STATUS.DEFAULT
+}}s.tl(true,"o","Cookie Banner;"+el)
+}function init(){document.getElementById("cookieOkButton").addEventListener("click",function(e){e.preventDefault();
+setCookieWithValue(COOKIE_CONSENT_STATUS.ACCEPTED);
+cookieBanner.style.display="none";
+cookieBannerTracking("Accept",2);
+CookieService.trackCookieBannerClick({clickName:"Accept",clickPosition:2})
+});
+document.getElementById("cookiePageLink").addEventListener("click",function(e){cookieBannerTracking("More Information",1);
+CookieService.trackCookieBannerClick({clickName:"More Information",clickPosition:1})
+});
+cookieBanner.style.display="block";
+setCookieWithValue(COOKIE_CONSENT_STATUS.DEFAULT);
+window.addEventListener("load",function(){cookieBannerTracking("View",0);
+CookieService.trackCookieBannerView()
+},false)
+}if(document.cookie.indexOf("consentCookie=")<0||document.cookie.indexOf("consentCookie=default")>=0){init()
+}}function CookiePolicyPage(){var reactInitializer={xhr:new XMLHttpRequest(),init:function init(){reactInitializer.xhr.open("GET",COOKIE_POLICY_PAGE_SETTINGS.assetManifestUrl);
+reactInitializer.xhr.onload=reactInitializer.handleResponse;
+return reactInitializer
+},handleResponse:function handleResponse(){if(reactInitializer.xhr.status!==200){console.log("Request failed.  Returned status of "+reactInitializer.xhr.status);
+return
+}var resp=JSON.parse(reactInitializer.xhr.responseText);
+reactInitializer.handleResponseSuccess(resp)
+},handleResponseSuccess:function handleResponseSuccess(resp){reactInitializer.loadAsset(resp["main.js"],"js");
+reactInitializer.loadAsset(resp["main.css"],"css")
+},loadAsset:function loadAsset(path,type){var head=document.getElementsByTagName("head")[0];
+var element=null;
+if(type==="js"){element=document.createElement("script");
+element.type="text/javascript";
+element.src=path
+}if(type==="css"){element=document.createElement("link");
+element.rel="stylesheet";
+element.type="text/css";
+element.href=path
+}head.appendChild(element)
+},send:function send(){reactInitializer.xhr.send()
+}};
+reactInitializer.init().send()
+}if(document.getElementById("cookieBanner")){HRS_PUW.cookieBanner=new CookieBanner()
+}if(HRS_PUW.COOKIE_POLICY){HRS_PUW.COOKIE_POLICY.trackCookiePolicyToggleClick=CookieService.trackCookiePolicyToggleClick;
+HRS_PUW.COOKIE_POLICY.instance=new CookiePolicyPage()
+}})();

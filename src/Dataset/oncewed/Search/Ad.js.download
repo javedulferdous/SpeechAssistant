@@ -1,0 +1,1290 @@
+var imageArray = new Array(),
+    loadedImgs = 0,
+    imageTest,
+    loadedLogos = 0,
+    interval;
+
+var current = 0;
+var arrayURL = [];
+
+var Ad = {
+
+    constructor: function(myFT) {
+        this.adWidth = myFT.manifestProperties.width;
+        this.adHeight = myFT.manifestProperties.height;
+        this.dynamicData = myFT.instantAds;
+        this.currentFrame = 1;
+        this.currentLoop = 0;
+        this.feedfail = false;
+        this.newIconExpired = false;
+        // this.clicktagApplied = false;
+
+        var d = this.dynamicData.newIconimageF1_F2_F3_F4_F5_F6_F7_F8_XY_expiration.split('|')[9];
+        var dateToday = new Date();
+        var dateFromManifest = Helpers.getDateFromManifest(d.substr(0, 2), d.substr(2, 2), d.substr(4, 4));
+
+        if (dateToday > dateFromManifest) {
+            this.newIconExpired = true;
+        }
+
+        if (this.dynamicData.feed.toLowerCase() == "true") {
+            var ftFeed = new FTFeed(myFT);
+            var self = this;
+
+            ftFeed.getFeed(function(data, feedUrl) {
+                self.data = data;
+                self.init();
+                console.log(data);
+            }, function() {
+                self.feedFailed(self);
+            });
+
+        } else {
+            this.init();
+        }
+    },
+
+    feedFailed: function(self) {
+        myFT.tracker("FeedFail");
+        console.warn("Feed Failed");
+        imageArray.push([failsafe_img, self.dynamicData.failsafe_img]);
+        failsafe_img.src = self.dynamicData.failsafe_img;
+        failsafe_img.style.display = "block";
+        cta.style.display = "none";
+        // ADDED
+        carouselcta.style.display = "none";
+        TweenLite.to(Helpers.grabElement('mainContainer'), 1, {
+            opacity: 1
+        });
+        carouselContainer.style.display = "none";
+        // end
+        self.feedfail = true;
+
+        myFT.applyClickTag(Helpers.grabElement('clicktag1'), 1, this.dynamicData.clicktag1_url);
+        myFT.applyClickTag(Helpers.grabElement('clicktag2'), 1, this.dynamicData.clicktag1_url);
+        myFT.applyClickTag(Helpers.grabElement('clicktag3'), 1, this.dynamicData.clicktag1_url);
+        myFT.applyClickTag(Helpers.grabElement('clicktag4'), 1, this.dynamicData.clicktag1_url);
+        myFT.applyClickTag(Helpers.grabElement('clicktag5'), 1, this.dynamicData.clicktag1_url);
+        myFT.applyClickTag(Helpers.grabElement('clicktag6'), 1, this.dynamicData.clicktag1_url);
+        myFT.applyClickTag(Helpers.grabElement('clicktag7'), 1, this.dynamicData.clicktag1_url);
+        myFT.applyClickTag(Helpers.grabElement('clicktag8'), 1, this.dynamicData.clicktag1_url);
+        Helpers.grabElement('cta').style.pointerEvents = "none";
+        Helpers.grabElement('carouselcta').style.pointerEvents = "none";
+    },
+
+    init: function() {
+        // Tracker
+
+        if (myFT.instantAds.retargetingToggle.toLowerCase() == "false" || myFT.instantAds.retargetingToggle.toLowerCase() == "off") {
+
+            if (this.dynamicData.feed.toLowerCase() == "true") {
+                if (this.data[0].was_price_inc_vat != "n/a") {
+                    myFT.tracker("salePrice");
+                } else if (this.data[0].was_price_inc_vat == "n/a") {
+                    myFT.tracker("regularPrice");
+                }
+            } else {
+                if (this.dynamicData.salePrice_text == "" && this.dynamicData.price_text.match(/[a-z]/i) != null) {
+                    myFT.tracker("promoOffer");
+                } else {
+                    if (this.dynamicData.salePrice_text != "") {
+                        myFT.tracker("salePrice");
+                    } else if (this.dynamicData.salePrice_text == "") {
+                        myFT.tracker("regularPrice");
+                    }
+                }
+            }
+        }
+
+        // apply clicktag
+        if (this.dynamicData.feed.toLowerCase() == "true" && this.feedfail == false && typeof this.data[0].link_url !== "undefined") {
+            for (var x = 1; x <= parseInt(this.dynamicData.frame_count); x++) {
+                if (this.dynamicData['clicktag' + x + '_url'] == "") {
+                    myFT.applyClickTag(Helpers.grabElement('clicktag' + x), x, this.data[0].link_url);
+                } else {
+                    myFT.applyClickTag(Helpers.grabElement('clicktag' + x), x, this.dynamicData['clicktag' + x + '_url']);
+                }
+            }
+
+            for (var x = 1; x <= 8; x++) {
+                if (this.dynamicData['clicktag' + x + '_url'] == "") {
+                    arrayURL.push(this.data[0].link_url);
+                } else {
+                    arrayURL.push(this.dynamicData['clicktag' + x + '_url']);
+                }
+            }
+        } else if (this.feedfail == false) {
+            myFT.applyClickTag(Helpers.grabElement('clicktag1'), 1, this.dynamicData.clicktag1_url);
+            myFT.applyClickTag(Helpers.grabElement('clicktag2'), 2, this.dynamicData.clicktag2_url);
+            myFT.applyClickTag(Helpers.grabElement('clicktag3'), 3, this.dynamicData.clicktag3_url);
+            myFT.applyClickTag(Helpers.grabElement('clicktag4'), 4, this.dynamicData.clicktag4_url);
+            myFT.applyClickTag(Helpers.grabElement('clicktag5'), 5, this.dynamicData.clicktag5_url);
+            myFT.applyClickTag(Helpers.grabElement('clicktag6'), 6, this.dynamicData.clicktag6_url);
+            myFT.applyClickTag(Helpers.grabElement('clicktag7'), 7, this.dynamicData.clicktag7_url);
+            myFT.applyClickTag(Helpers.grabElement('clicktag8'), 8, this.dynamicData.clicktag8_url);
+
+            for (var x = 1; x <= 8; x++) {
+                arrayURL.push(this.dynamicData['clicktag' + x + '_url']);
+            }
+        }
+
+        var self = this; // for closure functions;
+        imageArray.push([logo, this.dynamicData.logo_img]);
+        imageArray.push([carousellogo, this.dynamicData.logo_img]);
+        imageArray.push([newicon_img, this.dynamicData.newIcon_img]);
+        newicon_img.style.top = parseFloat(this.dynamicData.newIconimageF1_F2_F3_F4_F5_F6_F7_F8_XY_expiration.split('|')[8].split(',')[1]) + "px";
+        newicon_img.style.left = parseFloat(this.dynamicData.newIconimageF1_F2_F3_F4_F5_F6_F7_F8_XY_expiration.split('|')[8].split(',')[0]) + "px";
+
+        // set pos //
+        var headlinepos_x = [11, 11, 11, 11, 11, 11, 11, 11]; //initial position for headline frame 1 to 8 - x
+        var headlinepos_y = [81, 81, 81, 81, 81, 81, 81, 81]; //initial position for headline frame 1 to 8 - y
+        var disclaimerpos_x = [14, 14, 14, 14, 14, 14, 14, 14]; //initial position for disclaimer frame 1 to 8 - x
+        var disclaimerpos_y = [224, 224, 224, 224, 224, 224, 224, 224]; //initial position for disclaimer frame 1 to 8 - y
+        // set color bar
+        colorbar.style.backgroundColor = this.dynamicData.colorBarHex_opacity_width_height_xy.split('|')[0];
+        colorbar.style.opacity = this.dynamicData.colorBarHex_opacity_width_height_xy.split('|')[1];
+        colorbar.style.width = this.dynamicData.colorBarHex_opacity_width_height_xy.split('|')[2] + "px";
+        colorbar.style.height = this.dynamicData.colorBarHex_opacity_width_height_xy.split('|')[3] + "px";
+        colorbar.style.left = parseFloat(this.dynamicData.colorBarHex_opacity_width_height_xy.split('|')[4].split(',')[0]) + "px";
+        colorbar.style.top = parseFloat(this.dynamicData.colorBarHex_opacity_width_height_xy.split('|')[4].split(',')[1]) + "px";
+
+
+        // ADD
+        carouselcolorbar.style.backgroundColor = this.dynamicData.colorBarHex_opacity_width_height_xy.split('|')[0];
+        carouselcolorbar.style.opacity = this.dynamicData.colorBarHex_opacity_width_height_xy.split('|')[1];
+        carouselcolorbar.style.width = this.dynamicData.colorBarHex_opacity_width_height_xy.split('|')[2] + "px";
+        carouselcolorbar.style.height = this.dynamicData.colorBarHex_opacity_width_height_xy.split('|')[3] + "px";
+        carouselcolorbar.style.left = parseFloat(this.dynamicData.colorBarHex_opacity_width_height_xy.split('|')[4].split(',')[0]) + "px";
+        carouselcolorbar.style.top = parseFloat(this.dynamicData.colorBarHex_opacity_width_height_xy.split('|')[4].split(',')[1]) + "px";
+        // end
+
+        var pricePrefixStyleIA = this.dynamicData.priceprefixSize_hex_weight_shadowHex_opacity_lineHeight_spacing_xy.split('|');
+        pricePrefix_txt.innerHTML = this.dynamicData.pricePrefix_txt;
+        pricePrefix_txt.style.fontSize = this.dynamicData.priceprefixSize_hex_weight_shadowHex_opacity_lineHeight_spacing_xy.split('|')[0] + "px";
+        pricePrefix_txt.style.color = this.dynamicData.priceprefixSize_hex_weight_shadowHex_opacity_lineHeight_spacing_xy.split('|')[1];
+        pricePrefix_txt.style.fontWeight = this.dynamicData.priceprefixSize_hex_weight_shadowHex_opacity_lineHeight_spacing_xy.split('|')[2];
+        pricePrefix_txt.style.textShadow = "0px 0px 8px " + hexToRGB(pricePrefixStyleIA[3], pricePrefixStyleIA[4]) + ", 0px 0px 8px " + hexToRGB(pricePrefixStyleIA[3], pricePrefixStyleIA[4]);
+        pricePrefix_txt.style.lineHeight = (this.dynamicData.priceprefixSize_hex_weight_shadowHex_opacity_lineHeight_spacing_xy.split('|')[5].toLowerCase() == "normal") ? "normal" : this.dynamicData.priceprefixSize_hex_weight_shadowHex_opacity_lineHeight_spacing_xy.split('|')[5] + "px";
+        pricePrefix_txt.style.letterSpacing = this.dynamicData.priceprefixSize_hex_weight_shadowHex_opacity_lineHeight_spacing_xy.split('|')[6] + "px";
+        pricePrefix_txt.style.left = (parseFloat(this.dynamicData.priceprefixSize_hex_weight_shadowHex_opacity_lineHeight_spacing_xy.split('|')[7].split(',')[0]) + 10) + "px";
+        pricePrefix_txt.style.top = (parseFloat(this.dynamicData.priceprefixSize_hex_weight_shadowHex_opacity_lineHeight_spacing_xy.split('|')[7].split(',')[1]) + 148) + "px";
+
+        var salePriceStyleIA = this.dynamicData.salePriceSize_hex_weight_shadowHex_opacity_lineHeight_spacing_xy.split('|');
+        promo_cont.style.fontSize = this.dynamicData.salePriceSize_hex_weight_shadowHex_opacity_lineHeight_spacing_xy.split('|')[0] + "px";
+        promo_cont.style.color = this.dynamicData.salePriceSize_hex_weight_shadowHex_opacity_lineHeight_spacing_xy.split('|')[1];
+        promo_cont.style.fontWeight = this.dynamicData.salePriceSize_hex_weight_shadowHex_opacity_lineHeight_spacing_xy.split('|')[2];
+        promo_cont.style.textShadow = "0px 0px 8px " + hexToRGB(salePriceStyleIA[3], salePriceStyleIA[4]) + ", 0px 0px 8px " + hexToRGB(salePriceStyleIA[3], salePriceStyleIA[4]);
+        promo_cont.style.lineHeight = (this.dynamicData.salePriceSize_hex_weight_shadowHex_opacity_lineHeight_spacing_xy.split('|')[5].toLowerCase() == "normal") ? "normal" : this.dynamicData.salePriceSize_hex_weight_shadowHex_opacity_lineHeight_spacing_xy.split('|')[5] + "px";
+        promo_cont.style.letterSpacing = this.dynamicData.salePriceSize_hex_weight_shadowHex_opacity_lineHeight_spacing_xy.split('|')[6] + "px";
+        
+        if (myFT.instantAds.retargetingToggle.toLowerCase() == "false" || myFT.instantAds.retargetingToggle.toLowerCase() == "off") {
+            promo_cont.style.left = (parseFloat(this.dynamicData.salePriceSize_hex_weight_shadowHex_opacity_lineHeight_spacing_xy.split('|')[7].split(',')[0]) + 0) + "px";
+            promo_cont.style.top = (parseFloat(this.dynamicData.salePriceSize_hex_weight_shadowHex_opacity_lineHeight_spacing_xy.split('|')[7].split(',')[1]) + 0) + "px";
+            var FF = !(window.mozInnerScreenX == null);    
+        } else {
+            promo_cont.style.left = (parseFloat(this.dynamicData.salePriceSize_hex_weight_shadowHex_opacity_lineHeight_spacing_xy.split('|')[7].split(',')[0]) + 16) + "px";
+            promo_cont.style.top = (parseFloat(this.dynamicData.salePriceSize_hex_weight_shadowHex_opacity_lineHeight_spacing_xy.split('|')[7].split(',')[1]) + 155) + "px";
+            var FF = !(window.mozInnerScreenX == null);    
+        }
+
+        if (FF) {
+            if (navigator.platform.indexOf('Mac') >= 0) {
+                //            console.log("mac firefox");
+                if (myFT.instantAds.retargetingToggle.toLowerCase() == "false" || myFT.instantAds.retargetingToggle.toLowerCase() == "off") {
+                    promo_cont.style.left = (parseFloat(this.dynamicData.salePriceSize_hex_weight_shadowHex_opacity_lineHeight_spacing_xy.split('|')[7].split(',')[0]) + 0) + "px";
+                    promo_cont.style.top = (parseFloat(this.dynamicData.salePriceSize_hex_weight_shadowHex_opacity_lineHeight_spacing_xy.split('|')[7].split(',')[1]) + 0) + "px";
+                    var FF = !(window.mozInnerScreenX == null);    
+                } else {
+                    promo_cont.style.left = (parseFloat(this.dynamicData.salePriceSize_hex_weight_shadowHex_opacity_lineHeight_spacing_xy.split('|')[7].split(',')[0]) + 16) + "px";
+                    promo_cont.style.top = (parseFloat(this.dynamicData.salePriceSize_hex_weight_shadowHex_opacity_lineHeight_spacing_xy.split('|')[7].split(',')[1]) + 154) + "px";
+                    var FF = !(window.mozInnerScreenX == null);    
+                }
+            }
+        }
+
+        var ua = navigator.userAgent.toLowerCase();
+        if (ua.indexOf('safari') != -1) {
+            if (ua.indexOf('chrome') > -1) {
+
+            } else {
+                console.log("safari") // Safari
+                if (myFT.instantAds.retargetingToggle.toLowerCase() == "false" || myFT.instantAds.retargetingToggle.toLowerCase() == "off") {
+                    promo_cont.style.left = (parseFloat(this.dynamicData.salePriceSize_hex_weight_shadowHex_opacity_lineHeight_spacing_xy.split('|')[7].split(',')[0]) + 0) + "px";
+                    promo_cont.style.top = (parseFloat(this.dynamicData.salePriceSize_hex_weight_shadowHex_opacity_lineHeight_spacing_xy.split('|')[7].split(',')[1]) + 0) + "px";
+                    var FF = !(window.mozInnerScreenX == null);
+                } else {
+                    promo_cont.style.left = (parseFloat(this.dynamicData.salePriceSize_hex_weight_shadowHex_opacity_lineHeight_spacing_xy.split('|')[7].split(',')[0]) + 16) + "px";
+                    promo_cont.style.top = (parseFloat(this.dynamicData.salePriceSize_hex_weight_shadowHex_opacity_lineHeight_spacing_xy.split('|')[7].split(',')[1]) + 164) + "px";
+                    var FF = !(window.mozInnerScreenX == null);
+                }
+            }
+        }
+
+        var priceStyleIA = this.dynamicData.priceSize_hex_weight_shadowHex_opacity_lineHeight_spacing_xy.split('|');
+        price_txt.style.fontSize = this.dynamicData.priceSize_hex_weight_shadowHex_opacity_lineHeight_spacing_xy.split('|')[0] + "px";
+        price_txt.style.color = this.dynamicData.priceSize_hex_weight_shadowHex_opacity_lineHeight_spacing_xy.split('|')[1];
+        price_txt.style.fontWeight = this.dynamicData.priceSize_hex_weight_shadowHex_opacity_lineHeight_spacing_xy.split('|')[2];
+        price_txt.style.textShadow = "0px 0px 8px " + hexToRGB(priceStyleIA[3], priceStyleIA[4]) + ", 0px 0px 8px " + hexToRGB(priceStyleIA[3], priceStyleIA[4]);
+        price_txt.style.lineHeight = (this.dynamicData.priceSize_hex_weight_shadowHex_opacity_lineHeight_spacing_xy.split('|')[5].toLowerCase() == "normal") ? "normal" : this.dynamicData.priceSize_hex_weight_shadowHex_opacity_lineHeight_spacing_xy.split('|')[5] + "px";
+        price_txt.style.letterSpacing = this.dynamicData.priceSize_hex_weight_shadowHex_opacity_lineHeight_spacing_xy.split('|')[6] + "px";
+        
+        if (myFT.instantAds.retargetingToggle.toLowerCase() == "false" || myFT.instantAds.retargetingToggle.toLowerCase() == "off") {
+            price_txt.style.left = (parseFloat(this.dynamicData.priceSize_hex_weight_shadowHex_opacity_lineHeight_spacing_xy.split('|')[7].split(',')[0]) + 0) + "px";
+            price_txt.style.top = (parseFloat(this.dynamicData.priceSize_hex_weight_shadowHex_opacity_lineHeight_spacing_xy.split('|')[7].split(',')[1]) + 0) + "px";
+        } else {
+            price_txt.style.left = (parseFloat(this.dynamicData.priceSize_hex_weight_shadowHex_opacity_lineHeight_spacing_xy.split('|')[7].split(',')[0]) + 10) + "px";
+            price_txt.style.top = (parseFloat(this.dynamicData.priceSize_hex_weight_shadowHex_opacity_lineHeight_spacing_xy.split('|')[7].split(',')[1]) + 160) + "px";
+        }
+
+        // PRICE LOGIC
+
+        if (this.dynamicData.feed.toLowerCase() == "true") {
+            var isOnSale = false;
+            var promo = "";
+            var regular = "";
+            if (typeof this.data[0].was_price_inc_vat !== "undefined" && this.data[0].was_price_inc_vat != "n/a" && this.data[0].was_price_inc_vat != "" && this.dynamicData.salePrice_text == "") {
+                isOnSale = true;
+                regular = '$' + Helpers.convertToPrice(this.data[0].was_price_inc_vat.replace('$', '')) + "<div id='promo_slash'><div id='slash' style='background-color: " + this.dynamicData.priceSize_hex_weight_shadowHex_opacity_lineHeight_spacing_xy.split('|')[1] + ";'></div></div>";
+                promo = '$' + Helpers.convertToPrice(this.data[0].price_inc_vat.replace('$', ''));
+            }
+
+            if (this.dynamicData.salePrice_text != "") {
+                isOnSale = true;
+            }
+
+            if (typeof this.data[0].price_inc_vat !== "undefined" && this.data[0].price_inc_vat != "n/a" && this.data[0].price_inc_vat != "" && this.dynamicData.price_text == "") {
+                if (isOnSale) {
+                    promo = '$' + Helpers.convertToPrice(this.data[0].price_inc_vat.replace('$', ''));
+                } else {
+                    regular = '$' + Helpers.convertToPrice(this.data[0].price_inc_vat.replace('$', ''));
+                }
+            }
+
+            if (isOnSale) {
+                if (this.dynamicData.price_text != "") {
+                    price_txt.innerHTML = '$' + Helpers.convertToPrice(this.dynamicData.price_text) + "<div id='promo_slash'><div id='slash' style='background-color: " + this.dynamicData.priceSize_hex_weight_shadowHex_opacity_lineHeight_spacing_xy.split('|')[1] + ";'></div></div>";
+                } else {
+                    price_txt.innerHTML = regular;
+                }
+
+                if (this.dynamicData.salePrice_text != "") {
+                    if (price_txt.innerHTML == "" && typeof this.data[0].was_price_inc_vat !== "undefined" && this.data[0].was_price_inc_vat != "n/a") {
+                        price_txt.innerHTML = '$' + Helpers.convertToPrice(this.data[0].was_price_inc_vat.replace('$', '')) + "<div id='promo_slash'><div id='slash' style='background-color: " + this.dynamicData.priceSize_hex_weight_shadowHex_opacity_lineHeight_spacing_xy.split('|')[1] + ";'></div></div>";
+                    } else {
+                        regular = '$' + Helpers.convertToPrice(this.data[0].was_price_inc_vat.replace('$', '')) + "<div id='promo_slash'><div id='slash' style='background-color: " + this.dynamicData.priceSize_hex_weight_shadowHex_opacity_lineHeight_spacing_xy.split('|')[1] + ";'></div></div>";
+                    }
+                    promo = '$' + Helpers.convertToPrice(this.dynamicData.salePrice_text);
+                }
+
+                if (price_txt.innerHTML == "") {
+                    price_txt.innerHTML = '$' + Helpers.convertToPrice(this.data[0].price_inc_vat) + "<div id='promo_slash'><div id='slash' style='background-color: " + this.dynamicData.priceSize_hex_weight_shadowHex_opacity_lineHeight_spacing_xy.split('|')[1] + ";'></div></div>";
+                }
+
+                promo_txt.innerHTML = promo;
+                promo_txt.style.left = this.dynamicData.salePriceSize_hex_weight_shadowHex_opacity_lineHeight_spacing_xy.split('|')[3].split(',')[0] + 78 + "px"
+
+
+            } else { // if not on sale
+                if (this.dynamicData.price_text != "") {
+                    price_txt.innerHTML = '$' + Helpers.convertToPrice(this.dynamicData.price_text);
+                } else if (typeof this.data[0].price_inc_vat !== "undefined" && this.data[0].price_inc_vat != "n/a" && this.data[0].price_inc_vat != "") {
+                    price_txt.innerHTML = regular;
+                } else {
+                    console.warn("price_inc_vat missing in feed. Will use the ia variable instead.")
+                    price_txt.innerHTML = '$' + Helpers.convertToPrice(this.dynamicData.price_text);
+                }
+            }
+
+        } else {
+            if (this.dynamicData.salePrice_text != "") {
+                price_txt.innerHTML = '$' + Helpers.convertToPrice(this.dynamicData.price_text) + "<div id='promo_slash'><div id='slash' style='background-color: " + this.dynamicData.priceSize_hex_weight_shadowHex_opacity_lineHeight_spacing_xy.split('|')[1] + ";'></div></div>";
+                promo_txt.innerHTML = '$' + Helpers.convertToPrice(this.dynamicData.salePrice_text);
+                promo_txt.style.left = this.dynamicData.salePriceSize_hex_weight_shadowHex_opacity_lineHeight_spacing_xy.split('|')[3].split(',')[0] + 78 + "px"
+            } else {
+                price_txt.innerHTML = '$' + Helpers.convertToPrice(this.dynamicData.price_text);
+            }
+        }
+
+        specialOfferTxt.innerHTML = this.dynamicData.specialOfferheadline_txt;
+        specialOfferSubTxt.innerHTML = this.dynamicData.specialOffersubHeadline_txt;
+
+        var specialOfferStyleIA = this.dynamicData.specialOfferheadlineSize_hex_weight_shadowHex_opacity_lineHeight_spacing_xy.split('|');
+        specialOfferTxt.style.fontSize = this.dynamicData.specialOfferheadlineSize_hex_weight_shadowHex_opacity_lineHeight_spacing_xy.split('|')[0] + "px";
+        specialOfferTxt.style.color = this.dynamicData.specialOfferheadlineSize_hex_weight_shadowHex_opacity_lineHeight_spacing_xy.split('|')[1];
+        specialOfferTxt.style.fontWeight = this.dynamicData.specialOfferheadlineSize_hex_weight_shadowHex_opacity_lineHeight_spacing_xy.split('|')[2];
+        specialOfferTxt.style.textShadow = "0px 0px 8px " + hexToRGB(specialOfferStyleIA[3], specialOfferStyleIA[4]) + ", 0px 0px 8px " + hexToRGB(specialOfferStyleIA[3], specialOfferStyleIA[4]);
+        specialOfferTxt.style.lineHeight = (this.dynamicData.specialOfferheadlineSize_hex_weight_shadowHex_opacity_lineHeight_spacing_xy.split('|')[5].toLowerCase() == "normal") ? "normal" : this.dynamicData.specialOfferheadlineSize_hex_weight_shadowHex_opacity_lineHeight_spacing_xy.split('|')[5] + "px";
+        specialOfferTxt.style.letterSpacing = this.dynamicData.specialOfferheadlineSize_hex_weight_shadowHex_opacity_lineHeight_spacing_xy.split('|')[6] + "px";
+        
+        if (myFT.instantAds.retargetingToggle.toLowerCase() == "false" || myFT.instantAds.retargetingToggle.toLowerCase() == "off") {
+            specialOfferTxt.style.left = (parseFloat(this.dynamicData.specialOfferheadlineSize_hex_weight_shadowHex_opacity_lineHeight_spacing_xy.split('|')[7].split(',')[0]) + 0) + "px";
+            specialOfferTxt.style.top = (parseFloat(this.dynamicData.specialOfferheadlineSize_hex_weight_shadowHex_opacity_lineHeight_spacing_xy.split('|')[7].split(',')[1]) + 0) + "px";    
+        } else {
+            specialOfferTxt.style.left = (parseFloat(this.dynamicData.specialOfferheadlineSize_hex_weight_shadowHex_opacity_lineHeight_spacing_xy.split('|')[7].split(',')[0]) + 12) + "px";
+            specialOfferTxt.style.top = (parseFloat(this.dynamicData.specialOfferheadlineSize_hex_weight_shadowHex_opacity_lineHeight_spacing_xy.split('|')[7].split(',')[1]) + 186) + "px";
+        }
+
+        var specialOfferSubStyleIA = this.dynamicData.specialOffersubHeadlineSize_hex_weight_shadowHex_opacity_lineHeight_spacing_xy.split('|');
+        specialOfferSubTxt.style.fontSize = this.dynamicData.specialOffersubHeadlineSize_hex_weight_shadowHex_opacity_lineHeight_spacing_xy.split('|')[0] + "px";
+        specialOfferSubTxt.style.color = this.dynamicData.specialOffersubHeadlineSize_hex_weight_shadowHex_opacity_lineHeight_spacing_xy.split('|')[1];
+        specialOfferSubTxt.style.fontWeight = this.dynamicData.specialOffersubHeadlineSize_hex_weight_shadowHex_opacity_lineHeight_spacing_xy.split('|')[2];
+        specialOfferSubTxt.style.textShadow = "0px 0px 8px " + hexToRGB(specialOfferSubStyleIA[3], specialOfferSubStyleIA[4]) + ", 0px 0px 8px " + hexToRGB(specialOfferSubStyleIA[3], specialOfferSubStyleIA[4]);
+        specialOfferSubTxt.style.lineHeight = (this.dynamicData.specialOffersubHeadlineSize_hex_weight_shadowHex_opacity_lineHeight_spacing_xy.split('|')[5].toLowerCase() == "normal") ? "normal" : this.dynamicData.specialOffersubHeadlineSize_hex_weight_shadowHex_opacity_lineHeight_spacing_xy.split('|')[5] + "px";
+        specialOfferSubTxt.style.letterSpacing = this.dynamicData.specialOffersubHeadlineSize_hex_weight_shadowHex_opacity_lineHeight_spacing_xy.split('|')[6] + "px";
+        
+        if (myFT.instantAds.retargetingToggle.toLowerCase() == "false" || myFT.instantAds.retargetingToggle.toLowerCase() == "off") {
+            specialOfferSubTxt.style.left = (parseFloat(this.dynamicData.specialOffersubHeadlineSize_hex_weight_shadowHex_opacity_lineHeight_spacing_xy.split('|')[7].split(',')[0]) + 0) + "px";
+            specialOfferSubTxt.style.top = (parseFloat(this.dynamicData.specialOffersubHeadlineSize_hex_weight_shadowHex_opacity_lineHeight_spacing_xy.split('|')[7].split(',')[1]) + 0) + "px";    
+        } else {
+            specialOfferSubTxt.style.left = (parseFloat(this.dynamicData.specialOffersubHeadlineSize_hex_weight_shadowHex_opacity_lineHeight_spacing_xy.split('|')[7].split(',')[0]) + 11) + "px";
+            specialOfferSubTxt.style.top = (parseFloat(this.dynamicData.specialOffersubHeadlineSize_hex_weight_shadowHex_opacity_lineHeight_spacing_xy.split('|')[7].split(',')[1]) + 202) + "px";    
+        }
+
+        for (var i = 1; i <= this.dynamicData.frame_count; i++) {
+            var bg = Helpers.grabElement('f' + i + '_bg');
+            var bgColor = Helpers.grabElement('f' + i + '_bg_color');
+            var productImg = Helpers.grabElement('f' + i + '_product_img');
+            var headlineTxt = Helpers.grabElement('headline' + i + '_txt');
+            var disclaimerTxt = Helpers.grabElement('disclaimer' + i + '_txt');
+
+            var shadow = Helpers.grabElement('f' + i + '_shadow');
+
+
+            if (this.dynamicData['F' + i + 'shadow_hex_opacity_hw_xy'] != "") {
+                var shadowStyleIA = this.dynamicData['F' + i + 'shadow_hex_opacity_hw_xy'].split('|');
+
+                var shadowBG = 'radial-gradient(ellipse at center,' + hexToRGB(shadowStyleIA[0], shadowStyleIA[1]) + '0%, rgba(255,255,255,0) 50%, rgba(255,255,255,0) 100%)';
+
+                shadow.style.background = shadowBG;
+
+                //        console.log(shadowBG)   
+
+                shadow.style.height = this.dynamicData['F' + i + 'shadow_hex_opacity_hw_xy'].split('|')[2].split(',')[0] + "px";
+                shadow.style.width = this.dynamicData['F' + i + 'shadow_hex_opacity_hw_xy'].split('|')[2].split(',')[1] + "px";
+
+                shadow.style.left = this.dynamicData['F' + i + 'shadow_hex_opacity_hw_xy'].split('|')[3].split(',')[0] + "px";
+
+                shadow.style.top = this.dynamicData['F' + i + 'shadow_hex_opacity_hw_xy'].split('|')[3].split(',')[1] + "px";
+
+            }
+
+
+            if (this.dynamicData['F' + i + '_background_img'].indexOf('blank') < 0) {
+                imageArray.push([bg, this.dynamicData['F' + i + '_background_img']]);
+            } else {
+                bgColor.style.backgroundColor = this.dynamicData.bckgrdHexF1_F2_F3_F4_F5_F6_F7_F8.split('|')[i - 1];
+            }
+            imageArray.push([productImg, this.dynamicData['F' + i + '_product_img']]);
+
+            headlineTxt.innerHTML = this.dynamicData['headline' + i + '_txt'];
+            if (this.dynamicData['headline' + i + 'Size_hex_weight_shadowHex_opacity_lineHeight_spacing_xy'] != "") {
+                var headlineStyleIA = this.dynamicData['headline' + i + 'Size_hex_weight_shadowHex_opacity_lineHeight_spacing_xy'].split('|');
+
+                headlineTxt.style.fontSize = this.dynamicData['headline' + i + 'Size_hex_weight_shadowHex_opacity_lineHeight_spacing_xy'].split('|')[0] + "px";
+                headlineTxt.style.color = this.dynamicData['headline' + i + 'Size_hex_weight_shadowHex_opacity_lineHeight_spacing_xy'].split('|')[1];
+                headlineTxt.style.fontWeight = this.dynamicData['headline' + i + 'Size_hex_weight_shadowHex_opacity_lineHeight_spacing_xy'].split('|')[2];
+                headlineTxt.style.textShadow = "0px 0px 8px " + hexToRGB(headlineStyleIA[3], headlineStyleIA[4]) + ", 0px 0px 8px " + hexToRGB(headlineStyleIA[3], headlineStyleIA[4]);
+                headlineTxt.style.lineHeight = (this.dynamicData['headline' + i + 'Size_hex_weight_shadowHex_opacity_lineHeight_spacing_xy'].split('|')[5].toLowerCase() == "normal") ? "normal" : this.dynamicData['headline' + i + 'Size_hex_weight_shadowHex_opacity_lineHeight_spacing_xy'].split('|')[5] + "px";
+                headlineTxt.style.letterSpacing = this.dynamicData['headline' + i + 'Size_hex_weight_shadowHex_opacity_lineHeight_spacing_xy'].split('|')[6] + "px";
+                headlineTxt.style.left = (parseFloat(this.dynamicData['headline' + i + 'Size_hex_weight_shadowHex_opacity_lineHeight_spacing_xy'].split('|')[7].split(',')[0]) + headlinepos_x[i - 1]) + "px";
+                headlineTxt.style.top = (parseFloat(this.dynamicData['headline' + i + 'Size_hex_weight_shadowHex_opacity_lineHeight_spacing_xy'].split('|')[7].split(',')[1]) + headlinepos_y[i - 1]) + "px";
+            }
+
+            disclaimerTxt.innerHTML = this.dynamicData['disclaimer' + i + '_txt'];
+
+            if (this.dynamicData['disclaimer' + i + 'Size_hex_weight_shadowHex_opacity_lineHeight_spacing_xy'] != "") {
+                var disclaimerStyleIA = this.dynamicData['disclaimer' + i + 'Size_hex_weight_shadowHex_opacity_lineHeight_spacing_xy'].split('|');
+
+                disclaimerTxt.style.fontSize = this.dynamicData['disclaimer' + i + 'Size_hex_weight_shadowHex_opacity_lineHeight_spacing_xy'].split('|')[0] + "px";
+                disclaimerTxt.style.color = this.dynamicData['disclaimer' + i + 'Size_hex_weight_shadowHex_opacity_lineHeight_spacing_xy'].split('|')[1];
+                disclaimerTxt.style.fontWeight = this.dynamicData['disclaimer' + i + 'Size_hex_weight_shadowHex_opacity_lineHeight_spacing_xy'].split('|')[2];
+                disclaimerTxt.style.textShadow = "0px 0px 8px " + hexToRGB(disclaimerStyleIA[3], disclaimerStyleIA[4]) + ", 0px 0px 8px " + hexToRGB(disclaimerStyleIA[3], disclaimerStyleIA[4]);
+                disclaimerTxt.style.lineHeight = (this.dynamicData['disclaimer' + i + 'Size_hex_weight_shadowHex_opacity_lineHeight_spacing_xy'].split('|')[5].toLowerCase() == "normal") ? "normal" : this.dynamicData['disclaimer' + i + 'Size_hex_weight_shadowHex_opacity_lineHeight_spacing_xy'].split('|')[5] + "px";
+                disclaimerTxt.style.letterSpacing = this.dynamicData['disclaimer' + i + 'Size_hex_weight_shadowHex_opacity_lineHeight_spacing_xy'].split('|')[6] + "px";
+                disclaimerTxt.style.left = (parseFloat(this.dynamicData['disclaimer' + i + 'Size_hex_weight_shadowHex_opacity_lineHeight_spacing_xy'].split('|')[7].split(',')[0]) + disclaimerpos_x[i - 1]) + "px";
+                disclaimerTxt.style.top = (parseFloat(this.dynamicData['disclaimer' + i + 'Size_hex_weight_shadowHex_opacity_lineHeight_spacing_xy'].split('|')[7].split(',')[1]) + disclaimerpos_y[i - 1]) + "px";
+            }
+        }
+
+        cta.innerHTML = this.dynamicData.cta_txt;
+        cta.style.backgroundColor = this.dynamicData.ctaBtnhexOn_ctaBtnhexOff_textHexon_textHexoff.split('|')[1];
+        cta.style.fontSize = this.dynamicData.ctaSize_hex_weight_spacing_xy.split('|')[0] + "px";
+        cta.style.color = this.dynamicData.ctaSize_hex_weight_spacing_xy.split('|')[1];
+        cta.style.fontWeight = this.dynamicData.ctaSize_hex_weight_spacing_xy.split('|')[2];
+        cta.style.letterSpacing = this.dynamicData.ctaSize_hex_weight_spacing_xy.split('|')[3] + "px";
+        cta.style.left = (parseFloat(this.dynamicData.ctaSize_hex_weight_spacing_xy.split('|')[4].split(',')[0]) + 199) + "px";
+        cta.style.top = (parseFloat(this.dynamicData.ctaSize_hex_weight_spacing_xy.split('|')[4].split(',')[1]) + 10) + "px";
+
+        cta.addEventListener('mouseover', function() {
+            TweenLite.to(Helpers.grabElement('cta'), 0.5, {
+                backgroundColor: self.dynamicData.ctaBtnhexOn_ctaBtnhexOff_textHexon_textHexoff.split('|')[0],
+                color: self.dynamicData.ctaBtnhexOn_ctaBtnhexOff_textHexon_textHexoff.split('|')[2]
+            });
+        });
+
+        cta.addEventListener('mouseout', function() {
+            TweenLite.to(Helpers.grabElement('cta'), 0.5, {
+                backgroundColor: self.dynamicData.ctaBtnhexOn_ctaBtnhexOff_textHexon_textHexoff.split('|')[1],
+                color: self.dynamicData.ctaBtnhexOn_ctaBtnhexOff_textHexon_textHexoff.split('|')[3]
+            });
+        });
+
+        // ADDED
+        carouselcta.innerHTML = this.dynamicData.cta_txt;
+        carouselcta.style.backgroundColor = this.dynamicData.ctaBtnhexOn_ctaBtnhexOff_textHexon_textHexoff.split('|')[1];
+        carouselcta.style.fontSize = this.dynamicData.ctaSize_hex_weight_spacing_xy.split('|')[0] + "px";
+        carouselcta.style.color = this.dynamicData.ctaSize_hex_weight_spacing_xy.split('|')[1];
+        carouselcta.style.fontWeight = this.dynamicData.ctaSize_hex_weight_spacing_xy.split('|')[2];
+        carouselcta.style.letterSpacing = this.dynamicData.ctaSize_hex_weight_spacing_xy.split('|')[3] + "px";
+        carouselcta.style.left = (parseFloat(this.dynamicData.ctaSize_hex_weight_spacing_xy.split('|')[4].split(',')[0]) + 199) + "px";
+        carouselcta.style.top = (parseFloat(this.dynamicData.ctaSize_hex_weight_spacing_xy.split('|')[4].split(',')[1]) + 10) + "px";
+
+        carouselcta.addEventListener('mouseover', function() {
+            TweenLite.to(Helpers.grabElement('carouselcta'), 0.5, {
+                backgroundColor: self.dynamicData.ctaBtnhexOn_ctaBtnhexOff_textHexon_textHexoff.split('|')[0],
+                color: self.dynamicData.ctaBtnhexOn_ctaBtnhexOff_textHexon_textHexoff.split('|')[2]
+            });
+        });
+
+        carouselcta.addEventListener('mouseout', function() {
+            TweenLite.to(Helpers.grabElement('carouselcta'), 0.5, {
+                backgroundColor: self.dynamicData.ctaBtnhexOn_ctaBtnhexOff_textHexon_textHexoff.split('|')[1],
+                color: self.dynamicData.ctaBtnhexOn_ctaBtnhexOff_textHexon_textHexoff.split('|')[3]
+            });
+        });
+        // end
+
+        setTimeout(function() {
+            self.preload(self);
+        }, 250);
+    },
+
+    preload: function(self) {
+        iArray = imageArray;
+        console.log(iArray)
+        for (var i = 0; i < iArray.length; i++) {
+            var imageObject = new Image();
+            imageObject.src = iArray[i][1];
+            imageObject.addEventListener("load", function() {
+                loadedImgs++;
+                if (imageArray.length == loadedImgs) {
+                    for (var i = 0; i < imageArray.length; i++) {
+                        if (imageArray[i][0].tagName == "DIV" || imageArray[i][0].tagName == "SPAN") {
+                            imageArray[i][0].css({
+                                "background-image": "url('" + imageArray[i][1] + "')"
+                            });
+                        } else if (imageArray[i][0].tagName == "IMG") {
+                            imageArray[i][0].src = imageArray[i][1];
+                        }
+                    }
+                    setTimeout(function() {
+
+                        if (myFT.instantAds.feed.toLowerCase() != "true") {
+                            carouselContainer.style.display = "none";
+                            self.animate(self);
+                        } else if (myFT.instantAds.retargetingToggle.toLowerCase() == "true" || myFT.instantAds.retargetingToggle.toLowerCase() == "on") {
+                            self.carousel(self);
+                        } else {
+                            carouselContainer.style.display = "none";
+                            self.animate(self);
+                        }
+                    }, 250);
+                }
+            }, false);
+            imageObject.addEventListener("error", function() {
+                if (self.feedfail == false) {
+                    self.feedfail = true;
+                    console.warn("image preload error");
+                    self.feedFailed(self);
+                }
+            }, false);
+        }
+    },
+
+    animate: function(self) {
+        var pausedelay = 2.5;
+        var textdelay = 0.5;
+        self.currentFrame = 1;
+
+        TweenLite.to(Helpers.grabElement('mainContainer'), 1, {
+            opacity: 1
+        });
+
+        //init
+        for (var i = 1; i <= self.dynamicData.frame_count; i++) {
+            TweenLite.to(Helpers.grabElement('newicon_img'), 0, {
+                opacity: 0
+            });
+            TweenLite.to(Helpers.grabElement('disclaimer' + i + '_txt'), 0, {
+                opacity: 0
+            });
+            TweenLite.to(Helpers.grabElement('headline' + i + '_txt'), 0, {
+                opacity: 0,
+                x: 20
+            });
+            TweenLite.to(Helpers.grabElement('pricePrefix_txt'), 0, {
+                opacity: 0,
+                x: 20
+            });
+            TweenLite.to(Helpers.grabElement('price_cont'), 0, {
+                opacity: 0,
+                x: 20
+            });
+            TweenLite.to(Helpers.grabElement('specialOfferTxt'), 0, {
+                opacity: 0,
+                x: 20
+            });
+            TweenLite.to(Helpers.grabElement('specialOfferSubTxt'), 0, {
+                opacity: 0,
+                x: 20
+            });
+
+            TweenLite.to(Helpers.grabElement('f' + i + '_bg_color'), 0, {
+                opacity: i == 1 ? 1 : 0
+            });
+            TweenLite.to(Helpers.grabElement('f' + i + '_bg'), 0, {
+                opacity: i == 1 ? 1 : 0
+            });
+            TweenLite.to(Helpers.grabElement('f' + i + '_product_img'), 0, {
+                opacity: i == 1 ? 1 : 0
+            });
+            TweenLite.to(Helpers.grabElement('f' + i + '_shadow'), 0, {
+                opacity: i == 1 ? 1 : 0
+            });
+            if (self.dynamicData.newIconimageF1_F2_F3_F4_F5_F6_F7_F8_XY_expiration.split('|')[0] == 'true' && self.newIconExpired == false) {
+                TweenLite.to(Helpers.grabElement('newicon_img'), 0.5, {
+                    opacity: 1
+                });
+            } else {
+                TweenLite.to(Helpers.grabElement('newicon_img'), 0.5, {
+                    opacity: 0
+                });
+            }
+        }
+
+        for (var i = 1; i < self.dynamicData.frame_count; i++) {
+            TweenLite.to(Helpers.grabElement('clicktag' + i), 0, {
+                autoAlpha: 0,
+                display: 'none',
+                delay: (pausedelay * (i)) + textdelay,
+                onComplete: function() {
+                    current++
+                }
+            });
+
+            TweenLite.to(Helpers.grabElement('headline' + i + '_txt'), 0.5, {
+                opacity: 1,
+                x: 0,
+                delay: (pausedelay * (i - 1)) + textdelay
+            });
+            TweenLite.to(Helpers.grabElement('disclaimer' + i + '_txt'), 0.5, {
+                opacity: 1,
+                delay: (pausedelay * (i - 1)) + textdelay
+            });
+
+            TweenLite.to(Helpers.grabElement('headline' + i + '_txt'), 0.5, {
+                opacity: 0,
+                x: -20,
+                delay: pausedelay * i
+            });
+            TweenLite.to(Helpers.grabElement('disclaimer' + i + '_txt'), 0.5, {
+                opacity: 0,
+                delay: pausedelay * i
+            });
+
+            TweenLite.to(Helpers.grabElement('f' + i + '_bg'), 0.5, {
+                opacity: 1,
+                delay: pausedelay * (i - 1)
+            });
+            TweenLite.to(Helpers.grabElement('f' + i + '_bg_color'), 0.5, {
+                opacity: 1,
+                delay: pausedelay * (i - 1)
+            });
+            TweenLite.to(Helpers.grabElement('f' + i + '_product_img'), 0.5, {
+                opacity: 1,
+                delay: pausedelay * (i - 1)
+            });
+            TweenLite.to(Helpers.grabElement('f' + i + '_shadow'), 0.5, {
+                opacity: 1,
+                delay: pausedelay * (i - 1)
+            });
+
+            if (self.dynamicData.newIconimageF1_F2_F3_F4_F5_F6_F7_F8_XY_expiration.split('|')[i - 1] == 'true' && self.newIconExpired == false) {
+                TweenLite.to(Helpers.grabElement('newicon_img'), 0.5, {
+                    opacity: 1,
+                    delay: (pausedelay * (i - 1)) + textdelay - 0.5
+                });
+            } else {
+                TweenLite.to(Helpers.grabElement('newicon_img'), 0.5, {
+                    opacity: 0,
+                    delay: (pausedelay * (i - 1)) + textdelay - 0.5
+                });
+            }
+
+            self.currentFrame += 1;
+        }
+
+        // ENDFRAME
+        if (self.dynamicData.newIconimageF1_F2_F3_F4_F5_F6_F7_F8_XY_expiration.split('|')[self.currentFrame - 1] == 'true' && self.newIconExpired == false) {
+            TweenLite.to(Helpers.grabElement('newicon_img'), 0.5, {
+                opacity: 1,
+                delay: (pausedelay * (self.currentFrame - 1)) + textdelay - 0.5
+            });
+        } else {
+            TweenLite.to(Helpers.grabElement('newicon_img'), 0.5, {
+                opacity: 0,
+                delay: (pausedelay * (self.currentFrame - 1)) + textdelay - 0.5
+            });
+        }
+
+        TweenLite.to(Helpers.grabElement('headline' + self.currentFrame + '_txt'), 0.5, {
+            opacity: 1,
+            x: 0,
+            delay: (pausedelay * (self.currentFrame - 1)) + textdelay
+        });
+        TweenLite.to(Helpers.grabElement('disclaimer' + self.currentFrame + '_txt'), 0.5, {
+            opacity: 1,
+            delay: (pausedelay * (self.currentFrame - 1)) + textdelay
+        });
+
+        TweenLite.to(Helpers.grabElement('f' + self.currentFrame + '_bg'), 0.5, {
+            opacity: 1,
+            delay: pausedelay * (self.currentFrame - 1)
+        });
+        TweenLite.to(Helpers.grabElement('f' + self.currentFrame + '_bg_color'), 0.5, {
+            opacity: 1,
+            delay: pausedelay * (self.currentFrame - 1)
+        });
+        TweenLite.to(Helpers.grabElement('f' + self.currentFrame + '_product_img'), 0.5, {
+            opacity: 1,
+            delay: pausedelay * (self.currentFrame - 1)
+        });
+        TweenLite.to(Helpers.grabElement('f' + self.currentFrame + '_shadow'), 0.5, {
+            opacity: 1,
+            delay: pausedelay * (self.currentFrame - 1)
+        });
+
+        TweenLite.to(Helpers.grabElement('pricePrefix_txt'), 0.5, {
+            opacity: 1,
+            x: 0,
+            delay: (pausedelay * (self.currentFrame - 1) + textdelay)
+        });
+        TweenLite.to(Helpers.grabElement('price_cont'), 0.5, {
+            opacity: 1,
+            x: 0,
+            delay: (pausedelay * (self.currentFrame - 1) + textdelay)
+        });
+        TweenLite.to(Helpers.grabElement('specialOfferTxt'), 0.5, {
+            opacity: 1,
+            x: 0,
+            delay: (pausedelay * (self.currentFrame - 1) + textdelay)
+        });
+        TweenLite.to(Helpers.grabElement('specialOfferSubTxt'), 0.5, {
+            opacity: 1,
+            x: 0,
+            delay: (pausedelay * (self.currentFrame - 1) + textdelay)
+        });
+
+        // -- L O O P -- //
+        if (parseInt(self.dynamicData.loop_number) > self.currentLoop && self.feedfail == false) {
+            var waitTime = 2.75 * self.dynamicData.frame_count;
+            self.currentLoop += 1;
+
+            TweenLite.to(Helpers.grabElement('headline' + self.currentFrame + '_txt'), 0, {
+                opacity: 1,
+                x: +20,
+                delay: waitTime + 1
+            });
+            TweenLite.to(Helpers.grabElement('disclaimer' + self.currentFrame + '_txt'), 0, {
+                opacity: 1,
+                delay: waitTime + 1
+            });
+            TweenLite.to(Helpers.grabElement('pricePrefix_txt'), 0, {
+                opacity: 1,
+                delay: waitTime + 1
+            });
+            TweenLite.to(Helpers.grabElement('price_cont'), 0, {
+                opacity: 1,
+                delay: waitTime + 1
+            });
+            TweenLite.to(Helpers.grabElement('specialOfferTxt'), 0, {
+                opacity: 1,
+                delay: waitTime + 1
+            });
+            TweenLite.to(Helpers.grabElement('specialOfferSubTxt'), 0, {
+                opacity: 1,
+                delay: waitTime + 1
+            });
+
+            TweenLite.to(Helpers.grabElement('container'), 1, {
+                opacity: 0,
+                delay: waitTime
+            });
+            TweenLite.delayedCall(waitTime + 1.0, self.animate, [self]);
+        }
+
+    },
+    // START OF CAROUSEL CODE    
+    carousel: function(self) {
+
+        TweenLite.to(Helpers.grabElement('container'), 1, {
+            opacity: 1
+        });
+
+        var carousel = myFT.$("#carouselContainer"),
+            eventsholder = myFT.$("#eventsholder"),
+            navhitall = myFT.$("#navhitall"),
+            event_click = myFT.$("#event_click");
+
+        //preset vars			
+        transitionEvent = whichTransitionEvent(),
+            curSlide = 0;
+
+        //empty vars
+        var eventArray = [],
+            elementArray = [],
+            navBtnArray = [],
+            logoImgArray = [];
+
+        var dotStyle = myFT.instantAds.carouselDots_hex_xy.split("|");
+        var dotXY = dotStyle[1].split(",");
+
+        //blank vars
+        var maxDisplayed, myTimerVar1, dataObj;
+
+        var isIE = !!window.MSInputMethodContext && !!document.documentMode;
+
+        if (self.feedfail == true) {
+            self.feedfail = true;
+            //     self.feedFailed(self);
+        } else {
+            initCarousel();
+        }
+
+        function initCarousel() {
+
+            var output2 = document.getElementById('nav');
+            dataObj = self.data;
+            maxDisplayed = dataObj.length;
+
+            var carHStyle = myFT.instantAds.productName_size_hex_weight_xy.split("|");
+            var carHXY = carHStyle[3].split(",");
+            var carImgStyle = myFT.instantAds.productImage_width_xy.split("|")
+            var carImgXY = carImgStyle[1].split(",");
+            var saleContXY = self.dynamicData.salePriceSize_hex_weight_shadowHex_opacity_lineHeight_spacing_xy.split('|')[7].split(',');
+
+            setStateTracking(dataObj, dataObj.length);
+
+            //Event Nodes setup	
+            var i = 0;
+            while (maxDisplayed > i) {
+                var tempArray4 = [];
+                if (dataObj.length > i) {
+                    if (!document.getElementById('slate' + i)) {
+
+                        if (self.dynamicData.feed.toLowerCase() == "true") {
+                            if (dataObj[i].was_price_inc_vat != "n/a") {
+                                //console.log("salePrice_"+(i+1))
+                                myFT.tracker("salePrice" + (i + 1));
+                            } else if (dataObj[i].was_price_inc_vat == "n/a") {
+                                //console.log("regularPrice_"+(i+1))
+                                myFT.tracker("regularPrice" + (i + 1));
+                            }
+                            if (dataObj[i].promotional_message != "n/a") {
+                                //console.log("promoOffer_"+(i+1))
+                                myFT.tracker("promoOffer" + (i + 1));
+                            }
+                        }
+
+                        var itemContainer = document.createElement("div"),
+                            itemTextBlock = document.createElement("div"),
+                            itemNameWrap = document.createElement("div"),
+                            itemNameCont = document.createElement("div"),
+                            itemName = document.createElement("div"),
+                            itemPriceWrap = document.createElement("div"),
+                            itemPricePrefix = document.createElement("span"),
+                            itemPrice = document.createElement("div"),
+                            itemSalePriceWrap = document.createElement("div"),
+                            itemSalePrice = document.createElement("div"),
+                            itemSpecialHead = document.createElement("div"),
+                            itemSpecialSub = document.createElement("div"),
+                            itemImageWrap = document.createElement("div"),
+                            itemImage = document.createElement("div"),
+                            itemLogoImage = document.createElement("div"),
+                            tempHeader = dataObj[i].name,
+                            tempPrice = "$" + dataObj[i].price_inc_vat,
+                            tempPriceCheck = dataObj[i].price_inc_vat,
+                            tempImage = dataObj[i].powerfeeds_image,
+                            prodLogoImage = dataObj[i].logo_image;
+
+
+                        itemContainer.setAttribute("id", 'event' + i);
+                        itemContainer.setAttribute("class", "eventItem flexCol");
+
+                        itemNameWrap.setAttribute("class", "carouselProductWrap");
+                        itemNameCont.setAttribute("class", "carouselNameCont");
+                        itemName.innerHTML = tempHeader;
+
+                        itemPriceWrap.setAttribute("class", "carouselPriceWrap");
+                        itemPricePrefix.setAttribute("class", "carouselPricePrefix");
+                        itemPricePrefix.innerHTML = pricePrefix_txt.innerHTML;
+                        itemPrice.setAttribute("class", "carouselPrice");
+                        itemPrice.innerHTML = tempPrice;
+
+                        itemSalePriceWrap.setAttribute("class", "carouselSalePriceWrap");
+                        itemSalePrice.setAttribute("class", "carouselSalePrice");
+                        itemSalePrice.setAttribute("id", 'carouselSalePrice' + i);
+
+                        itemSpecialHead.setAttribute("class", "carouselPriceHead");
+                        itemSpecialHead.innerHTML = myFT.instantAds.specialOfferheadline_txt;
+
+                        itemSpecialSub.setAttribute("class", "carouselPriceSub");
+                        itemSpecialSub.innerHTML = myFT.instantAds.specialOffersubHeadline_txt;
+
+                        //item id's & classes
+                        itemTextBlock.setAttribute("id", "eventTextBlock" + i);
+                        itemTextBlock.setAttribute("class", "eventTextBlock flexCol fivesec transition");
+                        itemName.setAttribute("id", 'carouselName' + i);
+                        itemName.setAttribute("class", "carouselName");
+                        itemImage.setAttribute("class", "carouselImage");
+                        itemImage.style.backgroundImage = "url(" + tempImage + ")";
+                        itemImageWrap.setAttribute("class", "carouselImageWrap");
+//                        loadImage(prodLogoImage, itemLogoImage);
+                        itemLogoImage.setAttribute("class", "carouselLogoImage");
+                        itemLogoImage.setAttribute("id", "carouselLogoImage" + i);
+                        itemLogoImage.style.height = carouselcolorbar.style.height;
+                        logoImgArray.push(itemLogoImage);
+
+                        // Check what logo to use
+//                        if ((myFT.instantAds.logo_img.indexOf('blank.png') > -1) || (myFT.instantAds.logo_img.indexOf('1x1.png') > -1)) {
+//                            carousellogo.style.display = "none";
+//                        } else {
+//                            //                        carousellogo.style.height = carouselcolorbar.style.height
+//                            itemLogoImage.style.display = "none";
+//                        }
+                        
+                        if((myFT.instantAds.retargetingToggle.toLowerCase() == "true") || (myFT.instantAds.retargetingToggle.toLowerCase() == "on")) {
+                            if(prodLogoImage == null){
+                                loadImage(myFT.instantAds.logo_img, itemLogoImage);
+                                itemLogoImage.setAttribute("style","left:10px;top:0px;max-width:165px;width:106px");
+                            }
+                            
+                            else{
+                                loadImage(prodLogoImage, itemLogoImage);
+                            }
+                            carousellogo.style.display = "none";
+                        } else {
+                            itemLogoImage.style.display = "none";
+                        }
+
+                        //itemNAME colors + fonts
+                        itemName.style.color = carHStyle[1];
+                        itemName.style.fontWeight = carHStyle[2];
+
+                        itemPricePrefix.style.fontSize = pricePrefix_txt.style.fontSize;
+                        itemPricePrefix.style.color = pricePrefix_txt.style.color;
+                        itemPricePrefix.style.fontWeight = pricePrefix_txt.style.fontWeight;
+                        itemPricePrefix.style.textShadow = pricePrefix_txt.style.textShadow;
+                        itemPricePrefix.style.lineHeight = pricePrefix_txt.style.lineHeight;
+                        itemPricePrefix.style.letterSpacing = pricePrefix_txt.style.letterSpacing;
+                        itemPricePrefix.style.top = pricePrefix_txt.style.top;
+                        itemPricePrefix.style.left = pricePrefix_txt.style.left;
+
+                        itemPrice.style.fontSize = price_txt.style.fontSize;
+                        itemPrice.style.color = price_txt.style.color;
+                        itemPrice.style.fontWeight = price_txt.style.fontWeight;
+                        itemPrice.style.textShadow = price_txt.style.textShadow;
+                        itemPrice.style.lineHeight = price_txt.style.lineHeight;
+                        itemPrice.style.letterSpacing = price_txt.style.letterSpacing;
+                        itemPrice.style.top = price_txt.style.top;
+                        itemPrice.style.left = price_txt.style.left;
+
+                        itemSpecialHead.style.fontSize = specialOfferTxt.style.fontSize;
+                        itemSpecialHead.style.color = specialOfferTxt.style.color;
+                        itemSpecialHead.style.fontWeight = specialOfferTxt.style.fontWeight;
+                        itemSpecialHead.style.textShadow = specialOfferTxt.style.textShadow;
+                        itemSpecialHead.style.lineHeight = specialOfferTxt.style.lineHeight;
+                        itemSpecialHead.style.letterSpacing = specialOfferTxt.style.letterSpacing;
+                        itemSpecialHead.style.top = specialOfferTxt.style.top;
+                        itemSpecialHead.style.left = specialOfferTxt.style.left;
+
+                        itemSpecialSub.style.fontSize = specialOfferSubTxt.style.fontSize;
+                        itemSpecialSub.style.color = specialOfferSubTxt.style.color;
+                        itemSpecialSub.style.fontWeight = specialOfferSubTxt.style.fontWeight;
+                        itemSpecialSub.style.textShadow = specialOfferSubTxt.style.textShadow;
+                        itemSpecialSub.style.lineHeight = specialOfferSubTxt.style.lineHeight;
+                        itemSpecialSub.style.letterSpacing = specialOfferSubTxt.style.letterSpacing;
+                        itemSpecialSub.style.top = specialOfferSubTxt.style.top;
+                        itemSpecialSub.style.left = specialOfferSubTxt.style.left;
+
+                        if (tempPriceCheck >= 49.99) {
+                            itemSpecialSub.style.display = "none";
+                        }
+
+                        itemSalePriceWrap.style.fontSize = promo_cont.style.fontSize;
+                        itemSalePriceWrap.style.color = promo_cont.style.color;
+                        itemSalePriceWrap.style.fontWeight = promo_cont.style.fontWeight;
+                        itemSalePriceWrap.style.textShadow = promo_cont.style.textShadow;
+                        itemSalePriceWrap.style.lineHeight = promo_cont.style.lineHeight;
+                        itemSalePriceWrap.style.letterSpacing = promo_cont.style.letterSpacing;
+                        itemSalePriceWrap.style.top = promo_cont.style.top;
+                        itemSalePriceWrap.style.left = promo_cont.style.left;
+
+                        if (carHStyle[3] != "0,0") {
+                            itemName.style.left = carHXY[0] + 'px';
+                            itemName.style.top = carHXY[1] + 'px';
+                        }
+
+                        if (carImgStyle[0] != "0") {
+                            itemImage.style.width = carImgStyle[0] + 'px';
+                        }
+
+                        if (carImgStyle[1] != "0,0") {
+                            itemImage.style.left = carImgXY[0] + 'px';
+                            itemImage.style.top = carImgXY[1] + 'px';
+                        }
+
+                        if (pricePrefix_txt.offsetTop != "0" && pricePrefix_txt.offsetLeft != "0") {
+                            itemPricePrefix.style.left = pricePrefix_txt.offsetLeft + 'px';
+                            itemPricePrefix.style.top = pricePrefix_txt.offsetTop + 'px';
+                        }
+
+                        if (price_txt.offsetTop != "0" && price_txt.offsetLeft != "0") {
+                            itemPrice.style.left = price_txt.offsetLeft + 'px';
+                            itemPrice.style.top = price_txt.offsetTop + 'px';
+                        }
+
+                        if (saleContXY[0] != "0" && saleContXY[0] != "0") {
+                            itemSalePriceWrap.style.left = saleContXY[0] + 'px';
+                            itemSalePriceWrap.style.top = saleContXY[1] + 'px';
+                        }
+
+
+                        //build item
+
+                        itemImageWrap.appendChild(itemImage);
+                        itemTextBlock.appendChild(itemImageWrap);
+                        carouselContainer.appendChild(itemLogoImage);
+                        itemPriceWrap.appendChild(itemPricePrefix);
+                        itemPriceWrap.appendChild(itemPrice);
+
+                        itemSalePriceWrap.appendChild(itemSalePrice);
+
+                        itemPriceWrap.appendChild(itemSalePriceWrap);
+                        itemPriceWrap.appendChild(itemSpecialHead);
+                        itemPriceWrap.appendChild(itemSpecialSub);
+
+                        itemTextBlock.appendChild(itemPriceWrap);
+
+                        itemNameWrap.appendChild(itemNameCont);
+                        itemNameCont.appendChild(itemName);
+
+                        itemTextBlock.appendChild(itemNameWrap);
+                        eventsholder[0].appendChild(itemContainer);
+                        itemContainer.appendChild(itemTextBlock);
+
+                        //push to array
+                        eventArray.push(itemTextBlock);
+                        tempArray4.push(itemName);
+
+                        if (carHStyle[0] == "0") {
+                            Helpers.resizeText('carouselName'+i,'8px');
+                        } else {
+                            itemName.style.fontSize = carHStyle[0] + 'px';
+                            itemName.style.lineHeight = carHStyle[0] + 'px';
+                            Helpers.resizeText('carouselName'+i,'8px');
+                        }
+
+                        // PRICE LOGIC
+                        if (self.dynamicData.feed.toLowerCase() == "true") {
+
+                            var onSale = false;
+                            var promo = "";
+                            var regular = "";
+
+                            if (typeof dataObj[i].was_price_inc_vat !== "undefined" && dataObj[i].was_price_inc_vat != "n/a" && dataObj[i].was_price_inc_vat != "") {
+                                onSale = true;
+                                regular = '$' + Helpers.convertToPrice(dataObj[i].was_price_inc_vat.replace('$', '')) + "<div id='promo_slash'><div id='slash' style='background-color: " + self.dynamicData.priceSize_hex_weight_shadowHex_opacity_lineHeight_spacing_xy.split('|')[1] + ";'></div></div>";
+                                promo = '$' + Helpers.convertToPrice(dataObj[i].price_inc_vat.replace('$', ''));
+
+                                itemPrice.innerHTML = regular;
+
+                                if (itemPrice.innerHTML == "" && typeof dataObj[i].was_price_inc_vat !== "undefined" && dataObj[i].was_price_inc_vat != "n/a") {
+                                    itemPrice.innerHTML = '$' + Helpers.convertToPrice(dataObj[i].was_price_inc_vat.replace('$', '')) + "<div id='promo_slash'><div id='slash' style='background-color: " + self.dynamicData.priceSize_hex_weight_shadowHex_opacity_lineHeight_spacing_xy.split('|')[1] + ";'></div></div>";
+                                } else {
+                                    regular = '$' + Helpers.convertToPrice(dataObj[i].was_price_inc_vat.replace('$', '')) + "<div id='promo_slash'><div id='slash' style='background-color: " + self.dynamicData.priceSize_hex_weight_shadowHex_opacity_lineHeight_spacing_xy.split('|')[1] + ";'></div></div>";
+                                }
+
+                                promo = '$' + Helpers.convertToPrice(dataObj[i].price_inc_vat.replace('$', ''));
+
+                                if (itemPrice.innerHTML == "") {
+                                    itemPrice.innerHTML = '$' + Helpers.convertToPrice(dataObj[i].price_inc_vat.replace('$', '')) + "<div id='promo_slash'><div id='slash' style='background-color: " + self.dynamicData.priceSize_hex_weight_shadowHex_opacity_lineHeight_spacing_xy.split('|')[1] + ";'></div></div>";
+                                }
+
+                                itemSalePrice.innerHTML = promo;
+                                itemSalePrice.style.left = self.dynamicData.salePriceSize_hex_weight_shadowHex_opacity_lineHeight_spacing_xy.split('|')[3].split(',')[0] + 78 + "px";
+
+                            } else { // if not on sale        
+                                regular = dataObj[i].price_inc_vat;
+
+                                if (typeof dataObj[i].price_inc_vat !== "undefined" && dataObj[i].price_inc_vat != "n/a" && dataObj[i].price_inc_vat != "") {
+
+                                    itemPrice.innerHTML = "$" + Helpers.convertToPrice(regular.replace('$', ''));
+                                } else {
+                                    console.warn("Price not fount on feed.");
+                                    itemPrice.innerHTML = "";
+                                }
+                            }
+                        }
+                        // PRICE LOGIC ENDS
+
+                    }
+
+                    if (self.dynamicData['F' + (i + 1) + '_background_img'].indexOf('blank') < 0) {
+                        document.getElementById('event' + i).style.backgroundImage = 'url(' + self.dynamicData['F' + (i + 1) + '_background_img'] + ')';
+                    } else {
+                        document.getElementById('event' + i).style.backgroundColor = document.getElementById('f' + (i + 1) + '_bg_color').style.backgroundColor;
+                    }
+
+                    //Making Nav Dots;
+                    if (maxDisplayed > 1) {
+                        var navBubble = document.createElement("div");
+                        navBubble.setAttribute("id", "n" + i);
+                        navBubble.setAttribute("class", "navDots");
+                        output2.appendChild(navBubble);
+                        myFT.applyButton(navBubble, navClick);
+                        navBtnArray.push(navBubble);
+                        navBtnArray[i].style.border = '1px solid ' + dotStyle[0];
+                        navBtnArray[0].style.background = dotStyle[0];
+                        navBubble.style.background = "transparent";
+
+                        if (dotStyle[1] != "0,0") {
+                            navHolder.style.left = dotXY[0] + 'px';
+                            navHolder.style.top = dotXY[1] + 'px';
+                        }
+                    } else {
+                        navHolder.style.display = "none";
+                    }
+                    elementArray.push(tempArray4);
+                };
+                i++;
+            };
+
+            //Final Steps and begin animation
+            myFT.applyButton(navhitall, ctaClick);
+            myFT.applyButton(event_click, ctaClick);
+            myFT.applyButton(carouselcta, ctaClick);
+            myFT.applyButton(itemLogoImage, ctaClick);
+
+            $('#eventsholder').slick({
+                prevArrow: false,
+                nextArrow: false,
+                variableWidth: true,
+                variableHeight: true
+            });
+
+            if (isIE) {
+                document.getElementsByClassName('carouselPriceWrap')[1].classList.add("opacity_ie")
+                document.getElementsByClassName('carouselImageWrap')[1].classList.add("opacity_ie")
+            }
+
+            interval = setInterval(function() {
+                if (loadedLogos == maxDisplayed) {
+                    clearInterval(interval);
+                    startCarousel();
+                }
+            }, 2000);
+        };
+
+        function startCarousel() {
+            setTimeout(function() {
+                TweenLite.to(carousel, .5, {
+                    opacity: 1
+                });
+                eventsholder.css("opacity", "1");
+                logoImgArray[0].style.opacity = "1";
+                setTimeout(function() {
+                    var dd = 0;
+                    for (dd in eventArray) {
+                        TweenLite.to(eventArray[dd], 1, {
+                            opacity: 1
+                        });
+                    }
+                }, 500);
+
+                if (isIE) {
+                    eventTextBlock0.style.opacity = "0";
+                }
+
+                if (maxDisplayed > 1) myTimerVar1 = setInterval(animateNext, 3000);
+
+            }, 1000);
+        }
+
+        function animateNext() {
+            if (maxDisplayed > curSlide + 1) {
+                curSlide++;
+                animateTo(curSlide, false);
+            } else {
+                clearTimeout(myTimerVar1);
+                curSlide = 0;
+                animateTo(curSlide, true);
+            }
+        }
+
+        function animateTo(e, loop) {
+            clearCarouselImage();
+            TweenLite.to(carousel, .5, {
+                opacity: 1
+            });
+            loop ? $('#eventsholder').slick('slickNext') : $('#eventsholder').slick('slickGoTo', e);
+
+            navBtnArray[e].style.background = dotStyle[0];
+            navBtnArray[e].style.border = '1px solid ' + dotStyle[0];
+            logoImgArray[e].classList.add("transition");
+            logoImgArray[e].style.opacity = "1";
+
+            if (isIE) {
+                setTimeout(function() {
+                    getChild('eventTextBlock' + [e], 1);
+                }, 200)
+            } else {
+                getChild('eventTextBlock' + [e], 1);
+            }
+        }
+
+        function navClick(e) {
+            clearTimeout(myTimerVar1);
+            var a = Number(e.target.id.substring(1, 2));
+            animateTo(a);
+            curSlide = a;
+        }
+
+        function ctaClick(e) {
+            clearTimeout(myTimerVar1);
+
+            var ctatempPrice = "";
+
+            if (self.dynamicData.feed.toLowerCase() != "true" && self.dynamicData.salePrice_text == "" && self.dynamicData.price_text.match(/[a-z]/i) != null) {
+                ctatempPrice = self.dynamicData.price_text;
+            } else {
+                ctatempPrice = "n/a";
+            }
+
+            var promoOfferToggle = (dataObj[curSlide].promotional_message == "n/a") ? false : true;
+            if (dataObj[curSlide].was_price_inc_vat != "n/a") {
+                // Tracker String for products on sale
+                var ctatrackerString = dataObj[curSlide].powerfeeds_id + "," + dataObj[curSlide].category + "," + dataObj[curSlide].was_price_inc_vat + "," + dataObj[curSlide].price_inc_vat + "," + promoOfferToggle;
+            } else {
+                // Tracker String for products NOT on sale
+                var ctatrackerString = dataObj[curSlide].powerfeeds_id + "," + dataObj[curSlide].category + "," + dataObj[curSlide].price_inc_vat + "," + dataObj[curSlide].was_price_inc_vat + "," + promoOfferToggle;
+            }
+            ctatrackerString = ctatrackerString.replace(/n\/a/gi, "");
+
+            Tracker.clickTrackEvent(ctatrackerString, "ft_section", false);
+            console.log(ctatrackerString);
+
+            myFT.clickTag(curSlide + 1, dataObj[curSlide].link_url);
+        }
+
+        function setStateTracking(data, limit) {
+            var trackerString = "";
+            var tempPrice = "";
+
+            if (self.dynamicData.feed.toLowerCase() != "true" && self.dynamicData.salePrice_text == "" && self.dynamicData.price_text.match(/[a-z]/i) != null) {
+                tempPrice = self.dynamicData.price_text;
+            } else {
+                tempPrice = "n/a";
+            }
+
+            var promoOfferToggle = (dataObj[curSlide].promotional_message == "n/a") ? false : true;
+            for (var i = 0; i < limit; i++) {
+                if (data[i].was_price_inc_vat != "n/a") {
+                    // Tracker String for products on sale
+                    trackerString += data[i].powerfeeds_id + "," + data[i].category + "," + data[i].was_price_inc_vat + "," + data[i].price_inc_vat + "," + promoOfferToggle;
+                } else {
+                    // Tracker String for products NOT on sale
+                    trackerString += data[i].powerfeeds_id + "," + data[i].category + "," + data[i].price_inc_vat + "," + data[i].was_price_inc_vat + "," + promoOfferToggle;
+                }
+                if (i != (limit - 1)) trackerString += "|";
+            }
+            trackerString = trackerString.replace(/n\/a/gi, "");
+
+            Tracker.impressionTrackEvent(trackerString);
+            console.log("State Call: " + trackerString);
+        }
+
+        function clearCarouselImage() {
+            if (maxDisplayed > 1) {
+                for (var j = 0; j < maxDisplayed; j++) {
+                    navBtnArray[j].style.background = "transparent";
+                    logoImgArray[j].style.opacity = "0";
+                    //                document.getElementById('eventTextBlock'+[j]).style.opacity = "0";
+                    getChild('eventTextBlock' + [j], 0);
+                }
+            }
+        }
+
+        //======UTILITIES=============
+        function addCSS(e) {
+            style = document.createElement("style"), style.styleSheet ? style.styleSheet.cssText = e : style.appendChild(document.createTextNode(e)), document.getElementsByTagName("head")[0].appendChild(style)
+        };
+
+        function whichTransitionEvent() {
+            var n, i = document.createElement("fakeelement"),
+                t = {
+                    transition: "transitionend",
+                    OTransition: "oTransitionEnd",
+                    MozTransition: "transitionend",
+                    WebkitTransition: "webkitTransitionEnd"
+                };
+            for (n in t)
+                if (void 0 !== i.style[n]) return t[n]
+        };
+    }
+}
+
+// END OF CAOUSEL CODE
+
+
+function hexToRGB(hex, alpha) {
+    hex = hex.replace('#', '');
+    var r = parseInt(hex.length == 3 ? hex.slice(0, 1).repeat(2) : hex.slice(0, 2), 16);
+    var g = parseInt(hex.length == 3 ? hex.slice(1, 2).repeat(2) : hex.slice(2, 4), 16);
+    var b = parseInt(hex.length == 3 ? hex.slice(2, 3).repeat(2) : hex.slice(4, 6), 16);
+    if (alpha) {
+        return 'rgba(' + r + ', ' + g + ', ' + b + ', ' + alpha + ')';
+    } else {
+        return 'rgb(' + r + ', ' + g + ', ' + b + ')';
+    }
+}
+
+cta.addEventListener("click", function() {
+    myFT.clickTag(current + 1, arrayURL[current])
+});
+
+function loadImage(image, elem) {
+    imageTest = new Image();
+    imageTest.src = image;
+    imageTest.addEventListener("load", function() {
+        elem.style.backgroundImage = "url(" + image + ")"
+        loadedLogos++;
+    });
+    imageTest.addEventListener("error", function() {
+        elem.style.backgroundImage = "url(images/blank.png)";
+        loadedLogos++;
+    });
+}
+
+function getChild(e, o) {
+
+    var nodes = document.getElementById(e).childNodes;
+
+    for (var i = 0; i < nodes.length; i++) {
+        if (nodes[i].nodeName.toLowerCase() == 'div') {
+            nodes[i].style.opacity = o;
+            nodes[i].classList.add('transition');
+        }
+    }
+    //    console.log(nodes)
+}

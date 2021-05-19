@@ -1,0 +1,1 @@
+returnCertonaResult160441031972082314({"resonance":{"schemes":[{"scheme":"home1_rr","explanation":"","display":"yes","items":[{"id":"197476"},{"id":"118590"},{"id":"118795"},{"id":"118616"},{"id":"118597"}]}]}});

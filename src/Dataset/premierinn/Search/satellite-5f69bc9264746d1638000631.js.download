@@ -1,0 +1,14 @@
+_satellite.pushAsyncScript(function(event, target, $variables){
+  try{
+  
+	var script = document.createElement('script');
+	script.type = 'text/javascript';
+	script.src = "//pixel.everesttech.net/rlsa/9693";    
+
+	document.getElementsByTagName('head')[0].appendChild(script);
+
+}
+catch(err){
+  _satellite.notify("3rd Party Tag Event Based Error - AdCloud: " + err.message,[3]);
+}
+});

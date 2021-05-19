@@ -1,0 +1,34 @@
+// DEFINE GLOBAL NAMESPACE
+var SZ = {};
+
+//GLOBAL FUNCTIONS
+require(['jquery','bootstrap',], function (){
+
+	//Analytics
+	SZ.analytics = {
+
+		google : {
+
+			trackEvent: function(location,eventType,element){
+				ga('send', 'event', location, eventType, element);
+			}
+
+		}
+
+	};
+
+	//Format string replacing non A-Z or 0-9 characters
+	String.prototype.szStrip = function(replaceChar) {
+	   return this.replace(/[^a-zA-Z0-9]+/g, replaceChar);
+	}
+
+	//for sponsored-links
+		$(window).on('load', function() {
+	  if($('#pla-sponsored-links iframe').length >0){
+	  if($('#pla-sponsored-links iframe').css('visibility') == 'hidden'){
+	  	$("#pla-sponsored-links").remove();
+	  }
+	  }
+	      
+	});
+});

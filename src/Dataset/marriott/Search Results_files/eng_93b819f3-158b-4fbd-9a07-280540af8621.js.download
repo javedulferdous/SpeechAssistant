@@ -1,0 +1,72 @@
+
+(function(){ 
+		var e = document.createElement('script'); e.async = true;
+		e.src = document.location.protocol+ '//turbo.engageclick.com/client/flp/engagement.js?cb=' + (new Date()).getTime();
+		document.body.appendChild(e);
+    //ecTrack('62d188aa-0d64-4b56-8de8-881048f16134'); //5bc82b8e-6557-48f8-970a-de9704cc77d0
+      var localConfig={p:'93b819f3-158b-4fbd-9a07-280540af8621'};
+     var fbpixels = [];
+var fbevevents = ['PageView','ViewContent','Search','AddToCart','AddToWishlist','AddToWishlist','InitiateCheckout','AddPaymentInfo','Purchase','Lead','CompleteRegistration'];
+
+ <!-- facebook pixel loading code-->      
+    var p1 = '';
+
+  var initpxl= function(pxl){
+
+        var g = document.createElement('script');
+        var s = document.getElementsByTagName('script')[0]; 
+        g.text = pxl;       
+        s.parentNode.insertBefore(g, s);    
+     };
+     
+    var pxls = [p1];
+    pxls.forEach(function(px){
+           initpxl(px);
+    });
+        
+    window.ecTrx = function(ac,data1, data2){
+      if(ac=='init'){
+        localConfig.pxl = data1;
+        if(fbpixels.length>0){
+          fbpixels.forEach(function(fbpxl){
+                  //fbq('init', fbpxl);
+         });
+       
+          //localConfig.fbtrack=true;
+        }
+      }else if(ac=='track'){
+        var data = {};
+         data.e=data1;
+        if(data2){
+          data.ed=JSON.stringify(data2);
+        }
+        data.p=localConfig.p;
+        data.pxl= localConfig.pxl;
+         if(typeof ecq==='undefined'){
+            if(!window.trxque)window.trxque = [];       
+             trxque.push({a:ac,a1:data1, a2:data2});
+            //console.log('adding element in queue by base javascript....');
+         }else{
+          //console.log('firing pixel..base js..');
+            ecq(data);
+         }
+         
+        if(localConfig.fbtrack===true){
+           if(data1=='PageView'){
+             fbq(ac, data1);
+              }else if(fbevevents.indexOf(data1)>-1){
+               fbq(ac, data1,data2);
+             }else{
+               fbq("trackCustom", data1,data2);
+             }
+
+        }
+      }else{
+          localConfig.p = ac;
+      }     
+   };
+   
+      
+      ecTrack('init','93b819f3-158b-4fbd-9a07-280540af8621');
+      //ecTrack('track','PageView');      
+	})();

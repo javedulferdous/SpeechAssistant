@@ -1,0 +1,284 @@
+@charset "UTF-8";
+/* CSS Document */
+
+/* Default style, feel free to remove if not needed. */
+body{
+	vertical-align: baseline;
+	border: 0;
+	outline: 0;
+	padding: 0;
+	margin: 0;
+	background-color: #ccc;
+
+	
+
+	-webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+	
+}
+
+
+@font-face {
+    font-family: 'PFDin 5';
+    src: url('font/PFDin-Regular5.eot');
+    src: url('font/PFDin-Regular5.eot?#iefix') format('embedded-opentype'),
+        url('font/PFDin-Regular5.woff2') format('woff2'),
+        url('font/PFDin-Regular5.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Neue Plak';
+    src: url('font/NeuePlak-Regular.eot');
+    src: url('font/NeuePlak-Regular.eot?#iefix') format('embedded-opentype'),
+        url('font/NeuePlak-Regular.woff2') format('woff2'),
+        url('font/NeuePlak-Regular.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'DINOT';
+    src: url('font/DINOT-Bold.eot');
+    src: url('font/DINOT-Bold.eot?#iefix') format('embedded-opentype'),
+        url('font/DINOT-Bold.woff2') format('woff2'),
+        url('font/DINOT-Bold.woff') format('woff');
+    font-weight: bold;
+    font-style: normal;
+}
+
+
+
+/* Div layer for the entire banner. */
+#container_dc {
+	position: absolute;
+	width: 298px;
+	height: 248px;
+	border: 1px #999 solid;
+	top: 0px;
+	left: 0px;
+	margin: auto;
+	background-color: #fff;
+}
+
+#content_dc {
+	position: absolute;
+	width: 100%;
+	height: 100%;
+	top: 0;
+	left: 0;
+	overflow:hidden;
+	opacity: 0;
+}
+
+.dot_holder {
+	position: absolute;
+	/*width: 50%;*/
+	height: 8px;
+	left: 50%;
+	transform: translateX(-50%);
+	top: 148px;
+
+	/*background-color: #ff0;*/
+
+	z-index: 150;
+}
+
+.dot_btn {
+	position: absolute;
+	width: 15px;
+	height: 25px;
+	top: 50%;
+	transform: translateY(-50%);
+	-webkit-transform: translateY(-50%);
+
+	/*background-color: #ccc;*/
+
+	cursor: pointer;
+}
+
+.dot {
+	position: absolute;
+	width: 5px;
+	height: 5px;
+	left: 50%;
+	top: 50%;
+	transform: translate(-50%,-50%);
+	-webkit-transform: translate(-50%,-50%);
+	border-radius: 4px;
+	/*background-color: #333;*/
+}
+
+.info_holder {
+	position: absolute;
+	width: 140px;
+	height: 28px;
+	left: 140px;
+	top: 174px;
+
+	z-index: 10;
+	overflow: hidden;
+}
+
+.product_info {
+	position: absolute;
+	width: 100%;
+	height: 100%;
+
+	color: #fff;
+	
+}
+
+.product_name_price{
+	position: absolute;
+	width: 100%;
+	height: 100%;
+	font-size: 14px;
+	color: inherit;
+	
+	line-height: 100%;
+
+	font-family: 'DINOT';
+
+
+
+}
+
+
+.product_holder {
+	position: absolute;
+	width: 167px;
+	height: 163px;
+	right: 0;
+	top: 0;
+
+	/*background-color: #ccc;*/
+
+	z-index: 100;
+
+	/*opacity: 0.3;*/
+
+}
+
+.headline {
+	position: absolute;
+	font-family: 'PFDin 5';
+	line-height: 95%;
+}
+
+.price_bg {
+	position: absolute;
+
+	width: 167px;
+	height: 85px;
+	right: 0;
+	bottom: 0;
+
+	z-index: 5;
+
+}
+
+.img {
+	position: absolute;
+	width: 100%;
+	height: 100%;
+	left: 0;
+	top: 0;
+
+	background-size: cover;
+	background-repeat: no-repeat;
+	background-position: center;
+
+}
+
+.logo {
+	z-index: 1;
+}
+
+.logo_btn {
+	position: absolute;
+	
+
+	z-index: 200;
+	cursor: pointer;
+}
+
+.cta_btn {
+	position: absolute;
+	
+
+	z-index: 200;
+	cursor: pointer;
+	
+}
+
+.cta_bg {
+	position: absolute;
+	width: 100%;
+	height: 100%;
+	left: 0;
+	top: 0;
+	background-position: center;
+	background-repeat: no-repeat;
+	background-size: cover;
+	z-index: 0;
+}
+
+.cta_hotspot{
+	position: absolute;
+	width: 100%;
+	height: 100%;
+	left: 0;
+	top: 0;
+
+	z-index: 5;
+}
+
+
+.cta_copy {
+	position: absolute;
+	width: 100%;
+	left: 0;
+	top:50%;
+	transform: translateY(-50%);
+	-webkit-transform: translateY(-65%);
+	font-family: 'Neue Plak';
+	text-align: center;
+}
+.cta_text::after{
+	padding-left: 5px;
+	image-rendering: auto;
+  	image-rendering: crisp-edges;
+  	image-rendering: pixelated;
+}
+
+/* Invisible button for background clickthrough. */
+#background_exit_dc {
+	position: absolute;
+	width: 100%;
+	height: 100%;
+	top: 0px;
+	left: 0px;
+	cursor: pointer;
+	z-index: 50;
+	background-color: #fff;
+	opacity: 0;
+}
+
+#product_exit {
+	position: absolute;
+	width: 100%;
+	height: 100%;
+	top: 0px;
+	left: 0px;
+	cursor: pointer;
+	z-index: 50;
+	background-color: #fff;
+	opacity: 0;
+}
+
+
+
+:focus {outline:none;}
+::-moz-focus-inner {border:0;}

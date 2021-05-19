@@ -1,0 +1,6 @@
+site = site || {};
+site.direction = site.direction || {};
+
+var html_dir = document.getElementsByTagName('html')[0].getAttribute('dir');
+
+site.direction.isRTL = (html_dir && html_dir == 'rtl');

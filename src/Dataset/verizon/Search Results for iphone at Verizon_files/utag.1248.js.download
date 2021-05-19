@@ -1,0 +1,51 @@
+//tealium universal tag - utag.1248 ut4.0.202005291850, Copyright 2020 Tealium.com Inc. All Rights Reserved.
+try{(function(id,loader){var u={};utag.o[loader].sender[id]=u;if(utag===undefined){utag={};}if(utag.ut===undefined){utag.ut={};}if(utag.ut.loader===undefined){u.loader=function(o){var a,b,c,l;a=document;if(o.type==="iframe"){b=a.createElement("iframe");b.setAttribute("height","1");b.setAttribute("width","1");b.setAttribute("style","display:none");b.setAttribute("src",o.src);}else if(o.type==="img"){utag.DB("Attach img: "+o.src);b=new Image();b.src=o.src;return;}else{b=a.createElement("script");b.language="javascript";b.type="text/javascript";b.async=1;b.charset="utf-8";b.src=o.src;}if(o.id){b.id=o.id;}if(typeof o.cb==="function"){if(b.addEventListener){b.addEventListener("load",function(){o.cb();},false);}else{b.onreadystatechange=function(){if(this.readyState==="complete"||this.readyState==="loaded"){this.onreadystatechange=null;o.cb();}};}}l=o.loc||"head";c=a.getElementsByTagName(l)[0];if(c){utag.DB("Attach to "+l+": "+o.src);if(l==="script"){c.parentNode.insertBefore(b,c);}else{c.appendChild(b);}}};}else{u.loader=utag.ut.loader;}
+u.ev={'view':1};u.initialized=false;u.map={};u.extend=[function(a,b){try{if(1){if(window.SoiApi){window.SoiApi.destroy();}
+var dev=/^vzwqa/i.test(location.host);var endpoint=dev?'https://api-uat.verizon.com/feedback/feedbackloop':'https://api.verizon.com/feedback/feedbackloop';var apiKey=dev?"4uHdg7EQIsF9cNgYHQYkNGEbINiuq2ZA":"Pm6zHNwhOCfEt0699A5unFNSWVWzNxq4";window.SoiApi=(function(){var TpageLoad;var TpageLoadDelay=1000;var TpageLoadStep=0;var TpageLoadMax=30000;var hashPages;var validateDL;var populate;var engageItem;var topic;function init(params){hashPages=params.hashes;validateDL=params.validateDL;populate=params.populate;pageReady=params.pageReady;engageItem=params.engageItem;topic=params.topic;trace("start");pageLoad();if(hashPages){if(hasHashMatch(true)){window.addEventListener("hashchange",checkHash,false);}}}
+function checkHash(){if(hasHashMatch()){trace("hash change");setTimeout(pageLoad,2000);}}
+function hasHashMatch(pathOnly){trace("matchHashes")
+var hash=location.hash;if(hash){var path=location.pathname;for(var i=0;i<hashPages.length;i++){var item=hashPages[i];var info=pathinfo(item);if(pathOnly){if(info.path==path){return true;}}else{if(info.path==path&&hash.indexOf(info.hash)>-1){return true;}}}}
+return false;}
+function pageLoad(){if(validateDL()){clearTimeout(TpageLoad);trace("page ready");pageReady();}else{trace("pageLoad: awaitDataLayer");awaitDataLayer();}}
+function awaitDataLayer(){TpageLoadStep+=TpageLoadDelay;if(TpageLoadStep<TpageLoadMax){trace("data layer not available, checking in 500ms");TpageLoad=setTimeout(pageLoad,TpageLoadDelay);}else{doError("timeout: vzdl does not exist");}}
+function postToSoi(engageA){var data=populate(engageA);if(dev){trace("data raw: ",JSON.stringify(data));trace("data: ",JSON.stringify(data,null,"\t"));}
+post({url:endpoint,json:data,headers:{'x-apikey':apiKey,'topic':topic},callback:soiResponse});}
+function soiResponse(resp,evt){trace("response",resp);trace("evt",evt);if(resp.statusCode!=200){doError("status code: "+resp.statusCode+". "+resp.description)}}
+function doError(msg){vzwLinkTrack("soi feedback",s.pageName,{prop11:"soi feedback error",prop23:msg,events:"event80"})
+trace("soi feedback error:",msg);}
+function clean(str){return str.replace(/:/g,"")}
+function makeRank(L,P){var lval=Number(clean(L.replace("L","")||1));var pval=Number(clean(P.replace("P","")||1));return(lval*100)+pval}
+function getAtts(ref){var ats=ref.attributes;var ret={};if(ats&&ats.length){for(var i=ats.length-1;i>=0;i--){ret[ats[i].name]=ats[i].value;}}
+return ret}
+function cConsole(str,color,bold,ret){var fmt;if(color){fmt="color:"+color+";";}
+if(bold){fmt=(fmt?fmt:"")+"font-weight:bold;";}
+if(fmt){str="%c"+str;}
+if(ret){return[str,fmt]}else{console.log(str,fmt);}
+return null;}
+function trace(){if(dev){var args=[].slice.call(arguments);args=cConsole("~~~~~~~~ 2 soi feedback: ","#eabf7d",true,true).concat(args);console.log.apply(console,args);}}
+function timestamp(){var date=new Date();var year=date.getUTCFullYear();var arr=[year,date.getUTCMonth()+1,date.getUTCDate()]
+return arr.join("-")+date.toUTCString().split(year)[1];}
+function clone(a){if(null===a||"object"!=typeof a||a.init){return a;}
+var b=a.constructor;if(b){var c=new b;for(var f in a){c[f]=clone(a[f]);}}
+return c}
+function post(params){trace("post",params)
+var req=new XMLHttpRequest();req.onreadystatechange=function(evt){if(req.readyState==4&&req.status==200){if(params.callback){params.callback(req.response,evt);}}}
+var data;if(params.json){data=JSON.stringify(params.json);}else{var qs=[];var formdata=params.form;for(var prop in formdata){qs.push(prop+"="+encodeURIComponent(formdata[prop]));}
+data=qs.join("&");}
+req.open("POST",params.url,true);if(params.json){req.overrideMimeType("application/json");req.responseType='json';req.setRequestHeader('Content-Type','application/json;charset=UTF-8');}else{req.setRequestHeader('Content-Type','application/x-www-form-urlencoded; charset=UTF-8');req.setRequestHeader("Content-length",data.length);}
+var headers=params.headers;if(headers){for(var prop in headers){req.setRequestHeader(prop,headers[prop]);}}
+req.send(data);}
+function pathinfo(url){if(!url){return url;}
+var q="?";var h="#";var protocol;var host;var chopped;var hash;var query;var queryObj;var path;var Aurl=url.split("//");if(Aurl.length>1){protocol=Aurl[0].replace(":","");var Ahost=Aurl[1].split("/");host=Ahost[0];Ahost.shift();chopped="/"+Ahost.join("/");}else{chopped=url;}
+path=chopped;var idxQ=chopped.indexOf(q);var idxH=chopped.indexOf(h);var first=idxQ>idxH;var bQ=idxQ>-1;var bH=idxH>-1;if(bQ||bH){var splitter;if(bQ&&bH){splitter=idxQ<idxH?q:h}else{splitter=bQ?q:h}
+var Aback=chopped.split(splitter);path=Aback[0];var Aextra;Aextra=Aback[1].split(splitter==h?q:h);if(splitter==q){hash=Aextra[1];query=Aextra[0];}else{hash=Aextra[0];query=Aextra[1];}
+if(hash){hash=h+hash;}
+if(query){queryObj={};var Aquery=query.split("&");for(var i=0;i<Aquery.length;i++){var item=Aquery[i].split("=");queryObj[item[0]]=item[1];}}}
+var Apath=path.split("/");var file=Apath.pop();var Afile=file.split(".");var ext=Afile.length>1?Afile.pop():null;var basename=Afile.join(".");return{src:url,protocol:protocol,host:host,path:path,hash:hash,queryStr:query,query:queryObj,file:file,basename:basename,ext:ext,}}
+function is(elem,sel){var body=document.body;while(elem!=body&&!elem.matches(sel)){elem=elem.parentNode;}
+if(elem.matches(sel)){return elem;}
+return null;}
+function destroy(){}
+if(!Element.prototype.matches){Element.prototype.matches=Element.prototype.msMatchesSelector||Element.prototype.webkitMatchesSelector;}
+return{init:init,getAtts:getAtts,engageItem:engageItem,makeRank:makeRank,post:postToSoi,timestamp:timestamp,trace:trace,pathinfo:pathinfo,clean:clean,destroy:destroy,is:is}}());}}catch(e){utag.DB(e)}},function(a,b){try{if((b['dom.pathname'].toString().toLowerCase().indexOf('/onesearch/search'.toLowerCase())>-1&&b['page.flowName'].toString().toLowerCase().indexOf('site search'.toLowerCase())>-1)){window.SoiApi.init({topic:"soi_smartsearch",validateDL:function(){return(typeof vzwDL!='undefined')&&vzwDL.search&&vzwDL.page&&vzwDL.page.authStatus&&vzwDL.authentication;},populate:function(engageA){var acct=vzwDL.user.accountNumber;var Aacct=acct.split("-");return{serviceHeader:{clientId:"ONESEARCH",clientSubId:"",serviceName:"ONESEARCH",},serviceRequest:{customerId:Aacct[0],accountNo:Aacct[1],mdn:vzwDL.user?vzwDL.user.customerId:"",visitorId:vzwDL["ut.visitor_id"],sessionId:vzwDL["ut.session_id"],userRole:vzwDL["cp.role"],greetingName:vzwDL.authentication.greetingName,custType:vzwDL.authentication.custType,channelSession:vzwDL.page.channelSession,email:vzwDL.page.email,pageName:vzwDL.page.pageName,pageType:vzwDL.page.pageType,timeStamp:SoiApi.timestamp(),feedbackData:engageA}}},pageReady:function(){var search=vzwDL.search;var engageArr=[{searchTerm:search.intSearchTerm,searchResults:search.searchResults,searchView:search.intSearchView,searchFilter:search.intSearchFilter,searchType:search.intSearchType,autoCorrectedSearchTerm:search.autoCorrectedSearchTerm,searchSortValue:search.searchSortValue,clickedIntSearchResults:search.clickedIntSearchResults,clickedResultPosition:search.clickedResultPosition}];SoiApi.post(engageArr);}});}}catch(e){utag.DB(e)}}];u.send=function(a,b){if(u.ev[a]||u.ev.all!==undefined){var c,d,e,f,i;u.data={};for(c=0;c<u.extend.length;c++){try{d=u.extend[c](a,b);if(d==false)return}catch(e){}};for(d in utag.loader.GV(u.map)){if(b[d]!==undefined&&b[d]!==""){e=u.map[d].split(",");for(f=0;f<e.length;f++){u.data[e[f]]=b[d];}}}
+}};utag.o[loader].loader.LOAD(id);})("1248","vzw.main");}catch(error){utag.DB(error);}

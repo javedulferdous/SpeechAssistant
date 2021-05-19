@@ -1,0 +1,36 @@
+.slick-slider{position:relative;display:block;box-sizing:border-box;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;-webkit-touch-callout:none;-khtml-user-select:none;-ms-touch-action:pan-y;touch-action:pan-y;-webkit-tap-highlight-color:transparent}
+.slick-list{position:relative;display:block;overflow:hidden;margin:0;padding:0}
+.slick-list:focus{outline:none}
+.slick-list.dragging{cursor:pointer;cursor:hand}
+.slick-slider .slick-track,.slick-slider .slick-list{-webkit-transform:translate3d(0,0,0);-moz-transform:translate3d(0,0,0);-ms-transform:translate3d(0,0,0);-o-transform:translate3d(0,0,0);transform:translate3d(0,0,0)}
+.slick-track{position:relative;top:0;left:0;display:block;margin-left:auto;margin-right:auto}
+.slick-track:before,.slick-track:after{display:table;content:''}
+.slick-track:after{clear:both}
+.slick-loading .slick-track{visibility:hidden}
+.slick-slide{display:none;float:left;height:100%;min-height:1px}
+[dir='rtl'] .slick-slide{float:right}
+.slick-slide.slick-loading img{display:none;}
+.slick-slide.dragging img{pointer-events:none}
+.slick-initialized .slick-slide{display:block}
+.slick-loading .slick-slide{visibility:hidden}
+.slick-vertical .slick-slide{display:block;height:auto;border:1px solid transparent}
+.slick-arrow.slick-hidden{display:none}
+/* CUSTOM HOS IMPLEMENTATION */
+.slick-slide {outline: none;border: none;}
+.slick-slide img{display:none;}
+.slick-slide .slick-slide-loaded {display:block;}
+.slick-arrow{display: none;position:absolute;top:calc(50% - 40px);z-index:1;height:80px;width:40px;font-size:0;line-height:0;border:none;background-color:rgba(0,0,0,0.4);outline:none!important;cursor:pointer}
+.slick-prev{left:0;border-radius:0 4px 4px 0!important}
+.slick-next{right:0;border-radius:4px 0 0 4px!important}
+.slick-prev:before,.slick-next:before{content:"";display:inline-block;position:relative;width:20px;height:20px;transform:rotate(45deg)}
+.slick-prev:before{left:calc(50% - 10px);border-left:2px solid #fff;border-bottom:2px solid #fff}
+.slick-next:before{right:calc(50% - 10px);border-top:2px solid #fff;border-right:2px solid #fff}
+.slick-caption{display:block;position:absolute;bottom:0;background-color:rgba(0,0,0,0.4);color:#fff;font-family:'Open Sans',Helvetica,Arial,sans-serif;font-size:13px;padding:10px;margin:4px}
+.slick-gallery{position:relative;display:none;width:100%}
+.slick-gallery.slick-initialized {display:block;}
+.slick-gallery .slick-slide img{width:100%}
+.slick-gallery .slick-slide img[data-lazy]{max-height:0}
+/* PRODUCT DETAILS PAGE ONLY */
+#slickLightboxContainer{display:none}
+.magnify{position:absolute;z-index:2;right:0;background:rgba(0,0,0,0.4);padding:5px;margin:5px;border-radius:3px}
+/* END CUSTOM HOS IMPLEMENTATION */

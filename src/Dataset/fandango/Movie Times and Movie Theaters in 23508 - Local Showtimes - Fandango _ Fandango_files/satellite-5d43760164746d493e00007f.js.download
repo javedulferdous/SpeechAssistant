@@ -1,0 +1,27 @@
+_satellite.pushAsyncScript(function(event, target, $variables){
+  if(_satellite.getVar('Page Level 2') == 'movie | overview'){
+
+   // the way i see it 223261 MOP
+ if(_satellite.getVar('Movie ID') == '223261'){
+  //pxl-607
+    _satellite.loadScript('https://www.googletagmanager.com/gtag/js?id=AW-614370386')
+  window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'AW-614370386');
+  gtag('event', 'conversion', {'send_to': 'AW-614370386/2vKlCMiow9wBENKY-qQC'});
+ 
+  //pxl-607
+    _satellite.loadScript('https://www.googletagmanager.com/gtag/js?id=AW-614370596')
+  window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'AW-614370596');
+
+  gtag('event', 'conversion', {'send_to': 'AW-614370596/w4cQCNuWzdwBEKSa-qQC'});
+
+  }
+  
+  
+}
+});

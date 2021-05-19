@@ -1,0 +1,59 @@
+var site = site || {};
+site.endeca = site.endeca || {};
+site.endeca.result = site.endeca.result || {};
+var generic = generic || {};
+
+(function() {
+  site.endeca.result.product = jQuery.extend(true, {}, generic.endeca.result.product, {
+
+    displayResult: function(args) {
+      this.setupReviewData();
+      this.setupBrandData();
+
+      if (typeof this.resultData.IMAGE_M == 'object') {
+        this.resultData.IMAGE_M_0 = this.resultData.IMAGE_M[0];
+      } else {
+        this.resultData.IMAGE_M_0 = this.resultData.IMAGE_M;
+        this.resultData.IMAGE_M = [this.resultData.IMAGE_M];
+      }
+
+      if (typeof this.resultData.REC_SKIN_TYPE == 'object') {
+        this.resultData.REC_SKIN_TYPE = this.resultData.REC_SKIN_TYPE.join("'");
+      }
+      if (typeof this.resultData.ATTRIBUTE_BENEFIT != 'undefined') {
+        this.resultData.ATTRIBUTE_BENEFIT = this.resultData.ATTRIBUTE_BENEFIT.toString().replace(/,/g, ', ');
+      }
+
+      // global variables
+      this.resultData.globals = {};
+
+      this.resultData.globals.variables = Drupal.settings.common;
+      this.resultData.globals.t = site.translations || {};
+      var i = 0;
+      var j = 0;
+      for (i = 0, j < this.resultData.skus.length; i < j; i++) {
+        if (_.isUndefined(this.resultData.skus[i])) {
+          continue;
+        }
+
+        this.resultData.skus[i].globals = {};
+        this.resultData.skus[i].globals.variables = Drupal.settings.common;
+        this.resultData.skus[i].globals.t = site.translations || {};
+      }
+
+      // defaultSku
+      this.resultData.defaultSku = this.resultData.skus[0];
+      this.resultData.SKU_BASE_ID = this.resultData.skus[0].SKU_BASE_ID;
+      this.resultData.SKU_ID = this.resultData.skus[0].SKU_ID;
+
+      this._super(args);
+    },
+
+    displayResultCallbackBrand: function() {
+      if (site && site.quickshop && site.quickshop.updateSkinTypeList && this.node.find('.skin-types-top .list').length) {
+        site.quickshop.updateSkinTypeList(this.resultData, this.node);
+      }
+    }
+
+  });
+})();

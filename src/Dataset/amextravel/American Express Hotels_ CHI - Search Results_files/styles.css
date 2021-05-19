@@ -1,0 +1,240 @@
+.click_to_chat {
+	color: #fff;
+	font-family: BentonSans;
+	font-size: 13px;
+	position: fixed;
+	right: 34px;
+	width: 263px;
+}
+
+#c2c_bubble {
+  bottom: 41px;
+}
+
+#c2c_tab {
+  bottom: -45px;
+}
+
+.click_to_chat #c2c_open_closer {
+	position: relative;
+}
+.click_to_chat #c2c_callout {
+	display: none;
+	position: relative;
+	margin-bottom: 19px;
+}
+.click_to_chat .c2c_top_row {
+	height: 10px;
+}
+.click_to_chat .c2c_middle_row {
+	padding: 4px 10px 20px;
+	background-color: #022663;
+	box-sizing: initial;
+}
+.click_to_chat .c2c_bottom_row {
+	height: 10px;
+}
+.click_to_chat .c2c_center {
+	position: absolute;
+	top: 0;
+	left: 10px;
+	right: 10px;
+	height: 10px;
+	background-color: #022663;
+}
+.click_to_chat .c2c_bottom_row .c2c_center {
+	bottom: 0;
+	top: inherit;
+}
+.click_to_chat #c2c_open_closer .c2c_middle_row {
+	height: 17px;
+}
+.click_to_chat #c2c_open_closer #c2c_chat_now {
+	line-height: 17px;
+	float: left;
+  cursor: pointer;
+}
+.click_to_chat #c2c_open_closer #c2c_chat_link {
+color: #90d7e7;
+}
+.click_to_chat #c2c_open_closer.open #c2c_let_us_help {
+	display: none;
+}
+.click_to_chat #c2c_open_closer #c2c_chatting_now {
+	display: none;
+}.click_to_chat #c2c_open_closer.open #c2c_chatting_now {
+	display: inherit;
+}
+.click_to_chat #c2c_callout .c2c_middle_row {
+	padding: 6px 10px 3px;
+}
+.click_to_chat #c2c_need_help {
+	font-family: BentonSans-Md;
+	margin-bottom: 5px;
+}
+.click_to_chat #c2c_chat_with_ccp {
+	margin-bottom: 9px;
+}
+
+
+/*c2c_sprites*/
+.click_to_chat .c2c_sprite-images-button-right,.click_to_chat .c2c_sprite-images-button-left,.click_to_chat .c2c_sprite-images-icon,.click_to_chat .c2c_sprite-images-popup-triangle,.click_to_chat .c2c_sprite-images-arrow,.click_to_chat .c2c_sprite-images-close,.click_to_chat .c2c_sprite-images-blue-corner-topright,.click_to_chat .c2c_sprite-images-blue-corner-topleft,.click_to_chat .c2c_sprite-images-blue-corner-bottomright,.click_to_chat .c2c_sprite-images-blue-corner-bottomleft {
+  background-image: url('https://icm.aexp-static.com/Internet/SMC/images/Chat/images.png');
+  background-repeat: no-repeat;
+}
+.click_to_chat .c2c_sprite-images-button-cont {
+text-align: center;
+}
+.click_to_chat .c2c_sprite-images-button-outer{
+  height: 25px;
+  cursor: pointer;
+  display: inline-block;
+}
+.click_to_chat .c2c_sprite-images-button-outer div{
+  height: 100%;
+display: table-cell;
+}
+.click_to_chat .c2c_sprite-images-button {
+  background-image: url('https://icm.aexp-static.com/Internet/SMC/images/Chat/horiz-repeat.png');
+  background-position: 0px -26px;
+  background-repeat: repeat-x;
+  color: #002663;
+  line-height: 25px;
+  text-align: center;
+}.click_to_chat .c2c_sprite-images-button-outer:hover .c2c_sprite-images-button {
+  background-position: 0px 0px;
+}
+.click_to_chat .c2c_sprite-images-button-left {
+  background-position: -37px -1px;
+  width: 10px;
+}.click_to_chat .c2c_sprite-images-button-outer:hover .c2c_sprite-images-button-left {
+  background-position: -25px -1px;
+}
+
+.click_to_chat .c2c_sprite-images-button-right {
+  background-position: -13px -1px;
+  width: 10px;
+}.click_to_chat .c2c_sprite-images-button-outer:hover .c2c_sprite-images-button-right {
+  background-position: -1px -1px;
+}
+.click_to_chat .c2c_sprite-images-icon {
+  background-position: -54px -1px;
+  width: 22px;
+  height: 17px;
+  float: left;
+  margin-right: 10px;
+}
+.click_to_chat .c2c_sprite-images-popup-triangle {
+  background-position: -54px -20px;
+  width: 20px;
+  height: 10px;
+  position: absolute;
+  left: 50%;
+  margin-left: -10px;
+}
+.click_to_chat #c2c_open_closer .c2c_sprite-images-arrow {
+  background-position: -1px -38px;
+  width: 13px;
+  height: 7px;
+  float: right;
+  margin-top: 4px;
+}
+.click_to_chat #c2c_open_closer.open .c2c_sprite-images-arrow {
+  background-position: -14px -38px;
+}
+.click_to_chat .c2c_sprite-images-close {
+  background-position: -1px -47px;
+  width: 10px;
+  height: 10px;
+  position: absolute;
+  top: 11px;
+  right: 10px;
+  cursor: pointer;
+}
+.click_to_chat #c2c_open_closer .c2c_sprite-images-close {
+  top: 16px;
+}
+.click_to_chat .c2c_sprite-images-blue-corner-topright {
+  background-position: -14px -47px;
+  width: 10px;
+  height: 10px;
+  position: absolute;
+  top: 0;
+  right: 0;
+}
+.click_to_chat .c2c_sprite-images-blue-corner-topleft {
+  background-position: -26px -47px;
+  width: 10px;
+  height: 10px;
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+.click_to_chat .c2c_sprite-images-blue-corner-bottomright {
+  background-position: -38px -47px;
+  width: 10px;
+  height: 10px;
+  position: absolute;
+  bottom: 0;
+  right: 0;
+}
+.click_to_chat .c2c_sprite-images-blue-corner-bottomleft {
+  background-position: -50px -47px;
+  width: 10px;
+  height: 10px;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+} 
+
+/*The below handle retina screens and should be uncommented (and images uploaded) to enable retina use*/
+/*@media screen and (-webkit-min-device-pixel-ratio: 1.0), screen and (min--moz-device-pixel-ratio: 1.0), screen and (-o-min-device-pixel-ratio: 100/100), screen and (min-device-pixel-ratio: 1.0), screen and (min-resolution: 1.0dppx) {
+  #click_to_chat .c2c_sprite-images-icon,
+  #click_to_chat .c2c_sprite-images-button-right,
+  #click_to_chat .c2c_sprite-images-button-left,
+  #click_to_chat .c2c_sprite-images-popup-triangle,
+  #click_to_chat .c2c_sprite-images-arrow,
+  #click_to_chat .c2c_sprite-images-close,
+  #click_to_chat .c2c_sprite-images-blue-corner-topright,
+  #click_to_chat .c2c_sprite-images-blue-corner-topleft,
+  #click_to_chat .c2c_sprite-images-blue-corner-bottomright,
+  #click_to_chat .c2c_sprite-images-blue-corner-bottomleft {
+    background-image: url('https://icm.aexp-static.com/Internet/SMC/images/Chat/images.png');
+    -webkit-background-size: 77px 59px;
+    -moz-background-size: 77px 59px;
+    background-size: 77px 59px;
+  }
+
+  #click_to_chat .c2c_sprite-images-button {
+	background-image: url('https://icm.aexp-static.com/Internet/SMC/images/Chat/horiz-repeat.png');
+    -webkit-background-size: 1px 51px;
+    -moz-background-size: 1px 51px;
+    background-size: 1px 51px;
+	}
+}
+
+@media screen and (-webkit-min-device-pixel-ratio: 2.0), screen and (min--moz-device-pixel-ratio: 2.0), screen and (-o-min-device-pixel-ratio: 200/100), screen and (min-device-pixel-ratio: 2.0), screen and (min-resolution: 2.0dppx) {
+  #click_to_chat .c2c_sprite-images-icon,
+  #click_to_chat .c2c_sprite-images-button-right,
+  #click_to_chat .c2c_sprite-images-button-left,
+  #click_to_chat .c2c_sprite-images-popup-triangle,
+  #click_to_chat .c2c_sprite-images-arrow,
+  #click_to_chat .c2c_sprite-images-close,
+  #click_to_chat .c2c_sprite-images-blue-corner-topright,
+  #click_to_chat .c2c_sprite-images-blue-corner-topleft,
+  #click_to_chat .c2c_sprite-images-blue-corner-bottomright,
+  #click_to_chat .c2c_sprite-images-blue-corner-bottomleft {
+    background-image: url('https://icm.aexp-static.com/Internet/SMC/images/Chat/images-2x.png');
+    -webkit-background-size: 77px 59px;
+    -moz-background-size: 77px 59px;
+    background-size: 77px 59px;
+  }
+
+  #click_to_chat .c2c_sprite-images-button {
+	  background-image: url('https://icm.aexp-static.com/Internet/SMC/images/Chat/horiz-repeat-2x.png');
+    -webkit-background-size: 1px 51px;
+    -moz-background-size: 1px 51px;
+    background-size: 1px 51px;
+	}
+}*/
+

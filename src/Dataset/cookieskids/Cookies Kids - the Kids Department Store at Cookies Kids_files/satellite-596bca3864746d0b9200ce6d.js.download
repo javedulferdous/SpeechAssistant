@@ -1,0 +1,17 @@
+_satellite.pushAsyncScript(function(event, target, $variables){
+  mboxDefine("customRecsmBox", "customRecsmBox");
+
+var urlParam = function(name, w){
+    w = w || window;
+    var rx = new RegExp('[\&|\?]'+name+'=([^\&\#]+)'),
+        val = w.location.search.match(rx);
+    return !val ? '':val[1];
+}
+
+
+var cksproduct = urlParam('p');
+mboxUpdate('customRecsmBox','entity.id='+cksproduct);
+
+
+
+});

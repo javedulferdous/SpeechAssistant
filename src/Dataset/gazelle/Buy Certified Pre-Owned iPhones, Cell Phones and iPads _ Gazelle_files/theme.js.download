@@ -1,0 +1,2529 @@
+window.slate = window.slate || {};
+window.theme = window.theme || {};
+window.compass = window.compass || {};
+
+/*================ Slate ================*/
+/**
+ * A11y Helpers
+ * -----------------------------------------------------------------------------
+ * A collection of useful functions that help make your theme more accessible
+ * to users with visual impairments.
+ *
+ *
+ * @namespace a11y
+ */
+
+slate.a11y = {
+
+  /**
+   * For use when focus shifts to a container rather than a link
+   * eg for In-page links, after scroll, focus shifts to content area so that
+   * next `tab` is where user expects if focusing a link, just $link.focus();
+   *
+   * @param {JQuery} $element - The element to be acted upon
+   */
+  pageLinkFocus: function($element) {
+    var focusClass = 'js-focus-hidden';
+
+    $element.first()
+      .attr('tabIndex', '-1')
+      .focus()
+      .addClass(focusClass)
+      .one('blur', callback);
+
+    function callback() {
+      $element.first()
+        .removeClass(focusClass)
+        .removeAttr('tabindex');
+    }
+  },
+
+  /**
+   * If there's a hash in the url, focus the appropriate element
+   */
+  focusHash: function() {
+    var hash = window.location.hash;
+
+    // is there a hash in the url? is it an element on the page?
+    if (hash && document.getElementById(hash.slice(1))) {
+      this.pageLinkFocus($(hash));
+    }
+  },
+
+  /**
+   * When an in-page (url w/hash) link is clicked, focus the appropriate element
+   */
+  bindInPageLinks: function() {
+    $('a[href*=#]').on('click', function(evt) {
+      this.pageLinkFocus($(evt.currentTarget.hash));
+    }.bind(this));
+  },
+
+  /**
+   * Traps the focus in a particular container
+   *
+   * @param {object} options - Options to be used
+   * @param {jQuery} options.$container - Container to trap focus within
+   * @param {jQuery} options.$elementToFocus - Element to be focused when focus leaves container
+   * @param {string} options.namespace - Namespace used for new focus event handler
+   */
+  trapFocus: function(options) {
+    var eventName = options.namespace
+      ? 'focusin.' + options.namespace
+      : 'focusin';
+
+    if (!options.$elementToFocus) {
+      options.$elementToFocus = options.$container;
+    }
+
+    options.$container.attr('tabindex', '-1');
+    options.$elementToFocus.focus();
+
+    $(document).on(eventName, function(evt) {
+      if (options.$container[0] !== evt.target && !options.$container.has(evt.target).length) {
+        options.$container.focus();
+      }
+    });
+  },
+
+  /**
+   * Removes the trap of focus in a particular container
+   *
+   * @param {object} options - Options to be used
+   * @param {jQuery} options.$container - Container to trap focus within
+   * @param {string} options.namespace - Namespace used for new focus event handler
+   */
+  removeTrapFocus: function(options) {
+    var eventName = options.namespace
+      ? 'focusin.' + options.namespace
+      : 'focusin';
+
+    if (options.$container && options.$container.length) {
+      options.$container.removeAttr('tabindex');
+    }
+
+    $(document).off(eventName);
+  }
+};
+
+/**
+ * Utility helpers
+ * -----------------------------------------------------------------------------
+ * A collection of useful functions for dealing with arrays and objects
+ *
+ * @namespace utils
+ */
+
+slate.utils = {
+
+  /**
+   * Return an object from an array of objects that matches the provided key and value
+   *
+   * @param {array} array - Array of objects
+   * @param {string} key - Key to match the value against
+   * @param {string} value - Value to get match of
+   */
+  findInstance: function(array, key, value) {
+    for (var i = 0; i < array.length; i++) {
+      if (array[i][key] === value) {
+        return array[i];
+      }
+    }
+  },
+
+  /**
+   * Remove an object from an array of objects by matching the provided key and value
+   *
+   * @param {array} array - Array of objects
+   * @param {string} key - Key to match the value against
+   * @param {string} value - Value to get match of
+   */
+  removeInstance: function(array, key, value) {
+    var i = array.length;
+    while(i--) {
+      if (array[i][key] === value) {
+        array.splice(i, 1);
+        break;
+      }
+    }
+
+    return array;
+  },
+
+  /**
+   * _.compact from lodash
+   * Remove empty/false items from array
+   * Source: https://github.com/lodash/lodash/blob/master/compact.js
+   *
+   * @param {array} array
+   */
+  compact: function(array) {
+    var index = -1;
+    var length = array == null ? 0 : array.length;
+    var resIndex = 0;
+    var result = [];
+
+    while (++index < length) {
+      var value = array[index];
+      if (value) {
+        result[resIndex++] = value;
+      }
+    }
+    return result;
+  },
+
+  /**
+   * _.defaultTo from lodash
+   * Checks `value` to determine whether a default value should be returned in
+   * its place. The `defaultValue` is returned if `value` is `NaN`, `null`,
+   * or `undefined`.
+   * Source: https://github.com/lodash/lodash/blob/master/defaultTo.js
+   *
+   * @param {*} value - Value to check
+   * @param {*} defaultValue - Default value
+   * @returns {*} - Returns the resolved value
+   */
+  defaultTo: function(value, defaultValue) {
+    return (value == null || value !== value) ? defaultValue : value
+  },
+
+  handleize: function(name) {
+    return name.toLowerCase().replace(/\'/g, '')
+      .replace(/[^a-z0-9]/g, '-')
+      .replace(/-$/, '')
+      .replace(/^-/, '')
+      .replace(/\-{2,}/g, '-');
+  },
+
+  scrollTo: function(el, time) {
+    $('html, body').animate({
+      scrollTop: $(el).offset().top
+   }, time || 1000);
+  },
+
+  getQueryString: function() {
+    var qs = window.location.search.substr(1).split("&");
+    var res = {};
+    $(qs).each(function(i, s) {
+      var split = s.split("=")
+      res[split[0]] = split[1];
+    });
+    return res; 
+  }
+};
+
+/**
+ * Rich Text Editor
+ * -----------------------------------------------------------------------------
+ * Wrap iframes and tables in div tags to force responsive/scrollable layout.
+ *
+ * @namespace rte
+ */
+
+slate.rte = {
+  /**
+   * Wrap tables in a container div to make them scrollable when needed
+   *
+   * @param {object} options - Options to be used
+   * @param {jquery} options.$tables - jquery object(s) of the table(s) to wrap
+   * @param {string} options.tableWrapperClass - table wrapper class name
+   */
+  wrapTable: function(options) {
+    var tableWrapperClass = typeof options.tableWrapperClass === "undefined" ? '' : options.tableWrapperClass;
+
+    options.$tables.wrap('<div class="' + tableWrapperClass + '"></div>');
+  },
+
+  /**
+   * Wrap iframes in a container div to make them responsive
+   *
+   * @param {object} options - Options to be used
+   * @param {jquery} options.$iframes - jquery object(s) of the iframe(s) to wrap
+   * @param {string} options.iframeWrapperClass - class name used on the wrapping div
+   */
+  wrapIframe: function(options) {
+    var iframeWrapperClass = typeof options.iframeWrapperClass === "undefined" ? '' : options.iframeWrapperClass;
+
+    options.$iframes.each(function() {
+      // Add wrapper to make video responsive
+      $(this).wrap('<div class="' + iframeWrapperClass + '"></div>');
+      
+      // Re-set the src attribute on each iframe after page load
+      // for Chrome's "incorrect iFrame content on 'back'" bug.
+      // https://code.google.com/p/chromium/issues/detail?id=395791
+      // Need to specifically target video and admin bar
+      this.src = this.src;
+    });
+  }
+};
+
+/**
+ * Cart Template Script
+ * ------------------------------------------------------------------------------
+ * A file that contains scripts highly couple code to the Cart template.
+ *
+ * @namespace cart
+ */
+
+slate.cart = {
+  
+  /**
+   * Browser cookies are required to use the cart. This function checks if
+   * cookies are enabled in the browser.
+   */
+  cookiesEnabled: function() {
+    var cookieEnabled = navigator.cookieEnabled;
+    return cookieEnabled;
+  },
+
+  openWarrantyModal: function(showAddButton, itemKey, itemQuantity, warrantySku, warrantyId, totalUpsellPrice) {
+    if (showAddButton) {
+      var addButton = $(".add-to-order a[href='#modal-close']");
+
+      $(".add-to-order .warranty-price").html(totalUpsellPrice);
+      addButton.data("associated-item", itemKey);
+      addButton.attr("data-associated-item", itemKey);
+      addButton.data("quantity", itemQuantity);
+      addButton.attr("data-quantity", itemQuantity);
+      addButton.data("warranty-id", warrantyId);
+      addButton.attr("data-warranty-id", warrantyId);
+      addButton.data("warranty-sku", warrantySku);
+      addButton.attr("data-warranty-sku", warrantySku);
+    } else {
+      $("#learn-more .add-to-order").attr("hidden", "hidden").css("opacity", 0); // Firefox fix
+    }
+
+    $("#learn-more").removeAttr("hidden").css("opacity", 1); // Firefox fix
+  },
+
+  closeWarrantyModal: function() {
+    var addButton = $(".add-to-order a[href='#modal-close']");
+
+    $(".add-to-order .warranty-price").html("");
+    addButton.data("associated-item", "");
+    addButton.attr("data-associated-item", "");
+    addButton.data("quantity", "");
+    addButton.attr("data-quantity", "");
+    addButton.data("warranty-id", "");
+    addButton.attr("data-warranty-id", "");
+    addButton.data("warranty-sku", "");
+    addButton.attr("data-warranty-sku", "");
+
+    $("#learn-more").attr("hidden", "hidden").css("opacity", 0); // Firefox fix
+  },
+
+  /**
+   * 
+   * @param {*} item
+   * Updates quantity select element options for line items that are the same variant.
+   * This is to prevent the user from increasing the quantity above what is actually
+   * in stock.
+   */
+  updateDomLineQuantityOptions: function(item) {
+    /**
+     * Determines same variant in cart by checking if it's key starts with this item's
+     * variant ID but is not equal to this item's key.
+     * */
+    var sameVariant = $("[data-item-key^='" + item.id + "']:not([data-is-warranty='true']):not([data-item-key='" + item.key + "'])");
+
+    if (sameVariant.length > 0) {
+      var variantInventory = sameVariant.find("[data-item-inventory]").data("item-inventory");
+      var availableInventory = variantInventory - item.quantity;
+
+      if (availableInventory <= 5) {
+        var quantitySelectNode = sameVariant.find("select[name='quantity']");
+        var sameVariantQty = quantitySelectNode.val();
+        var variantInventory = quantitySelectNode.data("item-inventory");
+  
+        var quantityOptions = "";
+        for (i = 0; i < availableInventory; i++) {
+          var selected = false;
+          var qty = i + 1;
+          var option = "<option value='" + qty + "'>" + qty + "</option>";
+          if (sameVariantQty == qty) option = "<option value='" + qty + "' selected='selected'>" + qty + "</option>";
+  
+          quantityOptions = quantityOptions + option; 
+        }
+        quantitySelectNode.html(quantityOptions);
+      }
+    }
+  },
+
+  updateDomLineQuantity: function(itemKey, itemQuantity) {
+    var quantityNodeSelector = "[data-item-key='" + itemKey + "'] [name='quantity']";
+    $(quantityNodeSelector).val(itemQuantity);
+  },
+
+  updateDomLineFinalPrice: function(itemKey, finalLinePrice) {
+    $("[data-item-key='" + itemKey + "'] [data-label='final-line-price']").html(slate.Currency.formatMoney(finalLinePrice));
+  },
+
+  updateDomLineOriginalPrice: function(itemKey, originalLinePrice) {
+    $("[data-item-key='" + itemKey + "'] [data-label='original-line-price']").html(slate.Currency.formatMoney(originalLinePrice));
+  },
+
+  updateDomLineWarrantyUpsellPrice: function(itemKey, newQuantity) {
+    var upsellPriceElement = $("[data-item-key='" + itemKey + "'] [data-upsell-unit-price]");
+    var upsellUnitPrice = upsellPriceElement.data("upsell-unit-price");
+    upsellPriceElement.html(slate.Currency.formatMoney(upsellUnitPrice * newQuantity));
+  },
+
+  updateDomLines: function(cart) {
+    if (cart && cart.items && cart.items.length) {
+      cart.items.forEach(function(item) {
+        var key = item.key;
+        var originalLinePrice = item.original_line_price;
+        var finalLinePrice = item.final_line_price;
+    
+        slate.cart.updateDomLineQuantityOptions(item);
+        slate.cart.updateDomLineQuantity(key, item.quantity);
+        slate.cart.updateDomLineOriginalPrice(key, originalLinePrice);
+        slate.cart.updateDomLineFinalPrice(key, finalLinePrice);
+        slate.cart.updateDomLineWarrantyUpsellPrice(key, item.quantity);
+      });
+    }
+  },
+
+  removeDomItems: function(itemKeys) {
+    itemKeys.forEach(function(key) {
+      $("[data-item-key='" + key + "']").remove();
+    });
+  },
+
+  updateDomCartSubtotal: function(cartSubtotalPrice) {
+    $("[data-label='cart-subtotal']").html(slate.Currency.formatMoney(cartSubtotalPrice));
+  },
+
+  updateDomCartDiscount: function(cartDiscountPrice) {
+    $("[data-label='cart-discount']").html(slate.Currency.formatMoney(cartDiscountPrice));
+  },
+
+  updateDomCartTotal: function(cartTotalPrice) {
+    $("[data-label='cart-total']").html(slate.Currency.formatMoney(cartTotalPrice));
+  },
+
+  updateDomInfoBar: function(count, subtotal) {
+    $(".cart-info-bar .item-count").html(count);
+    $(".cart-info-bar .cart-order-subtotal span").html(slate.Currency.formatMoney(subtotal));
+  },
+
+  onShopifyCartUpdated: function(data) {
+    var subtotal = data.original_total_price;
+    var total = data.total_price;
+    var discount = data.total_discount;
+
+    slate.cart.updateDomLines(data);
+    slate.cart.updateDomCartSubtotal(subtotal);
+    slate.cart.updateDomCartDiscount(discount);
+    slate.cart.updateDomCartTotal(total);
+    slate.cart.updateDomInfoBar(data.item_count, subtotal);
+    window.VueMinicart.refreshCart();
+  },
+
+  onItemsRemoved: function(requestData, updatedCartData) {
+    var updates = requestData.updates;
+    var itemKeys = Object.keys(updates);
+    var removedItemKeys;
+    
+    if (itemKeys.length > 0) {
+      removedItemKeys = itemKeys.filter(function(key) {
+        return updates[key] === 0;
+      });
+    }
+    slate.cart.removeDomItems(removedItemKeys);
+    slate.cart.onShopifyCartUpdated(updatedCartData);
+  },
+
+  addToShopifyCart: function(data, callback) {
+    jQuery.ajax({
+      type: "POST",
+      url: "/cart/add.js",
+      data: data,
+      dataType: "json",
+      success: callback
+    });
+  },
+
+  updateShopifyCart: function(data, callback) {
+    jQuery.ajax({
+      type: "POST",
+      url: "/cart/update.js",
+      data: data,
+      dataType: "json",
+      success: function(response) {
+        if (callback) {
+          callback(data, response); 
+        } else {
+          slate.cart.onShopifyCartUpdated(response);
+        }
+      }
+    });
+  },
+
+  processAddToCartQueue: function() {
+    if (slate.cart.addToCartQueue.length) {
+      var nextItem = slate.cart.addToCartQueue.shift();
+      slate.cart.addToShopifyCart(nextItem, slate.cart.processAddToCartQueue);
+    } else {
+      document.location.href = "/cart";
+    }
+  },
+
+  addWarrantyFromCart: function(itemKey, quantity, warrantyVariantSku, warrantyVariantId) {
+    slate.cart.addToCartQueue = slate.cart.addToCartQueue || [];
+    var removeData = {};
+
+    var itemVariantId = itemKey.split(":")[0];
+    removeData[itemKey] = 0;
+
+    slate.cart.addToCartQueue.push({
+      quantity: quantity,
+      id: warrantyVariantId,
+      properties: {
+        "warranty.associated_variant_id": itemVariantId
+      }
+    });
+    slate.cart.addToCartQueue.push({
+      quantity: quantity,
+      id: itemVariantId,
+      properties: {
+        "warranty.sku": warrantyVariantSku,
+        "warranty.variant_id": warrantyVariantId
+      }
+    });
+
+    slate.cart.updateShopifyCart({ updates: removeData }, slate.cart.processAddToCartQueue)
+  }
+};
+
+slate.Sections = function Sections() {
+  this.constructors = {};
+  this.instances = [];
+
+  $(document)
+    .on('shopify:section:load', this._onSectionLoad.bind(this))
+    .on('shopify:section:unload', this._onSectionUnload.bind(this))
+    .on('shopify:section:select', this._onSelect.bind(this))
+    .on('shopify:section:deselect', this._onDeselect.bind(this))
+    .on('shopify:section:reorder', this._onReorder.bind(this))
+    .on('shopify:block:select', this._onBlockSelect.bind(this))
+    .on('shopify:block:deselect', this._onBlockDeselect.bind(this));
+};
+
+slate.Sections.prototype = $.extend({}, slate.Sections.prototype, {
+  _createInstance: function(container, constructor) {
+    var $container = $(container);
+    var id = $container.attr('data-section-id');
+    var type = $container.attr('data-section-type');
+
+    constructor = constructor || this.constructors[type];
+
+    if (typeof constructor === 'undefined') {
+      return;
+    }
+
+    var instance = $.extend(new constructor(container), {
+      id: id,
+      type: type,
+      container: container
+    });
+
+    this.instances.push(instance);
+  },
+
+  _onSectionLoad: function(evt) {
+    var container = $('[data-section-id]', evt.target)[0];
+    if (container) {
+      this._createInstance(container);
+    }
+  },
+
+  _onSectionUnload: function(evt) {
+    var instance = slate.utils.findInstance(this.instances, 'id', evt.detail.sectionId);
+
+    if (!instance) {
+      return;
+    }
+
+    if (typeof instance.onUnload === 'function') {
+      instance.onUnload(evt);
+    }
+
+    this.instances = slate.utils.removeInstance(this.instances, 'id', evt.detail.sectionId);
+  },
+
+  _onSelect: function(evt) {
+    var instance = slate.utils.findInstance(this.instances, 'id', evt.detail.sectionId);
+
+    if (instance && typeof instance.onSelect === 'function') {
+      instance.onSelect(evt);
+    }
+  },
+
+  _onDeselect: function(evt) {
+    var instance = slate.utils.findInstance(this.instances, 'id', evt.detail.sectionId);
+
+    if (instance && typeof instance.onDeselect === 'function') {
+      instance.onDeselect(evt);
+    }
+  },
+
+  _onReorder: function(evt) {
+    var instance = slate.utils.findInstance(this.instances, 'id', evt.detail.sectionId);
+
+    if (instance && typeof instance.onReorder === 'function') {
+      instance.onReorder(evt);
+    }
+  },
+
+  _onBlockSelect: function(evt) {
+    var instance = slate.utils.findInstance(this.instances, 'id', evt.detail.sectionId);
+
+    if (instance && typeof instance.onBlockSelect === 'function') {
+      instance.onBlockSelect(evt);
+    }
+  },
+
+  _onBlockDeselect: function(evt) {
+    var instance = slate.utils.findInstance(this.instances, 'id', evt.detail.sectionId);
+
+    if (instance && typeof instance.onBlockDeselect === 'function') {
+      instance.onBlockDeselect(evt);
+    }
+  },
+
+  register: function(type, constructor) {
+    this.constructors[type] = constructor;
+
+    $('[data-section-type=' + type + ']').each(function(index, container) {
+      this._createInstance(container, constructor);
+    }.bind(this));
+  }
+});
+
+/**
+ * Currency Helpers
+ * -----------------------------------------------------------------------------
+ * A collection of useful functions that help with currency formatting
+ *
+ * Current contents
+ * - formatMoney - Takes an amount in cents and returns it as a formatted dollar value.
+ *
+ */
+
+slate.Currency = (function() {
+  var moneyFormat = '${{amount}}';
+
+  /**
+   * Format money values based on your shop currency settings
+   * @param  {Number|string} cents - value in cents or dollar amount e.g. 300 cents
+   * or 3.00 dollars
+   * @param  {String} format - shop money_format setting
+   * @return {String} value - formatted value
+   */
+  function formatMoney(cents, format) {
+    if (typeof cents === 'string') {
+      cents = cents.replace('.', '');
+    }
+    var value = '';
+    var placeholderRegex = /\{\{\s*(\w+)\s*\}\}/;
+    var formatString = (format || moneyFormat);
+
+    function formatWithDelimiters(number, precision, thousands, decimal) {
+      precision = slate.utils.defaultTo(precision, 2);
+      thousands = slate.utils.defaultTo(thousands, ',');
+      decimal = slate.utils.defaultTo(decimal, '.');
+
+      if (isNaN(number) || number == null) {
+        return 0;
+      }
+
+      number = (number / 100.0).toFixed(precision);
+
+      var parts = number.split('.');
+      var dollarsAmount = parts[0].replace(/(\d)(?=(\d\d\d)+(?!\d))/g, '$1' + thousands);
+      var centsAmount = parts[1] ? (decimal + parts[1]) : '';
+
+      return dollarsAmount + centsAmount;
+    }
+
+    switch (formatString.match(placeholderRegex)[1]) {
+      case 'amount':
+        value = formatWithDelimiters(cents, 2);
+        break;
+      case 'amount_no_decimals':
+        value = formatWithDelimiters(cents, 0);
+        break;
+      case 'amount_with_space_separator':
+        value = formatWithDelimiters(cents, 2, ' ', '.');
+        break;
+      case 'amount_no_decimals_with_comma_separator':
+        value = formatWithDelimiters(cents, 0, ',', '.');
+        break;
+      case 'amount_no_decimals_with_space_separator':
+        value = formatWithDelimiters(cents, 0, ' ');
+        break;
+    }
+
+    return formatString.replace(placeholderRegex, value);
+  }
+
+  return {
+    formatMoney: formatMoney
+  };
+})();
+
+/**
+ * Image Helper Functions
+ * -----------------------------------------------------------------------------
+ * A collection of functions that help with basic image operations.
+ *
+ */
+
+slate.Image = (function() {
+
+  /**
+   * Preloads an image in memory and uses the browsers cache to store it until needed.
+   *
+   * @param {Array} images - A list of image urls
+   * @param {String} size - A shopify image size attribute
+   */
+
+  function preload(images, size) {
+    if (typeof images === 'string') {
+      images = [images];
+    }
+
+    for (var i = 0; i < images.length; i++) {
+      var image = images[i];
+      this.loadImage(this.getSizedImageUrl(image, size));
+    }
+  }
+
+  /**
+   * Loads and caches an image in the browsers cache.
+   * @param {string} path - An image url
+   */
+  function loadImage(path) {
+    new Image().src = path;
+  }
+
+  /**
+   * Find the Shopify image attribute size
+   *
+   * @param {string} src
+   * @returns {null}
+   */
+  function imageSize(src) {
+    var match = src.match(/.+_((?:pico|icon|thumb|small|compact|medium|large|grande)|\d{1,4}x\d{0,4}|x\d{1,4})[_\.@]/);
+
+    if (match) {
+      return match[1];
+    } else {
+      return null;
+    }
+  }
+
+  /**
+   * Adds a Shopify size attribute to a URL
+   *
+   * @param src
+   * @param size
+   * @returns {*}
+   */
+  function getSizedImageUrl(src, size) {
+    if (size === null) {
+      return src;
+    }
+
+    if (size === 'master') {
+      return this.removeProtocol(src);
+    }
+
+    var match = src.match(/\.(jpg|jpeg|gif|png|bmp|bitmap|tiff|tif)(\?v=\d+)?$/i);
+
+    if (match) {
+      var prefix = src.split(match[0]);
+      var suffix = match[0];
+
+      return this.removeProtocol(prefix[0] + '_' + size + suffix);
+    } else {
+      return null;
+    }
+  }
+
+  function removeProtocol(path) {
+    return path.replace(/http(s)?:/, '');
+  }
+
+  return {
+    preload: preload,
+    loadImage: loadImage,
+    imageSize: imageSize,
+    getSizedImageUrl: getSizedImageUrl,
+    removeProtocol: removeProtocol
+  };
+})();
+
+/**
+ * Variant Selection scripts
+ * ------------------------------------------------------------------------------
+ *
+ * Handles change events from the variant inputs in any `cart/add` forms that may
+ * exist. Also updates the master select and triggers updates when the variants
+ * price or image changes.
+ *
+ * @namespace variants
+ */
+
+slate.Variants = (function() {
+
+  /**
+   * Variant constructor
+   *
+   * @param {object} options - Settings from `product.js`
+   */
+  function Variants(options) {
+    this.$container = options.$container;
+    this.product = options.product;
+    this.singleOptionSelector = options.singleOptionSelector;
+    this.originalSelectorId = options.originalSelectorId;
+    this.enableHistoryState = options.enableHistoryState;
+    this.currentVariant = this._getVariantFromOptions();
+
+    $(this.singleOptionSelector, this.$container).on('change', this._onSelectChange.bind(this));
+  }
+
+  Variants.prototype = $.extend({}, Variants.prototype, {
+
+    /**
+     * Get the currently selected options from add-to-cart form. Works with all
+     * form input elements.
+     *
+     * @return {array} options - Values of currently selected variants
+     */
+    _getCurrentOptions: function() {
+      var currentOptions = $.map($(this.singleOptionSelector, this.$container), function(element) {
+        var $element = $(element);
+        var type = $element.attr('type');
+        var currentOption = {};
+
+        if (type === 'radio' || type === 'checkbox') {
+          if ($element[0].checked) {
+            currentOption.value = $element.val();
+            currentOption.index = $element.data('index');
+
+            return currentOption;
+          } else {
+            return false;
+          }
+        } else {
+          currentOption.value = $element.val();
+          currentOption.index = $element.data('index');
+
+          return currentOption;
+        }
+      });
+
+      // remove any unchecked input values if using radio buttons or checkboxes
+      currentOptions = slate.utils.compact(currentOptions);
+
+      return currentOptions;
+    },
+
+    /**
+     * Find variant based on selected values.
+     *
+     * @param  {array} selectedValues - Values of variant inputs
+     * @return {object || undefined} found - Variant object from product.variants
+     */
+    _getVariantFromOptions: function() {
+      var selectedValues = this._getCurrentOptions();
+      var variants = this.product.variants;
+      var found = false;
+
+      variants.forEach(function(variant) {
+        var satisfied = true;
+
+        selectedValues.forEach(function(option) {
+          if (satisfied) {
+            satisfied = (option.value === variant[option.index]);
+          }
+        });
+
+        if (satisfied) {
+          found = variant;
+        }
+      });
+
+      return found || null;
+    },
+
+    /**
+     * Event handler for when a variant input changes.
+     */
+    _onSelectChange: function() {
+      var variant = this._getVariantFromOptions();
+
+      this.$container.trigger({
+        type: 'variantChange',
+        variant: variant
+      });
+
+      if (!variant) {
+        return;
+      }
+
+      this._updateMasterSelect(variant);
+      this._updateImages(variant);
+      this._updatePrice(variant);
+      this._updateAffirm(variant);
+      this.currentVariant = variant;
+
+      if (this.enableHistoryState) {
+        this._updateHistoryState(variant);
+      }
+    },
+    _updateAffirm: function(variant) {
+      $('.affirm-as-low-as').attr('data-amount',variant.price);
+      affirm.ui.refresh(); 
+    },
+    /**
+     * Trigger event when variant image changes
+     *
+     * @param  {object} variant - Currently selected variant
+     * @return {event}  variantImageChange
+     */
+    _updateImages: function(variant) {
+      var variantImage = variant.featured_image || {};
+      var currentVariantImage = this.currentVariant.featured_image || {};
+
+      if (!variant.featured_image || variantImage.src === currentVariantImage.src) {
+        return;
+      }
+
+      this.$container.trigger({
+        type: 'variantImageChange',
+        variant: variant
+      });
+    },
+
+    /**
+     * Trigger event when variant price changes.
+     *
+     * @param  {object} variant - Currently selected variant
+     * @return {event} variantPriceChange
+     */
+    _updatePrice: function(variant) {
+      if (variant.price === this.currentVariant.price && variant.compare_at_price === this.currentVariant.compare_at_price) {
+        return;
+      }
+
+      this.$container.trigger({
+        type: 'variantPriceChange',
+        variant: variant
+      });
+    },
+
+    /**
+     * Update history state for product deeplinking
+     *
+     * @param {object} variant - Currently selected variant
+     */
+    _updateHistoryState: function(variant) {
+      if (!history.replaceState || !variant) {
+        return;
+      }
+
+      var newurl = window.location.protocol + '//' + window.location.host + window.location.pathname + '?variant=' + variant.id;
+      window.history.replaceState({path: newurl}, '', newurl);
+    },
+
+    /**
+     * Update hidden master select of variant change
+     *
+     * @param {object} variant - Currently selected variant
+     */
+    _updateMasterSelect: function(variant) {
+      $(this.originalSelectorId, this.$container)[0].value = variant.id;
+    }
+  });
+
+  return Variants;
+})();
+
+
+/*================ Global ================*/
+$(document).ready(function() {
+    //reset menu state on mobile
+    if($(window).width() < 768) {
+        $(".root-nav .tab-pane.active").removeClass("active")
+    }
+    $("[data-toggle='mobile-tab']").on("click", function(e) {
+        if(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+        $(this).parent().siblings(".active").removeClass("active");
+        $(this).parent().addClass("active");
+        $(this).toggleClass("opened");
+        if (!$(this).siblings().hasClass("opened")) {
+            $(this).siblings().toggleClass("opened");
+        }
+        else {
+            $(this).siblings().removeClass("opened");            
+        }
+        var id = $(this).attr("href");
+        $(id).parent().addClass("active");
+        $(id).siblings(".active").removeClass("active");
+        if($(window).width() < 768)
+            $(id).toggleClass("active");
+        else
+            $(id).addClass("active")
+    });
+
+    $('body').click(function(e) {
+        $('.root-nav .tab-content').removeClass("active")
+    });
+
+    $("[data-toggle='search']").click(function(e) {
+        if(e) e.preventDefault();
+        $(".header-row").toggleClass("search-active");
+        $("#Search").focus();
+    });
+});
+/**
+ * 8x8 Chat Scripts
+ * ------------------------------------------------------------------------------
+ * A file that contains scripts highly couple code to the 8x8 customer support
+ * chat integration.
+ *
+   * @namespace chat
+ */
+
+theme.Chat = {
+
+  selectors: {
+    chatContainer: '.chat',
+    chatStatus: '.chat [data-type]',
+    statusIndicators: '.chat-icon, .live-chat-hours'
+  },
+
+  initialize: function() {
+    var $container = $(theme.Chat.selectors.chatContainer);
+  
+    if (window.optimizelychatus === true) {
+      theme.Chat.updateStatus();
+    } else {
+      $container.hide();
+    }
+  },
+
+  updateStatus: function() {
+    var $statusDataElement = $(theme.Chat.selectors.chatStatus);
+    var chatLoaded = $statusDataElement.length > 0;
+  
+    if (chatLoaded) {
+      var chatStatus = $statusDataElement.data("type");
+      theme.Chat.updateStatusIndicators(chatStatus);
+    } else {
+      setTimeout(theme.Chat.updateStatus, 2000);
+    }
+  },
+
+  updateStatusIndicators: function(status) {
+    var indicatorSelectors = theme.Chat.selectors.statusIndicators;
+    var $indicators = $(indicatorSelectors);
+
+    if (status === 'online') {
+      $indicators.css('color', '#17ce36');
+    } else if (status === 'offline') {
+      $indicators.css('color', '#ff3700');
+    }
+  }
+};
+
+
+/**
+ * Newsletter Scripts
+ * ------------------------------------------------------------------------------
+ * A file that contains scripts highly coupled to the newsletter signup
+ *
+ * @namespace newsletter
+ */
+
+theme.Newsletter = {
+  submit: function (errorCallback, successCallback, email, actionUrl) {
+    var query = "mutation SubscribeToNewsletter($input: NewsletterSubscribeInput!) { subscribeToNewsletter(input: $input) }";
+    var variables = { input: { emailAddress: email, domain: "gazelle" } };
+
+    $.ajax({
+      type: "POST",
+      url: actionUrl,
+      data: JSON.stringify({ query, variables }),
+      contentType: "application/json; charset=utf-8",
+      success: successCallback,
+      error: errorCallback
+    });
+  }
+};
+
+
+compass.utils = {
+  
+  /**
+   * Save utm params to cookie with 30 days expiration date
+   */
+  saveUtm: function() {
+    var queryObj = slate.utils.getQueryString(),
+      utm_source = queryObj["utm_source"],
+      utm_campaign = queryObj["utm_campaign"],
+      utm_medium = queryObj["utm_medium"];
+
+    if(utm_source)
+      Cookies.set('utm_source', utm_source, {expires: 30});
+    if(utm_campaign)
+      Cookies.set('utm_campaign', utm_campaign, {expires: 30});
+    if(utm_medium)
+      Cookies.set('utm_medium', utm_medium, {expires: 30});
+  },
+
+  /**
+   * Attach utm values to shopping cart item properties for post processing such as channel discounts on specific product
+   *
+   * @param {object} item - Shopping cart item
+   */
+  attachUtm: function(item) {
+    if (item) {
+      var utm_source = Cookies.get("utm_source"),
+        utm_campaign = Cookies.get("utm_campaign"),
+        utm_medium = Cookies.get("utm_medium");
+
+      if(utm_campaign || utm_source || utm_medium)
+        item.properties = item.properties || {};
+      if(utm_campaign)
+        item.properties['utm_campaign'] = utm_campaign; 
+      if(utm_source)
+        item.properties['utm_source'] = utm_source;
+      if(utm_medium)
+        item.properties['utm_medium'] = utm_medium;
+    }
+  },
+
+  /**
+   * Attach warranty information to a shopping cart item
+   * 
+   * @param {object} item - Shopping cart item
+   * @param {object} warranty - Warranty product
+   */
+  associateWarranty: function(item, warrantySku, warrantyItem) {
+    if(item && warrantySku && warrantyItem) {
+      item.properties = item.properties || {};
+      item.properties['warranty.variant_id'] = warrantyItem.id;
+      item.properties['warranty.sku'] = warrantySku;
+
+      warrantyItem.properties = warrantyItem.properties || {};
+      warrantyItem.properties['warranty.associated_variant_id'] = item.id;
+    }
+  }
+
+};
+
+(function() {
+  var $promise = $.Deferred();
+  var sequence = function (funcs) {
+    return funcs.reduce(function (promise, func) {
+      return promise.then(function (result) {
+        return func.then(Array.prototype.concat.bind(result));
+      });
+    }, $promise.resolve([]));
+  }
+
+  var cartData = {
+    cart: {},
+    isMinicartVisible: false,
+    warrantyModalVisible: false
+  };
+  var noImgUrl = 'https://cdn.shopify.com/s/assets/no-image-2048-5e88c1b20e087fb7bbe9a3771824e743c244f437e4f8ba93bbf7b11b53f7824c_320x.gif';
+  var methods = {
+    getCart: function() {
+      return $.getJSON('/cart.js');
+    },
+    getImage: function(image) {
+      if(!image)
+        return noImgUrl;
+      return image.replace(/(\.[^.]*)$/, '_large$1').replace('http:', '')
+    },
+    addCart: function(data) {
+      return sequence(data.map(function(d) {
+        return $.ajax({
+          url: '/cart/add.js',
+          dataType: 'json',
+          method: 'POST',
+          async: false,
+          data: d
+        });
+      }))
+    }
+  }
+
+  function initVue() {
+    Vue.component('minicart', {
+      template: '#minicart-tpl',
+      props: ['cart', 'isVisible'],
+      methods: {
+        formatMoney: slate.Currency.formatMoney
+      }
+    })
+    Vue.component('minicart-item', {
+      template: '#minicart-item-tpl',
+      props: ['items', 'formatMoney'],
+      methods: {
+        getImage: methods.getImage
+      }
+    })
+    Vue.component('minicart-summary', {
+      template: '#minicart-summary-tpl',
+      props: ['cart', 'formatMoney'],
+      methods: {
+        goToCheckout: function(date) {
+          $.post('/cart/update.js', "attributes[Terms and Conditions]=Accepted On " + date)
+          .done(function() {
+            location.href = '/checkout';
+          })
+          .fail(function(xhr, textStatus, errorThrown){
+            $('#mini-cart-error').show();
+            $('#mini-cart-error').html(errorThrown || "Something went wrong, please try again");
+          });
+        }
+      }
+    })
+
+
+    window.VueMinicart = new Vue({
+      el: '#vue-header-cart',
+      data: cartData,
+      created: function() {
+        var self = this;
+        methods.getCart().then(function(cart) {
+          self.cart = cart;
+        });
+      },
+      methods: {
+        refreshCart: function() {
+          var self = this;
+          methods.getCart().then(function(cart) {
+            self.cart = cart;
+          });
+        },
+        addCart: function(data) {
+          var self = this;
+          return methods.addCart(data)
+            .then(function() {
+              self.isMinicartVisible = true;
+              window.AddedToCartModal.isVisible = true;
+              return methods.getCart().then(function(cart) { self.cart = cart });
+            })
+            .fail(function(err) {
+              var json = JSON.parse(err.responseText);
+              if(json && json.description) {
+                  $(".toast-content").html(json.description);
+                  $(".toast").fadeIn().delay(3000).fadeOut();
+              }
+            })
+        }
+      }
+    });
+
+    if (theme.model && theme.model.current_variant) {
+      window.AddedToCartModal = new Vue({
+        el: '#addToCartModal',
+        data: {
+          isVisible: false
+        }
+      });
+
+      window.AddToCartForm = new Vue({
+        el: '#addToCartForm',
+        data: {
+          product: theme.model.product || {},
+          current_variant: theme.model.current_variant || {},
+          inventoryQuantity: theme.model.inventory_quantity || {},
+          addToCartText: theme.model.addToCartText,
+          soldOutText: theme.model.soldOutText,
+          addingText: theme.model.addingText,
+          unavailableText: theme.model.unavailableText,
+          buttonText: theme.model.current_variant.available ? theme.model.addToCartText : theme.model.soldOutText,
+          upsell_variant: theme.model.upsell_variant || {id: 0, price: 0},
+          warranty: {id: 0, price: 0},
+          moreInfoVisible: false,
+          warrantyVisible: false,
+          quantity: 1,
+          addingToCart: false
+        },
+        computed: {
+          subtotal: function() {
+            return ( this.current_variant.price || 0) +
+              (this.upsell_variant.price || 0) +
+              (this.warranty.price || 0);
+          },
+          discountedSubtotal: function() {
+            var price = this.current_variant.price;
+
+            if(window.percentageDiscounts || window.amountDiscounts) {
+              var productVendor = this.product.vendor;
+              var products = Object.assign({}, window.percentageDiscounts, window.amountDiscounts);
+             
+              Object.keys(products).some(function(discountProduct) {
+                if(productVendor === discountProduct) {
+                  if(Object.keys(window.percentageDiscounts).indexOf(discountProduct)!==-1) {
+                    price = price - (price/100 * products[discountProduct]);
+                  } else {
+                    price = price - (products[discountProduct]*100);
+                  }
+                  return true;
+                }
+                return false;
+              });
+            }
+
+            var updatedPrice = ( price || 0) + (this.upsell_variant.price || 0) + (this.warranty.price || 0)
+            $('.affirm-as-low-as').attr('data-amount', updatedPrice);
+            affirm.ui.refresh();
+            return updatedPrice;
+          },
+          isDisabled: function() {
+            const self = this;
+
+            if (self.addingToCart === true) {
+              return true;
+            }
+
+            const vueCart = window.VueMinicart.cart || {};
+            const vueCartItems = vueCart.items || [];
+            const currentVariantItems = vueCartItems.filter(function(i) {
+              return i.id === self.current_variant.id;
+            });
+
+            if (currentVariantItems == []) {
+              return !self.current_variant.available;
+            } else {
+              var variantLineItemsQuantity = currentVariantItems.reduce(function(variantQtyInCart, variantLineItem) {
+                return variantQtyInCart + variantLineItem.quantity;
+              }, 0)
+              var currentVariantId = '' + self.current_variant.id;
+              return variantLineItemsQuantity === self.inventoryQuantity[currentVariantId];
+            }
+          }
+        },
+        methods: {
+          formatMoney: slate.Currency.formatMoney,
+          openWarranty: function(e) {
+            e.preventDefault();
+            $("#learn-more").removeAttr("hidden").css("opacity", 1); //firefox fix
+            $("#learn-more-close").one("click", function(ee) {
+              ee.preventDefault();
+              $("#learn-more").attr("hidden", "hidden").css("opacity", 0); //firefox fix
+            })
+          },
+          addCart: function() {
+            this.addingToCart = true;
+            this.buttonText = this.addingText;
+            var self = this,
+                data = [],
+                mainProduct = {
+                  id: self.current_variant.id,
+                  quantity: self.quantity
+                };
+
+            if (self.warranty.id) {
+              var warrantyItem = {
+                id: self.warranty.id,
+                quantity: self.quantity
+              }
+
+              compass.utils.associateWarranty(
+                mainProduct, 
+                self.warranty.sku, 
+                warrantyItem
+              );
+              data.push(warrantyItem);
+            }
+
+            compass.utils.attachUtm(mainProduct);
+            data.push(mainProduct);
+
+            if (self.upsell_variant.id) {
+              data.push({
+                id: self.upsell_variant.id,
+                quantity: self.quantity
+              });
+            }
+
+            window.VueMinicart.addCart(data).then(function() {
+              self.buttonText = self.addToCartText;
+              self.addingToCart = false;
+            });
+          },
+          updateFormState: function() {
+            var self = this;
+            if (!self.current_variant.id) {
+              self.buttonText = self.unavailableText;
+            } else {
+              self.buttonText = self.isDisabled ? self.soldOutText : self.addToCartText;
+            }
+          },
+          selectVariant: function(index, optionValue) {            
+            var self = this;
+            var variant = self.product.variants.filter(function(v) {
+            var opt1Matched = v.option1 == (index == 1 ? optionValue : self.current_variant.option1),
+                opt2Matched = v.option2 == (index == 2 ? optionValue : self.current_variant.option2),
+                opt3Matched = v.option3 == (index == 3 ? optionValue : self.current_variant.option3);
+
+                return opt1Matched && opt2Matched && opt3Matched;
+            });
+            if(variant && variant.length) {
+              location.search = "?variant="+variant[0].id;
+            } else {
+              self.current_variant = {};
+            }
+            
+            self.updateFormState();
+          },
+          selectUpsell: function(id, price) {
+            var self = this;
+            self.upsell_variant = {id: id || 0, price: price || 0};
+          },
+          loadQuickview: function(url) {
+            $(".modal-body", "#quicklook-modal").load(url, function() {
+              $("#quicklook-modal").modal("show");
+              $('#quicklook-modal').on('shown.bs.modal', function () {
+                $('.upsell-main-image').slick({
+                  slidesToShow: 1,
+                  slidesToScroll: 1,
+                  arrows: false,
+                  fade: true,
+                  asNavFor: '.upsell-thumb-images'
+                });
+                $('.upsell-main-image img').css('visibility', 'visible');
+                $('.upsell-thumb-images').slick({
+                  slidesToShow: 3,
+                  slidesToScroll: 1,
+                  asNavFor: '.upsell-main-image',
+                  nextArrow: '<span class="arrow right"></span>',
+                  prevArrow: '<span class="arrow left"></span>',
+                  focusOnSelect: true,
+                  mobileFirst: true,
+                  responsive: [
+                    {
+                      breakpoint: 767,
+                      settings: {
+                        slidesToShow: 4,
+                        vertical: true
+                      }
+                    }
+                  ]
+                });
+              })
+              var api = new Yotpo.API(yotpo);
+              api.refreshWidgets();
+            });
+          },
+          selectWarranty: function(id, sku, price, close) {
+            if(this.warranty.id && !close)
+              this.warranty = {id: 0, price: 0};
+            else
+              this.warranty = {id: id, sku: sku, price: price};
+            if(close) {
+              this.moreInfoVisible = false;
+              this.warrantyVisible = false;
+
+              $("#learn-more").attr("hidden", "hidden").css("opacity", 0); //firefox fix
+            }
+          }
+        }
+      })
+    }
+
+  }
+
+  if(!/^(\/\w+)?\/checkout/gi.test(location.pathname))
+    window.addEventListener('load', initVue)
+})();
+
+
+/*================ Templates ================*/
+/**
+ * Customer Addresses Script
+ * ------------------------------------------------------------------------------
+ * A file that contains scripts highly couple code to the Customer Addresses
+ * template.
+ *
+ * @namespace customerAddresses
+ */
+
+theme.customerAddresses = (function() {
+  var $newAddressForm = $('#AddressNewForm');
+
+  if (!$newAddressForm.length) {
+    return;
+  }
+
+  // Initialize observers on address selectors, defined in shopify_common.js
+  if (Shopify) {
+    new Shopify.CountryProvinceSelector('AddressCountryNew', 'AddressProvinceNew', {
+      hideElement: 'AddressProvinceContainerNew'
+    });
+  }
+
+  // Initialize each edit form's country/province selector
+  $('.address-country-option').each(function() {
+    var formId = $(this).data('form-id');
+    var countrySelector = 'AddressCountry_' + formId;
+    var provinceSelector = 'AddressProvince_' + formId;
+    var containerSelector = 'AddressProvinceContainer_' + formId;
+
+    new Shopify.CountryProvinceSelector(countrySelector, provinceSelector, {
+      hideElement: containerSelector
+    });
+  });
+
+  // Toggle new/edit address forms
+  $('.address-new-toggle').on('click', function() {
+    $newAddressForm.toggleClass('hide');
+  });
+
+  $('.address-edit-toggle').on('click', function() {
+    var formId = $(this).data('form-id');
+    $('#EditAddress_' + formId).toggleClass('hide');
+  });
+
+  $('.address-delete').on('click', function() {
+    var $el = $(this);
+    var formId = $el.data('form-id');
+    var confirmMessage = $el.data('confirm-message');
+    if (confirm(confirmMessage || 'Are you sure you wish to delete this address?')) {
+      Shopify.postLink('/account/addresses/' + formId, {parameters: {_method: 'delete'}});
+    }
+  });
+})();
+
+/**
+ * Password Template Script
+ * ------------------------------------------------------------------------------
+ * A file that contains scripts highly couple code to the Password template.
+ *
+ * @namespace password
+ */
+
+theme.customerLogin = (function() {
+  var config = {
+    recoverPasswordForm: '#RecoverPassword',
+    hideRecoverPasswordLink: '#HideRecoverPasswordLink'
+  };
+
+  if (!$(config.recoverPasswordForm).length) {
+    return;
+  }
+
+  checkUrlHash();
+  resetPasswordSuccess();
+
+  $(config.recoverPasswordForm).on('click', onShowHidePasswordForm);
+  $(config.hideRecoverPasswordLink).on('click', onShowHidePasswordForm);
+
+  function onShowHidePasswordForm(evt) {
+    evt.preventDefault();
+    toggleRecoverPasswordForm();
+  }
+
+  function checkUrlHash() {
+    var hash = window.location.hash;
+
+    // Allow deep linking to recover password form
+    if (hash === '#recover') {
+      toggleRecoverPasswordForm();
+    }
+  }
+
+  /**
+   *  Show/Hide recover password form
+   */
+  function toggleRecoverPasswordForm() {
+    $('#RecoverPasswordForm').toggleClass('hide');
+    $('#CustomerLoginForm').toggleClass('hide');
+  }
+
+  /**
+   *  Show reset password success message
+   */
+  function resetPasswordSuccess() {
+    var $formState = $('.reset-password-success');
+
+    // check if reset password form was successfully submited.
+    if (!$formState.length) {
+      return;
+    }
+
+    // show success message
+    $('#ResetSuccess').removeClass('hide');
+  }
+})();
+
+
+/*================ Sections ================*/
+/**
+ * Product Template Script
+ * ------------------------------------------------------------------------------
+ * A file that contains scripts highly couple code to the Product template.
+ *
+   * @namespace product
+ */
+
+theme.Product = (function() {
+
+  var selectors = {
+    addToCart: '[data-add-to-cart]',
+    addToCartText: '[data-add-to-cart-text]',
+    comparePrice: '[data-compare-price]',
+    comparePriceText: '[data-compare-text]',
+    originalSelectorId: '[data-product-select]',
+    priceWrapper: '[data-price-wrapper]',
+    productFeaturedImage: '[data-product-featured-image]',
+    productJson: '[data-product-json]',
+    productPrice: '[data-product-price]',
+    productThumbs: '[data-product-single-thumbnail]',
+    singleOptionSelector: '[data-single-option-selector]'
+  };
+
+  /**
+   * Product section constructor. Runs on page load as well as Theme Editor
+   * `section:load` events.
+   * @param {string} container - selector for the section container DOM element
+   */
+  function Product(container) {
+    this.$container = $(container);
+
+    // Stop parsing if we don't have the product json script tag when loading
+    // section in the Theme Editor
+    if (!$(selectors.productJson, this.$container).html()) {
+      return;
+    }
+
+    var sectionId = this.$container.attr('data-section-id');
+    this.productSingleObject = JSON.parse($(selectors.productJson, this.$container).html());
+
+    var options = {
+      $container: this.$container,
+      enableHistoryState: this.$container.data('enable-history-state') || false,
+      singleOptionSelector: selectors.singleOptionSelector,
+      originalSelectorId: selectors.originalSelectorId,
+      product: this.productSingleObject
+    };
+
+    this.settings = {};
+    this.namespace = '.product';
+    this.variants = new slate.Variants(options);
+    this.$featuredImage = $(selectors.productFeaturedImage, this.$container);
+
+    this.$container.on('variantChange' + this.namespace, this.updateAddToCartState.bind(this));
+    this.$container.on('variantPriceChange' + this.namespace, this.updateProductPrices.bind(this));
+
+    if (this.$featuredImage.length > 0) {
+      this.settings.imageSize = slate.Image.imageSize(this.$featuredImage.attr('src'));
+      slate.Image.preload(this.productSingleObject.images, this.settings.imageSize);
+
+      this.$container.on('variantImageChange' + this.namespace, this.updateProductImage.bind(this));
+    }
+
+    this.initThumbnailSlide();
+    this.initRelatedProductsSlide();
+    this.productImageZoom();
+    this.checkHistory();
+    this.discountPrice();
+    this.initConditionModalImgSlider();
+    this.renderConditionDescription(); 
+  }
+
+  Product.prototype = $.extend({}, Product.prototype, {
+    checkAvailability: function(opt1, opt2, opt3) {
+      var selectedVariant = this.productSingleObject.selected_variant;
+      opt1 = opt1 || selectedVariant.option1;
+      opt2 = opt2 || selectedVariant.option2;
+      opt3 = opt3 || selectedVariant.option3;
+      var variant = $.grep(this.productSingleObject.variants, function(v) {
+        return v.option1 == opt1 && v.option2 == opt2 && v.option3 == opt3;
+      })[0];
+      return variant ? variant.available : false
+    },
+
+    /**
+     * Updates the DOM state of the add to cart button
+     *
+     * @param {boolean} enabled - Decides whether cart is enabled or disabled
+     * @param {string} text - Updates the text notification content of the cart
+     */
+    updateAddToCartState: function(evt) {
+      // var variant = evt.variant;
+
+      // if (variant) {
+      //   $(selectors.priceWrapper, this.$container).removeClass('hide unavailable');
+      //   $(".affirm-as-low-as").removeClass("hide");
+      // } else {
+      //   $(selectors.addToCart, this.$container).prop('disabled', true);
+      //   $(selectors.addToCartText, this.$container).html(theme.strings.unavailable);
+      //   $(selectors.priceWrapper, this.$container).addClass('hide unavailable');
+      //   $(".affirm-as-low-as").addClass("hide");
+      //   return;
+      // }
+
+      // if (variant.available) {
+      //   $(selectors.addToCart, this.$container).prop('disabled', false);
+      //   $(selectors.addToCartText, this.$container).html(theme.strings.addToCart);
+      // } else {
+      //   $(selectors.addToCart, this.$container).prop('disabled', true);
+      //   $(selectors.addToCartText, this.$container).html(theme.strings.soldOut);
+      // }
+    },
+
+    initThumbnailSlide: function() {
+      $('.main-img-wrapper').slick({
+          slidesToShow: 1,
+          slidesToScroll: 1,
+          arrows: false,
+          fade: true,
+          asNavFor: '.thumbnail-list'
+      });
+
+      $('.thumbnail-list').slick({
+          slidesToShow: 3,
+          slidesToScroll: 1,
+          asNavFor: '.main-img-wrapper',
+          nextArrow: '<span class="arrow right"></span>',
+          prevArrow: '<span class="arrow left"></span>',
+          focusOnSelect: true,
+          mobileFirst: true,
+          responsive: [
+            {
+              breakpoint: 767,
+              settings: {
+                slidesToShow: 4,
+                vertical: true
+              }
+            }
+          ]
+      });
+    },
+
+    initRelatedProductsSlide: function() {
+      $('.related-items').slick({
+        slidesToShow: 1,
+        slidesToScroll: 1,
+        mobileFirst: true,
+        responsive: 
+        [
+          {
+            breakpoint: 767,
+            settings: {
+              slidesToShow: 3
+            }
+          },
+          {
+            breakpoint: 1024,
+            settings: {
+              slidesToShow: 4
+            }
+          }
+        ]
+      });
+    },
+
+    initConditionModalImgSlider: function() {
+      var $tabImages = $('.tab-images');
+      var sliderSettings = {
+        mobileFirst: true,
+        swipeToSlide: true,
+        variableWidth: true,
+        dots: true,
+        arrows: false,
+        responsive: [{
+          breakpoint: 992,
+          settings: "unslick"
+        }]
+      };
+      var slider = $tabImages.slick(sliderSettings);
+
+      $(window).on('resize', function() {
+        var tabletOrSmaller = $(window).width() < 992;
+        var sliderAlreadyInitialized = slider.hasClass('slick-initialized');
+
+        if (tabletOrSmaller && !sliderAlreadyInitialized) {
+          $tabImages.slick(sliderSettings);
+        }
+     });
+    },
+
+    renderConditionDescription: function() {
+      var $conditionModal = $("[id^='condition-modal-']");
+      if ($conditionModal && $conditionModal.length) {
+        $(".condition-description-container").show();
+
+        // Get selected 'Cosmetic Condition' option value
+        var $selectedConditionElement = $("input[name='Cosmetic Condition']:checked");
+        var selectedCondition = $selectedConditionElement.val();
+
+        // Get condition description text from condition modal section
+        var modalConditionTextSelector = "[id$='-condition-tab-content'] " + ".tab-pane[id^='" + selectedCondition.toLowerCase() + "-'] " + ".tab-text";
+        var $modalConditionText = $(modalConditionTextSelector).html();
+  
+        // Insert description text into product page condition description container
+        var $pageConditionDescriptionEl = $(".condition-description-text");
+        $pageConditionDescriptionEl.html($modalConditionText);
+      }
+    },
+
+    productImageZoom: function() {
+      var zoomConfig = {
+        gallery: 'product-thumbnail-list',
+        cursor: 'pointer', 
+        galleryActiveClass: 'active',
+        borderSize: 1,
+        zoomType: 'inner'
+      };
+      
+      var timeout;
+      if($(window).width() > 767) {
+        $("#product-image-zoom").elevateZoom(zoomConfig);
+        $(window).resize(function(e) {
+          clearTimeout(timeout);
+          $("#product-image-zoom").removeData('elevateZoom');
+          $('.zoomContainer').remove();
+          timeout = setTimeout(function() {
+            $("#product-image-zoom").elevateZoom(zoomConfig);
+          }, 1000);
+        });
+      }
+
+      $("#product-image-zoom").on("click", function(e) {  
+        var ez = $('#product-image-zoom').data('elevateZoom');
+        ez.closeAll();
+        $.fancybox(ez.getGalleryList());
+        return false;
+      }); 
+    },
+
+    /**
+     * Updates the DOM with specified prices
+     *
+     * @param {string} productPrice - The current price of the product
+     * @param {string} comparePrice - The original price of the product
+     */
+    updateProductPrices: function(evt) {
+      var variant = evt.variant;
+      var $comparePrice = $(selectors.comparePrice, this.$container);
+      var $compareEls = $comparePrice.add(selectors.comparePriceText, this.$container);
+
+      $(selectors.productPrice, this.$container)
+        .html(slate.Currency.formatMoney(variant.price, theme.moneyFormat));
+
+      if (variant.compare_at_price > variant.price) {
+        $comparePrice.html(slate.Currency.formatMoney(variant.compare_at_price, theme.moneyFormat));
+        $compareEls.removeClass('hide');
+      } else {
+        $comparePrice.html('');
+        $compareEls.addClass('hide');
+      }
+    },
+
+    /**
+     * Updates the DOM with the specified image URL
+     *
+     * @param {string} src - Image src URL
+     */
+    updateProductImage: function(evt) {
+      var variant = evt.variant;
+      var sizedImgUrl = slate.Image.getSizedImageUrl(variant.featured_image.src, this.settings.imageSize);
+
+      this.$featuredImage.attr('src', sizedImgUrl);
+    },
+
+    /**
+     * Event callback for Theme Editor `section:unload` event
+     */
+    onUnload: function() {
+      this.$container.off(this.namespace);
+    },
+
+    updateUnavailableOption: function(evt) {
+      var variant = evt.variant;
+
+    },
+
+    checkHistory: function(evt) {
+      if (document.referrer.includes(window.location.hostname)) {
+        $('.product-change-model').css('display', 'inline-block');
+      }
+    },
+
+    discountPrice: function() {
+      if(window.percentageDiscounts || window.amountDiscounts) {
+        var productVendor = this.productSingleObject.vendor
+        var products = Object.assign({}, window.percentageDiscounts, window.amountDiscounts);
+
+        Object.keys(products).some(function(discountProduct) {
+          if(productVendor === discountProduct) {
+            var priceElement = $('[data-product-price]').first();
+            var priceWithoutDollarSign = priceElement.text().replace('$', '');
+            var originalPrice = parseFloat(priceWithoutDollarSign.replace(/,/g, ''));
+            if(Object.keys(window.percentageDiscounts).indexOf(discountProduct)!==-1) {
+              priceAfterDiscount = (originalPrice - (originalPrice/100 * products[discountProduct])).toFixed(2);
+            } else {
+              priceAfterDiscount = (originalPrice - products[discountProduct]).toFixed(2);
+            }
+            priceElement.after('<span id="discounted-price" class="discounted-price product-discount hidden">$' + priceAfterDiscount + '</span>');
+            return true;
+          }
+          return false;
+        });
+      }
+    }
+  });
+
+  return Product;
+})();
+
+/**
+ * Slideshow Template Script
+ * ------------------------------------------------------------------------------
+ * A file that contains scripts highly couple code to the Slideshow template.
+ *
+ * @namespace slideshow
+ */
+
+theme.Slideshow = (function() {
+
+    var selectors = {
+    };
+
+    /**
+     * Slideshow section constructor. Runs on page load as well as Theme Editor
+     * `section:load` events.
+     * @param {string} container - selector for the section container DOM element
+     */
+    function Slideshow(container) {
+      this.$container = $(container);
+      this.$container.not(".slick-initialized").slick();
+      this.namespace = ".slideshow";
+    }
+
+    Slideshow.prototype = $.extend({}, Slideshow.prototype, {
+      /**
+       * Event callback for Theme Editor `section:unload` event
+       */
+      onSelect: function() {
+        this.$container.unslick().slick();
+      },
+      onUnload: function() {
+        this.$container.off(this.namespace);
+      }
+    });
+
+    return Slideshow;
+  })();
+
+(function() {
+  var groupJson = $('[data-grouped-product-json]', '[data-section-type="product"]').html();
+  if(!groupJson)
+    return null;
+
+  var groupedProducts = JSON.parse(groupJson);
+  var currentProduct = JSON.parse($('[data-product-json]', '[data-section-type="product"]').html());
+
+  function getProductBy(capacity, carrier) {
+    return $.grep(groupedProducts, function(p) {
+      var matchedCapacity = false;
+      var matchedCarrier = false;
+      $.each(p.tags, function(i, tag) {
+        var split = tag.split(":");
+        if("Carrier:"+carrier == tag) {
+          matchedCarrier = true;
+        } else if("Storage:"+capacity == tag) {
+          matchedCapacity = true;
+        }
+      });
+      return matchedCapacity && matchedCarrier;
+    })[0];
+  }
+
+  var currentCapacity = "", currentCarrier = "";
+  $.each(currentProduct.tags, function(i, tag) {
+    var split = tag.split(":");
+    if(tag.indexOf("Carrier:") >= 0) {
+      currentCarrier = split[1];
+    } else if(tag.indexOf("Storage:") >= 0) {
+      currentCapacity = split[1];
+    }
+  });
+
+
+  var carrierClass = slate.utils.handleize(currentCarrier)
+  if(window.optimizely_new_unlocked == true && carrierClass == "unlocked") {
+    carrierClass = "unlocked-new"
+  }
+
+  var carrierList = [{href: '#', class: ' class="'+carrierClass+' active"', value: currentCarrier, valueHtml: '<span>'+currentCarrier+'</span>'}], 
+    capacityList = [{href: '#', class: ' class="active"', value: currentCapacity, valueHtml: '<span>'+currentCapacity+'</span>'}];
+  $.each(groupedProducts, function(i, gp) {
+    var href = '/products/'+gp.handle;
+    $.each(gp.tags, function(ix, tag) {
+      var split = tag.split(":");
+      if(tag.indexOf("Carrier:") >= 0) {
+        var exist = $.grep(carrierList, function(g) {
+          return g.value == split[1]
+        })[0];
+        if(!exist) {
+          var matchedProd = getProductBy(currentCapacity, split[1]);
+          if(matchedProd)
+            href = '/products/'+matchedProd.handle;
+
+          var carrierClass = slate.utils.handleize(split[1]);
+          if(window.optimizely_new_unlocked == true && carrierClass == "unlocked") {
+            carrierClass = "unlocked-new"
+          }
+          carrierList.push({href: href, class: ' class="'+carrierClass+'"', value: split[1], valueHtml: '<span></span>'})
+        }
+      } else if(tag.indexOf("Storage:") >= 0) {
+        var exist = $.grep(capacityList, function(g) {
+          return g.value == split[1]
+        })[0];
+        if(!exist) {
+          var matchedProd = getProductBy(split[1], currentCarrier);
+          if(matchedProd)
+            href = '/products/'+matchedProd.handle;
+          capacityList.push({href: href, value: split[1], valueHtml: '<span>'+split[1]+'</span>'})
+        }
+      }
+    });
+  })
+
+  var $anchorTpl = $.templates('#anchor-tpl');
+  var $tpl = $.templates('#option-tpl');
+  
+  capacityList.sort(function(a, b) {
+    return parseInt(a.value) > parseInt(b.value) ? 1 : parseInt(a.value) < parseInt(b.value) ? -1 : 0;
+  });
+  carrierList.sort(function(a, b) {
+    return a.value > b.value ? 1 : a.value < b.value ? -1 : 0;
+  });
+
+  var unlockedIndex = carrierList.findIndex(function(c) {
+    return c.value == "Unlocked";
+  })
+
+  if(unlockedIndex>-1) {
+    var unlockedCarrier = carrierList.splice(unlockedIndex, 1);
+    carrierList = [...carrierList, ...unlockedCarrier]
+  }
+
+  var capacityHtml = $tpl.render({
+    label: "Storage",
+    labelLowCase: "storage",
+    modalId: "#storageModal",
+    anchors: $anchorTpl.render(capacityList)
+  });
+  var carrierHtml = $tpl.render({
+    label: "Carrier",
+    labelLowCase: "carrier",
+    modalId: "#carrierModal",
+    anchors: $anchorTpl.render(carrierList)
+  })
+  $(".variant-options")
+    .prepend(capacityHtml)
+    .prepend(carrierHtml);
+
+  if(currentCarrier && currentCarrier.toLowerCase() !== "wifi") {
+    if(currentCarrier.toLowerCase() !== "unlocked") {
+      $(".carrier-option-info").html('<p>Gazelle '+currentCarrier+' devices are only guaranteed to work with '+currentCarrier+'.</p> <a href="#" data-toggle="modal" data-target="#carrierModal">Click here to see our carrier restrictions <i class="fa fa-chevron-right"></i></a>');
+    } else {
+      $(".carrier-option-info").html('<p>Gazelle Unlocked devices are guaranteed to work on all carriers.</p> <a href="#" data-toggle="modal" data-target="#carrierModal">Click here to see our carrier restrictions <i class="fa fa-chevron-right"></i></a>');
+    }
+  }
+
+  // update cosmetic condition prices
+  var pos = -1;
+  var values = [];
+  $.each(currentProduct.options, function(i, o) {
+    if(o == "Cosmetic Condition") {
+      pos = i;
+      return;
+    }
+  });
+  $.each(currentProduct.variants, function(i, v) {
+    if($.inArray(v.options[pos], values) < 0)
+      values.push(v.options[pos]);
+  });  
+  function setConditionPrice() {
+    $.each(values, function(i, ov) {  
+      $.each(currentProduct.variants, function(ix, v) {
+        //if(v.options[pos] == ov)
+        var selectedValues = getCurrentOptions();
+        var satisfied = true;
+        var condition = selectedValues.filter(function(s) { return s.index === "option"+(pos+1)})[0];
+        if(condition)
+          condition.value = ov;
+        selectedValues.forEach(function(option) {
+          if (satisfied) {
+            satisfied = (option.value === v[option.index]);
+          }
+        });
+        if(satisfied) {
+          var price = v.price;
+          if(window.percentageDiscounts || window.amountDiscounts) {
+            var productVendor = currentProduct.vendor;
+            var products = Object.assign({}, window.percentageDiscounts, window.amountDiscounts);
+            Object.keys(products).some(function(discountProduct) {
+              if(productVendor === discountProduct) {
+                if(Object.keys(window.percentageDiscounts).indexOf(discountProduct)!==-1) {
+                  price = price - (price/100 * products[discountProduct]);
+                } else {
+                  price = price - (products[discountProduct]*100);
+                }
+                return true;
+              }
+              return false;
+            });
+          }
+          $('[data-value="'+ov+'"] .price').text(slate.Currency.formatMoney(v.price));
+          $('[data-value="'+ov+'"] .price').after('<span class="price discounted-price hidden">'+slate.Currency.formatMoney(price)+'</span>');
+        }
+      });
+    });
+  }
+  function getCurrentOptions() {
+    var currentOptions = $.map($('[data-single-option-selector]', '[data-section-type="product"]'), function(element) {
+      var $element = $(element);
+      var type = $element.attr('type');
+      var currentOption = {};
+
+      if (type === 'radio' || type === 'checkbox') {
+        if ($element[0].checked) {
+          currentOption.value = $element.val();
+          currentOption.index = $element.data('index');
+
+          return currentOption;
+        } else {
+          return false;
+        }
+      } else {
+        currentOption.value = $element.val();
+        currentOption.index = $element.data('index');
+
+        return currentOption;
+      }
+    });
+
+    // remove any unchecked input values if using radio buttons or checkboxes
+    currentOptions = slate.utils.compact(currentOptions);
+
+    return currentOptions;
+  }
+  $('[data-single-option-selector]').on("change", setConditionPrice);
+  setConditionPrice();
+})();
+
+$(function() {
+  // Overriding BoostCommerce JavaScript that sets display value to 'block', causing pagination
+  // bar to move to the left side.
+  $('#bc-sf-filter-bottom-pagination').css('display', 'flex');
+  setTimeout(function() { 
+    var api = new Yotpo.API(yotpo);
+    api.refreshWidgets();
+  }, 1500); 
+  document.addEventListener('filterChanged', function(e) {
+    if (!e.detail.code) {
+      $('.collection-carousel-wrapper').show();
+    } else {
+      $('.collection-carousel-wrapper').hide();      
+    }
+
+    setTimeout(function() {      
+      var api = new Yotpo.API(yotpo);
+      api.refreshWidgets();
+    }, 1500); 
+  });
+});
+
+/**
+ * Footer Section Scripts
+ * ------------------------------------------------------------------------------
+ * A file that contains scripts highly couple code to the footer section.
+ *
+   * @namespace footer
+ */
+
+theme.Footer = (function() {
+
+    var selectors = {
+      subscriberForm: "#footer-newsletter-subscribe-form",
+      subscriberFormInputs: "#footer-newsletter-subscribe-form :input",
+      subscriberFormEmailInput: "#footer-newsletter-subscribe-form [name='subscriber-email']",
+      subscriberFormSubmitBtn: "#footer-newsletter-subscribe-form button[type='submit']",
+      subscribeFailureMessage: "#footer-newsletter-subscribe-failure",
+      subscribeSuccessMessage: "#footer-newsletter-subscribe-success",
+      alreadySubscribedMessage: "#footer-newsletter-already-subscribed",
+    };
+
+    /**
+     * Footer section constructor. Runs on page load as well as Theme Editor
+     * `section:load` events.
+     * @param {string} container - selector for the section container DOM element
+     */
+    function Footer(container) {
+      this.$container = $(container);
+      this.namespace = ".footer";
+      var sectionId = this.$container.attr("data-section-id");
+      var newsletterSubscribeHandler = this.onNewsletterFormSubmit;
+
+      theme.Chat.initialize();
+
+      $(selectors.subscriberForm).on("submit", function(evt) {
+        evt.preventDefault();
+        newsletterSubscribeHandler(evt);
+      });
+    }
+
+    Footer.prototype = $.extend({}, Footer.prototype, {
+      onUnload: function() {
+        this.$container.off(this.namespace);
+      },
+
+      onNewsletterFormSubmit: function(evt) {
+        $(selectors.subscribeFailureMessage).hide();
+        $(selectors.subscriberFormInputs).prop("disabled", true);
+
+        var email = $(selectors.subscriberFormEmailInput).val();
+        var actionUrl = evt.target.action;
+
+        var newsletterErrorHandler = function() {
+          $(evt.target).show();
+          $(selectors.subscribeFailureMessage).show();
+          $(selectors.subscriberFormEmailInput).prop("aria-describedby", "subscribe-failure");
+          $(selectors.subscriberFormInputs).prop("disabled", false);
+        };
+
+        var newsletterSuccessHandler = function(res) {
+          $(evt.target).hide();
+          
+          if (res && res.data && res.data.subscribeToNewsletter === "ALREADY_SUBSCRIBED") {
+            $(selectors.alreadySubscribedMessage).show();
+            $(selectors.subscriberFormEmailInput).prop("aria-describedby", "footer-newsletter-already-subscribed");
+          } else if (res && res.data && res.data.subscribeToNewsletter === "SUCCESS") {
+            $(selectors.subscribeSuccessMessage).show();
+            $(selectors.subscriberFormEmailInput).prop("aria-describedby", "footer-newsletter-subscribe-success");
+          } else {
+            newsletterErrorHandler();
+          }
+        }
+
+        theme.Newsletter.submit(newsletterErrorHandler, newsletterSuccessHandler, email, actionUrl);
+      }
+    });
+    return Footer;
+})();
+
+/**
+ * Newsletter Popup Template Script
+ * ------------------------------------------------------------------------------
+ * A file that contains scripts highly couple code to the newsletter-popup section.
+ *
+ * @namespace newsletterPopup
+ */
+
+theme.NewsletterPopup = (function() {
+  var selectors = {
+    newsletterPopup: "#newsletter-popup",
+    content: "#newsletter-popup-content",
+    popupCloseButton: "#newsletter-popup-close",
+    subscribeFailureMessage: "#newsletter-popup-subscribe-failure",
+    subscribeSuccessMessage: "#newsletter-popup-subscribe-success",
+    alreadySubscribedMessage: "#newsletter-popup-already-subscribed",
+    form: "#newsletter-popup-form",
+    formInputs: "#newsletter-popup-form :input",
+    emailInput: "#newsletter-popup-form [name='email']"
+  };
+
+  /**
+   * Newsletter Popup section constructor. Runs on page load as well as Theme Editor
+   * `section:load` events.
+   * @param {string} container - selector for the section container DOM element
+   */
+  function NewsletterPopup(container) {
+    this.$container = $(container);
+    this.namespace = ".newsletter-popup";
+    var signupHandler = this.onNewsletterSignup;
+    var sectionId = this.$container.attr("data-section-id");
+
+    if (document.cookie.indexOf("first-visit=true") == -1) {
+      var thirtydays = 1000*60*60*24*30;
+      var expires = new Date((new Date()).valueOf() +  thirtydays);
+      document.cookie = "first-visit=true;expires=" +  expires.toUTCString();
+      $(selectors.newsletterPopup).show();
+    }
+
+    $(selectors.form).on("submit", signupHandler);
+
+    $(selectors.popupCloseButton).on("click", function(event) {
+        $(selectors.newsletterPopup).hide();
+    });
+  }
+
+  NewsletterPopup.prototype = $.extend({}, NewsletterPopup.prototype, {
+    /**
+     * Event callback for Theme Editor `section:unload` event
+     */
+    onUnload: function() {
+      this.$container.off(this.namespace);
+    },
+
+    onNewsletterSignup: function(event) {
+      event.preventDefault();
+      $(selectors.formInputs).prop("disabled", true);
+
+      var email = $(selectors.emailInput).val();
+      var actionUrl = event.target.action;
+
+      var signupErrorHandler = function (err) {
+        $(selectors.content).show();
+        $(selectors.subscribeFailureMessage).show();
+        $(selectors.formInputs).prop("disabled", false);
+      };
+
+      var signupSuccessHandler = function (res) {
+        $(selectors.content).hide();
+        if (res && res.data && res.data.subscribeToNewsletter === "ALREADY_SUBSCRIBED") {
+          $(selectors.alreadySubscribedMessage).show();
+          $(selectors.emailInput).prop("aria-describedby", "newsletter-popup-already-subscribed");
+        } else if (res && res.data && res.data.subscribeToNewsletter === "SUCCESS") {
+          $(selectors.subscribeSuccessMessage).show();
+          $(selectors.emailInput).prop("aria-describedby", "newsletter-popup-subscribe-success");
+        } else {
+          signupErrorHandler();
+        }
+      };
+      theme.Newsletter.submit(signupErrorHandler, signupSuccessHandler, email, actionUrl);
+    }
+  });
+
+  return NewsletterPopup;
+})();
+
+
+
+$(document).ready(function() {
+  var sections = new slate.Sections();
+  sections.register('product', theme.Product);
+  sections.register('slideshow', theme.Slideshow);
+  sections.register('footer', theme.Footer);
+  sections.register('newsletter-popup', theme.NewsletterPopup);
+
+  compass.utils.saveUtm();
+
+  $("[data-slick]").not('.slick-initialized').slick();
+
+  // Common a11y fixes
+  slate.a11y.pageLinkFocus($(window.location.hash));
+
+  $('.in-page-link').on('click', function(evt) {
+    slate.a11y.pageLinkFocus($(evt.currentTarget.hash));
+  });
+
+  // Target tables to make them scrollable
+  var tableSelectors = '.rte table';
+
+  slate.rte.wrapTable({
+    $tables: $(tableSelectors),
+    tableWrapperClass: 'rte__table-wrapper',
+  });
+
+  // Target iframes to make them responsive
+  var iframeSelectors =
+    '.rte iframe[src*="youtube.com/embed"],' +
+    '.rte iframe[src*="player.vimeo"]';
+
+  slate.rte.wrapIframe({
+    $iframes: $(iframeSelectors),
+    iframeWrapperClass: 'rte__video-wrapper'
+  });
+
+  // Apply a specific class to the html element for browser support of cookies.
+  if (slate.cart.cookiesEnabled()) {
+    document.documentElement.className = document.documentElement.className.replace('supports-no-cookies', 'supports-cookies');
+  }
+
+  $('a[href^="http"]').not('a[href^="'+$(location).attr('hostname')+'"]').each(function(e, i) {
+    if (!this.href.includes('gazelle.com'))
+      $(this).attr('target', '_blank');
+  });
+
+  // add handlers for reviews click to go to the correct tab on PDP
+  if(location.pathname.indexOf("/product") >= 0 && location.hash && $(location.hash).length) {
+    $('a[href="'+location.hash+'"]').click();
+    slate.utils.scrollTo(location.hash);
+  }
+
+  $("body").on("click", ".product.detail .star-clickable a", function(e) {
+    if(e) e.preventDefault();
+    var $reviewsTab = $("#reviews");
+    if($reviewsTab.length) {
+      $("a[href='#reviews']").click();
+      slate.utils.scrollTo("#reviews");
+    }
+  });
+
+  $("body").on("click", ".product-item .star-clickable a", function(e) {
+    if(e) e.preventDefault();
+    var $item = $(this).parents(".product-item");
+    var $title = $item.find("a.title");
+    if($title.length)
+      location.href = $title.attr("href") + "#reviews";
+  });
+
+  // Open warranty modal
+  $("#cart-container").on("click", "a[href='#learn-more']", function(e) {
+    if (e) e.preventDefault();
+
+    var showAddButton = $(this).data("show-add-button");
+
+    if (showAddButton) {
+      var itemContainer = $(this).parents(".cart-item").first();
+      var inlineAddButton = $(this).siblings(".add-warranty-btn").first();
+  
+      var itemKey = itemContainer.data("item-key");
+      var itemQuantity = itemContainer.find("select[name='quantity']").val();
+      var warrantyId = inlineAddButton.data("warranty-variant-id");
+      var warrantySku = inlineAddButton.data("warranty-sku");
+  
+      var upsellUnitPrice = $(itemContainer).find("[data-upsell-unit-price]").data("upsell-unit-price");
+      var totalUpsellPrice = slate.Currency.formatMoney(upsellUnitPrice * itemQuantity);
+
+      slate.cart.openWarrantyModal(showAddButton, itemKey, itemQuantity, warrantySku, warrantyId, totalUpsellPrice);
+    } else {
+      slate.cart.openWarrantyModal(showAddButton);
+    }
+  });
+
+  // Close warranty modal
+  $("#cart-container").on("click", "#learn-more .modal-close", function(e) {
+    if (e) e.preventDefault();
+    slate.cart.closeWarrantyModal();
+  });
+
+  // Add warranty from modal
+  $("#cart-container").on("click", ".add-to-order a[href='#modal-close']", function(e) {
+    if (e) e.preventDefault();
+
+    var item = $(this).data("associated-item");
+    var quantity = $(this).data("quantity");
+    var warrantyId = $(this).data("warranty-id");
+    var warrantySku = $(this).data("warranty-sku");
+
+    slate.cart.addWarrantyFromCart(item, quantity, warrantySku, warrantyId);
+  });
+
+  $(".cart-item-quantity select[name='quantity']").change(function() {
+    var quantityUpdates = {};
+    var itemQuantity = $(this).val();
+    var physicalItemNode = $(this).parents("[data-item-key]");
+    var physicalItemKey = $(physicalItemNode).data("item-key");
+    var physicalItemVariantId = physicalItemKey.split(":")[0];
+
+    quantityUpdates[physicalItemKey] = itemQuantity;
+
+    var hasWarranty = $("[data-item-key='" + physicalItemKey + "']").data("has-warranty");
+
+    if (hasWarranty === true) {
+      var warrantyItemSelector = "[data-warranty-associated-variant='" + physicalItemVariantId + "']";
+      var warrantyItemKey = $(warrantyItemSelector).data("item-key");
+      if (warrantyItemKey) {
+        quantityUpdates[warrantyItemKey] = itemQuantity;
+      };
+    }
+    slate.cart.updateShopifyCart({ updates: quantityUpdates });
+  });
+
+  $(".cart-item-group").on("click", ".remove-item", function() {
+    var cartUpdates = {};
+    var lineItem = $(this).parents("[data-item-key]");
+    var lineItemKey = $(lineItem).data("item-key");
+    var isWarranty = $(lineItem).data("is-warranty");
+    var hasWarranty = $(lineItem).data("has-warranty");
+
+    cartUpdates[lineItemKey] = 0;
+
+    // If the item being removed has a warranty, remove the warranty as well.
+    if (hasWarranty === true) {
+      var physicalItemVariantId = lineItemKey.split(":")[0];
+      var warrantyItem = $("[data-warranty-associated-variant='" + physicalItemVariantId + "']");
+
+      if (warrantyItem) {
+        var warrantyItemKey = warrantyItem.data("item-key")
+        cartUpdates[warrantyItemKey] = 0;
+      };
+    }
+
+    // If line item removed is a warranty, remove it's associated variant and add the quantity removed
+    // to a line item that has the same variant ID in the cart, if it exists. Having the same variant ID
+    // means it is the same item, just  without a warranty.
+    if (isWarranty === true) {
+      var addBackData = {}
+      var associatedVariantId = $(lineItem).data("warranty-associated-variant");
+      var associatedLineItem = $("[data-item-key^='" + associatedVariantId + "'][data-has-warranty='true']");
+      var associatedLineItemQuantity = associatedLineItem.find("select[name='quantity']").val();
+      var variantWithoutWarranty = $("[data-item-key^='" + associatedVariantId + "'][data-cart-contains-variant-with-warranty='true']");
+
+      // Remove the physical line item that the warranty is for. It will be added back in later 
+      // without line item properties and the quanity will be consolidated with a duplicate variant
+      // if it exists.
+      if (associatedLineItem.length > 0) {
+        var associatedLineItemKey = associatedLineItem.data("item-key");
+        cartUpdates[associatedLineItemKey] = 0;
+      }
+
+      // If the same physical variant is in the cart without a warranty, add the amount
+      // removed to that line item.
+      if (variantWithoutWarranty.length > 0) {
+        var variantWithoutWarrantyKey = variantWithoutWarranty.data("item-key");
+        var variantWithoutWarrantyQuantity = variantWithoutWarranty.find("select[name='quantity']").val();
+        var newQuantity = parseInt(variantWithoutWarrantyQuantity) + parseInt(associatedLineItemQuantity);
+        cartUpdates[variantWithoutWarrantyKey] = parseInt(newQuantity);
+      } else {
+        addBackData[associatedVariantId] = parseInt(associatedLineItemQuantity);
+      }
+
+      slate.cart.updateShopifyCart({ updates: cartUpdates }, function() {
+        if (addBackData[associatedVariantId]) {
+          slate.cart.updateShopifyCart({ updates: addBackData }, function() {
+            document.location.href = "/cart";
+          });
+        } else {
+          document.location.href = "/cart";
+        }
+      });
+
+    } else {
+      slate.cart.updateShopifyCart({ updates: cartUpdates }, function() {
+        document.location.href = "/cart";
+      });
+    }
+  });
+
+  $(".cart-item-group").on("click", ".add-warranty-btn", function() {
+    var warrantyVariantSku = $(this).data("warranty-sku");
+    var warrantyVariantId = $(this).data("warranty-variant-id");
+    var lineItem = $(this).parents("[data-item-key]")[0];
+    var lineItemKey = $(lineItem).data("item-key");
+    var lineItemQuantity = $(lineItem).find("select[name='quantity']").val();
+
+    slate.cart.addWarrantyFromCart(lineItemKey, lineItemQuantity, warrantyVariantSku, warrantyVariantId);
+  });
+});

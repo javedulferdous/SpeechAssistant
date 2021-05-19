@@ -1,0 +1,1644 @@
+'use strict';
+var Prechat_ques, Prechat_ans, Prechat_ansarray, pagereload;
+var fromPrechat = false;
+var socIntialized = false;
+var lastSeqnumber = -1;
+var windowclosed = false;
+var lpVisitorTypingMsg = false;
+var agentNameLE, agentIdLE;
+var dateNew = "";
+var jwtValue="";
+var currentPlistlength=0;
+var transferInitiated=false;
+var managerMap = new Object();
+var offmessages = [];
+var leErrcount=0;
+var socketKeepAliveTimer = null;
+var lastSystemMessage=0;
+var gvisitorIdForLE="";
+var gsessionId="";
+var ginteractionContextId="";
+var sendOffline=false;
+var currentKey = '';
+var lastAgentId='';
+var gcid='';
+var geid='';
+var lepageskill='';
+var latestConvID = '';
+var leagentMap;
+var lastServiceId='';
+var onlineAlertTimer = null;
+var setLEready=false;
+
+function prepareToConnect(surveyResult, directChat, pgreload,lejwtValue,visitorIdForLE,sessionId, interactionContextId,cid,eid,skill,lastSysMessage,lastAgId) {
+    //$('#connect').text('connect').unbind('click').click(function(){
+    $('#connect').text('connecting...');
+     //prepareOfflineMessages();
+     if(lejwtValue!=undefined && lejwtValue!=""){
+       jwtValue=lejwtValue;
+     }    
+	 lepageskill=skill;
+   // if (!surveyResult == '') {
+	windowclosed = false;
+	Prechat_ansarray = surveyResult;
+	fromPrechat = directChat;
+	if(directChat){
+		lastSeqnumber = -1;
+		lastAgentId='';
+		lastServiceId='';
+	}
+   // }
+    pagereload = pgreload;
+    if(pagereload){
+       if(lastSysMessage!=="")
+       {
+          lastSystemMessage = parseInt(lastSysMessage);
+       }    
+		if(lastAgId !== ""){
+           lastAgentId=lastAgId;
+        }
+    }
+
+
+	
+	if(typeof visitorIdForLE!= "undefined" && visitorIdForLE!="")
+       	gvisitorIdForLE = visitorIdForLE;
+	if(typeof sessionId!="undefined" && sessionId!="")
+		gsessionId = sessionId;
+	if(typeof interactionContextId!="undefined" && interactionContextId!="")
+		ginteractionContextId =interactionContextId;
+	
+	if(typeof cid!="undefined" && cid!="")
+		gcid =cid;
+	if(typeof eid!="undefined" && eid!="")
+		geid =eid;
+	
+
+	 var account ='14106077'; 
+    //var account = '72772122';
+    logger.debug("JWT::"+jwtValue);
+   
+        LPUtils.getDomain(account, 'asyncMessagingEnt').then(function(umsDomain) {
+            var url = 'wss://' + umsDomain + '/ws_api/account/' + account + '/messaging/consumer?v=3';
+            LPWs.connect(url).then(function(openedSocket) {
+                handleOpenedSocket(openedSocket, jwtValue,gvisitorIdForLE,gsessionId, ginteractionContextId);
+                logger.debug("opening socket connection");
+				if($("#lpLowSystemMessageDiv").length > 0 && $("#lpLowSystemMessageDiv").css("display") == "block"){
+					$("#lpLowSystemMessageDiv").hide(); 
+					lpChatWidget.adjustMsgHeight();
+					lpChatWidget.scrollToBottomLE();
+				}
+            }, function(errorOpening) {
+                if(leErrcount<3){
+					hideNASystemMsg();
+			   if($("#lpLowSystemMessageDiv").length > 0 && $("#lpLowSystemMessageDiv").css("display") == "none"){
+						$("#lpLowSystemMessageDiv").show(); 
+						lpChatWidget.adjustMsgHeight();
+                        lpChatWidget.scrollToBottomLE();
+                }	
+				logger.debug("errorOpening->"+errorOpening);
+                        
+			   if (!windowclosed) {
+                        	 prepareToConnect();
+                        }
+			leErrcount++;
+                   }else{
+                      leErrcount=0; socIntialized = false; 
+                      lpChatWidget.lpChatShowViewLE();
+					  clearInterval(socketKeepAliveTimer);
+					  clearInterval(onlineAlertTimer);
+					  invokeUILog("Messaging API:"+bbCookieOverride,"Error","Unable to open the socket "+errorOpening);
+                   }
+            });
+        });
+   
+ //});
+}
+
+function handleOpenedSocket(socket, jwt,visitorIdForLE,sessionId, interactionContextId) {
+    logger.debug('socket state: ' + socket.ws.readyState);
+    if (!socIntialized) {
+       /* if (fromPrechat) {            
+			if ($(".lpMessage").length == 0) {
+				$('.lpSystemMessageDiv').append('<div id="leSysMessageDiv"></div>');
+			} else {
+				$('#lpChatMessagesSection').append('<div class="lpSystemMessageDiv"><div id="leSysMessageDiv"></div></div>');
+				lpChatWidget.scrollToBottomLE();
+			}          
+        }
+        if (pagereload) {
+            //$('.lpSystemMessageDiv').append('<div id="leSysMessageDiv"></div>');
+			$('#lpChatMessagesSection').append('<div class="lpSystemMessageDiv"><div id="leSysMessageDiv"></div></div>');
+			lpChatWidget.scrollToBottomLE();
+        }*/
+
+
+        
+        logger.debug('LE connection is opened.\n')
+        if(lpChatWidget.getscreenState()=='CHATTING'){
+        chatWinCloseable = false;
+        }
+        socket.registerRequests(apiRequestTypes);
+
+        var me = myId(jwt);
+
+        socket.initConnection({}, [{
+	     "type":".ams.headers.ClientProperties",
+            "features":["CO_BROWSE", "AUTO_MESSAGES"]
+	   },{
+            "type": ".ams.headers.ConsumerAuthentication",
+            "jwt": jwt,
+			"reasonCode": "009"	
+        }]);
+        socket.onNotification(withType('MessagingEvent'), function(body) {
+            body.changes.forEach(function(change) {
+                switch (change.event.type) {
+					case 'ChatStateEvent':
+							
+							var ccpTypingInd = '<div class="lpMessage" ><div class="lpBlueBg lpLeftBubble lpPosRel lpCCPTypingBubble"><div class="lpChatMsg"></div></div><div class="messageOwnerTypingInd">'+agentNameLE+'</div></div>'; //US1137693
+							if (change.event.chatState == "COMPOSING") {
+								if (change.originatorId == me) {
+									logger.debug("user typing");
+									setTimeout(function(){ window.scroll(0, 0); }, 10);
+								} else {
+									logger.debug("agent typing");
+									setTimeout(function(){ window.scroll(0, 0); }, 10);
+									//lpChatWidget.leagentTyping(true); //US1137693
+                  $("#lpChatMessagesSection #ccpTyping").empty(); //US1137693
+                  $("#lpChatMessagesSection #ccpTyping").append(ccpTypingInd); //US1137693
+                  lpChatWidget.scrollToBottomLE(); //US1137693
+								}
+							}
+							if (change.event.chatState == "ACTIVE") {
+								if (change.originatorId == me) {
+									logger.debug("user active");
+								} else {
+									logger.debug("agent active");
+									//lpChatWidget.leagentTyping(false); //US1137693
+                  $("#lpChatMessagesSection #ccpTyping").empty(); //US1137693
+								}
+							}							
+						break;
+                    case 'ContentEvent':
+                        logger.debug("from switch" + body);
+                        var appendStr = "";
+                        var playSoundType ="";
+                                               
+                        //ADDED FOR OLD CONVERSATION
+                        if (change.sequence > lastSeqnumber) {
+                            //if(true){                            
+                            var serverTime = change.serverTimestamp;
+                            var d = new Date(serverTime);
+                            var timeinampm = formatAMPM(d)
+                            var messageOwnerTimestamp = 'You - Apr 26,2017';
+							var tmpagentId="";
+                            if (change.originatorId == me) {
+                              //US1654868
+                              //  messageOwnerTimestamp = "You - " + monthNames[d.getMonth()] + " " + d.getDate() + ", " + d.getFullYear() + " " + timeinampm;
+                                messageOwnerTimestamp = "You - " + timeinampm;
+								playSoundType="Visitor";
+								 var decodemsg =change.event.message;		
+								 if(decodemsg.startsWith("sysmsg")){
+
+                                    var msgArray = decodemsg.split("_");
+ 
+                                    var msgType = msgArray[0];
+                                    var tmpagentName = msgArray[1];
+                                    var msgContent = msgArray[2];
+                                    if (msgType == "sysmsg1") {
+                                        //appendStr = "<div class='lpSystemMessageDiv'><div id='leSysMessageDiv'><span class='firstconn'></span><span class='getagentId'><span class='" + tmpagentId + "'></span></span><span>"+tmpagentName +" has joined the conversation</span></div></div>";
+                                       
+                                      if(document.getElementsByClassName("firstconn").length == 0){
+                                            appendStr = "<div class='lpSystemMessageDiv'><div id='leSysMessageDiv'><span class='firstconn'></span><span class='getagentId'><span class='" + tmpagentName + "'></span></span><span> "+tmpagentName+msgContent+"</span></div></div>";
+                                            $("#ttrtime").hide();
+                                      }
+                                    } else if(msgType == "sysmsg3"){
+                                        appendStr = "<div class='lpSystemMessageDiv'><div id='leSysMessageDiv'><span class='firstconn'></span><span class='getagentId'><span class='" + tmpagentName + "'></span></span><span> "+tmpagentName+msgContent+"</span></div></div>";
+                                        $("#ttrtime").hide();
+                                    }else {
+                                        if (tmpagentName == "") {
+                                            appendStr = '<div class="lpTransferSystemMessageDiv"><span>' + msgContent + '</span></div>';
+                                        } else {
+                                            appendStr = '<div class="lpTransferSystemMessageDiv"><span class="' + tmpagentName + '"></span><span>' + tmpagentName+msgContent + '</span></div>';
+                                        }
+                                    }	
+									if(change.sequence <= lpChatWidget.getlastSeqForLE()){		
+									   lpChatWidget.sendAddlinesForLE(false); //reload chat
+									}else{
+									   lpChatWidget.sendAddlinesForLE(true); 
+									}  
+								 }else{					 
+                                if ((!change.event.message.startsWith("CM :")) && (!change.event.message.startsWith("Exit Survey - ") && (!change.event.message.startsWith("Virtual Assistant :"))) && (!change.event.message.startsWith("*** Unable"))){
+									var validateString = change.event.message;
+									validateString = validateString.replace(/&lt;/g, '<');
+									validateString = validateString.replace(/&gt;/g, '>');
+                  validateString = validateString.replace(new RegExp('(\n){3,}', 'gim') , '\n\n');
+									validateString = validateString.replace(/(?:\r\n|\r|\n)/g,"</br>");
+                                    appendStr = '<div class="lpMessage lpTextRight"><div class="lpGreenBg lpPosRel lpBubble lpRightBubble"  onclick="togglelabel(this)"><div class="lpChatMsg" style="font-size:'+lpChatWidget.getlpChatFontSize()+'px">' + validateString + '</div></div><div class="messageOwner" >' + messageOwnerTimestamp + '</div></div>';
+                                    if(change.event.message.startsWith("Proactive Chat: ")){
+                                      if(pagereload){
+                                         validateString = validateString .replace("Proactive Chat:","");
+                                        appendStr = '<div class="lpMessage"><div class="lpBlueBg lpLeftBubble lpPosRel lpBubble lpProactive"  onclick="togglelabel(this)"><div class="lpChatMsg" style="font-size:'+lpChatWidget.getlpChatFontSize()+'px">' + validateString + '</div></div></div>';
+                                      }else{
+                                        appendStr = '';
+                                      } 
+                                    }
+									if(change.sequence <= lpChatWidget.getlastSeqForLE()){		
+									   lpChatWidget.sendAddlinesForLE(false); //reload chat
+									}else{
+									   lpChatWidget.sendAddlinesForLE(true); 
+									}
+									// US1814292: Fix incorrect survey                   
+									/* if(lastAgentId!="" && (!change.event.message.startsWith("Proactive Chat: "))){	
+										lpInteractiveChat = true;
+										lpChatWidget.setlpInteractiveforLE(lpInteractiveChat); 	
+									 }*/		
+								}	
+                                else
+                                    appendStr = '';
+								 }
+                            } else {
+                                // lpInteractiveChat = true;
+                               //  lpChatWidget.setlpInteractiveforLE(lpInteractiveChat);   
+                                lpChatWidget.leagentTyping(false);
+								hideNASystemMsg();
+                                //getAgentName(change.originatorId);
+
+                                var agentMap = lpChatWidget.getagentMapForLE();
+                                var agentName = agentMap[change.originatorId];
+                                if (agentName == undefined) {
+                                    agentIdLE = change.originatorId;
+                                    getAgentName(change.originatorId);
+                                } else {
+                                    logger.debug("Got from session");
+                                    agentNameLE = agentName;
+                                }
+                                 playSoundType="Agent";
+                               if(agentName == undefined){ 
+                                 //US1654868
+                                 //  messageOwnerTimestamp = "<span class='"+change.originatorId+"'></span>" + " - " + monthNames[d.getMonth()] + " " + d.getDate() + ", " + d.getFullYear() + " " + timeinampm;
+                                 messageOwnerTimestamp = "<span class='"+change.originatorId+"'></span>" + " - " + timeinampm;
+                               }else{
+                                 //US1654868
+                                   // messageOwnerTimestamp = agentNameLE  + " - " + monthNames[d.getMonth()] + " " + d.getDate() + ", " + d.getFullYear() + " " + timeinampm;
+                                   messageOwnerTimestamp = agentNameLE  + " - " + timeinampm;
+                               } 
+							   if(change.event.message!=""){
+								   var msgFromAgent = change.event.message;
+									msgFromAgent = checkForLinks(msgFromAgent);
+                  msgFromAgent = msgFromAgent.replace(new RegExp('(\n){3,}', 'gim') , '\n\n');
+                  msgFromAgent = msgFromAgent.replace(/(?:\r\n|\r|\n)/g,"</br>");
+                                appendStr = '<div class="lpMessage" ><div class="lpBlueBg lpLeftBubble lpPosRel lpBubble" onclick="togglelabel(this)"><div class="lpChatMsg" style="font-size:'+lpChatWidget.getlpChatFontSize()+'px">' + msgFromAgent + '</div></div><div class="messageOwner">' + messageOwnerTimestamp + '</div></div>';
+								if(change.sequence <= lpChatWidget.getlastSeqForLE()){		
+									   lpChatWidget.sendAddlinesForLE(false); //reload chat
+									}else{
+									   lpChatWidget.sendAddlinesForLE(true); 
+									} 
+							   }else{
+								   appendStr = '';
+							   }
+                            }
+                            if (dateNew == "" || dateNew != d.getDate()) {
+                                var dateStr = monthNames[d.getMonth()] + " " + d.getDate() + ", " + d.getFullYear() + " "+timeinampm ;
+                                //US1654868
+                                var noofdays = daysBetween(d,new Date());                                
+                                if(noofdays < 7){
+                                  if(noofdays == 0)
+                                    dateStr = "Today";                                 
+                                  else if(noofdays == 1)
+                                    dateStr = "Yesterday";
+                                  else
+                                    dateStr = getDayofWeek(d.getDay());
+                                }                                 
+                                //$('#lpChatMessagesSection').append('<div class="conversationDate">' + dateStr + '</div>');
+                            }
+							//if(typeof $(".conversationDate").html() == "undefined"){
+								if($("#ninaChatMessageSection").find(".conversationDate").length==0){
+                if($("#chathistory .conversationDate:last").html() !== dateStr){  //US1654868
+								 var currentttrtime = $('#ttrtime').html();
+                   if(typeof dateStr!="undefined"){
+                    if(typeof currentttrtime != "undefined"){	//US1654868								
+                      $('<div class="conversationDateWrapper"><div class="conversationDate">' + dateStr + '</div></div>').insertBefore("#ttrtime");
+                    }else{
+                      $('#lpChatMessagesSection #currentChat').append('<div class="conversationDateWrapper"><div class="conversationDate">' + dateStr + '</div></div>'); //US1137693
+                    }
+                  }	
+                }
+                            }
+                            dateNew = d.getDate();
+                            if (appendStr != '')
+                                $('#lpChatMessagesSection #currentChat').append(appendStr); //US1137693
+
+                            
+
+                            $(".messageOwner").addClass("addZeroSize");
+                            $(".messageOwner").last().removeClass("addZeroSize");
+
+                            currentTranscript = currentTranscript + appendStr;
+                            lpChatWidget.lpChatWinNotifyFlashingStartforLE();    
+							if(change.sequence == lpChatWidget.getlastSeqForLE()){
+										setLEready=true;
+										if(pagereload) {											
+												lpChatWidget.getLatestSkill();
+										}
+									}		
+                            lastSeqnumber = change.sequence;
+							if(change.sequence > lpChatWidget.getlastSeqForLE()){
+								lpChatWidget.setlastSeqForLE(lastSeqnumber);
+							}
+							lpChatWidget.playSoundType(playSoundType);
+                            lpChatWidget.scrollToBottomLE();
+                        }
+					break;
+                }
+            });
+        });
+
+        // subscribe to open conversations metadata
+        socket.subscribeExConversations({
+            'convState': ['OPEN']
+        }).then(function(resp) {
+			var sendInfo ='{"agentSkill":"'+scType+'"}';
+			//console.log("sendInfo:"+sendInfo);
+			var sendDataUrl = 'https://clicktochat.americanexpress.com/chat/getwaittime';
+			
+			$.ajax({
+				type: "POST",
+				data: sendInfo,
+				url: sendDataUrl,
+				contentType: "application/json",
+				crossDomain: true,
+				success: function (data) {
+					//console.log(data.avgwait);
+					var avgwait=data.avgwait;
+          var originalWaittime = data.avgwait;
+					if(avgwait <= 0){
+					 avgwait=60;	
+					}else{
+						avgwait=Math.round(avgwait/1000);
+						if(avgwait==0){
+							avgwait=1;
+						}
+					}
+					var timeunit = ' seconds';
+					if(avgwait==1){
+						timeunit= '1 second';
+					}else if(avgwait > 1 && avgwait < 60){
+					    timeunit= avgwait +' seconds';	
+					}else{
+						var quotient = Math.floor(avgwait/60);
+						var remainder = avgwait % 60;
+						if(remainder == 0){
+							if(quotient==1)
+								timeunit= quotient +' minute';
+							else	
+								timeunit= quotient +' minutes';
+						}
+						else
+							timeunit= quotient +'m '+remainder+'s';
+					}
+					var currentConnectivity = $('#leSysMessageDiv').html();
+					if(typeof currentConnectivity == "undefined" || currentConnectivity.indexOf("firstconn")==-1){
+						   var currentttrtime = $('#ttrtime').html();
+						   if(typeof currentttrtime == "undefined"){
+             if(scType=="US-PersonalLoans-en-Standard"){
+                    $('#lpChatMessagesSection #currentChat').append('<div id="ttrtime" class="lpTransferSystemMessageDiv"><span>The next Customer Care Professional will be with you shortly</span></div>');
+                 }else if(originalWaittime == -1.0){
+              /*update default WT message in credit priority flow*/                    
+              if(chatPriority){
+                    $('#lpChatMessagesSection #currentChat').append('<div id="ttrtime" class="lpTransferSystemMessageDiv"><span>You will be connected to the next available <br> Customer Care Professional.</span></div>'); 
+                 }else{     
+				      $('#lpChatMessagesSection #currentChat').append('<div id="ttrtime" class="lpTransferSystemMessageDiv"><span>You will be connected to the next available <br> Customer Care Professional. <br> Please add any relevant information below</span></div>');
+                 }
+                 }else{   				 
+                 if(chatPriority){
+                   $('#lpChatMessagesSection #currentChat').append('<div id="ttrtime" class="lpTransferSystemMessageDiv"><span>You will be connected within '+ timeunit+'.</span></div>'); //US1137693
+                 }else{
+                  if(scType!="US-GFPS-en-Fraud"){
+									$('#lpChatMessagesSection #currentChat').append('<div id="ttrtime" class="lpTransferSystemMessageDiv"><span>You will be connected within '+ timeunit+'. <br> Please add any relevant information below.</span></div>'); //US1137693
+							   }else{
+								   $('#lpChatMessagesSection  #currentChat').append('<div id="ttrtime" class="lpTransferSystemMessageDiv"><span>Your expected wait time is '+ timeunit+'. <br> If you are unable to wait for an Account Protection Specialist to join, please call 1-800-824-9289.</span></div>');
+							   }
+                 }
+				 }
+                               
+                               /* if ( lepageskill !== "undefined" && lepageskill !== "" && ( lepageskill.startsWith("US-CEN") || lepageskill.startsWith("US-GCA"))){
+                                    $('#lpChatMessagesSection').append('<div id="hurricane" class="hurricanetext"><span>As a result of Hurricane Irma, American Express is temporarily closing our operating center in South Florida to ensure the safety of our employees who live and work in the area. We apologize for any service delays this might cause.</span></div>');
+                                }*/
+								lpChatWidget.scrollToBottomLE();
+								lpChatWidget.setWaitingLE();
+						 }
+             if(lpChatWidget.getscreenState()!='CHATTING'){
+               $('#lpChatMessagesSection #currentChat #ttrtime').hide();
+             }
+					}					
+				},
+				error:function(e){
+					//console.log(e);
+					var currentConnectivity = $('#leSysMessageDiv').html();
+					if(typeof currentConnectivity == "undefined" || currentConnectivity.indexOf("firstconn")==-1){
+						   var currentttrtime = $('#ttrtime').html();
+						   if(typeof currentttrtime == "undefined"){
+								$('#lpChatMessagesSection  #currentChat').append('<div id="ttrtime" class="lpTransferSystemMessageDiv"><span>You will be connected to the next available <br> Customer Care Professional. <br> Please add any relevant information below</span></div>');
+                                //console.log(" the page skill is -------->"+lepageskill);
+                               /* if ( lepageskill !== "undefined" && lepageskill !== "" && ( lepageskill.startsWith("US-CEN") || lepageskill.startsWith("US-GCA"))){
+                                    $('#lpChatMessagesSection').append('<div id="hurricane" class="hurricanetext"><span>As a result of Hurricane Irma, American Express is temporarily closing our operating center in South Florida to ensure the safety of our employees who live and work in the area. We apologize for any service delays this might cause.</span></div>');
+                                } */                               
+								lpChatWidget.scrollToBottomLE();
+								lpChatWidget.setWaitingLE();
+						 }
+					}
+				}
+			});
+            var openConvs = {};
+            // var currentKey = '';
+            socket.onNotification(withSubscriptionID(resp.body.subscriptionId),
+                function(notificationBody) {
+                    handleConversationNotification(socket, notificationBody, openConvs,visitorIdForLE,sessionId, interactionContextId)
+                });
+			if (Object.keys(openConvs)[0]) {
+				currentKey = Object.keys(openConvs)[0];
+			}
+            logger.debug('Object.keys(openConvs)[0]:::' + Object.keys(openConvs)[0]);
+			leErrcount=0;
+      if(scType != "US-PersonalLoans-en-Standard"){
+            $('#LpSendDataButton').prop('disabled', false).unbind('click').click(function() {
+                if (Object.keys(openConvs)[0]) {
+                    publishTo(socket, Object.keys(openConvs)[0]);
+                } else {
+                    socket.consumerRequestConversation({
+						"conversationContext": {
+							type: 'SharkContext',
+							visitorId: visitorIdForLE,
+							sessionId: sessionId,
+							interactionContextId: interactionContextId,
+						"campaignInfo":{
+							"campaignId":gcid,
+							"engagementId":geid
+						}
+						}						
+					}).then(function(resp) {
+                        publishTo(socket, resp.body.conversationId)
+                    });
+                }
+            });
+
+           $('#lpChatInputTextField').prop('disabled', false).unbind('keydown').keydown(function(e) {
+                e = e || window.event;
+                var key = e.keyCode || e.which;
+                if (key == 13) {	
+                  e.preventDefault();
+                }  
+               });
+            
+            $('#lpChatInputTextField').prop('disabled', false).unbind('keyup').keyup(function(e) {
+                e = e || window.event;
+                var key = e.keyCode || e.which;
+                if (key == 13) {					
+					/*if( $('#lpChatInputTextField').val()!=""  && $("#recordedmsg").length > 0){
+						lpChatWidget.rmRecmsgOnFirstMsg();
+					}*/
+					if (Object.keys(openConvs)[0]) {
+                        publishTo(socket, Object.keys(openConvs)[0]);
+                    } else {
+                        socket.consumerRequestConversation({
+							"conversationContext": {
+								type: 'SharkContext',
+								visitorId: visitorIdForLE,
+								sessionId: sessionId,
+								interactionContextId: interactionContextId,
+						"campaignInfo":{
+							"campaignId":gcid,
+							"engagementId":geid
+						}
+							}
+						}).then(function(resp) {
+                            publishTo(socket, resp.body.conversationId)
+                        });
+                    }
+					
+               
+                } else {
+                    var text = $('#lpChatInputTextField').val().trim();
+                    if (!lpVisitorTypingMsg && text != "") {
+                        socket.publishEvent({
+                            dialogId: Object.keys(openConvs)[0],
+                            event: {
+                                type: 'ChatStateEvent',
+                                chatState: 'COMPOSING'
+                            }
+                        })
+						setTimeout(function(){ window.scroll(0, 0); }, 10);
+                        lpVisitorTypingMsg = true;
+                    } else if (lpVisitorTypingMsg && text == "") {
+                        socket.publishEvent({
+                            dialogId: Object.keys(openConvs)[0],
+                            event: {
+                                type: 'ChatStateEvent',
+                                chatState: 'ACTIVE'
+                            }
+                        })
+                        lpVisitorTypingMsg = false;
+                    }
+                }
+            });
+         }
+
+			if (Object.keys(openConvs)[0]) {
+				currentKey = Object.keys(openConvs)[0];
+			}
+
+            $('#lpPreChatCloseBtn').unbind('click').click(function() {
+
+                lpChatWidget.leChatCloseChatBtnClick();
+            });
+			
+			 $('#sendOffermsg').unbind('click').click(function(e,data) {
+				 var dataP = JSON.parse(data);
+				  var offer_message = dataP.message;
+                  //US1706241:If the cm had text already entered should stay in the typing field.
+				  //publishTo(socket, Object.keys(openConvs)[0]);
+				  
+				  socket.publishEvent({
+					dialogId: Object.keys(openConvs)[0],
+					event: {
+						type: 'ContentEvent',
+						contentType: 'text/plain',
+						message:offer_message
+					}
+				}).then(function(resp) {
+			  
+				});
+			 });
+
+            $('#sendexitsurvey').unbind('click').click(function(e) {
+               /* logger.debug(data.rate + '::' + data.resolved);
+                var ans2;
+                if (data.resolved == 'Yes')
+                    ans2 = true;
+                else
+                    ans2 = false;
+                if (data.resolved != 'NA')
+                    publishExitSurveyTo(socket, Object.keys(openConvs)[0], parseInt(data.rate), data.resolved);*/
+           
+	/*  var dataP = JSON.parse(data);  
+             if(typeof dataP.resolved == 'undefined')
+  		    publishExitSurveyTo(socket, Object.keys(openConvs)[0], dataP);
+  */
+			sendOffline =false;
+			if (Object.keys(openConvs)[0]) {
+				currentKey=Object.keys(openConvs)[0];
+                socket.updateConversationField({
+                    conversationId: Object.keys(openConvs)[0],
+                    conversationField: [{
+                        field: "ConversationStateField",
+                        conversationState: "CLOSE"
+                    }]
+                }).then(function(resp){
+                     lastSeqnumber = -1; 
+                     windowclosed=true;
+                     dateNew = "";
+					offmessages=[];
+                       // socket.ws = null;
+                       // clearInterval(socketKeepAliveTimer);
+					socIntialized =false; 
+					/* if(typeof dataP.resolved == 'undefined'){
+						lpChatWidget.disposeEndChatLE(dataP); 
+                     }  */						
+			 
+					 
+                   /*if(data.resolved!='NA'){
+			socket.updateConversationField({
+				conversationId: currentKey,
+				conversationField: {
+					field: 'CSATRate',
+					'csatRate': parseInt(data.rate),
+					'csatResolutionConfirmation': ans2,
+					'status': 'FILLED'
+				}
+ 			 }).then(function(resp){
+ 				 logger.debug(resp);  
+  				 lpChatWidget.disposeEndChatLE(parseInt(data.rate), data.resolved);	 
+  				 socket.ws = null;
+  				 socIntialized =false;
+  			 });	
+                   }else{
+                        socket.ws = null;
+  			    socIntialized =false;
+                   }*/
+		 });
+		  delete openConvs[Object.keys(openConvs)[0]];
+            }
+                // ADDED FOR COMPLETE CONVERSATION
+               /*lastSeqnumber = -1;
+                windowclosed = true;
+                lpChatWidget.disposeEndChatLE(parseInt(data.rate), data.resolved);
+                socket.ws = null;
+                socIntialized = false;*/
+                          });
+
+			/** Sending survey data to LP and server side component. */
+			$('#sendofflinemsg').unbind('click').click(function(e,data) {
+				var dataP = JSON.parse(data);
+				var ans2 = dataP.csat;
+				var rtf = dataP.rtfscore;
+				var fcr = dataP.fcrscore;
+
+				if(ans2 == "0") {
+					socket.ws = null;
+					clearInterval(socketKeepAliveTimer);  
+					clearInterval(onlineAlertTimer);
+					socIntialized =false;          
+				} else {
+					/** If the currentKey is null, then try to get the value from latestConvID or openConvs array. */
+					if (currentKey == null || currentKey === "") {
+						try {
+							invokeUILog(latestConvID, "ERROR", "GUID: " + bbCookieOverride + ", Conversation ID is empty or null in Socket. latestConvID: " + latestConvID + " - currentKey: " + currentKey);
+							if (latestConvID != null && latestConvID !== "") {
+								currentKey = latestConvID;
+							} else if (Object.keys(openConvs)[0]) {
+								currentKey = Object.keys(openConvs)[0];
+								latestConvID = Object.keys(openConvs)[0];
+							}
+						} catch(e) {}
+					}
+					/** Sending CSAT score to LP and setting status as FILLED. */
+					socket.updateConversationField({
+						conversationId: currentKey,
+						conversationField: {
+							field: 'CSATRate',
+							'csatRate': parseInt(ans2),
+							'csatResolutionConfirmation': true,
+							'status': 'FILLED'
+						}
+					}).then(function(resp) {
+						logger.debug(resp);
+						socket.ws = null;
+						clearInterval(socketKeepAliveTimer);
+						clearInterval(onlineAlertTimer);
+						socIntialized = false;
+					});
+				}
+				if(rtf != "0" && lastAgentId !== "") {
+					try {
+						var sendInfo = '{"agentId":"' + lastAgentId + '", "rtfScore":"' + rtf + '", "csatScore":"' + ans2 + '", "fcrScore":"' + fcr + '"}';
+						var sendDataUrl = 'https://clicktochat.americanexpress.com/chat/savertfscore';
+						$.ajax({
+							type: "POST",
+							data: sendInfo,
+							url: sendDataUrl,
+							contentType: "application/json",
+							crossDomain: true,
+							success: function (data) {
+								logger.debug("Success response: " + data);
+							},
+							error: function(e) {
+								logger.debug("Error response: " + e);
+							}
+						});
+					} catch (e) {
+						invokeUILog(latestConvID, "ERROR", "GUID: " + bbCookieOverride + ", Error while sending survey scores to SSC.");
+					}
+				}
+            });
+			clearInterval(socketKeepAliveTimer);
+			socketKeepAliveTimer = null;
+			socketKeepAliveTimer = setInterval(function() {
+				socket.request("GetClock").then(function (resp) {
+					logger.debug("Time is " + resp.body.currentTime);
+				});
+			}, 60000);			  
+        });
+
+        socket.ws.onclose = function(evt) {
+			logger.debug("socket.ws.onclose triggered from LE : "+evt);
+			logger.debug(socket);
+            return onCloseSocket(socket, evt);
+        };
+        socIntialized = true;
+        //leErrcount=0; 
+    }
+}
+
+function sendOnlinerAlerts(socket,convID){	
+try{	
+	socket.publishEvent({
+	   dialogId: convID, 	
+       event: {
+			type: 'ChatStateEvent',
+            chatState: 'ACTIVE'
+      }
+   }).catch(function(err){
+      //console.log("error in sendOnlinerAlerts socket",err);
+    });
+}catch(e){
+  console.log('error in sendOnlinerAlerts',e);
+}  
+}
+function handleConversationNotification(socket, notificationBody, openConvs,visitorIdForLE,sessionId, interactionContextId) {
+    notificationBody.changes.forEach(function(change) {
+
+        var pList = null;
+		 var ttr; 
+         var currentConnectivity = $('#leSysMessageDiv').html();
+		 var dialogList = null;
+		 var serviceId="";
+		 
+        if (change.result.conversationDetails != undefined) {
+            pList = change.result.conversationDetails.participants;
+			 ttr = change.result.conversationDetails.ttr.value;
+			 dialogList = change.result.conversationDetails.dialogs;
+        }
+		if(typeof dialogList!="undefined" && dialogList!=null){
+		 for(var d=0;d<dialogList.length;d++){
+			if(dialogList[d].channelType == "COBROWSE" && dialogList[d].metaData.sessionState == "INVITED"){
+				serviceId = dialogList[d].metaData.serviceId; 
+				lastServiceId = serviceId; 
+				lpChatWidget.invokeLEevent(serviceId);
+				break;
+			}else if(dialogList[d].channelType == "COBROWSE" && dialogList[d].metaData.sessionState == "CLOSED"){
+				//console.log("co browse closed from CCP : ");
+				lpChatWidget.invokeLECloseevent();
+			}else if(dialogList[d].channelType == "COBROWSE" && dialogList[d].metaData.sessionState == "ACCEPTED"){
+				//console.log("co browse session is accepted : ");
+				lpChatWidget.invokeLEAcceptevent();
+			}
+			
+		}
+		}
+		
+		 //if(typeof currentConnectivity == "undefined" || currentConnectivity.indexOf("<span>You are now connected to </span>")==-1){
+          /*   if(typeof currentConnectivity == "undefined" || currentConnectivity.indexOf("firstconn")==-1){
+               var currentttrtime = $('#ttrtime').html();
+			   if(typeof currentttrtime == "undefined"){
+					$('#lpChatMessagesSection').append('<div id="ttrtime" class="lpTransferSystemMessageDiv"><span>You will be connected to the Customer Care Professional in '+ttr +' secs.</span></div>');
+					lpChatWidget.scrollToBottomLE();
+             }
+	    }*/
+		
+        var pRoleList = []; 
+        if (pList != null) {
+            
+            //RESET MANAGERMAP
+           for(var index in managerMap){
+                var mapKey = index;
+                managerMap[mapKey]="LEFT";     
+             }
+            logger.debug("in handleConversationNotification");
+            for (var p = 0; p < pList.length; p++) { 
+			logger.debug(pList[p].id+"--"+pList[p].role); 
+		 pRoleList.push(pList[p].role); 
+               if(pList[p].role=="MANAGER"){
+                  if(typeof managerMap[pList[p].id]=="undefined")
+                    managerMap[pList[p].id]="NEW"; 
+                  else
+		      managerMap[pList[p].id]="EXISTING";   
+               }  
+            }
+           
+            if(pRoleList.indexOf("ASSIGNED_AGENT")==-1 ){transferInitiated=true;}
+            
+	for(var index in managerMap){
+                var mapKey = index;
+		  if(managerMap[mapKey]=="LEFT"){
+                   logger.debug("LFET MANAGER--"+mapKey);
+		     $("#ttrtime").hide();	   
+			// $("#hurricane").hide(); 			 
+		     //$('#lpChatMessagesSection').append('<div class="lpTransferSystemMessageDiv"><span class="'+mapKey+'"></span><span> has left the conversation</span></div>');
+                    
+                   var agentMap = lpChatWidget.getagentMapForLE();
+		     var agentName = agentMap[mapKey];
+ 			var systemMessage = 'sysmsg2_'+agentName+ '_ has left the conversation';
+                    publishSystemMessage(socket, Object.keys(openConvs)[0], visitorIdForLE, sessionId, interactionContextId, systemMessage);  
+		     //lpChatWidget.scrollToBottomLE();
+	 	      delete managerMap[mapKey];
+                }   
+	 }
+
+            for (var p = 0; p < pList.length; p++) {	
+					
+                if (pList[p].role == "ASSIGNED_AGENT") {
+                    agentIdLE = pList[p].id;
+                    logger.debug("hello in pLIST BLOCK");                    
+ 
+                   
+
+//if(typeof currentConnectivity != "undefined" && currentConnectivity.indexOf("<span class='firstconn'>You are now connected to </span>")>-1){
+if(typeof currentConnectivity != "undefined" && currentConnectivity.indexOf("firstconn")>-1){
+	$("#ttrtime").hide();
+	//$("#hurricane").hide(); 
+	// US1814292: Fix incorrect survey 
+	if(typeof $("#lpChatMessagesSection").html() != "undefined") {
+		lastAgentId = agentIdLE;
+	}
+                        lpChatWidget.setlastAgentforLE(agentIdLE);
+                        var agentMap = lpChatWidget.getagentMapForLE();  
+                        var agentName = agentMap[agentIdLE];
+                        if ($(".getagentId :last").attr("class") != agentName) {
+		var lastagentID = $(".getagentId :last").attr("class");				
+                           //var agentName = agentMap[lastagentID];				
+				//var systemMessage = 'sysmsg_transfer_' + (lastSystemMessage + 1) + '_ has left the conversation';
+        publishSystemMessage(socket, Object.keys(openConvs)[0], visitorIdForLE, sessionId, interactionContextId, 'sysmsg2_'+lastagentID+'_ has left the conversation');
+				
+                    logger.debug("agentName :" + agentName);
+                    if (agentName == undefined) {
+				getAgentName(agentIdLE,socket, Object.keys(openConvs)[0],visitorIdForLE,sessionId, interactionContextId,'sysmsg3_');
+                    } else {
+                        agentNameLE = agentName;
+				publishSystemMessage(socket, Object.keys(openConvs)[0], visitorIdForLE, sessionId, interactionContextId, 'sysmsg3_'+agentNameLE + '_ has joined the conversation'); 
+                        $("." + agentIdLE).html(agentNameLE);
+                        logger.debug("Inside else");
+                    }
+                       
+			setTimeout(function(){  lpChatWidget.getLatestSkill(); }, 10000);
+	}else{
+		if(transferInitiated){
+                                publishSystemMessage(socket, Object.keys(openConvs)[0], visitorIdForLE, sessionId, interactionContextId, 'sysmsg2_'+"_Transfer unsuccessful");
+		}
+	}	
+                    } else{ if(typeof $("#lpChatMessagesSection").html()!= "undefined"  && lpChatWidget.getscreenState() == 'CHATTING'){
+					if(globalrld){	
+						lpChatWidget.setlechatActiveCookie(true);	
+					}else{
+						lpChatWidget.setlechatActiveCookie(false);
+					}
+					$("#ttrtime").hide();
+                    //$("#hurricane").hide();
+					// US1814292: Fix incorrect survey
+					if(typeof $("#lpChatMessagesSection").html() != "undefined") {
+						lastAgentId = agentIdLE;
+					}
+                    lpChatWidget.setlastAgentforLE(agentIdLE);
+
+	                 var agentMap = lpChatWidget.getagentMapForLE();
+                    var agentName = agentMap[agentIdLE];
+                    logger.debug("agentName :" + agentName);
+                    if (agentName == undefined) {
+                        getAgentName(agentIdLE,socket, Object.keys(openConvs)[0],visitorIdForLE,sessionId, interactionContextId,'sysmsg1_');
+                    } else {
+                        agentNameLE = agentName;
+                          publishSystemMessage(socket, Object.keys(openConvs)[0], visitorIdForLE, sessionId, interactionContextId, 'sysmsg1_'+agentNameLE + '_ has joined the conversation'); 
+                        $("." + agentIdLE).html(agentNameLE);
+                        logger.debug("Inside else");
+                    }
+                    
+                    if(scType == "US-PersonalLoans-en-Standard"){
+                             $('#LpSendDataButton').prop('disabled', false).unbind('click').click(function() {
+                                  if (Object.keys(openConvs)[0]) {
+                                      publishTo(socket, Object.keys(openConvs)[0]);
+                                  } else {
+                            invokeUILog("consumerRequestConversation:","INFO","visitorId:"+visitorIdForLE+":sessionId:"+sessionId+":interactionContextId:"+interactionContextId+":campaignId:"+gcid+":engagementId:"+geid);
+                                      socket.consumerRequestConversation({
+                              "conversationContext": {
+                                type: 'SharkContext',
+                                visitorId: visitorIdForLE,
+                                sessionId: sessionId,
+                                interactionContextId: interactionContextId,
+                              "campaignInfo":{
+                                "campaignId":gcid,
+                                "engagementId":geid
+                              }
+                              }						
+                            }).then(function(resp) {
+                                          publishTo(socket, resp.body.conversationId)
+                                      });
+                                  }
+                              });
+                             $('#lpChatInputTextField').prop('disabled', false).unbind('keydown').keydown(function(e) {
+                                  e = e || window.event;
+                                  var key = e.keyCode || e.which;
+                                  if (key == 13) {	
+                                    e.preventDefault();
+                                  }  
+                                 });
+                              
+                              $('#lpChatInputTextField').prop('disabled', false).unbind('keyup').keyup(function(e) {
+                                  e = e || window.event;
+                                  var key = e.keyCode || e.which;
+                                  if (key == 13) {					
+                            /*if( $('#lpChatInputTextField').val()!=""  && $("#recordedmsg").length > 0){
+                              lpChatWidget.rmRecmsgOnFirstMsg();
+                            }*/
+                            if (Object.keys(openConvs)[0]) {
+                                          publishTo(socket, Object.keys(openConvs)[0]);
+                                      } else {
+                              invokeUILog("consumerRequestConversation:","INFO","visitorId:"+visitorIdForLE+":sessionId:"+sessionId+":interactionContextId:"+interactionContextId+":campaignId:"+gcid+":engagementId:"+geid);
+                                          socket.consumerRequestConversation({
+                                "conversationContext": {
+                                  type: 'SharkContext',
+                                  visitorId: visitorIdForLE,
+                                  sessionId: sessionId,
+                                  interactionContextId: interactionContextId,
+                              "campaignInfo":{
+                                "campaignId":gcid,
+                                "engagementId":geid
+                              }
+                                }
+                              }).then(function(resp) {
+                                              publishTo(socket, resp.body.conversationId)
+                                          });
+                                      }
+                            
+                                 
+                                  } else {
+                                      var text = $('#lpChatInputTextField').val().trim();
+                                      if (!lpVisitorTypingMsg && text != "") {
+                                          socket.publishEvent({
+                                              dialogId: Object.keys(openConvs)[0],
+                                              event: {
+                                                  type: 'ChatStateEvent',
+                                                  chatState: 'COMPOSING'
+                                              }
+                                          })
+                                          lpVisitorTypingMsg = true;
+                                      } else if (lpVisitorTypingMsg && text == "") {
+                                          socket.publishEvent({
+                                              dialogId: Object.keys(openConvs)[0],
+                                              event: {
+                                                  type: 'ChatStateEvent',
+                                                  chatState: 'ACTIVE'
+                                              }
+                                          })
+                                          lpVisitorTypingMsg = false;
+                                      }
+                                  }
+                              });
+                    }  
+                    
+                    
+						setTimeout(function(){ lpChatWidget.getLatestSkill(0); }, 15000);
+                        $(".lpMessage.lpTextRight.offline").remove();
+
+                    }
+                   } 
+					transferInitiated=false;
+                }
+				
+
+			if (pList[p].role == "MANAGER") {
+					logger.debug("BEFORE MANAGER FOR LOOP");
+					if(lastAgentId ==""){
+						// US1814292: Fix incorrect survey
+						if(typeof $("#lpChatMessagesSection").html() != "undefined") {
+							lastAgentId=pList[p].id;
+						}
+					}
+			for(var index in managerMap)
+             		{
+		               var mapKey = index;
+              		 var mapKeyVal = managerMap[mapKey]
+		               logger.debug(mapKey+"---"+mapKeyVal)        
+	            }
+
+             for(var index in managerMap){
+                var mapKey = index;
+                if(managerMap[mapKey]=="NEW"){
+                   logger.debug("NEW MANAGER---"+mapKey);
+			  $("#ttrtime").hide();
+			 // $("#hurricane").hide(); 
+		    // $('#lpChatMessagesSection').append('<div class="lpTransferSystemMessageDiv"><span class="'+mapKey+'"></span><span> has joined the conversation</span></div>');
+                           
+
+                    managerMap[mapKey]="EXISTING";
+
+                            var agentMap = lpChatWidget.getagentMapForLE();
+                            logger.debug("agentMap :" + agentMap);
+                            var agentName = agentMap[mapKey];
+                            logger.debug("agentName :" + agentName);
+                            if (agentName == undefined) {
+                                getAgentName(mapKey,socket, Object.keys(openConvs)[0], visitorIdForLE, sessionId, interactionContextId,'sysmsg2_');
+                                logger.debug("Inside if");
+                            } else {
+                                agentNameLE = agentName;
+                                publishSystemMessage(socket, Object.keys(openConvs)[0], visitorIdForLE, sessionId, interactionContextId, 'sysmsg2_'+agentNameLE + '_ has joined the conversation');
+                                logger.debug("Inside else");
+                            }
+                        }
+
+                    }
+                }
+            }
+        }
+		currentPlistlength = pList.length;
+        if (change.type === 'UPSERT') {
+            if (!openConvs[change.result.convId]) {
+                openConvs[change.result.convId] = change.result;
+				if (typeof openConvs !== "undefined" && openConvs !== null && typeof Object.keys(openConvs) !== "undefined" 
+				&& Object.keys(openConvs) !== null && Object.keys(openConvs).length > 0) {
+					// US1814292: Fix incorrect survey
+					if(typeof $("#lpChatMessagesSection").html() != "undefined") {
+						/** Assign the value into latest conversation id only if the open conversations array is not empty. */
+						if (Object.keys(openConvs)[0]) {
+							latestConvID = Object.keys(openConvs)[0];
+						}
+					}
+					if (latestConvID == null || latestConvID === "") {
+						invokeUILog(latestConvID, "ERROR", "GUID: " + bbCookieOverride + ", Conversation ID is empty or null in UPSERT - openConvs flow. latestConvID: " + latestConvID + " - change.result.convId: " + change.result.convId);
+						if (typeof change.result.convId !== "undefined" || change.result.convId != null || change.result.convId !== "") {
+							latestConvID = change.result.convId;
+						}
+					}
+					sendOnlinerAlerts(socket,latestConvID);
+					onlineAlertTimer=null;
+					clearInterval(onlineAlertTimer);
+					onlineAlertTimer = setInterval(function(){			 
+						sendOnlinerAlerts(socket,latestConvID);
+					},30000);	
+				} else {
+					invokeUILog(latestConvID, "ERROR", "GUID: " + bbCookieOverride + ", Conversation ID is empty or null in UPSERT flow. Value: " + latestConvID + " - change.result.convId: " + change.result.convId);
+					if (typeof change.result.convId !== "undefined" || change.result.convId != null || change.result.convId !== "") {
+						latestConvID = change.result.convId;
+					}
+				}
+                if(typeof $("#lpChatMessagesSection").html()!= "undefined"){
+                // if(typeof $("#lpChatMessagesSection").html()!= "undefined" && lpChatWidget.getscreenState() == 'CHATTING'){
+				 if(socket.ws!=null){
+                socket.subscribeMessagingEvents({
+                    fromSeq: 0,
+                    dialogId: change.result.convId
+                }).then(function(resp) {
+						if (!sendOffline && pagereload) {							
+							sendOfflineMessages(socket, Object.keys(openConvs)[0]);
+							sendOffline = true;
+						}
+					});
+                }
+               }else{
+                    sendOffline = false;
+                      socket.updateConversationField({
+                        conversationId: Object.keys(openConvs)[0],
+                        conversationField: [{
+                            field: "ConversationStateField",
+                            conversationState: "CLOSE"
+                        }]
+                    }).then(function(resp) {
+                        lastSeqnumber = -1;
+                        windowclosed = true;
+                        dateNew = "";
+                        offmessages = [];
+                        socket.ws = null;
+                        clearInterval(socketKeepAliveTimer);
+						clearInterval(onlineAlertTimer);
+                        socIntialized = false;
+                     });
+                    delete openConvs[Object.keys(openConvs)[0]];
+               
+              }   
+            }
+			
+        } else if (change.type === 'DELETE') {
+            lastSeqnumber = -1;
+sendOffline =false;
+            lpChatWidget.leChatCloseChatBtnClickConfirmed();
+            //delete openConvs[change.result.convId];
+            //$('#lpChatMessagesSection #currentChat').append('conversation was closed.\n'); //US1137693
+        }
+    });
+    if (fromPrechat) {
+	   if(socket.ws!=null){	
+        if (Object.keys(openConvs)[0]) {
+            publishPrechatTo(socket, Object.keys(openConvs)[0]);
+        } else {
+            socket.consumerRequestConversation({						
+						"conversationContext": {
+							type: 'SharkContext',
+							visitorId: visitorIdForLE,
+							sessionId: sessionId,
+							interactionContextId: interactionContextId
+						},
+						"campaignInfo":{
+							"campaignId":gcid,
+							"engagementId":geid
+						}
+					}).then(function(resp) {
+						if (typeof resp !== "undefined" && resp != null && typeof resp.body !== "undefined" 
+						&& resp.body != null && typeof resp.body.conversationId !== "undefined" 
+						&& resp.body.conversationId != null && resp.body.conversationId !== "") {
+							// US1814292: Fix incorrect survey
+							if(typeof $("#lpChatMessagesSection").html() != "undefined") {
+								latestConvID = resp.body.conversationId;
+							}
+						} else {
+							invokeUILog(latestConvID, "ERROR", "GUID: " + bbCookieOverride + ", Conversation ID is empty or null in preChat flow. latestConvID: " + latestConvID + " - currentKey: " + currentKey);
+						}
+                publishPrechatTo(socket, resp.body.conversationId)
+            });
+        }
+	 }	
+    }
+}
+
+function onCloseSocket(socket, evt) {
+	socket.ws = null; 
+	logger.debug("from onsocket close method evt-----"+evt);
+	logger.debug(evt);
+    logger.debug("from onsocket close method-----"+evt.code);
+    socIntialized = false;
+    if(evt.code!=1006){
+        if(leErrcount <3){   
+        var childArray = $('#lpChatMessagesSection').children();
+        var len = childArray.length;	
+        if(len > 0 && $(childArray[len-1]).html().indexOf("Please close and restart")==-1){ 
+	       //$('#lpChatMessagesSection').append('<div class="lpErrorSystemMessageDiv"><span>An error has occurred. Please close and restart.</span></div>');
+	      // lpChatWidget.scrollToBottomLE(); 
+        }
+          if (!windowclosed) {
+              prepareToConnect();
+          }
+         leErrcount++;
+       }else{
+              leErrcount=0;   socIntialized = false; 
+              lpChatWidget.lpChatShowViewLE();
+			  clearInterval(socketKeepAliveTimer);   
+			  clearInterval(onlineAlertTimer);	
+       }
+    }else{    
+	if (!windowclosed) {
+              prepareToConnect();
+       }
+    }
+}
+
+function publishPrechatTo(socket, convID) {
+	fromPrechat = false;	
+	for (var i = 0; i < Prechat_ansarray.length; i++) {	    
+	Prechat_ansarray[i] = Prechat_ansarray[i].replace(/</g, '&lt;');
+			Prechat_ansarray[i] = Prechat_ansarray[i].replace(/>/g, '&gt;');	
+	var prechatval = "<p>"+Prechat_ansarray[i]+"</p>";
+	var prechattxt = $(prechatval).text();
+			prechattxt = prechattxt.replace(/</g, '&lt;');
+			prechattxt = prechattxt.replace(/>/g, '&gt;');	
+		if (prechattxt.length < 5000) {
+      try{
+			socket.publishEvent({
+				dialogId: convID,
+				/*body:{
+					type: 'SharkContext',
+					visitorId: visitorIdForLE,
+					sessionId: sessionId,
+					interactionContextId: interactionContextId
+				},*/
+				event: {
+					type: 'ContentEvent',
+					contentType: 'text/plain',
+					message: prechattxt
+				}
+			})
+      }catch(e){
+        console.log(prechattxt,"error in publishPrechatTo",e);
+      }
+		} else {
+			var splitMessagearr = prechattxt.match(/.{1,5000}/g);
+			for (j = 0; j < splitMessagearr.length; j++) {
+        try{
+				socket.publishEvent({
+					dialogId: convID,
+					/*body:{
+						type: 'SharkContext',
+						visitorId: visitorIdForLE,
+						sessionId: sessionId,
+						interactionContextId: interactionContextId
+					},*/
+					event: {
+						type: 'ContentEvent',
+						contentType: 'text/plain',
+						message: splitMessagearr[j]
+					}
+				})
+        }catch(e){
+          console.log(splitMessagearr[j],"error in publishPrechatTo",e);
+        }
+			}
+		}
+	}
+//$(".lpMessage.lpTextRight.offline").remove();
+//sendOfflineMessages(socket, convID);
+}
+
+
+function publishSystemMessage(socket, convID,visitorIdForLE,sessionId, interactionContextId,systemMessage,retrycount) {
+  try{
+	if(typeof convID != "undefined"){	 
+
+		socket.publishEvent({
+				dialogId: convID,
+				event: {
+					type: 'ContentEvent',
+					contentType: 'text/plain',
+					message: systemMessage
+				}
+			}).then(function(resp) {
+			if (!sendOffline) {							
+				sendOfflineMessages(socket, convID);
+				sendOffline = true;
+			}
+		}).catch(function(err){
+      //console.log("error in publishSystemMessage socket",err);
+      if(systemMessage.indexOf("sysmsg1") > -1 && typeof retrycount == "undefined"){
+         retrycount =0;
+      }
+      if(systemMessage.indexOf("sysmsg1") > -1 && retrycount < 3){
+          retrycount++;
+          setTimeout(function(){ publishSystemMessage(socket, convID,visitorIdForLE,sessionId, interactionContextId,systemMessage,retrycount); }, 1000);          
+     }
+    });	
+   }
+  }catch(e){
+
+   }   
+}
+
+
+function sendOfflineMessages(socket, convID){
+	if(typeof convID != "undefined"){
+	$(".lpMessage.lpTextRight.offline").remove();	
+	if(offmessages!=null && offmessages.length>0){
+		for (var index = 0; index < offmessages.length; ++index) {
+      try{
+			socket.publishEvent({
+			dialogId: convID,
+            /*body:{
+            	type: 'SharkContext',
+            	visitorId: visitorIdForLE,
+            	sessionId: sessionId,
+            	interactionContextId: interactionContextId
+            },*/
+			event: {
+				type: 'ContentEvent',
+				contentType: 'text/plain',
+				message: offmessages[index]
+				}
+			})
+			.then(function(resp) {
+				delete offmessages[index];
+				logger.debug('offline message submitted');
+			});
+      }catch(e){
+        console.log(offmessages[index],"error in sendOfflineMessages",e);
+      }
+		}
+	}
+	if(chatPriority) {
+	       console.log("Debug --> In sendOfflineMessages offmessages " + offmessages);
+		   offmessages = [];
+		   lpChatWidget.setofflinemessage(offmessages);		   
+		}
+ }	
+}
+
+function publishTo(socket, convID) {
+    logger.debug("publish to");
+	if (!sendOffline && chatPriority) {							
+		sendOfflineMessages(socket, convID);
+		sendOffline = true;
+	}
+   var valBeforeCCMaskingLE = $('#lpChatInputTextField').val();
+    var ValAftermasking=lpChatWidget.ccMaskingForLE(valBeforeCCMaskingLE);
+    if ((valBeforeCCMaskingLE.trim()=="")) {            
+        $('#lpChatInputTextField').val('');
+		if (latestConvID == null || latestConvID === "" || convID == null || convID === "") {
+			invokeUILog(latestConvID, "ERROR", "GUID: " + bbCookieOverride + ", Conversation ID is empty or null in publishTo function. latestConvID: " + latestConvID + " - convID: " + convID);
+		}
+        socket.publishEvent({
+            dialogId: convID,
+            /*body:{
+            	type: 'SharkContext',
+            	visitorId: visitorIdForLE,
+            	sessionId: sessionId,
+            	interactionContextId: interactionContextId
+            },*/
+            event: {
+                type: 'ChatStateEvent',
+                chatState: 'ACTIVE'
+            }
+        })
+        lpVisitorTypingMsg = false;
+    }else{
+    
+	var validateString = ValAftermasking;
+	var isValidInp = ValidChatInputStr(validateString); 
+	if(isValidInp){
+	hideNASystemMsg();	
+	if ($('#lpChatInputTextField').val() != "" && $("#recordedmsg").length > 0) {
+         lpChatWidget.rmRecmsgOnFirstMsg();
+	}
+    $('#lpChatInputTextField').val('');
+	if(valBeforeCCMaskingLE != ValAftermasking){
+              lpChatWidget.addInfoMessageToChatMessagesforLE (); 
+            }			
+	  if(lastAgentId!=""){			
+    	 lpInteractiveChat = true;
+        lpChatWidget.setlpInteractiveforLE(lpInteractiveChat);  
+	  }
+	 validateString = ValAftermasking.replace(/</g, '&lt;');
+	validateString = validateString.replace(/>/g, '&gt;');
+validateString = validateString.replace(new RegExp('(\n){3,}', 'gim') , '\n\n');	  
+    socket.publishEvent({
+        dialogId: convID,
+        /*body:{
+        	type: 'SharkContext',
+        	visitorId: visitorIdForLE,
+        	sessionId: sessionId,
+        	interactionContextId: interactionContextId
+        },*/
+        event: {
+            type: 'ContentEvent',
+            contentType: 'text/plain',
+            message:validateString
+        }
+    }).then(function(resp) {
+        $('#lpChatInputTextField').val('');
+
+        socket.publishEvent({
+            dialogId: convID,
+            /*body:{
+            	type: 'SharkContext',
+            	visitorId: visitorIdForLE,
+            	sessionId: sessionId,
+            	interactionContextId: interactionContextId
+            },*/
+            event: {
+                type: 'ChatStateEvent',
+                chatState: 'ACTIVE'
+            }
+        })
+        lpVisitorTypingMsg = false;
+
+    });
+	}else{
+		showNASystemMSg();
+	}
+    }
+}
+
+function publishExitSurveyTo(socket, convID, data) {
+    logger.debug("publish to");
+    //lpChatWidget.leExitsurvey(ans1,ans2);
+     var surveyFB = 'Exit Survey - ';
+   	for(var i=0;i<data.length;i++){          
+          surveyFB = surveyFB +'QUESTION - '+ data[i].question+': ANSWER - '+data[i].answer+'  ||     ';          
+          logger.debug(i+'::'+surveyFB);
+       }
+
+    //var surveyFB = 'Exit Survey - ' + 'Q1. Overall, how would you rate the service you received during this contact with American Express?  CM Response1:' + ans1 + ' Q2. Was the Virtual Assistant able to help you complete your transaction or address your inquiry?  CM Response2:' + ans2;
+
+    socket.publishEvent({
+        dialogId: convID,
+        event: {
+            type: 'ContentEvent',
+            contentType: 'text/plain',
+            message: surveyFB
+        }
+    }).then(function(resp) {
+        return $('#lpChatInputTextField').val('');
+    });
+}
+
+
+function withSubscriptionID(subscriptionID) {
+    return function(notif) {
+        return notif.body.subscriptionId === subscriptionID;
+    };
+}
+
+function withType(type) {
+    return function(notif) {
+        return notif.type.includes(type);
+    };
+}
+
+function myId(jwt) {
+    return JSON.parse(atob(jwt.split('.')[1])).sub;
+}
+
+function getAgentName(agentId,socket, convID, visitorIdForLE, sessionId, interactionContextId,stype) {
+    $.ajax({
+        url: "https://accdn.lpsnmedia.net/api/account/14106077/configuration/le-users/users/" + agentId,
+        //url: "https://accdn.lpsnmedia.net/api/account/86375292/configuration/le-users/users/05554443-26b7-5747-8f30-fc438b45fe65",
+        contentType: "application/json; charset=utf-8",
+       // cache: true,
+        jsonp: "cb",
+        jsonpCallback: "apCallback",
+        dataType: "jsonp",
+        success: function(data) {
+            logger.debug("success::" + data.nickname)
+            agentNameLE = data.nickname;
+          publishSystemMessage(socket, convID, visitorIdForLE, sessionId, interactionContextId, stype +agentNameLE +'_ has joined the conversation');
+            //$("."+agentIdLE).html(agentNameLE); 
+             $("."+agentId).html(agentNameLE); 
+    var agentMap = lpChatWidget.getagentMapForLE();
+    logger.debug('callback agentName :' + agentNameLE);
+    //agentMap[agentIdLE] = agentNameLE;
+var agentEmpID='Emp-'+agentId;
+agentMap[agentId] = agentNameLE;
+agentMap[agentEmpID]=data.employeeId;
+    lpChatWidget.setagentMapForLE(agentMap);
+leagentMap=agentMap;
+        },
+        error: function(req, status, err) {
+            logger.debug("error block")
+        }
+    });
+}
+
+window.apCallback = function(data){
+/*    agentNameLE = data.fullName;
+    $("."+agentIdLE).html(agentNameLE); 
+    var agentMap = lpChatWidget.getagentMapForLE();
+    logger.debug('callback agentName :' + agentNameLE);
+    agentMap[agentIdLE] = agentNameLE;
+    lpChatWidget.setagentMapForLE(agentMap);*/
+}
+
+function togglelabel(thisElement) {
+  var userAtBottom =false
+  if($("#lpChatMessagesSection").scrollTop() + $("#lpChatMessagesSection").innerHeight() >= $("#lpChatMessagesSection")[0].scrollHeight){
+    userAtBottom=true;
+  }
+  if(!MCQClicked){
+   if ($(thisElement).parent().find(".messageOwner").hasClass("addZeroSize")) {
+        $(thisElement).parent().find(".messageOwner").removeClass("addZeroSize");
+    } else {
+        $(thisElement).parent().find(".messageOwner").addClass("addZeroSize");
+    }
+  }
+  MCQClicked =false;
+   var elem = $(".lpMessage").last()
+        if(elem.html() == $(thisElement).parent().html()){
+          lpChatWidget.scrollToBottomLE();
+        }
+  if(userAtBottom){
+    lpChatWidget.scrollToBottomLE();
+  }
+  fromToggleBlock = true;   
+}
+/*
+function formatAMPM(date) {
+    var hours = date.getHours();
+    var minutes = date.getMinutes();
+    var ampm = hours >= 12 ? 'PM' : 'AM';
+    hours = hours % 12;
+    hours = hours ? hours : 12; // the hour '0' should be '12'
+    minutes = minutes < 10 ? '0' + minutes : minutes;
+    var strTime = hours + ':' + minutes + ' ' + ampm;
+    return strTime;
+}
+
+var monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
+    "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
+];
+*/
+var apiRequestTypes = ['cqm.SubscribeExConversations', 'ms.PublishEvent', 'cm.ConsumerRequestConversation', 'ms.SubscribeMessagingEvents', 'InitConnection', 'cm.UpdateConversationField'];
+
+if (!String.prototype.startsWith) {
+    String.prototype.startsWith = function(searchString, position) {
+        position = position || 0;
+        return this.indexOf(searchString, position) === position;
+    };
+}
+
+if (!String.prototype.includes) {
+    String.prototype.includes = function(search, start) {
+        if (typeof start !== 'number') {
+            start = 0;
+        }
+
+        if (start + search.length > this.length) {
+            return false;
+        } else {
+            return this.indexOf(search, start) !== -1;
+        }
+    };
+}
+
+function prepareOfflineMessages(){
+if(scType != "US-PersonalLoans-en-Standard"){  
+$('#lpChatInputTextField').prop('disabled', false).unbind('keyup').keyup(function(e) {
+	logger.debug("offline->");
+	e = e || window.event;
+	var key = e.keyCode || e.which;
+	if (key == 13) {
+	  //lpChatWidget.sendAddlinesForLE(true);		
+	  var offmessage = $('#lpChatInputTextField').val();
+	  //var isValidInp = ValidChatInputStr(offmessage);
+	if(offmessage.trim()!=""){
+	    		  
+	  var d = new Date();
+	  var timeinampm = formatAMPM(d)
+    //US1654868
+	  //var messageOwnerTimestamp = "You - " + monthNames[d.getMonth()] + " " + d.getDate() + ", " + d.getFullYear() + " " + timeinampm;
+    var messageOwnerTimestamp = "You - " + timeinampm;
+	  var appendStr = '<div class="lpMessage lpTextRight offline"><div class="lpGreenBg lpPosRel lpBubble lpRightBubble"  onclick="togglelabel(this)"><div class="lpChatMsg" style="font-size:'+lpChatWidget.getlpChatFontSize()+'px">' + offmessage + '</div></div><div class="messageOwner" >' + messageOwnerTimestamp + '</div></div>'; 
+		if (appendStr != ''){
+			$('#lpChatMessagesSection #currentChat').append(appendStr);	  //US1137693
+		}
+		offmessages.push(offmessage);
+        if(chatPriority) {
+		   lpChatWidget.setofflinemessage(offmessages);
+		}
+	logger.debug("offline->"+offmessage)
+	$('#lpChatInputTextField').val('');
+	}
+  if(offmessages.length==1){
+      lpChatWidget.invokeLErequestApi();
+  }
+	}
+});
+$('#LpSendDataButton').prop('disabled', false).unbind('click').click(function(e) {
+	logger.debug("offline->");
+
+	  //lpChatWidget.sendAddlinesForLE(true);		
+	  var offmessage = $('#lpChatInputTextField').val();
+	  //var isValidInp = ValidChatInputStr(offmessage);
+	if(offmessage.trim()!=""){
+	    		  
+	  var d = new Date();
+	  var timeinampm = formatAMPM(d)
+    //US1654868
+	  //var messageOwnerTimestamp = "You - " + monthNames[d.getMonth()] + " " + d.getDate() + ", " + d.getFullYear() + " " + timeinampm;
+    var messageOwnerTimestamp = "You - " + timeinampm;
+	  var appendStr = '<div class="lpMessage lpTextRight offline"><div class="lpGreenBg lpPosRel lpBubble lpRightBubble"  onclick="togglelabel(this)"><div class="lpChatMsg" style="font-size:'+lpChatWidget.getlpChatFontSize()+'px">' + offmessage + '</div></div><div class="messageOwner" >' + messageOwnerTimestamp + '</div></div>'; 
+		if (appendStr != ''){
+			$('#lpChatMessagesSection #currentChat').append(appendStr);	  //US1137693
+		}
+		offmessages.push(offmessage);
+		if(chatPriority) {
+		   lpChatWidget.setofflinemessage(offmessages);
+		}
+	logger.debug("offline->"+offmessage)
+	$('#lpChatInputTextField').val('');
+	}
+  if(offmessages.length==1){
+    lpChatWidget.invokeLErequestApi();
+  } 
+});
+}
+}
+
+function hideNASystemMsg(){
+if($("#lpNASystemMessageDiv").length > 0 && $("#lpNASystemMessageDiv").css("display") == "block"){
+$("#lpNASystemMessageDiv").hide();
+lpChatWidget.adjustMsgHeight();
+lpChatWidget.scrollToBottomLE();
+}
+}
+
+function showNASystemMSg(){
+$('#lpChatInputTextField').val('');
+if($("#lpNASystemMessageDiv").length > 0 && $("#lpNASystemMessageDiv").css("display") == "none"){
+$("#lpNASystemMessageDiv").show();
+lpChatWidget.adjustMsgHeight();
+lpChatWidget.scrollToBottomLE();
+}
+}
+
+function ValidChatInputStr(searchStr){
+if(searchStr!==null && typeof searchStr!=='undefined'){
+  if(((searchStr.indexOf("<")!=-1 && searchStr.indexOf(">") != -1)&&(searchStr.indexOf(">") > searchStr.indexOf("<"))) ||(searchStr.indexOf("alert(") >=0)|| (searchStr.indexOf("FSCommand")>=0)){
+    return false;
+ }else{
+  return true;
+ }
+}
+return true;
+	
+	/*var inplist = [ "<", ">", "alert", "FSCommand", "(",")",";"]; 
+		for (var i = 0; i < inplist.length; i++) {
+			var elementUpper = inplist[i].toUpperCase();
+			if (searchStr.toUpperCase().indexOf(elementUpper) > -1) {
+				return false;
+			}
+		}
+		return true;
+		*/
+}
+
+var linkpattern = /(https?:\/\/[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|https?:\/\/[a-zA-Z0-9]+\.[^\s]{2,}|[a-zA-Z0-9]+\.[^\s]{2,})/gi;
+
+function convertToLink(match, actualString, offset) {
+	var isValid = validateHostName(match);  
+	if(isValid) {
+		if(match.indexOf("http")==-1) {
+			match='<a href="http://'+match+'" target="_top">'+match+'</a>'
+		} else {
+			match='<a href="'+match+'" target="_top">'+match+'</a>'
+		}
+		return match;
+	} else {
+		return actualString;
+	}  
+}
+
+function checkForLinks(str) {
+	return	str.replace(linkpattern, convertToLink)
+}
+
+function validateHostName(matchStr) {
+	var pattern = new RegExp('(.+://)?([^/]+)(/.*)*', 'i');
+	var arr = pattern.exec(matchStr);
+	if (arr !== null && arr.length > 2) {
+		var validPattern = /^(?:(?:(?:[a-zA-z-]+):\/{1,3})?(?:[a-zA-Z0-9])(?:[a-zA-Z0-9-.]){1,61}[a-zA-Z0-9](?:\.[a-zA-Z]{2,3})+|\[(?:(?:(?:[a-fA-F0-9]){1,4})(?::(?:[a-fA-F0-9]){1,4}){7}|::1|::)\]|(?:(?:[0-9]{1,3})(?:\.[0-9]{1,3}){3}))(?::[0-9]{1,5})?$/g;
+		return validPattern.test(arr[2]) ? true : false;
+	}
+	return false;
+}

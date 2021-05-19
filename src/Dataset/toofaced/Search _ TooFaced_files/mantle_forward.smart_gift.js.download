@@ -1,0 +1,133 @@
+var SGBasket = SGBasket || {};
+var MantleSmartGiftConf = MantleSmartGiftConf || {};
+var Mustache = Mustache || {};
+var prodcat = prodcat || {};
+
+var MantleSmartGift = (function(MantleSmartGift, loadjs) {
+  MantleSmartGift.getConf = function() {
+    var smartGiftConf = window.MantleSmartGiftConf;
+    return smartGiftConf;
+  };
+
+  /*
+   * Load the smartgift js lib.
+   *
+   * This will run only run and mount the smartlib wigets only once. However
+   * the callback will always be called.
+   */
+  MantleSmartGift.loadSmartGiftLib = function(callback) {
+    var smartGiftConf = this.getConf();
+    var smartGiftJs = smartGiftConf.api_link;
+    var smartGiftMerchantId = smartGiftConf.merchant_id;
+
+    var mountCallback = function() {
+      window.SmartGiftWidget.mount(smartGiftMerchantId);
+    };
+
+    // Load smartgift js if we haven't already.
+    if (!loadjs.isDefined('smartgift')) {
+      loadjs([smartGiftJs], 'smartgift');
+      // On first load. Run the mount callback.
+      loadjs.ready('smartgift', mountCallback);
+    }
+
+    if (typeof callback === 'function') {
+      loadjs.ready('smartgift', callback);
+    }
+  };
+
+  /*
+   * Helper function to run once SGBasket exists on window.
+   */
+  MantleSmartGift.runWhenMounted = function(callback) {
+    var waitForJob = function() {
+      if (window.SGBasket && window.SGBasket.addItem) {
+        callback();
+        return;
+      }
+      window.setTimeout(waitForJob, 50);
+    };
+
+    // Load libs. If libs are already loaded the callback will immediately
+    // invoke.
+    MantleSmartGift.loadSmartGiftLib(waitForJob);
+  };
+
+  /*
+   * Wrapper about SGBasket.addItem.
+   *
+   * Does some basic cleanup.
+   */
+  MantleSmartGift.addItemToBasket = function(smartGiftData) {
+    if (!smartGiftData) {
+      return;
+    }
+
+    // Get rid of html tags in name.
+    var domDiv = document.createElement('DIV');
+    domDiv.innerHTML = smartGiftData.name;
+    smartGiftData.name = domDiv.textContent;
+
+    // Default to current url.
+    if (!smartGiftData.skuUrl) {
+      smartGiftData.skuUrl = window.location.href;
+    }
+
+    SGBasket.addItem(smartGiftData);
+  };
+
+  /*
+   * Add a sku to the SGBasket. This assumes that prodcat is available.
+   *
+   * It will use Mustache to render variables that may differ from
+   * brand/locale.
+   */
+  // eslint-disable-next-line complexity
+  MantleSmartGift.addSku = function(skuBaseId) {
+    var skuData = prodcat.data.getSku(skuBaseId);
+    var productId = skuData.PRODUCT_ID;
+    var productData = prodcat.data.getProduct(productId);
+    var smartGiftData;
+
+    if (productData === null || skuData === null) {
+      return;
+    }
+
+    // Render name/image attributes from mustache templates.
+    var mustacheData = {
+      'product': productData,
+      'sku': skuData,
+    };
+
+    var itemName = productData.PROD_RGN_NAME;
+    if (MantleSmartGiftConf.name_template) {
+      itemName = Mustache.render(MantleSmartGiftConf.name_template, mustacheData);
+    }
+
+    var itemImage = skuData.LARGE_IMAGE && skuData.LARGE_IMAGE[0];
+    if (MantleSmartGiftConf.image_template) {
+      itemImage = Mustache.render(MantleSmartGiftConf.image_template, mustacheData);
+    }
+
+    smartGiftData = {
+      skuCode: skuData.SKU_BASE_ID,
+      price: skuData.PRICE,
+      name: itemName,
+      image: itemImage
+    };
+
+    MantleSmartGift.addItemToBasket(smartGiftData);
+  };
+
+  MantleSmartGift.getAnalyticsEvents = function() {
+    var smartGiftEventContainers = {
+      'see gift': '.SGBasket-widget .widget-footer-gotItButton',
+      'prepare my gift': '.SGBasket-widget .widget-summary-button',
+      'cancel this gift': '.SGBasket-widget .widget-footer-cancelGift',
+      'minimize / maximize': '.SGBasket-widget .SGBasketButton',
+    };
+    return smartGiftEventContainers
+  };
+
+  return MantleSmartGift;
+})(MantleSmartGift || {}, window.loadjs, Drupal);

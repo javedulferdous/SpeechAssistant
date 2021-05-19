@@ -1,0 +1,26 @@
+var site = site || {};
+var generic = generic || {};
+var lpTag = lpTag || {};
+if (window.location === window.parent.location) {
+  var locale = generic.cookie('LOCALE');
+  var site_name = Drupal.settings.lp.site_name[locale] ? Drupal.settings.lp.site_name[locale] : Drupal.settings.lp.site_name;
+  var deviceName;
+  lpTag.section = [site_name];
+  if (typeof Drupal.settings.lp !== 'undefined') {
+    var getMobileOperatingSystem = function() {
+      var userAgent = navigator.userAgent || navigator.vendor || window.opera;
+      if (/windows phone/i.test(userAgent)) {
+        return 'Windows';
+      } else if (/android/i.test(userAgent)) {
+        return 'Android';
+      } else if (/iPad|iPhone|iPod/.test(userAgent) && !window.MSStream) {
+        return 'iOS';
+      } else {
+        return 'unknown';
+      }
+    };
+    deviceName = getMobileOperatingSystem().toLowerCase();
+    $('.js-' + deviceName, '.js-footer-formatter-primary, .js-cta-tout-v1').removeClass('hidden');
+    lpTag.section.push('or_' + deviceName);
+  }
+}

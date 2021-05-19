@@ -1,0 +1,52 @@
+_satellite.pushAsyncScript(function(event, target, $variables){
+  //216250 WYD Bernadette
+    if(_satellite.getVar('Movie ID') == '216250'){
+      if(_satellite.getVar('Page Level 2') == 'movie | overview'){  
+        
+    //MOP
+//PXL-216
+
+_satellite.loadScript('https://www.googletagmanager.com/gtag/js?id=AW-778836130')
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'AW-778836130');
+
+//PXL-217
+
+
+_satellite.loadScript('https://www.googletagmanager.com/gtag/js?id=AW-778823898')
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'AW-778823898');
+
+
+        _satellite.loadScript('//insight.adsrvr.org/track/evnt/?adv=dz18eg5&ct=0:kp2to9e&fmt=3')
+    }
+
+      if(_satellite.getVar('Page Level 2') == 'movie times | by movie'){
+        _satellite.loadScript('//insight.adsrvr.org/track/evnt/?adv=dz18eg5&ct=0:dciis7k&fmt=3')
+
+        
+//MSP
+//PXL-216
+_satellite.loadScript('https://www.googletagmanager.com/gtag/js?id=AW-778836130')
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'AW-778836130');
+
+//PXL-217
+_satellite.loadScript('https://www.googletagmanager.com/gtag/js?id=AW-778823898')
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'AW-778823898');
+        
+        
+      }
+    
+    
+    }
+});

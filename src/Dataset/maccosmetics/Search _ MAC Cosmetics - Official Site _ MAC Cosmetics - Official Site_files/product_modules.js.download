@@ -1,0 +1,2602 @@
+var site = (function($, Drupal, _, site, prodcat, undefined) {
+  "use strict";
+
+  // Get Product prototype that we're going to decorate with modules
+  var Product = site.prodProto;
+  var prodShare = '.js-product_share';
+  var ingredientsFlag = 0;
+
+  /**
+   * Product modules decorate the basic Product object with additional
+   * functionality, usually around manipulating DOM or responding to Product
+   * events.
+   *
+   * Product.prototype.modules.moduleName = function(product, $product) {
+   *   // do stuff to product data (product) and DOM ($product)
+   * };
+   *
+   * where moduleName is the name of your Product module. All Product modules
+   * have the same two parameters passed to them:
+   *
+   * @param product, object: Product object containing
+   *  .data: Full product data,
+   *  .info: Current product state, usually prodid and sku,
+   *  $element: Actual DOM element of the product
+   * @param $product, jQuery: Shortcut to the product.$element DOM element for
+   * quick reference
+   *
+   * See actual implementations in this file, but here are samples:
+   *
+   * Product.prototype.modules.yourModuleName = function(product, $product) {
+   *
+   *   // Treat $product as a jQuery DOM object, using $product as the context
+   *   // for all selectors.
+   *   $product.find('.someElement').doStuff();
+   *   $('.something', $product).doStuff();
+   *
+   *   // Bind events to $product, use element filter for good context containment
+   *   $product.on('click', '.someElement', function(e) {
+   *     // Do stuff on click of someElement
+   *   });
+   *
+   *   // Respond to specific events on $product (events described below)
+   *   $product.on('product:change_shade', function(e, productInfo, template) {
+   *    // do stuff
+   *  });
+   *
+   *   // Reference items on the Product data object
+   *   product.data.skus[0].color_family
+   *   // Or use the various helper functions available
+   *   product.findSkuObject('SKU123123').color_family;
+   *   var listOfSkus = product.filterSkusByAttribute({color_family: 'light'});
+   * }
+   *
+   * Events to use for changing/rendering/responding to product data change and
+   * behavior. Keep things like visual and purely UI (ie bag bar sliding in from
+   * top) within Drupal.behaviors
+   *
+   * Events available to trigger/respond to on $product:
+   *  product:change_shade: Ride or trigger the shade change event. Make sure you set state. Calls change_sku
+   *  product:change_sku: A more generic
+   *  product:render_sku:
+   */
+
+  /**
+   * Product -> change SKU from URL
+   *  Passing #/shade/:shadeName name causes an SPP to change shade. Shade names
+   *  should replace spaces with underscores
+   *
+   *  Example: /product/13854/310/Products/Makeup/Lips/Lipstick/Lipstick/#/shade/Milan_Mode
+   */
+  Product.prototype.modulesimageBackgroundURl = function () {
+    var $product = $(".product").not(".product--shadegrid"); // do not attach for shadegrid layout
+    var url = $product.find('li.shade-picker__color--selected .shade-picker__color-texture');
+    var img_url = url.data('bg-image');
+    url.css('background-image', 'url(' + img_url + ')');
+  };
+
+  Product.prototype.ingredientsDisplay = function (skuInfo){
+    var iln_listing_count = 3;
+    if (!skuInfo){
+     skuInfo = {};
+    }
+    var ingredientContent =  (typeof skuInfo.ILN_LISTING != 'undefined') ? skuInfo.ILN_LISTING : '';
+    var ilnListingValue = '';
+    for (var count = 1; count <= iln_listing_count; count++) {
+      ilnListingValue = eval('skuInfo.ILN_LISTING_' + count);
+      ingredientContent +=  ((ilnListingValue != null && ilnListingValue != undefined && ilnListingValue !='') ? "<div>" + eval('skuInfo.ILN_LISTING_' + count) + "</div>" : "");
+    }
+    if(ingredientContent == ''){
+      $('.product__ingredients-spp').hide();
+      $('.product__description--ingredients').hide();
+    }
+    else if ($('.product__ingredients-spp').length > 0 && site.client.isMobile) {
+      $('.product__ingredients-spp').show();
+      $(".product__ingredients-spp .expando-block__content").html(ingredientContent);
+    }
+    else{
+      $('.product__description--ingredients').show();
+    }
+    return ingredientContent;
+  };
+
+  Product.prototype.modules.productShadeRoute = function(product, $product) {
+    // Only do the following for full SPP page products
+    if (!$product.hasClass('product--full')) {
+      return;
+    }
+
+    // include reserved characters missing from encodeURIComponent()
+    function fixedEncodeURIComponent(str) {
+      return encodeURIComponent(str).replace(/[!'()*]/g, function(c) {
+        return '%' + c.charCodeAt(0).toString(16);
+      });
+    }
+
+    // SPP only
+    var shadeNameNoSpaces;
+
+    // Function run on successful route (defined below)
+    var changeSppShade = function(shadeName) {
+
+      // Urls can't have spaces, we ask they use underscores
+      shadeNameNoSpaces = decodeURIComponent(shadeName).split('_').join(' ');
+      // Returns array of sku objects from a shade name
+      var skuObjectsArray = product.filterSkusByAttribute('SHADENAME', [shadeNameNoSpaces]);
+
+      // Test if we received array of objects back (even a single result is an array)
+      if (!_.isEmpty(skuObjectsArray)) {
+        // Only care about the first
+        var skuId = skuObjectsArray[0].SKU_ID;
+        // Set state so it can be used by our "default state" below
+        product.setState({sku: skuId});
+        // Trigger shade change
+        $product.trigger('product:change_shade', [{sku: skuId}]);
+      }
+      //else {
+      //  // commented out console for ie
+      //  console.warn(shadeName + ' is not a valid shade name for this product');
+      //}
+    };
+
+    // Definite route for Director library below
+    var routes = {
+      '/shade/:shadeName': changeSppShade
+    };
+
+    // Director initialization
+    var router = Router(routes);
+    router.init();
+
+    // hijack back button instead of going through every shade that was selected
+    if (document.referrer.length > 0) {
+      // Necessary hack because WebKit fires a popstate event on document load
+      // https://code.google.com/p/chromium/issues/detail?id=63040
+      // https://bugs.webkit.org/process_bug.cgi
+      window.addEventListener('load', function() {
+        setTimeout(function() {
+          window.addEventListener('popstate', function(e) {
+            // Don't refresh the page if the user clicked on a BV link
+            if (e.target.location.hash.match(/^#BVRR/) || e.state == null) {
+              return;
+            }
+            window.location = document.referrer;
+          });
+        }, 0);
+      });
+    }
+
+    // Change hash path based on shade clicked
+    $product.on('product:change_shade', function(e, productInfo, template) {
+      // the first time change_shade runs, set to initial shade from url, if exists
+      if (site.productApp.initialShadeInit === false) {
+        site.productApp.initialShadeInit = true;
+        if (!!site.productApp.initialShadeRoute) {
+          changeSppShade(site.productApp.initialShadeRoute);
+        } else {
+          // check for default shade
+          var skuResults = product.filterSkusByAttribute('DEFAULT_SKU','1');
+          if (!!_.result(skuResults[0], 'isShoppable')) {
+            changeSppShade(skuResults[0].SHADENAME);
+          }
+        }
+        return;
+      }
+
+      Product.prototype.sppAutoReplenishment();
+
+      // Since sku data has been _.extended() into product.data, we can safely assume
+      // that SHADENAME exists on product.data. Also replace spaces with underscores
+      shadeNameNoSpaces = fixedEncodeURIComponent(product.data.SHADENAME.toString().split(' ').join('_'));
+
+      // This is HTML5 only, pull in IE8 libraries like history.js for IE8 to work
+      history.replaceState({}, product.data.SHADENAME, '#/shade/' + shadeNameNoSpaces);
+
+      // update Open Graph meta tags for Pinterest Rich Pins
+      // https://developers.pinterest.com/docs/rich-pins/products/
+      var $ogTags = $('meta[property*="og"]');
+
+      // sku image
+      $ogTags.filter('meta[property="og:image"]').attr('content', window.location.origin + product.data.LARGE_IMAGE[0]);
+
+      // sku price
+      $ogTags.filter('meta[property="og:price:amount"]').attr('content', product.data.PRICE);
+
+      // url with shade route
+      $ogTags.filter('meta[property="og:url"]').attr('content', window.location.href);
+
+      // title: Product Name - Shade Name
+      if (product.data.shaded === 1) {
+        $ogTags.filter('meta[property="og:title"]').attr('content', product.data.PROD_RGN_NAME + ' - ' + product.data.SHADENAME);
+      }
+    });
+
+  };
+
+  /**
+   * Custom backend Product vars available to frontend
+   *
+   * Sometimes we have backend custom vars that our frontend needs to know about
+   */
+  Product.prototype.modules.backendVarsOnFrontend = function(product, $product) {
+
+    product.data.mac_product_layout = {};
+    product.data.mac_img_alts = {};
+
+    if ($product.hasClass('product--shadegrid')) {
+      product.data.use_shade_grid = true;
+      product.data.mac_product_layout.shadegrid = true;
+    }
+    if ($product.hasClass('product--teaser')) {
+      product.data.mac_product_layout.product_teaser = true;
+    }
+    if ($product.hasClass('product--full')) {
+      product.data.mac_product_layout.product_full = true;
+    }
+    if ($product.hasClass('product--spp-3img')) {
+      product.data.mac_img_alts.alt_3up = true;
+    }
+    if ($product.hasClass('product--teaser-alt')) {
+      product.data.mac_img_alts.has_medium_alt = true;
+    }
+    if ($product.hasClass('product--collection-dual')) {
+      product.data.mac_product_layout.dual_product_layout = true;
+    }
+    if ($product.hasClass('product--remove-sortby')) {
+      product.data.mac_product_layout.remove_sort_by = true;
+    }
+    if ($product.hasClass('product--filters-complex')) {
+      product.data.filters_complex = true;
+    }
+    if (!!$product.data('custom-label')) {
+      product.data.custom_cta_label = $product.data('custom-label');
+    }
+    if ($product.hasClass('product--teaser--tiny')) {
+      product.data.tiny_teaser = true;
+    }
+    if ($product.hasClass('product--defaultSku')) {
+      product.data.defaultSku = true;
+    }
+    // Merge our custom var for this PRODUCT_ID into our product data
+    //if (_.has(Drupal.settings.macInlineProductLayout, product.data.PRODUCT_ID)) {
+    //  _.extend(product.data, Drupal.settings.macInlineProductLayout[product.data.PRODUCT_ID]);
+    //}
+
+  };
+
+  /**
+   * Render details
+   * When render_sku is called, actually render the Product details and place on page
+   */
+  Product.prototype.modules.productDetails = function(product, $product) {
+    // Places sku details in product DOM, using defaults here
+
+    //Have implemented all sold out scenario for search result page
+    if ($("#results-container").length == 1 && $product.hasClass('product--shaded')) {
+      product.showInventoryInformation();
+    }
+
+    $product.on('product:render_sku', function(e, info, template, location) {
+      //product.setState(info).render(template).decorateDrupalBehaviors().place(location);
+      product.setState({rendered: true});
+      // Render it and place it on the page
+      product.setSkuDetails(info).render(template).place(location);
+      site.productApp.isRestricted($product, product.findSkuObject(info.sku));
+
+      if ($product.hasClass('product--shadegrid')) {
+        // "NEW" flag
+        if (product.data.MISC_FLAG === 1) {
+          $('<span class="product__product-details-badge-new"></span>')
+              .html(site.translations.product.sppprod_new_label)
+              .prependTo(".product__product-details-shade-description");
+        }
+      }
+
+      // SPP sku-specific image
+      // Workaround for inital server-side template render with incorrect image for some products:
+      // Template renders src in data-src attribute instead of src
+      // Get data-src from this sku render
+      if ($product.hasClass('product--full')) {
+        $('.js-shade-trigger img', $product).each(function() {
+          var imagesrc = $(this).attr('data-src');
+          $(this).attr('src', imagesrc);
+        });
+      }
+
+      $product.find('.js-shipping-overlay').once().click(function() {
+        $(window).trigger('window:show_shipping_overlay');
+        return false;
+      });
+
+      $('.product__footer .js-add-to-bag', $product).html(site.translations.product.add_to_bag);
+
+      // var defaultSkuInfo = product.findSkuObject($.parseJSON($('.product__add-to-bag').attr('data-product')).sku);
+      // var defaultSkuInfo = product.filterSkusByAttribute('DEFAULT_SKU','1')[0];
+      var defaultSkuInfo = _.find(product.data.skus, {'SKU_ID': product.info.sku});
+
+      //Display Ingredients for default SKU - SPP page PC / Mobile
+      if ( Drupal.settings.globals_variables.display_ingredients && Drupal.settings.globals_variables.display_ingredients !== 'undefined' && ($('.product__ingredients-spp').length > 0 || $('.product__description--ingredients').length > 0)) {
+        if(defaultSkuInfo && ((defaultSkuInfo.ILN_LISTING_1 != null) || (defaultSkuInfo && defaultSkuInfo.ILN_LISTING != null))) {
+          Product.prototype.ingredientsDisplay(defaultSkuInfo);
+          ingredientsFlag = 1;
+        }
+        $('.product__description--ingredients').click(function() {
+          var currentSku = product.findSkuObject($.parseJSON($('.product__add-to-bag').attr('data-product')).sku);
+          if(currentSku) {
+            var ingredientContent = Product.prototype.ingredientsDisplay(currentSku);
+            var ingredientTitle = '<h4>' + product.data.globals.t.product.ingredients_title + '</h4>';
+            ingredientContent = ingredientTitle + "<div class='ingredient-content'>" + ingredientContent + "</div>";
+            generic.overlay.launch({
+              content: ingredientContent,
+              includeBackground: true,
+              includeCloseLink: true,
+              initialHeight: 0,
+              height: 0,
+              width: '50%',
+              onComplete : function() {
+                $(this).colorbox.resize();
+              }
+            });
+          }
+        });
+      }
+
+      // derive & set pre-order state.
+      if (defaultSkuInfo) {
+        defaultSkuInfo.isPreOrder = product.testPreOrderSku(defaultSkuInfo);
+
+        var updateMsg = function($ele, trKey, dateStr) {
+          var msg = site.translations.product[trKey];
+          if (msg) {
+            msg = msg.replace(/::release_date::/, dateStr);
+            $ele.html(msg);
+          }
+        }
+        var $stickyButtonPreorder = $('.js-product__sticky-container .js-add-to-bag', $product);
+
+        if (defaultSkuInfo.isPreOrder) {
+          // set add button label
+          // TODO don't chg add btn if shaded product & multi shades are displayed
+          // if (!product.data.shaded) {
+            $('.product__footer .js-add-to-bag', $product).html(site.translations.product.pre_order_btn);
+          $('.js-product-add-to-bag',  $product).html(site.translations.product.pre_order_btn);
+          if ($stickyButtonPreorder) {
+            $stickyButtonPreorder.html(site.translations.product.pre_order_btn);
+          }
+          // }
+          // set Inv status message
+          var shipDays = parseInt(site.translations.product.ship_days);
+          var preorder_date_format = Drupal.settings.globals_variables.preorder_date_format || '';
+          var relDate = product.getReleaseDate(defaultSkuInfo);
+          var shipDate = new Date(relDate);
+          var days = relDate.getDate();
+          if (!isNaN(shipDays)) {
+            days += shipDays;
+            shipDate.setDate(days);
+          }
+          var getDateStr = function(d) {
+            var formatted_date = '';
+            var yyyy = d.getFullYear(),
+                mm = ('0' + (d.getMonth() + 1)).slice(-2),
+                dd = ('0' + d.getDate()).slice(-2);
+            switch (preorder_date_format) {
+              case 'YYYY/MM/DD':
+                formatted_date = yyyy + '/' + mm + '/' + dd;
+                break;
+              case 'DD/MM':
+                formatted_date = dd + '/' + mm;
+                break;
+              default :
+                formatted_date = d.getMonth() + 1;
+                formatted_date += '/';
+                formatted_date += d.getDate();
+                break;
+            }
+            return formatted_date;
+          };
+          var relDateStr = getDateStr(relDate);
+          var shipDateStr = getDateStr(shipDate);
+
+          if (defaultSkuInfo.isShoppable) {
+            updateMsg($('.js-prod-preorder-desc', $product), 'sppprod_preorder_ships_by_desc', shipDateStr);
+          } else {
+            updateMsg($('.js-prod-preorder-desc', $product), 'mpp_preorder_non_shoppable_msg', relDateStr);
+          }
+
+          updateMsg($('.js-inv-status-preorder-noshop', $product), 'preorder_noshop_msg', relDateStr);
+          updateMsg($('.js-msg-preorder-shop', $product), 'mpp_preorder_shoppable_msg', shipDateStr);
+          updateMsg($('.js-msg-preorder-non-shop', $product), 'mpp_preorder_non_shoppable_msg', relDateStr);
+          updateMsg($('.js-product-inventory-status--preorder', $product), 'mpp_preorder_shoppable_msg', relDateStr);
+
+        } else {
+          // set add button label to default
+          $('.product__footer .js-add-to-bag', $product).html(site.translations.product.add_to_bag);
+          if ($stickyButtonPreorder) {
+            $stickyButtonPreorder.html(site.translations.product.add_to_bag);
+          }
+        }
+      }
+
+      // shade picker url for sku-as-product skus
+      if ($product.hasClass('product--sku-product')) {
+        var getShadeName =  $product.find('.product__shade-name > span').first().text();
+        if (getShadeName) {
+          var shadeNameJoin  = decodeURIComponent($.trim(getShadeName)).split(' ').join('_');
+          var pickedProductUrl = $product.find('.js-product__link-to-spp').attr('href').split('#')[0];
+          var qsShadeRoute = pickedProductUrl+"#/shade/"+ shadeNameJoin;
+          $product.find('.js-product__link-to-spp').attr('href', qsShadeRoute);
+        }
+      }
+      if (ingredientsFlag == 0) {
+        $('.product__ingredients-spp').hide();
+        $('.product__description--ingredients').hide();
+      }
+
+    });
+  };
+
+  /**
+   * Product -> Sku "Add to Favorites"
+   * Handle add to favorites event
+   */
+  Product.prototype.modules.productAddToFavorites = function(product, $product) {
+
+    $product.on('product:render_sku', function(e, info) {
+
+      Drupal.behaviors.favToolTips.attach($product.find('.product__detail'));
+
+    });
+  };
+
+
+  /**
+   * Share social link functionality
+   * @param product
+   * @param $product
+   */
+  Product.prototype.modules.productUpdateShareLinks = function(product, $product) {
+    if (!$product.hasClass('product--full')) {
+      return;
+    }
+
+    $product.on('focusin mouseover', prodShare, function() {
+      $('.js-product_social_links').addClass('share_show');
+    }).on('focusout', '.js-product_social_links > li:last-child', function() {
+        $('.js-product_social_links').removeClass('share_show');
+    }).on('mouseout', prodShare, function() {
+      $('.js-product_social_links').removeClass('share_show');
+    });
+
+    var productRecordSocialAction = function(platform) {
+      if (Drupal.settings.globals_variables.loyalty_social_earning.includes(platform)) {
+        generic.jsonrpc.fetch({
+          'method': 'user.recordSocialAction',
+          'params': [{ action: 'share',
+            url: window.location.href,
+            platform: platform, }],
+        });
+      }
+    };
+
+    // mobile share link trigger
+    // this sits outside the product so we have to use normal methods
+    var $mobileShareTrigger = $('.product__share-wrapper--mobile .js-product__share-trigger', 'body');
+    var $mobileShareicons = $('.product__share-wrapper--mobile .product__social-links', 'body');
+    $mobileShareTrigger.on('click', function(e) {
+      e.preventDefault();
+      $mobileShareicons.toggle();
+    });
+    //email share link
+    // @todo update subject line
+    var $emailMobileLink = $('.product__share-wrapper--mobile .product__social-link--email', 'body');
+    var email_subject = encodeURIComponent(product.data.PROD_RGN_NAME);
+    var email_body = encodeURIComponent(window.location.href);
+    var email_full = "mailto:?subject=" + email_subject + "&body=" + email_body;
+    $product.on('click keydown', '.product__social-link--email', function(e) {
+      var keycode = site.getKeycode(e);
+      if (keycode === 13 || keycode === 1) {
+        window.location.href = email_full;
+      }
+    });
+    // mobile email
+    $emailMobileLink.on('click', function() {
+      window.location.href = email_full;
+    });
+    //twitter share link
+    var $twitterMobileLink = $('.product__share-wrapper--mobile .product__social-link--twitter', 'body');
+    var twitter_title = encodeURIComponent(product.data.PROD_RGN_NAME) + ' %7C ' + site.translations.product.mac_comsmetics_name + ' %7C ' + encodeURIComponent(site.translations.product.official_site);
+    var twitter_url = encodeURIComponent(window.location.href);
+    var twitter_full = 'https://twitter.com/share/?text=' + twitter_title + '&url=' + twitter_url;
+    $product.on('click keydown', '.product__social-link--twitter', function(e) {
+      var keycode = site.getKeycode(e);
+      if (keycode === 13 || keycode === 1) {
+        window.open(twitter_full, 'tweet', 'width=790, height=460');
+        if (Array.isArray(Drupal.settings.globals_variables.loyalty_social_earning) && Drupal.settings.globals_variables.loyalty_social_earning.length) {
+          productRecordSocialAction('twitter');
+        }
+      }
+    });
+    // mobile twitter
+    $twitterMobileLink.on('click', function() {
+      window.open(twitter_full, 'tweet', 'width=790,height=460');
+      if (Array.isArray(Drupal.settings.globals_variables.loyalty_social_earning) && Drupal.settings.globals_variables.loyalty_social_earning.length) {
+        productRecordSocialAction('twitter');
+      }
+    });
+    //facebook share link
+    var $fbMobileLink = $('.product__share-wrapper--mobile .product__social-link--facebook', 'body');
+    var facebook_title = encodeURIComponent(product.data.PROD_RGN_NAME) + ' %7C ' + site.translations.product.mac_comsmetics_name + ' %7C ' + site.translations.product.official_site;
+    var facebook_url = encodeURIComponent(window.location.href);
+    var facebook_full = 'https://www.facebook.com/sharer/sharer.php?u=' + facebook_url + '&t=' + facebook_title;
+    $product.on('click keydown', '.product__social-link--facebook', function(e) {
+      //console.log(facebook_full)
+      var keycode = site.getKeycode(e);
+      if (keycode === 13 || keycode === 1) {
+        window.open(facebook_full, 'facebook_share', 'width=790, height=460');
+        if (Array.isArray(Drupal.settings.globals_variables.loyalty_social_earning) && Drupal.settings.globals_variables.loyalty_social_earning.length) {
+          productRecordSocialAction('facebook');
+        }
+      }
+    });
+    // mobile fb
+    $fbMobileLink.on('click', function() {
+      window.open(facebook_full, 'facebook_share', 'width=790,height=460');
+      if (Array.isArray(Drupal.settings.globals_variables.loyalty_social_earning) && Drupal.settings.globals_variables.loyalty_social_earning.length) {
+        productRecordSocialAction('facebook');
+      }
+    });
+
+    //pinterest share link
+    var $pinterestMobileLink = $('.product__share-wrapper--mobile .product__social-link--pinterest', 'body');
+    var pinterest_full_link = '';
+    $product.on('product:change_sku', function(e, info) {
+      var pinterest_url = encodeURIComponent(window.location.href);
+      var pinterest_media = encodeURIComponent(window.location.origin + $('.product__sku-image').attr('src'));
+      var pinterest_description = site.translations.product.mac_comsmetics_name + encodeURIComponent(': ' + product.data.PROD_RGN_NAME + ' in ' + product.data.SHADENAME);
+      pinterest_full_link = 'https://www.pinterest.com/pin/create/button/?url=' + pinterest_url + '&media=' + pinterest_media + '&description=' + pinterest_description;
+    });
+
+    $product.on('click keydown', '.product__social-link--pinterest', function(e) {
+      var keycode = site.getKeycode(e);
+      if (keycode === 13 || keycode === 1) {
+        window.open(pinterest_full_link, 'pinterest', 'width=790, height=592');
+        if (Array.isArray(Drupal.settings.globals_variables.loyalty_social_earning) && Drupal.settings.globals_variables.loyalty_social_earning.length) {
+          productRecordSocialAction('pinterest');
+        }
+      }
+    });
+    // mobile pinterest
+    $pinterestMobileLink.on('click', function() {
+      window.open(pinterest_full_link, 'pinterest', 'width=790,height=460');
+      if (Array.isArray(Drupal.settings.globals_variables.loyalty_social_earning) && Drupal.settings.globals_variables.loyalty_social_earning.length) {
+        productRecordSocialAction('pinterest');
+      }
+    });
+  };
+
+  /**
+   * Product -> Sku "Add to Bag"
+   * Handle add-to-bag event
+   */
+  Product.prototype.modules.productAddToBag = function(product, $product) {
+    // detect if this is sku as product sku card via a prod_id field
+    if ($product.hasClass('product--sku-product') && $product.attr('data-sku-teaser')) {
+      $product.on('click', '.js-add-to-bag', function(e) {
+        e.preventDefault();
+        // Sku id from parent wrapper that rendering cannot change
+        var buttonSkuId = $product.parent().data('sku-target');
+
+        // If the button has sku, use it to lookup sku object, otherwise use default
+        var sku = (!!buttonSkuId) ? product.findSkuObject(buttonSkuId) : product.getDefaultSkuObject();
+
+        // Get skuBaseId off of full sku object
+        var skuBaseId = _.result(sku, 'SKU_BASE_ID');
+        product.setState({'SKU_BASE_ID': skuBaseId}); // Necessary?
+
+        // Send off to prodcat in proper format
+        prodcat.ui.addToCart({skuBaseId: skuBaseId});
+
+      });
+    // defaults
+    } else {
+      $product.on('click', '.js-add-to-bag', function(e) {
+        e.preventDefault();
+
+        // Sku id from add to bag button (if it exists)
+        var buttonSkuId = $(this).data('product').sku;
+
+        // If the button has sku, use it to lookup sku object, otherwise use default
+        var sku = (!!buttonSkuId) ? product.findSkuObject(buttonSkuId) : product.getDefaultSkuObject();
+
+        // Get skuBaseId off of full sku object
+        var skuBaseId = _.result(sku, 'SKU_BASE_ID');
+        product.setState({'SKU_BASE_ID': skuBaseId}); // Necessary?
+
+        // Send off to prodcat in proper format
+        prodcat.ui.addToCart({skuBaseId: skuBaseId});
+
+      });
+    }
+
+  };
+
+  /**
+   * Translations added to product.data
+   */
+  Product.prototype.modules.translations = function(product, $product) {
+    // Backend templates look for {{globals.t.namespace.thing}}, so let's fake
+    // on frontend, from the site.translations object
+    product.data.globals = {
+      t: site.translations
+    };
+  };
+
+  /**
+  * Global Config Variable added to product.data
+  */
+  Product.prototype.modules.variables = function(product, $product) {
+    product.data.globals.variables = Drupal.settings.globals_variables || {};
+  };
+
+  /**
+   * 100% width SPP poor-man's positioning
+   *
+   * We have to manually calculate this because the detail column in the center of
+   * the SPP layout is a fixed width. The images column should flex.
+   */
+  Product.prototype.modules.sppUltraWidePositioning = function(product, $product) {
+
+    // Only do this for full modules
+    if (!$product.hasClass('product--full')) {
+      return;
+    }
+
+    $product.on('product:update_positioning', function() {
+      var $productImages = $('.product__images', $product);
+      var carousel = $('.product-carousel__slides', $product);
+      var currSlide = 0;
+      var slides = carousel.find('.product-full__img');
+      var numSlides = slides.length;
+      // Test for xlarge-up width and do stuff
+      if (Modernizr.mq('(min-width: 1023px)') === true) {
+        // Add body class for CSS'in
+        $('body').addClass('page--spp-ultra-wide');
+
+        // Use full context selectors here because these inner bits have been
+        // re-rendered. They need the parent class to be found again.
+        if ($('.product__header', $product).length > 0) {
+          var relativeHeaderPosition;
+          if(site.direction.isRTL) {
+            //calculate the space at the right of the product header; subtract the border so the image won't overflow
+            relativeHeaderPosition = $(window).width() - parseInt($('.product__header', $product).outerWidth(true), 10) - 1;
+          } else {
+            relativeHeaderPosition = parseInt($('.product__header', $product).offset().left, 10);
+          }
+
+          $('body, html').removeClass('noscroll').removeClass('fixedpos');
+          if (relativeHeaderPosition > 0) {
+            $productImages.css('width', relativeHeaderPosition);
+            // These two elements also need resizing at this point, just not on alt-image/3up SPPs..
+            if ($('.product-full__3up-images').length === 0) {
+              if (carousel.hasClass('slick-initialized')) {
+                currSlide = carousel.slickCurrentSlide();
+              }
+              slides.css('width', relativeHeaderPosition);
+              if (carousel.hasClass('slick-initialized')) {
+                carousel.find('.slick-track').css('width', relativeHeaderPosition * numSlides);
+                carousel.slickGoTo(currSlide, true);
+              }
+            }
+          }
+          Product.prototype.modulesimageBackgroundURl();
+        }
+      } else {
+        // reset for responsive tablet/mobile view
+        $('body').removeClass('page--spp-ultra-wide');
+        $productImages.css('width', '100%');
+        slides.css('width', '100%');
+        if (carousel.hasClass('slick-initialized')) {
+          $product.trigger('product:update_carousel', [$product]);
+        }
+      }
+
+    });
+
+    $(window).resize(_.debounce(function() {
+      $product.trigger('product:update_positioning', [$product]);
+    }, 150)).resize();
+
+    $product.on('product:render_sku', function(e, info, template, location) {
+      $product.trigger('product:update_positioning', [$product]);
+    });
+  };
+
+  /**
+   * Carousels
+   * Using a bespoke implementation of slick.js
+   */
+  Product.prototype.modules.sppCarousel = function(product, $product) {
+    // SPP only
+    if (!$product.hasClass('product--full')) {
+      return;
+    }
+
+    $product.on('product:update_carousel', function(e, info, template, location) {
+
+    //add video
+    var macSppVideo = product.data.VIDEO_NAME;
+    var productFullVideoLen = $('.js-prod-level-video').length;
+
+    if ((macSppVideo && macSppVideo.length > 0) && (productFullVideoLen === 0)) {
+      $.each(macSppVideo, function(i, item) {
+
+        if (macSppVideo[i] && (macSppVideo[i].indexOf('.') === -1)) {
+          var sppVideo = '//www.youtube.com/embed/'+macSppVideo[i]+'?autoplay=1&rel=0&showinfo=0';
+          var sppImage = '/media/export/cms/products/640x600/mac_video_'+ product.data.PROD_BASE_ID + '_640x600_'+i+'.jpg';
+
+          var $videoLink = $('<a/>', {
+            class: 'video-launcher',
+            href: sppVideo,
+            html: '<img class="js-product-thumb-image" data-src="'+sppImage+'" src="'+sppImage+'" alt="'+product.data.PROD_RGN_NAME+'" />'
+          });
+
+          var $videoImageContainer = $('<div/>', {
+            class: 'carousel-slide product-full__img product-full__video js-prod-level-video',
+            html: $videoLink
+          }).attr('data-thumb', sppImage).attr('data-video', sppVideo);
+
+          $('.js-product-carousel-slides').append($videoImageContainer);
+          if(site.client.isMobile) {
+            $('.video-launcher').colorbox({iframe:true, fixed:true, width: '100%', height: '100%', className: 'overlay__alt-video', close: '<i class="icon--remove"></i>'});
+          }
+          else {
+            $('.video-launcher').click(function(e) {
+              e.preventDefault();
+              var ytUrl  = $(this).attr('href'),
+                  ytWidth = $('.js-product-thumb-image').width(),
+                  ytHeight = $('.js-product-thumb-image').height();
+              $(this).html('<iframe width="'+ytWidth+'" height="'+ytHeight+'" src="'+ytUrl+'" frameBorder="0"></iframe>');
+            });
+          }
+        }
+      });
+    }
+
+      var slides = $('.product-full__img', $product);
+      if (slides.length > 1) {
+        // multiple large images load in a carousel by default
+        var $productCarousel = $('.product-carousel__slides', $product);
+        // swipe/drag direction is opposite when in RTL
+        // so better to just disable it until a fix is provided in the library
+        var isRTL = site.direction.isRTL;
+        var swipe = isRTL ? false : true;
+        var draggable = swipe;
+        // shadegrid layout has arrows for mobile SPP carousel
+        var useArrows = $product.hasClass('product--shadegrid');
+        var slickDots = useArrows ? false : true;
+        // var useDots = !useArrows ;
+        var slickOptions = {
+          rtl: isRTL,
+          swipe: swipe,
+          draggable: draggable,
+          dots: slickDots,
+          slidesToShow: 1,
+          slidesToScroll: 1,
+          accessibility: false,
+          arrows: useArrows,
+          infinite: false,
+          appendDots: $('.product__images', $product), // move elsewhere in dom for rel pos
+          onAfterChange: function() {
+            var largeImgIndex = $productCarousel.find('.slick-active').attr('index');
+            $('.js-slick-thumbs').removeClass('slick-current');
+            $('.js-slick-thumbs[index="' + largeImgIndex + '"]').addClass('slick-current');
+            if (!$('.slick-slide.slick-active').hasClass('js-prod-level-video')) {
+              product.initZoom();
+            }
+          },
+        };
+        if ($product.hasClass('product--shadegrid')) {
+          slickOptions['onInit'] = function(slickObj) {
+            slickObj.$slides.find();
+            var $imgs = slickObj.$slides.find('.js-product-thumb-image');
+            var $thumbsContainer = $('.product__images', $product).find('.slider-nav');
+            if (slickObj.$slides && ($thumbsContainer.length === 0)) {
+              var $thumbNav = $('<div>', {class: 'slider-nav'});
+              $('.product__images').append($thumbNav);
+              var $thumbsCount = slickObj.slideCount;
+              for (var i = 0; i < $thumbsCount; i++) {
+                var $img = $($imgs[i]).clone();
+                var $thumbImage = $('<div>', {
+                  class: 'thumb-image-slick js-slick-thumbs',
+                  html: '<img src="' + $img.data('src') + '" />',
+                });
+                $('.slider-nav', $product).append($thumbImage);
+              }
+              $('.js-slick-thumbs').removeClass('slick-current');
+              $('.js-slick-thumbs.slick-active').first().addClass('slick-current');
+            }
+          };
+        }
+        $productCarousel.unslick().slick(slickOptions);
+
+        var $sliderNav = $('.slider-nav', $product);
+        var $sliderThumbs = $('.js-slick-thumbs', $product);
+        $sliderNav.slick({
+          slidesToShow: 5,
+          slidesToScroll: 1,
+          focusOnSelect: true,
+          infinite: false,
+          arrows: true,
+          responsive: [{
+            breakpoint: 1024,
+            settings: {
+              slidesToShow: 3,
+            }
+          }],
+        });
+        $sliderThumbs.off().on('click', function() {
+          $productCarousel.slickGoTo($(this).attr('index'));
+          $sliderThumbs.removeClass('slick-current');
+          $(this).addClass('slick-current');
+        });
+        $productCarousel.on('click', 'button', function() {
+          if ($(this).hasClass('slick-prev')) {
+            $sliderNav.find('.slick-prev').trigger('click');
+          } else {
+            $sliderNav.find('.slick-next').trigger('click');
+          }
+        });
+        // advance one slide when clicked
+        // spp override for displaying 3 large images up
+        // for small screens turn the 3up display into a carousel
+        if (Modernizr.mq('(max-width: 1022px)') === true) {
+          var $smallAlt3upCarousel = $('.product-full__3up-images', $product);
+          $smallAlt3upCarousel.unslick().slick({
+            rtl: isRTL,
+            swipe: swipe,
+            draggable: draggable,
+            dots: true,
+            slidesToShow: 1,
+            slidesToScroll: 1,
+            arrows: false,
+            accessibility: false,
+            appendDots: $('.product__images', $product) // move elsewhere in dom for rel pos
+          });
+        }
+      }
+      product.initZoom();
+    });
+
+    $product.on('product:change_sku', function(e, info, template, location) {
+      $product.trigger('product:update_carousel', [$product]);
+    });
+
+  };
+
+  /**
+   * Big Shade picker on full SPP products
+   */
+  Product.prototype.modules.shadePicker = function(product, $product) {
+
+    // Eject for non-shaded
+    if (!$product.hasClass('product--shaded')) {
+      return;
+    }
+    // skip for shadegrid (picker v2)
+    if ($product.hasClass('product--shadegrid')) {
+      return;
+    }
+
+    // Clicking a shade triggers change_shade event
+    $product.on('click', '.js-shade-picker__color', function(e) {
+      if (($(e.target).parents('.shade-picker__color-actions').length === 0) && (! $(this).hasClass("shade-picker__color--selected"))) {
+        // if this is the mobile column collapse on click
+        if ($product.hasClass('product--show-mobile-shade-column')) {
+          $product.removeClass('product--show-mobile-shade-column');
+          $('body, html').removeClass('noscroll').removeClass('fixedpos');
+          $('.site-header__fixed-wrapper').removeClass('header-pos');
+
+          // scroll to top of mobile product footer region
+          var headerHeight = $('.site-header').height();
+          var footerOffsetTop = $('.product__footer', $product).offset().top;
+          var footerMarginTop = 15;
+          $('body, html').scrollTop(footerOffsetTop - headerHeight - footerMarginTop);
+        }
+
+        // Change state of product to new sku. $(this) here is the .shade-picker__color,
+        // Looks like:
+        // <li class="shade-picker__color" data-product='{"prodid":"PROD310","sku":"SKU60019"}'
+        //
+        $product.trigger('product:change_shade', [$(this).data('product')]);
+
+        //Display Ingredients list for shaded SKU - SPP Page PC/Mobile
+        if ( Drupal.settings.globals_variables.display_ingredients && Drupal.settings.globals_variables.display_ingredients !== 'undefined' &&  ($('.product__ingredients-spp').length > 0 || $('.product__description--ingredients').length > 0)) {
+         Product.prototype.ingredientsDisplay(product.findSkuObject($.parseJSON($('.product__add-to-bag').attr('data-product')).sku));
+        }
+        //update MPP shade picker product url
+        var pickerShadename = product.data.SHADENAME;
+        if(pickerShadename) {
+          var shadenameJoin  = decodeURIComponent(pickerShadename).split(' ').join('_');
+          var pickerData = $(this).data('product')['prodid'];
+          var pickerProdId = $('#product--prod_id-'+pickerData + ':not(.product--sku-product)');
+          var pickedProductUrl = pickerProdId.find('.js-product__link-to-spp').attr('href').split('#')[0];
+          var pickedProductNewUrl = pickedProductUrl+"#/shade/"+shadenameJoin;
+          pickerProdId.find('.js-product__link-to-spp').attr('href',pickedProductNewUrl);
+        }
+      }
+      product.initZoom();
+    });
+    // Triggers shade picker click event
+    $product.on('keydown', '.js-shade-picker__color', function(e) {
+      if (site.getKeycode(e) === 13) {
+        $(this).trigger('click');
+      }
+    });
+
+    //ADA, Spp full page shades dropdown accessibility
+    $product.on('keydown', '.js-shade-picker-float', function(e) {
+      var $this = $(this);
+      var expanded = $this.attr('aria-expanded');
+      if (site.getKeycode(e) === 13) {
+        var $dropdownOptions = $this.find('.js-shade-picker-float-colors-mask');
+          if (expanded === 'false') {
+            $dropdownOptions.addClass('shades-dropdown-visibility');
+            $this.attr('aria-expanded', 'true');
+          } else if (expanded === 'true') {
+            $dropdownOptions.removeClass('shades-dropdown-visibility');
+            $this.attr('aria-expanded', 'false');
+          }
+        }
+      });
+      $product.on('keydown', '.js-shade-picker-float .js-shade-picker__color', function(e) {
+        switch(site.getKeycode(e)) {
+          case 40:
+            $(this).next().addClass('custom-outline').focus();
+            break;
+          case 38:
+            $(this).prev().addClass('custom-outline').focus();
+            break;
+          case 13:
+            $(this).trigger('click');
+            $product.find('.js-shade-picker-float').focus();
+            break;
+        }
+        $(this).removeClass('custom-outline');
+      });
+    // Bind prior event for all, but bail the following for not SPP
+    if (!$product.hasClass('product--full')) {
+      // check for default shade on MPP
+      var skuResults = product.filterSkusByAttribute('DEFAULT_SKU','1');
+      if (!!_.result(skuResults[0], 'isShoppable')) {
+        var skuId = skuResults[0].SKU_ID;
+        var $shades = product.ui.$shadesMask.find('.shade-picker__color');
+        var $defaultShade = $shades.filter(".shade-picker__color--" + skuId);
+        $defaultShade.trigger('click');
+      }
+
+      return;
+    }
+
+    // Mobile shadepicker open/close
+    $product.on('click', '.js-trigger-mobile-shade-selector, .js-shade-picker__close, .device-mobile .js-shade-trigger', function(e) {
+      e.preventDefault();
+      if($('.shade-picker__color').hasClass('shade-picker__color--selected')){
+        Product.prototype.modulesimageBackgroundURl();
+      }
+      $product.toggleClass('product--show-mobile-shade-column');
+      $('body, html').toggleClass('noscroll fixedpos');
+      $('.site-header__fixed-wrapper').toggleClass('header-pos');
+    });
+    $product.on('click', '.js-shade-picker__close', function() {
+      $('body, html').removeClass('noscroll fixedpos');
+    });
+    // if this is the mobile column collapse on click
+    if ($product.hasClass('product--show-mobile-shade-column')) {
+      $product.on('product:change_shade', function(e, productInfo, template) {
+        $product.removeClass('product--show-mobile-shade-column');
+        $('body, html').removeClass('noscroll fixedpos');
+      });
+    }
+
+    // Good context selector
+    var $shades = product.ui.$shadesMask.find('.shade-picker__color');
+
+    var $prevShadeSelected = $shades.last(); // Helps with starting calcs
+    var prevIndex = $shades.index($prevShadeSelected); // Starting calc
+
+    var $nextShadeSelected; // Comparison of next vs last
+    var nextheight;
+    var nextIndex = 0;
+
+    var selectedShadeHeight = 180; // Resize selected skus to this
+    if ($product.hasClass('product--multishaded')) { selectedShadeHeight = 240; } // Except multishaded
+
+    // Respond to product:change_shade
+    $product.on('product:change_sku', function(e, productInfo, template) {
+      // Get inside product, get the exact shade li
+      // $nextShadeSelected = $shades.filter(".shade-picker__color--" + product.getState('sku'));
+      $nextShadeSelected = $(e.target).find(".shade-picker__color--" + product.getState('sku'));
+      // $prevShadeSelected.removeClass('shade-picker__color--selected');
+      $('.product--shadegrid .shade-picker__color-texture').css("background-image", "");
+      $('.shade-picker__color--selected').removeClass('shade-picker__color--selected');
+      $nextShadeSelected.addClass('shade-picker__color--selected');
+      if (!$product.hasClass('product--shadegrid')) {
+        nextheight = $nextShadeSelected.height();
+        nextIndex = $shades.index($nextShadeSelected);
+        if (!$nextShadeSelected.hasClass('shade-picker__color--grid-item')) {
+          animateToShade();
+        }
+        // Our new selection is now the prior selection
+        $prevShadeSelected = $nextShadeSelected;
+        prevIndex = nextIndex;
+      }
+    });
+
+    var animateToShade = function animateToShade(prev, next) {
+      // Test for xlarge-up width and do stuff
+    if (Modernizr.mq('(min-width: 767px)') === true) {
+
+        // Collapse prior selected shade
+        $prevShadeSelected.animate({height: nextheight}, 600);
+        $prevShadeSelected.removeClass('shade-picker__color--selected').attr('aria-selected', 'false');
+
+        // Expand newly seleted shade
+        $nextShadeSelected.addClass('shade-picker__color--selected').attr('aria-selected', 'true');
+
+        $nextShadeSelected.animate({height: selectedShadeHeight}, 600);
+
+        // Move scroll position of shade to top, adjust for bug where scrolling an
+        // element who's size changes after trigger causes scrollTo to overshoot
+        product.ui.$shadesMask.scrollTo($nextShadeSelected, 1000, {
+          offset: function() {
+            if (nextIndex > prevIndex) {
+              return {top: -(selectedShadeHeight - nextheight)};
+            }
+          }
+        });
+      }
+    };
+
+  };
+
+  /**
+   * Shadepicker column navigation
+   *
+   */
+  Product.prototype.modules.shadePickerNav = function(product, $product) {
+
+    // Only do this for shaded
+    if (!product.isShaded()) { return; }
+    // skip for shadegrid (picker v2)
+    if ($product.hasClass('product--shadegrid')) {
+      return;
+    }
+
+    // Can be set on first load
+    product.ui.$shadesMask =  $('.shade-picker__colors-mask', $product);
+    product.ui.shadesHeight = $('.shade-picker__colors', $product).height(); // total height of all shades
+    product.ui.itemHeight = $('.shade-picker__color:eq(0)', product.ui.$shadesMask).height();
+
+    // Should be updated later
+    product.ui.scrollItems = 0;
+
+    // Dont' do our prev/next checks until after we're done scrolling
+    var debouncedScrollTopCheck = _.debounce(function() {
+      var scrollTop = $(this).scrollTop();
+
+      $product.removeClass('shade-picker--no-next-controls shade-picker--no-prev-controls');
+
+      if (scrollTop === 0) {
+        $product.addClass('shade-picker--no-prev-controls');
+      }
+      if (scrollTop === product.ui.shadesHeight - product.ui.maskHeight) {
+        $product.addClass('shade-picker--no-next-controls');
+      }
+    }, 250);
+
+    product.ui.$shadesMask.on('scroll', debouncedScrollTopCheck);
+
+    var scrollItemsScrollTo = function(direction) {
+
+      product.ui.maskHeight = product.ui.$shadesMask.height(); // this is set once full height
+      product.ui.shadesHeight = $('.shade-picker__colors', $product).height(); // total height of all shades
+
+      // We can randomly scroll this window, the prev/next buttons need to know where we are
+      product.ui.scrollItems = Math.floor(product.ui.$shadesMask.scrollTop() / product.ui.itemHeight);
+
+      //console.log(
+      //  'maskHeight: ' + product.ui.maskHeight,
+      //  'shadesHeight: ' + product.ui.shadesHeight,
+      //  'scrollTop: ' + product.ui.$shadesMask.scrollTop(),
+      //  'itemHeight: ' + product.ui.itemHeight,
+      //  'scrollItems: ' + product.ui.scrollItems
+      //);
+
+      if (direction === 'next') {
+        product.ui.scrollItems += Math.floor(product.ui.maskHeight / product.ui.itemHeight);
+        //console.log('next: ' + product.ui.scrollItems);
+      }
+      else {
+        product.ui.scrollItems -= Math.floor(product.ui.maskHeight / product.ui.itemHeight);
+        //console.log('prev: ' + product.ui.scrollItems);
+      }
+
+      // normalize negative numbers
+      product.ui.scrollItems = Math.max(0, product.ui.scrollItems);
+
+      product.ui.$shadesMask.scrollTo($('.shade-picker__color:eq('+product.ui.scrollItems+')', product.ui.$shadesMask), 500);
+    };
+
+    // scroll the shade picker shade-picker__next
+    $product.on('click', '.shade-picker__next', function(e) {
+      scrollItemsScrollTo('next');
+    });
+    // scroll the shade picker shade-picker__previous
+    $product.on('click', '.shade-picker__previous', function(e) {
+      scrollItemsScrollTo('previous');
+    });
+
+    // check the total shades height, if shallower than the mask hide controls
+    $(window).on('load', function(){
+      var fullShadesHeight = $('.shade-picker__colors', $product).height(),
+        fullMaskHeight = $('.shade-picker__colors-mask', $product).height(),
+        $picker = $('.shade-picker', $product),
+        $mask = $('.shade-picker__colors-mask', $product),
+        $controlsWrapper = $('.shade-picker__controls-wrapper', $product),
+        $controls = $('.shade-picker__controls', $controlsWrapper),
+        $shopShadeWrapper = $('.view-all-shades__wrapper', $product);
+    if ($product.hasClass('product--full')) {
+      if (fullShadesHeight <= fullMaskHeight) {
+        $picker.addClass('close_icon_bg');
+        // if it's mobile/iPad, only disable next/prev controls but don't hide
+        // as shade-picker cannot be closed without tapping 'close'
+        if (Modernizr.touch === true) {
+            $('.shade-picker__controls.js-shade-picker__close').removeClass('hidden');
+            $product.find('.js-shade-picker__previous .icon--arrow--up, .js-shade-picker__next').hide();
+        } else {
+            $controls.hide();
+            $shopShadeWrapper.hide();
+        }
+      }
+      else {
+        $controls.add($shopShadeWrapper).removeClass('hidden');
+        $mask.hasClass('js-colors-mask') ? $mask.removeClass('js-colors-mask') : '';
+      }
+    }
+    else {
+        $controls.add($shopShadeWrapper).removeClass('hidden');
+        $mask.hasClass('js-colors-mask') ? $mask.removeClass('js-colors-mask') : '';
+    }
+    });
+  };
+
+  /**
+   * Shadepicker show/hide of the shadepicker column and shade detection
+   *
+   */
+  Product.prototype.modules.shadePickerShowHide = function(product, $product) {
+    // Only do this for shaded teaser
+    if (!$product.hasClass('product--teaser')) { return; }
+    if (!product.isShaded()) { return; }
+
+    var boxHeight;
+    var productHeight;
+    var plainHeight;
+
+    // Data vars
+    var toHeight;
+    var addClasses = [];
+    var removeClasses = [];
+
+    // DOM sizes. If zero, calc. If not, just return existing
+    product.ui.$shadesMask =  (!!product.ui.$shadesMask) ? product.ui.$shadesMask : $('.shade-picker__colors-mask', $product);
+    product.ui.shadesHeight = (!!product.ui.shadesHeight) ? product.ui.shadesHeight : $('.shade-picker__colors', $product).height(); // total height of all shades
+    product.ui.itemHeight = (!!product.ui.itemHeight) ? product.ui.itemHeight : $('.shade-picker__color:eq(0)', product.ui.$shadesMask).height();
+
+    plainHeight = product.ui.shadesHeight + 55; // fallback for short shade picker
+
+    productHeight = $product.height() - 90; // height of entire product container - 90
+    boxHeight = productHeight - 85; // controllers 30 + 30 + close bar 25 = 85
+
+    // alphabetize and tag with inv status if not spp
+    if ($product.hasClass('product--teaser')) {
+      // sort alphabetically
+      var color_container = $('.shade-picker__colors', $product);
+      var $shades_container = $('.js-shade-picker', $product);
+      $shades_container.addClass('js-elements-hidden');
+      var sorted_skus = $('.shade-picker__color', color_container).sort(function(a, b){
+        var vA = $('.shade-picker__color-name', a).text();
+        var vB = $('.shade-picker__color-name', b).text();
+        return (vA < vB) ? -1 : (vA > vB) ? 1 : 0;
+      });
+      $(color_container).append(sorted_skus);
+
+      $(window).on('l2_inv_status:updated', function() {
+        // tag with inv status
+        $('.shade-picker__color[data-product]', color_container).each(function(){
+          var sku = product.findSkuObject($.parseJSON($(this).attr('data-product')).sku);
+          if (product.testPreOrderSku(sku)) {
+            $(this).addClass('product--preorder');
+          }
+          $(this).addClass('prod_inv_status-' + sku.INVENTORY_STATUS);
+        });
+        if(!site.client.isMobile) {
+          var total_count = 0;
+          var sold_count = 0;
+          $('.shade-picker__color[data-product]', color_container).each(function() {
+            total_count++;
+            if($(this).hasClass('prod_inv_status-7')) {
+              sold_count++;
+            }
+            if((total_count != 0) && (total_count == sold_count)) {
+              $(this).closest(".product.product--shaded").addClass('product--shop-shades-hidden');
+            } else {
+              $(this).closest(".product.product--shaded").removeClass('product--shop-shades-hidden');
+            }
+          });
+        }
+      });
+    }
+
+
+    // MPP Trigger only on open shades, we do not need to check brightness if closed
+    // Add a class for light colors to switch label to black
+    // Same basic check as shaded add to bag bar
+    if (product.isShaded()) {
+      var color_container = $('.shade-picker__colors', $product);
+      $('.shade-picker__color[data-product]', color_container).each(function(){
+        var sku = product.findSkuObject($.parseJSON($(this).attr('data-product')).sku);
+        // Detect hex color brightness to toggle black/white text
+        var shadeBgColor = product.hexRGB(sku.HEX_VALUE_STRING);
+        // "Shaded" products can be multishaded and not have a hex
+        if (!_.isNull(shadeBgColor)) {
+          var brightness = ((shadeBgColor.r * 299) + (shadeBgColor.g * 587) + (shadeBgColor.b * 114)) / 1000;
+
+          // White is 255 - we want to hit really light colors
+          // > 125 is standard for filtering, we push it higher here
+          // @TODO: finalize after testing
+          if (brightness > 230) {
+            $(this).addClass('shade-label--dark');
+          }
+        }
+      });
+    }
+
+    var fullHeightShadeCalcs = function() {
+      product.ui.maskHeight = product.ui.$shadesMask.height(); // this is set once full height
+      product.ui.$shadesMask.trigger('scroll'); // trigger scroll for prev/next show
+    };
+
+    // Start all closed
+    product.setState({'shadeOpen': false});
+
+    // Click/keydown the "preview shades" button, trigger open/close below
+    $product.on('click keydown', '.js-shade-picker__trigger', function(e) {
+      var keycode = site.getKeycode(e);
+      var $mppShades = $product.find('.js-shade-picker__color');
+      var $mppShadesContainer = $product.find('.js-shade-picker');
+      var expanded = $(this).attr('aria-expanded');
+      var $mppShadFirSel = $mppShades.first();
+      if (keycode === 13 || keycode === 1) {
+        $product.trigger('product:shade_picker_open_close');
+        if ($product.hasClass('shade-picker--open')) {
+          $(this).attr('aria-expanded', 'true');
+          $product.find('.js-shade-picker').removeClass('js-elements-hidden');
+          $mppShades.attr('tabindex', '0');
+          $product.find('.js-shade-picker__close').attr('tabindex', '0');
+          $product.removeAttr('aria-live');
+        }
+      }
+      if (keycode === 9 && expanded === 'true') {
+        $mppShadFirSel.addClass('custom-outline').focus();
+        site.restrict_navigation($mppShadesContainer);
+      }
+    });
+
+    // Click the "preview shades" button, trigger open/close below
+    $product.on('click keydown', '.js-shade-picker__close', function(e) {
+      var keycode = site.getKeycode(e);
+      if (keycode === 13 || keycode === 1) {
+        $('.product').removeClass('shade-picker--open');
+        $('.shade-picker', $('.product--teaser')).animate({height: 0}, 200);
+        $product.find('.js-shade-picker__color').removeAttr('tabindex');
+        $(this).removeAttr('tabindex');
+        $product.find('.js-shade-picker__trigger').attr('aria-expanded', 'false').focus();
+        $product.removeAttr('aria-live');
+        $product.find('.js-shade-picker').addClass('js-elements-hidden');
+      }
+    });
+
+    // Only trigger closing on teaser
+    if ($product.hasClass('product--teaser')) {
+      $product.on('click', '.js-shade-picker__color', function(e) {
+        if ($(e.target).hasClass('shade-picker__color-action') || $(e.target).parents('.shade-picker__color-actions').length < 1) {
+          $('.product').removeClass('shade-picker--open');
+          $('.shade-picker', $('.product--teaser')).animate({height: 0}, 200);
+        }
+        $product.find('.js-shade-picker__close').removeAttr('tabindex');
+        $product.find('.js-shade-picker__color').removeAttr('tabindex');
+        $product.find(':tabbable').filter(':last').focus();
+        $product.find('.js-shade-picker').addClass('js-elements-hidden');
+        $product.find('.js-shade-picker__trigger').attr('aria-expanded', 'false');
+        $product.removeAttr('aria-live');
+      });
+    }
+
+    // Show/hide shade picker
+    $product.on('product:shade_picker_open_close', function(e) {
+      // Apply to all products on page
+      toHeight = 0;
+      $('.shade-picker', $('.product--teaser')).animate({height: 0}, 50);
+      $('.product').removeClass('shade-picker--open');
+
+      // Now set this product to shadeOpen: false
+      product.setState({'shadeOpen': true});
+      $product.addClass('shade-picker--open');
+      // check for shades total height
+      if (product.ui.shadesHeight < boxHeight) {
+        toHeight = plainHeight;
+        $product.addClass('shade-picker--plain');
+      }
+      else {
+        toHeight = productHeight - 50;
+      }
+      // Now apply all the defined settings to our element(s)
+      $product
+        .addClass(addClasses.join(' '))
+        .removeClass(removeClasses.join(' '))
+        .find('.shade-picker')
+        .animate({height: toHeight + 'px'}, 200, fullHeightShadeCalcs);
+
+    });
+    // Makes Preview Shades accessible via Keyboard
+    $product.on('focusin', function(e) {
+      $(this).addClass('hover');
+      $(this).attr('aria-live', 'assertive');
+    });
+    $product.hover(function() {
+      $(this).addClass('hover');
+    }, function(){
+      $(this).removeClass('hover');
+    });
+  };
+
+  /**
+   * SPP shadepicker sticky column behavior
+   *
+   */
+  Product.prototype.modules.sppShadePickerStickyColumn = function(product, $product) {
+    // only for SPP
+    if (!$product.hasClass('product--full')) {
+      return;
+    }
+    // not for SPP with shadegrid layout
+    if ($product.hasClass('product--shadegrid')) {
+      return;
+    }
+
+    var sppTop = $product.offset().top;
+    var sppHeight = $product.height();
+    var sppBottom = sppTop + sppHeight;
+
+    var $shadeColumn = $product.find('.product__shade-column');
+    var shadeHeight;
+    var viewHeight;
+
+    // Set column height based on product height and window height
+    var stickyColumn = function() {
+      viewHeight = $(window).height();
+
+      // Given how much our DOM shifts, recalc these
+      sppTop = $product.offset().top;
+      sppHeight = $product.height();
+      sppBottom = sppTop + sppHeight;
+
+      // Set column to height of viewport minus top if product height > window
+      shadeHeight = (sppBottom >= viewHeight) ? (viewHeight - sppTop) : sppHeight;
+      // Set a state in case we need it later
+      product.setState({sppShort: (sppBottom >= viewHeight)});
+      // Set height in DOM
+      $shadeColumn.css('min-height', shadeHeight);
+      $shadeColumn.css('height', shadeHeight);
+    };
+
+    var debouncedStickyColumn = _.debounce(stickyColumn, 250);
+    $(window).on('resize', debouncedStickyColumn);
+    // Really need dom height here
+    $(document).ready(debouncedStickyColumn);
+
+  };
+
+  /**
+   * SPP add to bag bar needs to change color on changing shade
+   *
+   */
+  Product.prototype.modules.sppBarProductChange = function(product, $product) {
+
+    // Only do this for full modules
+    if (!$product.hasClass('product--full')) {
+      return;
+    }
+
+    $product.on('product:change_shade', function(event, productInfo) {
+      var $bagBar = $('.add-to-bag-bar', $(this));
+      var $bagBarButton = $('.add-to-bag-bar__add-button-button', $bagBar);
+      var skuObject = product.findSkuObject(_.result(productInfo, 'sku'));
+      var skuHex = _.result(skuObject, "HEX_VALUE_STRING");
+      var skuInvStatus = _.result(skuObject, "INVENTORY_STATUS");
+      var buttonSKU = _.result(skuObject, "SKU_ID");
+
+      // inventory status class added
+      //$bagBar.addClass('prod_inv_status-' + skuInvStatus);
+
+      // Let's just hunt down some specific string (Not worth mustache yet)
+      $('.add-to-bag-bar__shade-name', $bagBar).html(_.result(skuObject, 'SHADENAME')); // Shade name
+      $('.add-to-bag-bar__shade-desc', $bagBar).html(_.result(skuObject, 'SHADE_DESCRIPTION')); // Shade description
+      if (!!Drupal.settings.globals_variables.display_tax_price) {
+        var withtaxText = $('.add-to-bag-bar__price', $bagBar).attr('data-with-tax');
+        $('.add-to-bag-bar__price', $bagBar).html(withtaxText + _.result(skuObject, 'formattedTaxedPrice'));
+      } else {
+        $('.add-to-bag-bar__price', $bagBar).html(_.result(skuObject, 'formattedPrice')); // Price
+      }
+      $bagBarButton.data('product', { sku: buttonSKU });
+
+      // Color bar work below
+      $bagBar.removeClass('shade-label--dark').css('background-color', skuHex);
+      // Detect hex color brightness to toggle black/white text
+      var shadeBgColor = product.hexRGB(skuHex);
+      // "Shaded" products can be multishaded and not have a hex
+      if (!_.isNull(shadeBgColor)) {
+        var brightness = ((shadeBgColor.r * 299) + (shadeBgColor.g * 587) + (shadeBgColor.b * 114)) / 1000;
+
+        // White is 255 - we want to hit really light colors
+        // > 125 is standard for filtering, we push it higher here
+        // @TODO: finalize after testing
+        if (brightness > 200) {
+          $bagBar.addClass('shade-label--dark');
+        }
+      }
+    });
+
+  };
+
+  /**
+   * Dropdown custom select box in SPP product containing shades.
+   *
+   * 1. Render dropdown via js since we need to alphabetize the <options>
+   * 2. Apply select2 plugin to the resulting HTML
+   * 3. Position this via js since it sits outside description, but shows within
+   *
+   */
+  Product.prototype.modules.shadePickerDropdown = function(product, $product) {
+
+    // Do this for full modules
+    if (!$product.hasClass('product--full')) return;
+
+    // Skip for shadegrid layout
+    if ($product.hasClass('product--shadegrid')) return null;
+
+    // Overall wrapping element for placement
+    var $shadeDropdownWrapper = $product.find('.shade-picker-dropdown');
+    // Actual select2 object for select2 api usage
+    var $shadeDropdown = $shadeDropdownWrapper.find('#js-shade-picker-dropdown--product-full');
+    // Simplified dropdown no js select2 for shade picker v2
+    var $shadeDropdownSimple = $shadeDropdownWrapper.find('#shade-picker-dropdown--product-full');
+
+    /*
+     Rendering shade dropdown
+     1. Sort skus by name using product data
+     2. Render each as an <option> element
+     3. Combine all as html inside $shadeDropdown
+     4. Trigger select2 on the resulting element
+     */
+    var optionTemplate = _.template('<option value="<%= id %>"><%= text %></option>'); // Template for <option> elements
+    $shadeDropdown.html( // fill in <options> for the <select> here
+      _.map( // Transform list
+        _.sortBy(product.findSkuObject('all'), 'SHADENAME'), // Sort the skus list, use list to map
+        function(shade) {
+          // Use template defined earlier to render <option> html
+          return optionTemplate({
+            id: _.result(shade, 'SKU_ID'),
+            text: _.result(shade, 'SHADENAME')
+          });
+        }).join('') // Join the resulting array of html strings into one blob
+    ).select2({ // Apply select2 to the resulting html
+        // width: "100%",
+        minimumResultsForSearch: -1
+      });
+
+    // Simple dropdown no js select2
+    $shadeDropdownSimple.html(
+      _.map(
+        _.sortBy(product.findSkuObject('all'), 'SHADENAME'),
+        function(shade) {
+          return optionTemplate({
+            id: _.result(shade, 'SKU_ID'),
+            text: _.result(shade, 'SHADENAME')
+          });
+        }
+      ).join('')
+    );
+
+    // Respond to shade changes by setting the select2 visible value
+    $product.on('product:change_shade', function(event, productInfo) {
+      $shadeDropdown.val(product.getState('sku')).trigger('change');
+      Product.prototype.modulesimageBackgroundURl();
+    });
+    // Simple dropdown no js select2
+    $product.on('product:change_shade', function(event, productInfo) {
+      $shadeDropdownSimple.val(product.getState('sku')).prop('selected', true);
+      Product.prototype.modulesimageBackgroundURl();
+    });
+
+    // Get data off dropdown, trigger shade change event
+    $shadeDropdown.on('click', function(e) {
+      // Getting sku id here
+      var shadeSku = $(this).select2('data').id;
+      // Set state, return as obj useful in product:change_shade event
+      //var productInfo = _.extend(product.info, {sku: shadeSku}); // old
+      var productInfo = product.setState({sku: shadeSku}).getState();
+      // Pass sku as object to change_sku
+      $product.trigger('product:change_shade', [productInfo]);
+      product.initZoom();
+    });
+    // Simple dropdown no js select2
+    $shadeDropdownSimple.on('change', function(e) {
+      var shadeSku = $(this).val();
+      var productInfo = product.setState({sku: shadeSku}).getState();
+      $product.trigger('product:change_shade', [productInfo]);
+    });
+
+    // Position shade dropdown
+    var positionShadeDropdown = function() {
+      var prodFooter = $('.product__footer', $product);
+      var prodFooterTopPos;
+      if (prodFooter.length > 0) {
+        prodFooterTopPos = prodFooter.offset().top; // we want to stick to top of this
+      }
+
+      var prodDetail = $('.product__detail', $product);
+      var prodDetailTopPos;
+      if (prodDetail.length > 0) {
+        prodDetailTopPos = prodDetail.offset().top; // header section
+      }
+
+      if (prodFooterTopPos && prodDetailTopPos) {
+        $shadeDropdownWrapper.css('top', prodFooterTopPos - prodDetailTopPos).removeClass('hidden');
+      }
+    };
+    // Debounced version of positionShadeDropdown to make firing more efficient
+    var debouncedPositionShadeDropdown = _.debounce(positionShadeDropdown, 250);
+
+    // When product is rendered, move this into position
+    $product.on('product:render_sku', debouncedPositionShadeDropdown);
+    // When window resizes, let's call this debounced for efficiency
+    $(window).resize(debouncedPositionShadeDropdown);
+
+  };
+
+
+  /**
+   * Grid-style shade picker. Part of the shadegrid SPP layout.
+   */
+  Product.prototype.modules.gridShadePicker = function(product, $product) {
+    // Only for full modules with shadegrid layout
+    if (!$product.hasClass('product--shadegrid') || !$product.hasClass('product--full')) return null;
+
+    $product.on('product:render_sku', function(evt) {
+      renderShadeGrid(product, $(evt.target));
+    });
+
+    var state = {};
+
+    var renderShadeGrid = function (product, $product) {
+      var $firstPicker = $product.find(".js-shade-picker--v2").first();
+      var $firstPickerCells = $firstPicker.find("li.shade-picker__color");
+      var $allPickersCells = $product.find("li.shade-picker__color");
+
+      if (!state.facet) { // first render
+        state.skus = [];
+        $firstPickerCells.each(function () {
+          state.skus.push({
+            'id': $(this).data('sku-id'),
+            'misc-flag': $(this).data('misc-flag'),
+            'color-family': $(this).data('color-family').toLowerCase()
+          });
+        });
+      }
+
+      $product.off('click', "li.shade-picker__color");
+      $product.on('click', "li.shade-picker__color", function (e) {
+        var skuId = $(this).data('sku-id');
+        var productInfo = product.setState({sku: skuId}).getState();
+        $product.trigger('product:change_shade', [productInfo]);
+      });
+      // SPP shades tiles selection using Keyboard
+      $product.off('keydown', "li.js-shade-picker__color");
+      $product.on('keydown', "li.js-shade-picker__color", function(e) {
+        if ( site.getKeycode(e) == 13 ) {
+          $(this).trigger('click');
+        }
+      });
+      var handleChangeShade = function(event, productInfo) {
+        var skuId = productInfo.sku;
+        selectShade(skuId);
+      };
+      $product.off('product:change_shade', handleChangeShade);
+      $product.on('product:change_shade', handleChangeShade);
+
+      var selectShade = function (skuId) {
+        $allPickersCells = $product.find("li.shade-picker__color");
+        $allPickersCells.removeClass('shade-picker__color--selected');
+        $allPickersCells.find(".shade-picker__color-texture").css('background-image', 'none');
+        var $activeCells = $allPickersCells.filter("[data-sku-id='" + skuId + "']");
+        $activeCells.addClass('shade-picker__color--selected');
+        var img = $activeCells.first().find(".shade-picker__color-texture").data("bg-image");
+        var hex = $activeCells.data("hex");
+        $product.find(".shade-picker__smoosh--active")
+            .css({backgroundImage: 'url(' + img + ')', backgroundColor: hex});
+        $activeCells.find(".shade-picker__color-texture").css('background-image', 'url(' + img + ')');
+      };
+
+      var $sortSelect = $product.find('.js-shade-picker-sort--product-full');
+
+      // select listener
+      $sortSelect.on('change', function() {
+        state.facet = $(this).val();
+        sortShades($(this).val());
+      });
+
+      var skuId = $product.data('product')['sku'];
+      selectShade(skuId);
+
+      var sortSkus = function(facet) {
+        switch (facet) {
+          case 'ATTRIBUTE_COLOR_FAMILY':
+            state.skus.sort( function (a,b) {
+              var familyA = a['color-family'];
+              var familyB = b['color-family'];
+              if (familyA < familyB) {
+                return -1;
+              }
+              if (familyA > familyB) {
+                return 1;
+              }
+              return 0;
+            });
+            break;
+          case 'BEST_SELLERS': // Best Sellers
+            state.skus.sort( function (a,b) {
+              var flag = parseInt(a['misc-flag']);
+              if (flag === 30) {
+                return -1;
+              }
+              return 1;
+            });
+            break;
+          case 'MISC_FLAG': // New
+            state.skus.sort( function (a,b) {
+              var flag = parseInt(a['misc-flag']);
+              if (flag === 1) {
+                return -1;
+              }
+              return 1;
+            });
+            break;
+        }
+      }; //end sortSkus
+
+      var sortCells = function() {
+        $product.find(".js-shade-picker--v2").each( function () {
+          var $grid = $(this).find(".shade-picker__colors--grid");
+          _.each(state.skus, function (sku, i) {
+            var $cell = $grid.find("[data-sku-id='" + sku.id + "']");
+            $grid.append($cell);
+          });
+        });
+      };
+
+      var sortShades = function(facet) {
+        sortSkus(facet);
+        sortCells();
+      };
+
+      if (!!state.facet) { // re-render
+        $sortSelect.val(state.facet); // set select menu value
+        sortCells(); // skus are already sorted
+      }
+
+    };
+    renderShadeGrid(product, $product);
+  };
+
+  /**
+   * Dropdown custom select box in SPP product containing shades.
+   * This version is part of the shadegrid SPP layout.
+   *
+   */
+  Product.prototype.modules.gridShadePickerDropdown = function(product, $product) {
+    // Only for full modules with shadegrid layout
+    if (!$product.hasClass('product--shadegrid') || !$product.hasClass('product--full')) return null;
+
+    $product.on('product:render_sku', function(evt) {
+      renderShadeDropdown($(evt.target));
+    });
+    function renderShadeDropdown($product) {
+      // Overall wrapping element for placement
+      var $shadeDropdownWrapper = $product.find('.shade-picker-dropdown');
+      // Actual select2 object for select2 api usage
+      var $shadeDropdown = $shadeDropdownWrapper.find('#js-shade-picker-dropdown--product-full');
+      var oldVal = $shadeDropdown.val();
+
+      var skus = product.findSkuObject('all');
+      skus= _.sortBy( skus, 'SHADENAME');
+      _.each(skus, function (sku, i) {
+        var $opt = $shadeDropdown.find("option[value='" + sku.SKU_ID + "']");
+        $shadeDropdown.append($opt);
+      });
+
+      if (product && product.getState('sku')) {
+        $shadeDropdown.val(product.getState('sku')); //.trigger('change');
+      } else {
+        $shadeDropdown.val(oldVal);
+       }
+      // mobile/tablets gets native dropdowns
+      if (Modernizr.touch === false) {
+        $shadeDropdown.select2({ // Apply select2 to the resulting html
+          width: "100%",
+          minimumResultsForSearch: -1
+        });
+      }
+      $shadeDropdown.on('change', function(e) {
+        console.log($(this).val());
+        var shadeSku = $(this).val();
+        var productInfo = product.setState({sku: shadeSku}).getState();
+        // // Pass sku as object to change_sku
+        $product.trigger('product:change_shade', [productInfo]);
+      });
+      // mobile/tablets gets native dropdowns
+      if (Modernizr.touch === false) {
+        $shadeDropdownWrapper
+          .find(".select2-choice")
+          .css({color: product.data.HEX_VALUE_STRING});
+      }
+      else {
+        $shadeDropdown
+          .addClass('select-touch__chosen')
+          .css({color: product.data.HEX_VALUE_STRING});
+      }
+    }
+    renderShadeDropdown($product);
+  };
+
+  /**
+   * Filters for SPP all shades picker
+   *
+   */
+  Product.prototype.modules.sppShadeFilter = function(product, $product) {
+
+    if (!$product.hasClass('product--full')) { return; } // spp only
+    if (!product.isShaded()) { return; } // shaded only
+
+    var sppGridTriggerSelector = '#filter-grid-switch';
+    var $spp_grid_trigger = $(sppGridTriggerSelector, $product);
+    // Set starting state
+    product.setState({shadeOverlay: false});
+
+    $(window).on('l2_inv_status:updated', function() {
+      // tag with inv status
+      $('.fav--bag--buttons[data-product]', $product).each(function() {
+        var sku = product.findSkuObject($.parseJSON($(this).attr('data-product')).sku);
+        $(this).addClass('prod_inv_status-' + sku.INVENTORY_STATUS);
+      });
+    });
+
+    // Show/hide grid
+
+    // Trigger add-to-bag bar using events
+    $product.on('click', sppGridTriggerSelector, function(e) {
+      // check object state instead
+      // this is off
+      $shadesOverlayContainer.removeClass('js-elements-hidden');
+      if (product.getState('shadeOverlay')) {
+        // Element sent here needs to be parent .page--spp__product
+        $(window).trigger('product:sppBar:up', [$product.parent('.page--spp__product')]);
+        $(window).trigger('product:sppBar:buttonBackRevert', [$product.parent('.page--spp__product')]);
+        $product.removeClass('filter-grid-open');
+        $('html').css('overflow', 'auto');
+      }
+      else {
+        $viewAllShadesBtn.attr('aria-expanded', 'true');
+        // Element sent here needs to be parent .page--spp__product
+        // this is the on state
+        $(window).trigger('product:sppBar:down', [$product.parent('.page--spp__product')]);
+        $(window).trigger('product:sppBar:buttonBack', [$product.parent('.page--spp__product')]);
+        $product.find('.product__description-overlay-accordion').css('z-index','1');
+        $product.addClass('filter-grid-open');
+        $('html').css('overflow', 'hidden');
+
+        // adjust height for header and subnav from Drupal.behaviors.elementWindowHeight
+        var $shade_picker = $product.find('.shade-picker-full__colors-mask.js-element-window-height');
+        $(window).resize(_.debounce(function () {
+          $shade_picker.height($(window).height() - $shade_picker.offset().top);
+        }, 300)).resize();
+      }
+      // Flip state object
+      product.setState({shadeOverlay: !product.getState('shadeOverlay')});
+      $shadesOverlayContainer.removeClass('js-elements-hidden')
+      $('.js-shade-picker__color:first', $shadesOverlayContainer).focus();
+      site.restrict_navigation($shadesOverlayContainer);
+      //console.log('checking state of shadeoverlay now: ', product.getState('shadeOverlay'));
+      // Flip checkbox: $spp_grid_trigger is actually checked here automatically via DOM
+    });
+
+    // In spp, view all shades button made accesible using keyboard
+    var $shadesOverlayContainer = $('.js-product__sticky-container', $product);
+    var $viewAllShadesBtn = $('.js-view-all-shades--desktop', $product);
+    $viewAllShadesBtn.on('keydown', function(e) {
+      if (site.getKeycode(e) === 13) {
+        $(sppGridTriggerSelector).click();
+        $(this).attr('aria-expanded', 'true');
+        site.restrict_navigation($shadesOverlayContainer);
+      }
+    });
+
+    // Also collapse add to bag bar
+    $product.on('click', '.add-to-bag-bar__up', function(e) {
+      $shadesOverlayContainer.addClass('js-elements-hidden');
+      if (product.getState('shadeOverlay')) {
+        $('html').css('overflow', 'auto');
+        // Set DOM state
+        $spp_grid_trigger.attr('checked', false);
+        // Set product state
+        product.setState({shadeOverlay: false});
+        // clear all sku filters, heavy. revisit
+        //$('.shade-picker-filter-grid--options input[type="checkbox"]', $product).filter(':checked').click();
+        // Hide bar, passing parent object
+        $(window).trigger('product:sppBar:up', [$product.parent('.page--spp__product')]);
+        $(window).trigger('product:sppBar:buttonBackRevert', [$product.parent('.page--spp__product')]);
+        $product.find('.product__description-overlay-accordion').animate({'z-index': '500'}, 500, function() {
+          $product.trigger('product:update_positioning', [$product]);
+        });
+        $viewAllShadesBtn.attr('aria-expanded', 'false').focus();
+      }
+    });
+
+    // keyboard event to hide the full page shades in spp
+    $product.on('keydown', '.js-add-to-bag-bar__up', function(e) {
+      if (site.getKeycode(e) === 13) {
+        $(this).trigger('click');
+        $viewAllShadesBtn.attr('aria-expanded', 'false').focus();
+        $shadesOverlayContainer.addClass('js-elements-hidden');
+      }
+    });
+
+    // Clear sku filters
+    var $clearFilters = $('.shade-picker-filter-grid #reset', 'body');
+    $clearFilters.on('click', function(e) {
+      $('.shade-picker-filter-grid').mixItUp('filter', '.shade-picker__color');
+      $('.shade-picker-filter-grid--options input[type="checkbox"]', $product).each(function() {
+        if ($(this).prop('checked')) {
+          $(this).trigger('click');
+        }
+      });
+    });
+
+    // Shift colors down when drops are open
+    var getShadeOption = '';
+    $('.shade-picker-filter-grid--options .will-expand').bind('mouseover', function() {
+      if ($(this).find('ul').length > 0) {
+        $(this).addClass('hover');
+        $('.shade-picker-full__colors-mask').addClass('subnav-shift');
+        var shadeOptionName = $(this).attr('class').split(' ')[0];
+        getShadeOption = shadeOptionName.substring(shadeOptionName.lastIndexOf("-") + 1);
+        $('.shade-picker-filter-grid').addClass(getShadeOption);
+      }
+    }).bind('mouseout clickoutside', function() {
+      if ($(this).find('ul').length > 0) {
+        $(this).removeClass('hover');
+        $('.shade-picker-full__colors-mask').removeClass('subnav-shift');
+        $('.shade-picker-filter-grid').removeClass(getShadeOption);
+      }
+    });
+
+
+    ///
+    // Filters: Shared functionality for filters, called below
+    ///
+    var filterWork = function(event) {
+      var filtered_skus;
+      var $filterOptions = $(event.data.filterOptionsSelector, $product);
+
+      // create an array of the values of selected checkboxes
+      var checked_values = $filterOptions.filter(":checked").map(function() {
+        var val = $(this).val();
+        val = val.replace(/-/g, ' ');
+        return val;
+      }).get();
+
+      var finishColorFilter = function () {
+        var finishCheck = $('.shade-picker-filter-grid--filters--finish input[type="checkbox"]').filter(":checked").map(function() {
+          var val = $(this).val();
+          val = val.replace(/-/g, ' ');
+          return val.toLowerCase().replace(/\b[a-z]/g, function(letter) {
+           return letter.toUpperCase();
+          });
+        }).get();
+
+        var finishTObject = _.extend({}, finishCheck);
+        if (finishCheck.length > 0) {
+          $.each( finishTObject, function( key, finishname ) {
+            $('.shade-picker__color[data-finish*="'+ finishname + '"]', $product).removeClass('hidden-shade');
+          });
+        }
+
+        if ((finishCheck.length == 0) && (colorCheck.length == 0 )) {
+          $('.shade-picker__color').removeClass('hidden-shade');
+        }
+      };
+
+      if (checked_values.length > 0) {
+
+        filtered_skus = product.filterSkusByAttribute(event.data.filterAttribute, checked_values);
+
+        // set a hidden class on all swatches that are not in the selected values array
+        $('.shade-picker__color').addClass('hidden-shade');
+
+        _.forEach(filtered_skus, function(sku) {
+          $('.shade-picker__color[data-product*="'+ sku.SKU_ID + '"]', $product).removeClass('hidden-shade');
+        });
+
+        var colorCheck = $('.shade-picker-filter-grid--filters--color input[type="checkbox"]').filter(":checked").map(function() {
+          var val = $(this).val();
+          val = val.replace(/-/g, ' ');
+          return val;
+        }).get();
+
+        var colorTObject = _.extend({}, colorCheck);
+        if (colorCheck.length > 0) {
+          $.each( colorTObject, function( key, colorname ) {
+            $('.shade-picker__color[data-color*="'+ colorname + '"]', $product).removeClass('hidden-shade');
+          });
+        }
+
+        finishColorFilter();
+        //$(".check-count").each(function(el) {
+         // $(this).text($(this).attr('data-default-text'));
+        //});
+
+        $(event.data.filterSelector + " .check-count").text("(" + filtered_skus.length + ")");
+        $('.shade-picker-filter-grid--filters--clear').addClass("is-active");
+      } else {
+        $('.shade-picker__color').addClass('hidden-shade');
+        var colorCheck = $('.shade-picker-filter-grid--filters--color input[type="checkbox"]').filter(":checked").map(function() {
+          var val = $(this).val();
+          val = val.replace(/-/g, ' ');
+          return val;
+        }).get();
+
+        colorTObject = _.extend({}, colorCheck);
+        if (colorCheck.length > 0) {
+          $.each( colorTObject, function( key, colorname ) {
+            $('.shade-picker__color[data-color*="'+ colorname + '"]', $product).removeClass('hidden-shade');
+          });
+        }
+
+        finishColorFilter();
+
+        var filterSelectorDefaultText = $(event.data.filterSelector + " .check-count").attr('data-default-text');
+        $(event.data.filterSelector + " .check-count").text(filterSelectorDefaultText);
+        $('.shade-picker-filter-grid--filters--clear').removeClass("is-active");
+      }
+
+      // filter mixItUp
+      $('.shade-picker-filter-grid').mixItUp('filter', '.shade-picker__color:not(.hidden-shade)');
+
+      // hide filters after selection on tablet
+      // https://developer.mozilla.org/en-US/docs/Browser_detection_using_the_user_agent
+      if (Modernizr.touch === true && /Mobi/.test(navigator.userAgent)) {
+        $('.shade-picker-filter-grid--options .will-expand').trigger('mouseout');
+      }
+    };
+
+    // Filter: Finishes
+    var filterOptionsSelectorFinish = '.shade-picker-filter-grid--filters--finish input[type="checkbox"]';
+    var $filterFinish = $('.shade-picker-filter-grid--filters--finish input[type="checkbox"]', 'body');
+    $filterFinish.on('change', {
+      filterOptionsSelector: filterOptionsSelectorFinish,
+      filterAttribute: 'FINISH',
+      filterSelector: '.shade-picker-filter-grid--filters--finish'
+    }, filterWork);
+
+    // Filter: Colors
+    var filterOptionsSelectorColor = '.shade-picker-filter-grid--filters--color input[type="checkbox"]';
+    var $filterColor = $('.shade-picker-filter-grid--filters--color input[type="checkbox"]', 'body');
+    $filterColor.on('change', {
+      filterOptionsSelector: filterOptionsSelectorColor,
+      filterAttribute: 'ATTRIBUTE_COLOR_FAMILY',
+      filterSelector: '.shade-picker-filter-grid--filters--color'
+    }, filterWork);
+
+  };
+
+  /**
+   * SPP buy now bar
+   * When we scroll SPP past a certain point, add class to parent product to allow
+   * sticky bar.
+   *
+   * MOVE TO product plugin
+   */
+  Product.prototype.modules.sppBar = function(product, $product) {
+
+    // Only do this for full modules
+    if (!$product.hasClass('product--full')) { return; }
+    if (!$product.hasClass('product--shaded')) { return; }
+
+    var $sppPageProduct = $product.parents('.page--spp__product');
+
+    // Have to bind via .once, or we'll add waypoint events every time shade changes
+    $($sppPageProduct).once('sppBar-scroll-once', function() {
+
+      var $sppProduct = $(this);
+
+      $sppProduct.waypoint(
+        function(direction) {
+          // do not fire if SPP view all grid is active
+          if (!product.getState('shadeOverlay')) {
+            if (direction === 'down') {
+              $(window).trigger('product:sppBar:down', [$sppProduct]);
+              return false;
+            }
+            else {
+              $(window).trigger('product:sppBar:up', [$sppProduct]);
+              $(window).trigger('product:sppBar:buttonBackRevert', [$sppProduct]);
+            }
+          }
+        },
+        {
+          offset: function() {
+            // Distance from buy button to top of spp, offsetting 120 for bars at top
+            var $bagBarScrollAnchor = $('.js-add-to-bag-bar__scroll-anchor', $product);
+            if ($bagBarScrollAnchor.length > 0) {
+              var buyToSppTop = $bagBarScrollAnchor.offset().top - $sppProduct.offset().top + $bagBarScrollAnchor.height() - 120; // make less specific
+              return -buyToSppTop; // a rough estimate for add to bag button on product page
+            } else {
+              return -300; // fallback
+            }
+          }
+        }
+      );
+
+      // Respond to events triggered above
+      $(window).on('product:sppBar:down', function(event, $element) {
+        // Get current breakpoint width
+        var currentBpWidth = parseInt(Unison.fetch.now().width, 10);
+        // We only want to trigger higher than medium
+        var bPmediumUp = parseInt(Unison.fetch.all()['usn-medium'], 10);
+        // only trigger above medium
+        if (currentBpWidth >= bPmediumUp) {
+          $('.product__bag-bar', $element).addClass('product__bag-bar--sticky');
+        }
+      });
+
+      // Respond to the sppBar:up event
+      $(window).on('product:sppBar:up', function(event, $element) {
+        $('.product__bag-bar', $element).removeClass('product__bag-bar--sticky');
+        $product.removeClass('filter-grid-open');
+      });
+
+      // Change sppBar dismissal button to read, "Shop x Shades"
+      // this is the normal or off state
+      $(window).on('product:sppBar:buttonBack', function(event, $element) {
+        var backText = $('.product__bag-bar', $element).find('.add-to-bag-bar__up span').attr("data-back-text");
+        $('.product__bag-bar', $element)
+          .addClass('dismissal-back')
+          .addClass('product__bag-bar--left-arrow')
+          .find('.add-to-bag-bar__up span').text(backText);
+        $product.removeClass('filter-grid-open');
+      });
+
+      // Revert sppBar dismissal button to read, "TOP"
+      // active/expanded shades overlay
+      $(window).on('product:sppBar:buttonBackRevert', function(event, $element) {
+        $('.product__bag-bar', $element).removeClass('dismissal-back');
+        var revertTextInterval = setInterval( function() {
+          clearInterval(revertTextInterval);
+          var topText = $('.product__bag-bar', $element).find('.add-to-bag-bar__up span').attr("data-default-text");
+          $('.product__bag-bar', $element)
+            .removeClass('product__bag-bar--left-arrow')
+            .find('.add-to-bag-bar__up span').text(topText);
+        }, 500);
+      });
+
+      $(window).on('sidewideBanner:down', function(){
+        $(".product__bag-bar").addClass("product__bag-bar--sticky-banner-down");
+      });
+
+      $(window).on('sidewideBanner:up', function(){
+        $(".product__bag-bar").removeClass("product__bag-bar--sticky-banner-down");
+      });
+
+    });
+  };
+
+  /**
+   * Trigger showing inventory levels on render_sku. This affects parent wrapper
+   * .product class. NOT inside product_details that we'd normally show via
+   * data/mustache re-renders
+   */
+  Product.prototype.modules.checkInventory = function(product, $product) {
+    $product.on('product:render_sku', function(e, info) {
+      product.showInventoryInformation();
+
+      if (($product.hasClass('prod_life_of_product-1') || $product.hasClass('prod_life_of_product-3')) &&   ($product.hasClass('product--full') || $(".shop-the-collection")[0] || $(".collection-products__list")[0] || $product.hasClass('product--teaser'))) {
+        addLifeTooltip();
+      }
+    });
+
+    // life of product tooltip
+    var isMobile = ($('body').hasClass('device-mobile'));
+    var addLifeTooltip = function() {
+      var $tooltips;
+      if ($product[0].id) $tooltips = $('#' + $product[0].id + ' .js-shade-description-tooltip');
+      if (!$tooltips || $tooltips.length < 1) return;
+      $tooltips.each(function() {
+        var $tooltip = $(this);
+        if ($tooltip && !$tooltip.hasClass('tooltipstered') && $tooltip.attr('data-title')) {
+          var content = $tooltip.attr('data-title');
+          var tooltipArgs = {
+            arrow: false,
+            content: content,
+            animation: 'fade',
+            position: 'bottom-left',
+            theme: 'mac-tooltip',
+            updateAnimation: false
+          };
+          if (site.client.isMobile == 1) {
+            tooltipArgs.trigger = "click";
+            tooltipArgs.speed = 500;
+            tooltipArgs.timer = 3000;
+            //hideOnClick: true
+          } else {
+            tooltipArgs.trigger = "hover";
+          }
+          $tooltip.tooltipster(tooltipArgs);
+
+          $tooltip.on('click', function(e) {
+            e.preventDefault();
+          });
+        }
+      });
+    };
+
+    // for contexts where multiple skus render on page load instead of on render_sku (Ex: mobile collections)
+    if ($(".collection-products__list")[0]) addLifeTooltip("ON LOAD");
+  };
+
+  /**
+   * Update a product after RPC data is returned.
+   *
+   * Since we're calling the product:rpc_data_updated event on this specific product,
+   * then we know that this product was just updated. The product's skus will
+   * already have updated values, but not be represented into the DOM immediately.
+   */
+  Product.prototype.modules.showRPCUpdates = function(product, $product) {
+
+    $product.on('product:rpc_data_updated', function(event, affectedSkus) {
+      // commented out console for ie
+      //console.log('rpc_data_updated called on ' + _.result(product.data, 'PRODUCT_ID'));
+
+      var defaultSkuId;
+
+      // If no defined sku state, that most likely means a teaser product or a
+      // secondary nav product. Explicitly show inventory info
+      if (!product.getState('sku')) {
+
+        // Get id of first shoppable sku, starting at default. Warning: returns
+        // the default sku is NO skus are shoppable
+        defaultSkuId = product.getFirstShoppableSkuObject().SKU_ID;
+
+        // Load the sku object of default sku since it will have updated data by now
+        // Merge this sku data into product.data root in prep for showInventoryInformation()
+        product.setSkuDetails({sku: defaultSkuId});
+
+        // Add/remove classes. NOTE: We have NOT triggered a render, not a product:change_sku
+        product.showInventoryInformation();
+      }
+
+      // If our current Product sku is in the list of skus just updated, then
+      // trigger a re-render. product.showInventoryInformation() will be called
+      // on this event instead of explicitly, like above. All SPPs start in this state
+      if (!!product.getState('sku') && _.contains(affectedSkus, product.getState('sku'))) {
+        // commented out console for ie
+        //console.log('Currently visible sku was just updated from RPC, re-rendering.');
+        // Just change sku and re-render to existing sku state, since new data now in product.data
+        if ($product.hasClass('product--teaser--mini')) {
+            product.data.mini_teaser = true;
+        }
+        if ($product.hasClass('js-product-show-spp-btn')) {
+          product.data.show_cta_redirect_spp = true;
+        }
+        $product.trigger('product:change_sku', [{sku: product.getState('sku')}]);
+
+        // product.showInventoryInformation() is called on change_sku > render_sku,
+        // so there is no need to call it explicitly here (See
+        // this.checkInventory() above
+      }
+
+    });
+  };
+
+  /**
+   * Personalization
+   */
+  Product.prototype.modules.personalization = function(product, $product) {
+    // Only do this for full modules
+    if (!$product.hasClass('product--full')) { return; }
+
+    product.setState({'isPurchased': false});
+
+    // Since this key is added via javascript in app, it will hang around even
+    // after change skus when new skus don't feature this key, reset before render
+    $product.on('product:change_sku', function() {
+      var isPurchased = product.getState('isPurchased');
+      product.data.isPurchased = isPurchased;
+      product.setState({'isPurchased': isPurchased});
+    });
+
+    $product.on('click', '.product__replenish', function(e) {
+
+      // SKU_BASE_ID will be in data since it was merged in on this render
+      var currentSkuBaseId = _.result(product.data, 'SKU_BASE_ID');
+      /*global generic */
+      generic.jsonrpc.fetch({
+        "method": "user.replenishment_content",
+        "params": [{SKU_BASE_ID : currentSkuBaseId}],
+        onSuccess: function(r) {
+          //console.log('success fired');
+
+          var responseString = $(r.getValue()); // raw string back from PG
+          var $replenishContent = $(responseString[0].output); // make it jquery
+
+          $replenishContent.find('.alter_replenishment_form').change(function(e){
+            e.preventDefault();
+            $replenishContent.find('.js-add-to-bag').attr('data-freq', $(e.target).val());
+          });
+
+          $replenishContent.find('.js-replenishment-content').once().click(function(){
+            // show or hide content when the user clicks the 'learn more' link
+            var replenishmentMoreContentNode = $replenishContent.find('.replenishment-service__learn_more');
+            replenishmentMoreContentNode.toggle();
+            $.colorbox.resize();
+          });
+
+          site.myAccount.overlayLaunched = 1;
+
+          // shared/sku_partial.js provides the following
+          site.myAccount.initAddToBag($replenishContent.find('.js-add-to-bag'));
+
+          // shared/overlay.js
+          generic.overlay.launch({content: $replenishContent});
+          $.colorbox.resize();
+        }
+      });
+    });
+
+  };
+
+  /**
+   * $product default state when first rendering to page
+   */
+  Product.prototype.modules.productDefaultState = function(product, $product) {
+    var startingSku;
+
+    // SPP: Check if we've already set a route from before
+    if (product.getState('sku')) {
+      startingSku = product.getState('sku');
+      $product.filter('.product--full.product--shaded').trigger('product:change_shade', [{sku: startingSku}]);
+    }
+    // SPP: no prior sku, but need to render default first shade
+    else if (!product.getState('sku') && product.isShaded()) {
+      startingSku = _.result(product.findSkuObject(), 'SKU_ID');
+      $product.filter('.product--full.product--shaded').trigger('product:change_shade', [{sku: startingSku}]);
+    }
+    // SPP: Otherwise default to the first sku in the list, regardless of shaded
+    else {
+      startingSku = _.result(product.findSkuObject(), 'SKU_ID');
+      $product.filter('.product--full').trigger('product:change_sku', [{sku: startingSku}]);
+    }
+
+    // We can set state without js for mpps. Bloom
+    //$product.filter('.grid--mpp__item > .product').trigger('product:change_shade', [{sku: product.findSkuObject().SKU_ID}]);
+  };
+
+  /**
+   * SPP description overlay/accordion
+   */
+  Product.prototype.modules.sppOverlayAccordion = function(product, $product) {
+    // Only do this for full modules
+    if (!$product.hasClass('product--full')) { return; }
+
+    var $activeDesc;
+
+    $product.on('click', '.product__description-desc--trigger', function(event){
+      event.stopPropagation();
+
+      var active_tab = $(this).data('tab'); // triggers have data attr to indicate active group
+      $activeDesc = $product.find('.' + active_tab); // active group
+
+      // If clicking again while already active, close
+      if ($activeDesc.hasClass('active')) {
+        $activeDesc.removeClass('active');
+        $(this).attr('aria-expanded', 'false');
+      }
+      else {
+        $product.find('.product__description-group').removeClass('active'); // clear all active groups
+
+        var shippingTop = ($product.find('.product__size').length) ? $product.find('.product__size').offset().top : 0; // hairline location
+        var descTop = $activeDesc.offset().top; // top or active group
+        var descHeight = shippingTop - descTop - 30; // places it between add-to-bag and shipping notice
+
+        // Make active group, set height of body within so just above hairline on price
+        $activeDesc.addClass('active').find('.product__description-group-body').css('min-height', descHeight);
+        $(this).attr('aria-expanded', 'true');
+      }
+
+      // Close all open descriptions
+      $(window).one('product:close_description', function(e) {
+        $activeDesc.removeClass('active');
+        $('.js-product__description_desc__trigger').attr('aria-expanded', 'false');
+      });
+
+      // Only binds once as well
+      $('body').one('click', function(e) {
+        $(window).trigger('product:close_description');
+      });
+    });
+    // Accordian click event triggered by Keydown event
+    $product.on('keydown', '.js-product__description_desc__trigger', function(e) {
+      if (site.getKeycode(e) === 13) {
+        $(this).trigger('click');
+      }
+    });
+    $product.on('focusout', '.js-product__description-desc__trigger', function() {
+      $(window).trigger('product:close_description');
+    });
+  };
+
+  /**
+   * SPP EDD form link via colorbox
+   */
+  Product.prototype.modules.sppEDDtrigger = function(product, $product) {
+    // Only do this for full modules
+    if (!$product.hasClass('product--full')) { return; }
+
+    var $formWrapper = $('.js-delivery-date', 'body');
+
+    // colorbox for the pc trigger
+    $product.on('product:render_sku', function(e, info) {
+      $product.find('.js-product__edd--pc-trigger').colorbox({
+        inline:true,
+        className:"product__edd--pc__cboxContent",
+        close:'<i class="icon--remove"></i>',
+        width:"480px"
+      });
+    });
+
+    // basic show for the mobile trigger
+    var $eddMobileTrigger = $('.js-product__edd--mobile-trigger', 'body');
+    $eddMobileTrigger.on('click',  function(e) {
+      e.preventDefault();
+      $formWrapper.show();
+    });
+  };
+
+  /**
+   * MPP complementary products hide non-shoppable
+   */
+  Product.prototype.modules.mppComplementary = function(product, $product) {
+    // Only do this for teasers
+    if (!$product.hasClass('product--teaser')) { return; }
+
+    // check status when we render and hide if non shoppable
+    $product.on('product:rpc_data_updated', function() {
+      var displayProduct;
+      if (Drupal.settings.globals_variables.loyalty_landing && $('body').hasClass(Drupal.settings.globals_variables.loyalty_landing)) {
+        displayProduct = product.productIsOrderable() && product.info.sku;
+      } else {
+        displayProduct = product.prouctIsShoppable() && product.info.sku;
+      }
+      $product.parent('.mpp-complementary-products__item').addClass(displayProduct ? 'js-display-ok' : 'hidden');
+      var $activeTab = $('.tabbed-block__content-item.js-tab-content').not('.hidden');
+      var $activeFourProducts = $('.mpp-complementary-products__item.js-display-ok', $activeTab);
+      var $hiddenProducts = $('.mpp-complementary-products__item.hidden', $activeTab);
+      $($hiddenProducts, $activeTab).remove();
+      if($product.parent('.mpp-complementary-products__item').hasClass("js-display-ok")) {
+        if($activeFourProducts.length > 4) {
+          var $mobilecarousel = $('.tabbed-block.tabbed-with-carousel').find('.grid--mpp');
+          $mobilecarousel.unslick();
+          $($activeFourProducts, $activeTab).slice(4).remove();
+        }
+      }
+
+    });
+
+  };
+
+  /**
+   * MPP product badge display text data
+   */
+  Product.prototype.modules.mppDisplayBadge = function(product, $product) {
+    // Only do this for MPP
+    if (!$product.parents().hasClass('grid--mpp')) { return; }
+    var badgeValue = product.prouctBadge();
+    setBadge(badgeValue);
+    $(document).on('product:skuSelect', '.js-product-ui', function(e, skuBaseId) {
+      var skuData = prodcat.data.getSku(skuBaseId);
+      if (!!skuData.MISC_FLAG_TEXT) {
+        badgeValue = skuData.MISC_FLAG_TEXT;
+        setBadge(badgeValue);
+      }
+    });
+    function setBadge(badgeValue) {
+      if (!!badgeValue) {
+        try {
+          var badgeValueStr = badgeValue.replace(/ /g, '_').toLowerCase();
+        }
+        catch(err) {
+          //console.log('error');
+        }
+        $product.attr('data-misc-flag-text', badgeValueStr);
+      }
+    }
+  };
+
+  /**
+   * Product Expando-block generic functions from drupal behavior
+   */
+  Product.prototype.modules.productExpandoBlock = function(product, $product) {
+
+    $product.on('click', '.js-expando-block-trigger',  function(e) {
+      $(this).closest('.expando-block').toggleClass('expando-block--expanded');
+    });
+
+  };
+
+  /**
+   * SPP store inventory
+   */
+  Product.prototype.modules.productStoreCheck = function(product, $product) {
+    // check to see if product store check is enabled
+    if (!Drupal.settings.globals_variables.enable_prod_store_check) {
+      return;
+    }
+
+    if ($product.filter(".product--full").length < 1) {
+      return null;
+    }
+    $product.on('instore:loaded', function(e, product) {
+      var $inStoreBtn = $('.js-check-in-store', $product);
+      var $inStoreCont = $('.js-instore-inv-container', $product);
+      var $cartBtn = $('.js-add-to-bag', $product);
+
+      $(document).trigger('instore:product:setDisplay', {
+        $container : $inStoreCont,
+        $cartBtn : $cartBtn,
+        data: product.data
+      });
+    });
+    var fn = function(e, info, template, location) {
+      if (info && info.sku) {
+        $(document).trigger('invis:init', {
+          skuId: product.data.SKU_ID,
+          product: product.data
+        });
+      }
+    };
+    $product.on('product:render_sku', fn);
+  };
+
+  /**
+   * SPP Zoom Image
+   */
+  Product.prototype.initZoom = function() {
+    // Disable zoom for mobile
+    if (site.client.isMobile) {
+      return;
+    }
+    var $largeImg = $('.product__sku-details .slick-active .product__sku-image');
+    var $shadedProduct = $('.page--spp__product .product').children().hasClass('product__shade-column');
+    var $product3upImg = $('.product__sku-details').find('.product-full__3up-images');
+    var $zoomDimension = 430;
+
+    if($shadedProduct || $product3upImg.length) {
+      $zoomDimension = $('.product__sku-details').width() - $('.product__images').width();
+    }
+    if (!$largeImg.length){
+      $largeImg = $('.product__sku-details .product__images-inner .product__sku-image');
+    }
+
+    if ($largeImg.length > 0) {
+      $.removeData($largeImg, 'ezPlus');  // remove zoom instance from image
+      $('.zoomContainer').remove();       // remove zoom container from DOM+
+       $largeImg.ezPlus({
+         minZoomLevel: 1.9,
+         zoomType: 'window',
+         responsive: true,
+         scrollZoom: false,
+         showLens: true,
+         zoomWindowHeight: $zoomDimension,
+         zoomWindowWidth: $zoomDimension,
+         borderSize: 1,
+         onShow: function() {
+           $(document).trigger('zoomwin.background', 'hide');
+         },
+         onDestroy: function() {
+           $(document).trigger('zoomwin.background', 'show');
+         },
+         onImageClick: function(e) {
+           e.preventDefault();
+           $(document).trigger('zoomwin.toggle');
+         }
+      });
+    }
+  };
+
+  /**
+   * SPP Auto replenishment
+   */
+
+  Product.prototype.sppAutoReplenishment = function (){
+    generic.overlay = generic.overlay || {};
+    if (typeof generic.overlay.initLinks === 'function') {
+        generic.overlay.initLinks();
+    }
+
+    $('select.js-replenishment-select.spp-replenish').not('.selectAdded').select2({
+      width: '100%',
+      minimumResultsForSearch: -1
+    }).addClass('selectAdded');
+
+    var $replenishmentSelect = $('select.js-replenishment-select.spp-replenish');
+    $replenishmentSelect.on('change', function() {
+        $replenishmentSelect.attr('data-replenishment', this.value);
+    });
+    $replenishmentSelect.attr('data-replenishment', 0);
+    $(document).on('click', '.js-autoreplenish', function() {
+        $.colorbox.resize();
+    });
+  };
+
+  $(window).on('l2_re-render:complete', function() {
+    Product.prototype.sppAutoReplenishment();
+  });
+
+  // Zoomwindow active body class
+  $(document).on('zoomwin.toggle', function(e) {
+    var $body = $(document.body);
+    if ($body.hasClass('zoom-show')) {
+      $body.removeClass('zoom-show');
+      } else {
+        $body.addClass('zoom-show');
+    }
+  });
+
+  // Zoomwindow hide background body class
+  $(document).on('zoomwin.background', function(e, showHide) {
+    var $body = $(document.body);
+    if (showHide == 'show') {
+      $body.removeClass('zoom-hide-background');
+    }
+    if (showHide == 'hide') {
+      $body.addClass('zoom-hide-background');
+    }
+  });
+
+  return site;
+
+})(jQuery, Drupal, _, site || {}, prodcat || {});
+
+$(document).ready(function () {
+  generic.focusErrors($('.js-error-message'), $('.js-giftcard-balance'));
+});

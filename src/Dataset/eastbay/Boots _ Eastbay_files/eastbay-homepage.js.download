@@ -1,0 +1,315 @@
+(function (window) {
+  var PIXEL_CONNECTOR_URL = "https://pixelconnector.adready.com";
+  var TRACKER_URL = "https://tracker.adreadyclick.com";
+
+  var LOG_URL = TRACKER_URL + "/log.php";
+
+  var previousURL = window.location.href;
+
+  //init window pixel var
+  window.pixel = { post_data: {}, success: [] };
+
+  function encodeQueryData(data) {
+    var ret = [];
+    for (var d in data)
+      ret.push(encodeURIComponent(d) + "=" + encodeURIComponent(data[d]));
+    return ret.join("&");
+  }
+
+  function getPromiseLib() {
+    var loaded = false;
+    var script = document.createElement("script");
+    var scriptSrc = "//cdn.jsdelivr.net/npm/bluebird@3.7.2/js/browser/bluebird.min.js";
+
+    var scripts = document.getElementsByTagName("script")
+    for (var i = 0; i < scripts.length; ++i) {
+      if (scripts[i].getAttribute('src') === scriptSrc.replace(/(^\w+:|^)/, '')) {
+        loaded = true;
+      }
+    }
+    if (!loaded) {
+      script.src = scriptSrc;
+      script.type = "text/javascript";
+      document.head.appendChild(script);
+    }
+  }
+
+  function getRequest(url, method = "GET", data = null) {
+    return new Promise(function (resolve, reject) {
+      var xhr = new XMLHttpRequest();
+      (xhr.timeout = 2000),
+        (xhr.onreadystatechange = function (e) {
+          4 === xhr.readyState &&
+            (200 === xhr.status ? resolve(xhr.response) : reject(xhr.status));
+        }),
+        (xhr.ontimeout = function () {
+          reject("timeout");
+        }),
+        xhr.open(method, url, !0),
+        xhr.send(data);
+    });
+  }
+
+  function logging(data = '', errors) {
+    var d = new Date();
+    var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    var days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+
+    var day = days[d.getDay()];
+    var hr = d.getHours();
+    var min = d.getMinutes();
+    var sec = d.getSeconds();
+    var date = d.getDate();
+    var month = months[d.getMonth()];
+    var year = d.getFullYear();
+    if (min < 10) {
+      min = '0' + min;
+    }
+    if (sec < 10) {
+      sec = '0' + sec;
+    }
+
+    var dateFormat = '[' + date + '-' + month + '-' + year + ' ' + hr + ':' + min + ':' + sec + ' UTC]';
+    var strFormat = dateFormat + ' ' + data + ' | ' + errors + '\n';
+
+    getRequest(LOG_URL + '?' + encodeQueryData({
+      log: strFormat
+    }), 'GET');
+  }
+
+  function appendPixel(url) {
+    var head = document.getElementsByTagName("head")[0];
+    var pixelstyle =
+      "position:absolute;overflow:hidden;clip:rect(0 0 0 0);height:1px;width:1px;margin:-1px;padding:0;border:0;";
+    var pixel = document.createElement("img");
+
+    pixel.src = url;
+    pixel.width = "1";
+    pixel.height = "1";
+    pixel.style = pixelstyle;
+    head.appendChild(pixel);
+  }
+
+  function generateValidateUrl(advertiser) {
+    var validate_url = PIXEL_CONNECTOR_URL + "/validate";
+
+    if (typeof advertiser !== "undefined") {
+      return validate_url + "?advertiser=" + advertiser;
+    }
+
+    //get all scripts that have been loaded
+    var scripts = document.getElementsByTagName("script");
+
+    var flip_ids = [];
+    for (var i = 0; i < scripts.length; i++) {
+      var script = scripts[i];
+
+      if (
+        script.src &&
+        script.src.includes(TRACKER_URL + "/eastbay-homepage.js?id=")
+      ) {
+        var params = script.src.replace(/^[^\?]+\??/, "");
+
+        if (!params.includes("id=")) {
+          continue;
+        }
+        var flip_id = params.replace("id=", "");
+        if (!window.pixel.success.includes(flip_id)) {
+          flip_ids.push(flip_id);
+        }
+      }
+    }
+
+    var id = flip_ids[flip_ids.length - 1];
+
+    validate_url = validate_url + "?id=" + id;
+
+    return validate_url;
+  }
+
+  function appendPiggybackPixels(piggyback_pixels) {
+    piggyback_pixels.map(function (pixel) {
+      appendPixel(pixel);
+    });
+  }
+
+  function appendAdvertiserFile(external_file) {
+    if (external_file !== "") {
+      var script = document.createElement("script"); // create a script DOM node
+      script.src = TRACKER_URL + "/scripts/" + external_file; // set its src to the provided URL
+
+      document.head.appendChild(script);
+    }
+  }
+
+  function generateRegexes(regexes) {
+    var body = document.getElementsByTagName("body")[0].innerHTML;
+
+    if (window.pixel.isHomePage) {
+      return {};
+    }
+    var active_regexes = Object.keys(regexes).filter(function (key) {
+      return regexes[key] !== "";
+    });
+
+    if (active_regexes.length === 0) {
+      regexes = {
+        ordernumber: "(?:(?=.*[A-Z0-9\\-])(?![GTM\\-]))[A-Z0-9\\-]{8,25}",
+        total: "(?:\\$)((?:\\.|)\\d+(?:\\,|)\\d{0,3}(?:\\.|)\\d{0,2})",
+      };
+    }
+    var orderRegex = body.match(regexes.ordernumber) || [];
+
+    //if the order number is an array,
+    //check if it's the first or second element
+    var orderNumber = null;
+    if (orderRegex.length > 0) {
+      orderNumber = orderRegex.length === 1 ? orderRegex[0] : orderRegex[1];
+    }
+
+    var regex_results = {
+      ordernumber: orderNumber,
+      total: body.match(new RegExp(regexes.total, "g")) || [],
+    };
+    //format total into numbers
+    regex_results.total = regex_results.total
+      .map(function (total) {
+        total = total.match(/[\d|,|.|\+]+/g)[0];
+
+        return Number(total.replace("$", "").replace(",", ""));
+      })
+      .sort();
+
+    return regex_results;
+  }
+
+  function firePixel(advertiser) {
+    var regex_results = generateRegexes(advertiser.regex);
+    window.pixel.regexes = regex_results;
+
+    //if there are piggy back pixels, append to page
+    appendPiggybackPixels(advertiser.piggyback_pixels);
+
+    //get ip
+    //if there are external files to be downloaded
+    appendAdvertiserFile(advertiser.external_file);
+    getRequest("//api.ipify.org/?format=json").then(function (ip_res) {
+      var post_data = {
+        ip_address: JSON.parse(ip_res).ip,
+        advertiser: advertiser.name,
+        timestamp: new Date().getTime(),
+        order_number: regex_results.ordernumber || null,
+        checkout_values: regex_results.total || [],
+      };
+
+      for (var key in post_data) {
+        post_data[key] = window.pixel.post_data[key] || post_data[key];
+      }
+
+      if (typeof pixel_object != "undefined") {
+        var entries = Object.entries(pixel_object);
+        for (var [key, value] of entries) {
+          post_data[key] = value;
+        }
+      }
+
+      // fire pixel request
+      getRequest(
+        PIXEL_CONNECTOR_URL + "/update",
+        "POST",
+        JSON.stringify(post_data)
+      ).catch(function (errors) {
+        logging(
+          'Advertiser "' +
+          advertiser +
+          '" encounter an error: Could not post to pixelconnector.',
+          errors
+        );
+      });
+    });
+  }
+
+  function checkURLchange(advertiser) {
+    var bodyList = document.querySelector("body");
+    var currentURL = window.location.href;
+
+    var matched_url = advertiser.authorized_urls.filter(function (url) {
+      //strip off url params and look for exact match
+      var base_url = currentURL.split("?")[0];
+      if (window.pixel.isHomePage) {
+        return url === base_url;
+      }
+      return base_url.includes(url);
+    });
+    if (matched_url.length > 0) {
+      firePixel(advertiser);
+    }
+
+    var observer = new MutationObserver(function (mutations) {
+      mutations.forEach(function (mutation) {
+        var currentURL = window.location.href;
+
+        if (previousURL !== currentURL) {
+          var matched_url = advertiser.authorized_urls.filter(function (url) {
+            //strip off url params and look for exact match
+            var base_url = currentURL.split("?")[0];
+            if (window.pixel.isHomePage) {
+              return url === base_url;
+            }
+            return base_url.includes(url);
+          });
+
+          if (matched_url.length > 0) {
+            firePixel(advertiser);
+          }
+          previousURL = currentURL;
+        }
+        previousURL = window.location.href;
+      });
+    });
+
+    var config = {
+      childList: true,
+      subtree: true,
+    };
+    observer.observe(bodyList, config);
+  }
+
+  function execute(advertiser) {
+    if (typeof Promise === "undefined" && Promise.toString().indexOf("[native code]") === -1) {
+      getPromiseLib();
+    }
+    var validate_url = generateValidateUrl(advertiser);
+
+    if (typeof validate_url === "boolean" && !validate_url) {
+      console.log("Missing Advertiser ID or Name");
+      return;
+    }
+    getRequest(validate_url)
+      .then(function (valid_res) {
+        var advertiser = JSON.parse(valid_res);
+
+        window.pixel.isHomePage = advertiser.conversion_type === "HomepageConv";
+
+        if (advertiser.authorized_urls.length > 0) {
+          checkURLchange(advertiser);
+        } else {
+          firePixel(advertiser);
+        }
+      })
+      .catch(function (err) { });
+  }
+
+  var hasEvent = typeof event !== "undefined";
+  var isAdvertiserVarSet = typeof advertiser !== "undefined";
+
+  //event handling
+  if (!hasEvent || event === "pageLoad") {
+    //if id is used instead of advertiser, fire
+    if (!isAdvertiserVarSet) execute();
+    //pass in advertiser
+    else execute(advertiser);
+  } else {
+    window.pixel.fire = execute;
+  }
+})(window);

@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<!-- saved from url=(0383)https://login.dotomi.com/ucm/UCMController?dtm_com=28&dtm_fid=101&dtm_cid=2333&dtm_cmagic=f7e0b9&dtm_format=5&cli_promo_id=4&dtmc_department=Furniture&dtmc_category=Chairs%20%20Seating&dtmc_subcategory=Office%20Chairs&dtmc_ref=https://www.staples.com/Chairs-Seating/cat_CG32&dtmc_loc=https://www.staples.com/Office-Chairs/cat_CL166253?icid=CHAIRSSEATINGCAT:LINKBOX1::OFFICECHAIRS:::: -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><title>CNVR</title></head>
+<body data-new-gr-c-s-check-loaded="14.981.0">
+<!-- Common 73.formatter -->
+
+<script>
+  var cgver = -1,
+    rccg =  0,
+    dmcg = 0,
+    dnc = 0,
+    secure = "true" === "true" ? true : false,
+    imps = parseInt("200", 10) || 1000,
+    utoken = "AQEGp0eZwr4ixQEb2wRKAQEIHAE",
+    utokeng = "",
+    utokenfg = "",
+    utokenf = "",
+    dtm_max_cookie_calls = parseInt("3", 10) || -1,
+    dtm_publisher_bl = "85983",
+    dtm_force_cookies_drop = "false",
+    gdpr_applies = ("" !== "" ? parseInt("", 10) : 0),
+    gdpr_consent = "",
+    dtm_form_uid = "551105712446857349",
+    dtm_success = "true" === "true" ? true : false,
+    use_cookie_track = "" !== "0" ? true : false,
+    dtm_new_session = "false" === "true" ? true : false,
+    dtm_no_cookie = "false" === "true" ? true : false,
+    pixelsArr = [],
+    successUrl;
+
+  // Command Script Macros
+  document.write('');
+  document.write('');
+  document.write('');
+
+  var errorHandler = function (ex) {
+      var pixelUrl = (ex.target && ex.target.src ? ex.target.src.substr(0, 200) : "Unknown");
+      var errorUrl = "https://s-usweb.dotomi.com/event/ad/lifecycle/current?trid=-1&site_id=-1&pid=-1&dtmid=-1&comId=2333&tid=-1&msgCampId=-1&bidServerId=-1&supplyType=-1" +
+        "&etype=15014&edtl=Pixel%20Error:%20" + encodeURIComponent(pixelUrl);
+      (new Image()).src = errorUrl;
+  };
+
+  var firePixel = function (url, useSameOriginReferrer) {
+    var imgObj = new Image();
+    imgObj.onerror = errorHandler;
+    if (useSameOriginReferrer) {
+    	imgObj.referrerPolicy = 'same-origin'
+	}
+    imgObj.src = url;
+  };
+
+  var init = function () {
+    if (dtm_success && (dtm_new_session || (dtm_no_cookie && use_cookie_track))) {
+      successUrl = "https://login-ds.dotomi.com/ucm/DMCSuccessLogger?dtmid=551205626332521412&comId=2333" +
+        "&dtm_command_op_date=1604236740532&formActMask=1&dtm_fid=101" +
+        "&sessionid=1604236572962&dtm_form_uid=551105712446857349";
+      firePixel(successUrl, false);
+    }
+
+    pixelsArr.forEach(function(pixel) {
+    	firePixel(pixel, true);
+  	});
+  };
+
+  init();
+</script>
+
+</body></html>

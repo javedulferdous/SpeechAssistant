@@ -1,0 +1,1613 @@
+if (typeof USPS === 'undefined') {
+  USPS = {};
+}
+
+require(['jquery', 'qtip', 'bootstrap', 'psm'], function(jquery) {
+	USPS.ENDECASTOREUTIL = {
+
+			productDetail_init : function () {
+				// Prepaid label Initialization
+				var pType = jquery('#clk_product_type').val();
+				if (pType === "PrepaidLabel"){
+					var isLoggedin = jquery('#isLoggedin').val();
+					jquery('.c-rtn-addr').addClass('active');
+					if(isLoggedin==='true') {
+						jquery('.LoggedIn').addClass('active');
+						jquery('.addr-book-login').addClass('active');
+					} else {
+						jquery('.notLoggedIn').addClass('active');
+
+					}
+				}
+
+				// "...More" LINKS fix
+				if (jquery('p.read-more-wrap~p:visible').length > 1){jquery('#style-more').html('');}
+				jquery('.read-more-trigger').css('opacity', '1');
+
+				// RESIZE BUTTONS
+				if (jquery('.product-details .store-product-order .s-quantity .format-btn')){
+					btn_holder = jquery('.product-details .store-product-order .s-quantity');
+					btn_format = jquery('.product-details .store-product-order .s-quantity .format-btn');
+					cHHigh=[];
+					jquery.each(btn_format, function(i,val) {
+						cHVal =  jquery(this).css('height');
+						cHHigh.push(parseInt(cHVal));
+					});
+					getHMaxValue = Math.max.apply(Math, cHHigh);
+					btn_format.css('height', getHMaxValue);
+					btn_holder.css('opacity', 1);
+				}
+			},
+
+			refreshTotals : function(){
+					jquery("#mult-error").empty();
+					jquery("#mult-error").hide();
+					var pType = jquery('#clk_product_type').val();
+				    if (pType === "PrepaidLabel"){
+                       	USPS.ENDECASTOREUTIL.refreshTotalsFPP();
+					}
+					else{
+							jquery('p[id^="avail"]').hide();
+							jquery('p[id^="minMaxQty_"]').hide();
+							jquery('input[id^="addToCartBtn"]').hide();
+							jquery('span[id^="spanaddToCartVisBtn"]').hide();
+							jquery('a[id^="addToCartVisBtn"]').hide();
+							var selectedVal = jquery("#uspsSkuSelector").val();
+							var selectedAvail = jquery('#hiddenAvailType' + selectedVal).val();
+							if (typeof selectedVal === 'undefined' || !selectedVal || selectedAvail == 'unavailable') {
+								jquery("#availabilityControl").hide();
+								jquery("#availDiscontinued").show();
+							}
+							else{
+								jquery('#selectedSkuID').val(selectedVal);
+								jquery("#uspsDropDownSkuId").val(selectedVal);
+								jquery("#selectedSkuUpdateId").html(selectedVal);
+								jquery("#avail"+selectedVal).show();
+								jquery("#minMaxQty_"+selectedVal).show();
+								jquery("#selectedDisplaySku").html(selectedVal);
+								var price = jquery('#skuprice_'+selectedVal).val();
+								var quantity = jquery('#cartQuantity').val();
+								var total = price * quantity;
+								var currTotal = '<b>$</b>' + total.toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,");
+								jquery('#totalPrice').html(currTotal);
+								jquery("#spanaddToCartVisBtn"+selectedVal).show();
+								var addCartLabel = jquery('#addCartLabel'+selectedVal).val();
+								jquery("#addToCartVisBtn"+selectedVal).html(addCartLabel);
+								jquery("#addToCartVisBtn"+selectedVal).show();
+								jquery("#availabilityControl").show();
+								if(addCartLabel == ''){
+									var errorMsg = '<p> No inventory available for SKU '+selectedVal+'</p>';
+									jquery("#mult-error").html(errorMsg).show();
+								}
+							}
+						}
+
+			},
+
+			refreshTotalsOnModal : function(){
+		            // Prepaid labels never opened on Modal
+							jquery("#m-mult-error").empty();
+							jquery("#m-mult-error").hide();
+							jquery('p[id^="m-avail"]').hide();
+							jquery('p[id^="m-minMaxQty_"]').hide();
+							jquery('input[id^="m-addToCartBtn"]').hide();
+							jquery('span[id^="m-spanaddToCartVisBtn"]').hide();
+							var selectedVal = jquery("#m-uspsSkuSelector").val();
+							var selectedAvail = jquery('#m-hiddenAvailType' + selectedVal).val();
+							if (typeof selectedVal === 'undefined' || !selectedVal || selectedAvail == 'unavailable') {
+								jquery("#m-availabilityControl").hide();
+								jquery("#m-availDiscontinued").show();
+								jquery("#m-totalPriceAndButton").hide();
+							}
+							else{
+								jquery('#m-selectedSkuID').val(selectedVal);
+								jquery("#m-uspsDropDownSkuId").val(selectedVal);
+								jquery("#m-selectedSkuUpdateId").html(selectedVal);
+								jquery("#m-selectedDisplaySku").html(selectedVal);
+								jquery("#m-avail"+selectedVal).show();
+								jquery("#m-minMaxQty_"+selectedVal).show();
+								var price = jquery('#m-skuprice_'+selectedVal).val();
+								var quantity = jquery('#m-cartQuantity').val();
+								var total = price * quantity;
+								var currTotal = '<b>$</b>' + total.toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,");
+								jquery('#m-totalPrice').html(currTotal);
+								jquery("#m-spanaddToCartVisBtn"+selectedVal).show();
+								var addCartLabel = jquery('#m-addCartLabel'+selectedVal).val();
+								jquery("#m-addToCartVisBtn"+selectedVal).html(addCartLabel);
+								jquery("#m-addToCartVisBtn"+selectedVal).show();
+								jquery("#m-availabilityControl").show();
+								jquery("#m-totalPriceAndButton").show();
+								if(addCartLabel == ''){
+									var errorMsg = '<p> No inventory available for SKU '+selectedVal+'</p>';
+									jquery("#m-mult-error").html(errorMsg).show();
+								}
+							}
+
+			},
+
+			refreshTotalsFPP : function(){
+					jquery(' .availability').hide();
+					jquery(' .minMaxQty').hide();
+					jquery("#mult-error").empty();
+					jquery("#mult-error").hide();
+					var selectedVal = jquery("#uspsSkuSelector").val();
+					if (typeof selectedVal === 'undefined' || !selectedVal) {
+						jquery("#availabilityControl").hide();
+						jquery("#availDiscontinued").show();
+					}
+					else{
+						jquery("#avail"+selectedVal).show();
+						jquery("#minMaxQty_"+selectedVal).show();
+						var price = jquery('#skuprice_'+selectedVal).val();
+						var quantity = jquery('#tQuantity').val();
+						var total = price * quantity;
+						var currTotal = '<b>$</b>' + total.toFixed(2).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, "$1,");
+						jquery('#totalPrice').html(currTotal);
+						jquery("#availabilityControl").show();
+						var addCartLabel = jquery('#addCartLabel'+selectedVal).val();
+						if(addCartLabel == ''){
+							var errorMsg = '<p> No inventory available for SKU '+selectedVal+'</p>';
+							jquery("#mult-error").html(errorMsg).show();
+						}
+					}
+			},
+
+		    checkForeignCountryFPP: function(){
+				var isLoggedin = jquery('#isLoggedin').val();
+				jquery("#mult-error").html('').hide();
+				if(isLoggedin==='true' && window.location.search.indexOf('ciId')==-1) {
+					if(jquery('#profileCountry').val() != 'US'){
+						var errorMsg =  '<p>'+jquery('#foreignAddrMessage').val()+'<p>';
+						jquery("#mult-error").html(errorMsg).show();
+					}
+				}
+			},
+
+			checkModalForeignCountryFPP: function(){
+				var isLoggedin = jquery('#isLoggedin').val();
+				jquery("#mult-error").html('').hide();
+				// Skip this check if a login user clicked Edit Address from cart as that would be already a valid US address.
+				if(isLoggedin==='true' && window.location.search.indexOf('ciId')==-1) {
+					if(jquery('#profileCountry').val() != 'US'){
+						 var amsValidated = USPS.FPP.amsValidate(false);
+						  // Added AMS validation here to skip resetForm when a foreign profile user
+						  // is trying to edit a previously set valid US return address.
+						  if(!amsValidated) {
+							  USPS.ENDECASTOREUTIL._resetAddressForm();
+						  }
+					}
+				}
+			},
+
+			isBlank : function(str) {
+				return (!str || /^\s*$/.test(str));
+			},
+
+			_populateAddress:function(){
+
+     			var  lNameText = '', lCompanyText = '', lAddressaText = '',lAddressbText = '';
+
+			   if ( (jquery('#hFName').val()).trim() != '')
+			   {
+				   lNameText += (jquery('#hFName').val()).trim() + ' ' + (jquery('#hMName').val()).trim() + ' ' + (jquery('#hLName').val()).trim();
+
+			   }
+				 var retaddress = lNameText;
+
+			   if ( (jquery('#hCompany').val()).trim() != '')
+			   {
+				   lCompanyText += (jquery('#hCompany').val()).trim();
+				   retaddress = retaddress + '</br>' + lCompanyText;
+			   }
+
+			   if ( jquery('#hAddress1').val() != '')
+			   {
+				   lAddressaText += jquery('#hAddress1').val();
+			   }
+
+			   if ( jquery('#hAddress2').val() != '')
+			   {
+				   lAddressaText += ' ' + jquery('#hAddress2').val();
+			   }
+			   retaddress = retaddress + '</br>' + lAddressaText;
+
+			   if ( jquery('#hUrbanCode').val() != '')
+			   {
+				   lAddressbText += jquery('#hUrbanCode').val();
+			   }
+
+			   if ( jquery('#hCity').val() != '')
+			   {
+				   lAddressbText += jquery('#hCity').val()
+				   if ( jquery('#hState').val() != ''){
+					   lAddressbText += ', ' + jquery('#hState').val();
+				   }
+				   if ( jquery('#hZip').val() != ''){
+					   lAddressbText += ', ' + jquery('#hZip').val();
+				   }
+			   }
+			   retaddress = retaddress + '</br>' + lAddressbText;
+
+				jquery('#lName').html(lNameText);
+				jquery('#lCompany').html(lCompanyText);
+				jquery('#lAddressa').html(lAddressaText);
+				jquery('#lAddressb').html(lAddressbText);
+
+				jquery('#return-address').html(retaddress);
+
+				var finalRetAddr = '<p>' + retaddress + '</p>' ;
+				jquery('#rtn-addr-content').html(finalRetAddr);
+				jquery('#rtn-addr-label-content').html(finalRetAddr);
+			},
+
+			/**
+             * @function _setHidden
+             * set hidden form fields
+             */
+            _setHidden : function() {
+				jquery('#hFName').val((jquery('#tFName').val()).trim());
+				jquery('#hMName').val((jquery('#tMName').val()).trim());
+				jquery('#hLName').val((jquery('#tLName').val()).trim());
+				jquery('#hCompany').val((jquery('#tCompany').val()).trim());
+				jquery('#hAddress1').val(jquery('#tAddress1').val());
+				jquery('#hAddress2').val(jquery('#tAddress2').val());
+				jquery('#hUrbanCode').val(jquery('#hUrbanCode').val());
+				jquery('#hCity').val(jquery('#tCity').val());
+				jquery('#hState').val(jquery('#sState').val());
+				jquery('#hZip').val(jquery('#tZip').val());
+            },
+
+			/**
+             * @function _setHiddenUpdateCart
+             * set hidden form fields
+             */
+            _setHiddenUpdateCart : function() {
+				jquery('#pp-hFName').val((jquery('#tFName').val()).trim());
+				jquery('#pp-hMName').val((jquery('#tMName').val()).trim());
+				jquery('#pp-hLName').val((jquery('#tLName').val()).trim());
+				jquery('#pp-hCompany').val((jquery('#tCompany').val()).trim());
+				jquery('#pp-hAddress1').val(jquery('#tAddress1').val());
+				jquery('#pp-hAddress2').val(jquery('#tAddress2').val());
+				jquery('#pp-hUrbanCode').val(jquery('#hUrbanCode').val());
+				jquery('#pp-hCity').val(jquery('#tCity').val());
+				jquery('#pp-hState').val(jquery('#sState').val());
+				jquery('#pp-hZip').val(jquery('#tZip').val());
+            },
+
+			_validateAddress:function(){
+				var validated = "true";
+
+				if (((jquery('#hFName').val()).trim() != '') || ((jquery('#hLName').val()).trim() != '') || ((jquery('#hCompany').val()).trim() != '')) {
+
+                    if (((jquery('#hFName').val()).trim() != '') || ((jquery('#hLName').val()).trim() != '')) {
+
+                        if (!(((jquery('#hFName').val()).trim() != '') && ((jquery('#hLName').val()).trim() != ''))) {
+							jquery('.return-name-error').show();
+							jquery('#tFName, #tLName, #tCompany').addClass('error-input');
+							validated = "false";
+                        }
+                    }
+                } else {
+					jquery('.return-name-error').show();
+					jquery('#tFName, #tLName, #tCompany').addClass('error-input');
+					validated = "false";
+                }
+
+			   if ( jquery('#hAddress1').val() == '')
+			   {
+				    jquery('#tAddress1').addClass('error-input');
+					jquery('.return-address-error').show();
+					validated = "false";
+			   }
+
+			   if ( jquery('#hCity').val() == '')
+			   {
+				    jquery('#tCity').addClass('error-input');
+					jquery('.return-city-error').show();
+					validated = "false";
+			   }
+
+			   if ( jquery('#hState').val() == '')
+			   {
+				    jquery('#sState').addClass('error-input');
+					jquery('.return-state-error').show();
+					validated = "false";
+			   }
+
+			   if ( jquery('#hZip').val() == '')
+			   {
+				    jquery('#tZip').addClass('error-input');
+					jquery('.return-zip-error').show();
+					validated = "false";
+			   }
+
+			   if(validated == "true"){
+				   return true;
+				}else{
+				   return false;
+			   }
+
+			},
+
+			_removeModalFieldErrorsMR:function() {
+				jquery('#tFName').parent().removeClass("error");
+				jquery('#tLName').parent().removeClass("error");
+				jquery('#tCompany').parent().removeClass("error");
+				jquery('#tAddress1').parent().removeClass("error");
+				jquery('#tCity').parent().removeClass("error");
+				jquery('#sState').parent().removeClass("error");
+				jquery('#tZip').parent().removeClass("error");
+			},
+			
+			_validateModalAddressMR:function() {
+				USPS.ENDECASTOREUTIL._removeModalFieldErrorsMR();
+				var validated = "true";
+
+				if (((jquery('#tFName').val()).trim() != '') || ((jquery('#tLName').val()).trim() != '') || ((jquery('#tCompany').val()).trim() != '')) {
+
+                    if (((jquery('#tFName').val()).trim() != '') || ((jquery('#tLName').val()).trim() != '')) {
+
+                        if (!(((jquery('#tFName').val()).trim() != '') && ((jquery('#tLName').val()).trim() != ''))) {
+							jquery('#tFName').parent().addClass("error");
+							jquery('#tLName').parent().addClass("error");
+							jquery('#tCompany').parent().addClass("error");
+							jquery('#tFName').parent().show();
+							jquery('#tLName').parent().show();
+							jquery('#tCompany').parent().show();
+							validated = "false";
+                        }
+                    }
+                } else {
+					jquery('#tFName').parent().addClass("error");
+					jquery('#tLName').parent().addClass("error");
+					jquery('#tCompany').parent().addClass("error");
+					jquery('#tFName').parent().show();
+					jquery('#tLName').parent().show();
+					jquery('#tCompany').parent().show();
+					validated = "false";
+                }
+
+			    if (jquery('#tAddress1').val() == '') {
+				    jquery('#tAddress1').parent().addClass("error");
+					jquery('#tAddress1').parent().show();
+					validated = "false";
+			   }
+
+			    if (jquery('#tCity').val() == '') {
+				    jquery('#tCity').parent().addClass("error");
+					jquery('#tCity').parent().show();
+					validated = "false";
+			   }
+
+			    if (jquery('#sState').val() == '') {
+				    jquery('#sState').parent().addClass("error");
+					jquery('#sState').parent().show();
+					validated = "false";
+			   }
+
+			    if (jquery('#tZip').val() == '') {
+				    jquery('#tZip').parent().addClass("error");
+					jquery('#tZip').parent().show();
+					validated = "false";
+			   }
+				console.log(validated);
+			    if( validated == "true"){
+				    return true;
+				} else {
+				    return false;
+			   }
+			},
+			
+			_validateModalAddress:function(){
+				var validated = "true";
+
+				if (((jquery('#tFName').val()).trim() != '') || ((jquery('#tLName').val()).trim() != '') || ((jquery('#tCompany').val()).trim() != '')) {
+
+                    if (((jquery('#tFName').val()).trim() != '') || ((jquery('#tLName').val()).trim() != '')) {
+
+                        if (!(((jquery('#tFName').val()).trim() != '') && ((jquery('#tLName').val()).trim() != ''))) {
+							jquery('.return-name-error').show();
+							jquery('#tFName, #tLName, #tCompany').addClass('error-input');
+							validated = "false";
+                        }
+                    }
+                } else {
+					jquery('.return-name-error').show();
+					jquery('#tFName, #tLName, #tCompany').addClass('error-input');
+					validated = "false";
+                }
+
+			   if ( jquery('#tAddress1').val() == '')
+			   {
+				    jquery('#tAddress1').addClass('error-input');
+					jquery('.return-address-error').show();
+					validated = "false";
+			   }
+
+			   if ( jquery('#tCity').val() == '')
+			   {
+				    jquery('#tCity').addClass('error-input');
+					jquery('.return-city-error').show();
+					validated = "false";
+			   }
+
+			   if ( jquery('#sState').val() == '')
+			   {
+				    jquery('#sState').addClass('error-input');
+					jquery('.return-state-error').show();
+					validated = "false";
+			   }
+
+			   if ( jquery('#tZip').val() == '')
+			   {
+				    jquery('#tZip').addClass('error-input');
+					jquery('.return-zip-error').show();
+					validated = "false";
+			   }
+
+			   if(validated == "true"){
+				   return true;
+				}else{
+				   return false;
+			   }
+
+			},
+
+			_populateAddressUpdate:function(){
+
+     			var  lNameText = '', lCompanyText = '', lAddressaText = '',lAddressbText = '';
+
+			   if ( (jquery('#pp-hFName').val()).trim() != '')
+			   {
+				   lNameText += (jquery('#pp-hFName').val()).trim() + ' ' + (jquery('#pp-hMName').val()).trim() + ' ' + (jquery('#pp-hLName').val()).trim();
+
+			   }
+			   var retaddress = lNameText;
+
+			   if ( (jquery('#pp-hCompany').val()).trim() != '')
+			   {
+				   lCompanyText += (jquery('#pp-hCompany').val()).trim();
+				   retaddress = retaddress + '</br>' + lCompanyText;
+			   }
+
+			   if ( jquery('#pp-hAddress1').val() != '')
+			   {
+				   lAddressaText += jquery('#pp-hAddress1').val();
+			   }
+
+			   if ( jquery('#pp-hAddress2').val() != '')
+			   {
+				   lAddressaText += ' ' + jquery('#pp-hAddress2').val();
+			   }
+			   retaddress = retaddress + '</br>' + lAddressaText;
+
+			   if ( jquery('#pp-hUrbanCode').val() != '')
+			   {
+				   lAddressbText += jquery('#pp-hUrbanCode').val();
+			   }
+
+			   if ( jquery('#pp-hCity').val() != '')
+			   {
+				   lAddressbText += jquery('#pp-hCity').val() ;
+				   if ( jquery('#pp-hState').val() != ''){
+					   lAddressbText += ', ' + jquery('#pp-hState').val();
+				   }
+				   if ( jquery('#pp-hZip').val() != ''){
+					   lAddressbText += ', ' + jquery('#pp-hZip').val();
+				   }
+			   }
+			    retaddress = retaddress + '</br>' + lAddressbText;
+
+				jquery('#lName').html(lNameText);
+				jquery('#lCompany').html(lCompanyText);
+				jquery('#lAddressa').html(lAddressaText);
+				jquery('#lAddressb').html(lAddressbText);
+
+				jquery('#return-address').html(retaddress);
+
+				var finalRetAddr = '<p>' + retaddress + '</p>' ;
+				jquery('#rtn-addr-content').html(finalRetAddr);
+				jquery('#rtn-addr-label-content').html(finalRetAddr);
+			},
+
+			/**
+             * @function _resetAddressForm
+             * reset the address fields on the edit form
+             */
+            _resetAddressForm : function() {
+                // Reset the address form when opened up with a foreign profile address
+					jquery('#tFName').val('');
+					jquery('#tMName').val('');
+					jquery('#tLName').val('');
+					jquery('#tCompany').val('');
+					jquery('#tAddress1').val('');
+					jquery('#tAddress2').val('');
+					jquery('#tUrbanCode').val('');
+					jquery('#tCity').val('');
+					jquery('#sState').val('');
+					jquery('#tZip').val('');
+			},
+
+			/**
+             * @function _setAddressForm
+             * set the address fields from hidden form
+             */
+            _setAddressForm : function() {
+                	jquery('#tFName').val((jquery('#hFName').val()).trim());
+					jquery('#tMName').val((jquery('#hMName').val()).trim());
+					jquery('#tLName').val((jquery('#hLName').val()).trim());
+					jquery('#tCompany').val((jquery('#hCompany').val()).trim());
+					jquery('#tAddress1').val(jquery('#hAddress1').val());
+					jquery('#tAddress2').val(jquery('#hAddress2').val());
+					jquery('#tUrbanCode').val(jquery('#hUrbanCode').val());
+					jquery('#tCity').val(jquery('#hCity').val());
+					jquery('#sState').val(jquery('#hState').val());
+					jquery('#tZip').val(jquery('#hZip').val());
+			}
+
+		};
+
+			function mOpenProductDetail() {
+				var pid = jquery('#clk_product_id').val();
+				var pType = jquery('#clk_product_type').val();
+				// Prepaid labels are never opened on Modal display
+				fetch_product(pid);
+			};
+
+			// Prepaid labels are never opened on Modal display
+			//function fetch_fpp_product(pid){
+			//		var prod_val_result=false;
+			//		var host = window.location.host;
+			//		var protocol = window.location.protocol;
+			//		jquery.ajaxSetup({cache:false});
+
+			//	    var prod_url = "/store/test/modal-product-detail.jsp";
+			//		var request = jquery.ajax({
+			//		  url: prod_url,
+			//		  type: "POST",
+			//		  data: {productId : pid},
+			//		  dataType: "html"
+			//		});
+			//		request.done(function(msg) {
+			//		    //console.log("message " + msg);
+			//		   jquery('#return-address-model-dialog').html(msg);
+			//		    USPS.ENDECASTOREUTIL._setAddressForm();
+			//		   jquery('#return-address-model-dialog').modal({minWidth:700, minHeight:600});
+
+			//		});
+			//	};
+
+			function fetch_product(pid){
+				var prod_val_result=false;
+				var host = window.location.host;
+				var protocol = window.location.protocol;
+				jquery.ajaxSetup({cache:false});
+			    var prod_url = "/store/endeca/modal-product-detail.jsp";
+				var request = jquery.ajax({
+				  url: prod_url,
+				  type: "POST",
+				  data: {productId : pid},
+				  dataType: "html", 
+				  beforeSend: function() {
+						loadSpinner();
+					},
+				  complete: function() {
+					setTimeout(closeWhiteSpinner, 200);
+				  }
+				});
+				request.done(function(msg) {
+					if(msg.indexOf("invalidModalProduct") != -1){
+						openModal('producterror');
+					}
+					else{
+						jquery(".view-product").html( msg );
+						closeModalFrame();
+						jquery('#quick-view-modal').modal();
+						USPS.ENDECASTOREUTIL.refreshTotalsOnModal();
+						reveal_modal_btn();
+
+					}
+				});
+				return true;
+			};
+
+			function submitSerializedCartForm(submitType, formType){
+					jquery("#actionFlag").val(submitType);
+					var submitform ;
+					var url ;
+					var errDiv;
+					if(formType == 'productDetailsModalForm'){
+						jquery("#m-mult-error").empty();
+						submitform = jquery('#m-addToCartFormProductDetail').serialize();
+						url = jquery('#m-addToCartFormProductDetail').attr('action');
+						errDiv = jquery("#m-mult-error");
+					}else{
+						jquery("#mult-error").empty();
+						submitform = jquery('#addToCartFormProductDetail').serialize();
+						url = jquery('#addToCartFormProductDetail').attr('action');
+						errDiv = jquery("#mult-error");
+					}
+					jquery.ajax({
+					type: "POST",
+					url: url,
+					data: submitform,
+					success: function(data) {
+						if(isJSON(data))
+						{
+							var errorMsg='';
+							jquery.each(data.errors, function(i, item)
+							{
+								errorMsg = errorMsg + '<p>'+item+'</p>';
+							});
+							if(errorMsg != '') {
+								errDiv.html(errorMsg); errDiv.show();
+								if(formType != 'productDetailsModalForm'){closeModal();}
+							}
+
+						}else{
+						if(submitType == 'addToCart' || submitType == 'updateFPPToCart'){
+							var pType = jquery('#clk_product_type').val();
+							if (pType === "PrepaidLabel" && formType != 'productDetailsModalForm'){
+								// Prepaid labels are never opened on Modal display
+								jquery("#modal-prepaid-success").html(data);
+								USPS.ENDECASTOREUTIL._populateAddress();
+								openModal('returnSuccess');
+							}else{
+								jquery("#modal-product-cart").html(data);
+								openModal('productCart');
+							}
+
+						}else{
+							// save for Later and remove from saved.
+							location.reload(true);
+						}
+					}
+						}
+					});
+			};
+
+			function isJSON (obj) {
+				if (typeof obj != 'string')
+				{
+					obj = JSON.stringify(obj);
+				try {
+					JSON.parse(obj);
+					return true;
+				} catch (e) {
+					return false;
+				}
+				}
+				return false;
+			}
+			
+
+			// Save for later button saves item if user is logged in.
+			// Opens sign in modal if not logged in.
+			jquery(document.body).on('click', '#saveForLaterBtnMR', function(e) {
+				e.preventDefault();
+				var isLoggedIn = jquery('#isLoggedin').val();
+				if (isLoggedIn === 'true') {
+					jquery('#saveForLaterQty').val(jquery('.quantity').val());
+					jquery('#saveForLaterQtyBean').val(jquery('.quantity').val());
+					jquery('#saveForLaterActionBean').val('true');
+					jquery("#saveForLaterSubmitBtn").click();
+				} else {
+					jquery("#button--star-modal").modal();
+				}
+			});
+			
+			// Sign in button on save for later modal submits save for later request.
+			jquery(document.body).on('click', '#signInSaveForLaterModalBtn', function(e) {
+				e.preventDefault();
+				jquery('#saveForLaterQty').val(jquery('.quantity').val());
+				jquery('#saveForLaterQtyBean').val(jquery('.quantity').val());
+				jquery('#saveForLaterActionBean').val('true');
+				jquery("#saveForLaterSubmitBtn").click();
+			});
+			
+			jquery(document.body).on('click', '#saveForLaterBtn', function(e) {
+				e.preventDefault();
+				jquery('#saveForLaterQty').val(jquery('.quantity').val());
+				jquery('#saveForLaterQtyBean').val(jquery('.quantity').val());
+				jquery('#saveForLaterActionBean').val('true');
+				jquery("#saveForLaterSubmitBtn").click();
+			});
+
+			jquery(document.body).on('click', '#savedItemBtn', function(e) {
+				e.preventDefault();
+				jquery("#removeSavedSubmitBtn").click();
+			});
+
+			jquery(document.body).on('click', 'a[id^=addToCartVisBtn]', function(e) {
+				e.preventDefault();
+				jquery("#mult-error").empty();
+				if(jquery('#pfsLTAndC').length>0)
+				{
+					if(!jquery('input:checkbox[name=pfsLTerms]').is(':checked'))
+					{
+						var errorMsg = '<p>You must agree to the Terms and Conditions to continue.</p>';
+						jquery("#mult-error").html(errorMsg).show();
+						return;
+					}
+				}
+				var selectedVal = jquery("#uspsSkuSelector").val();
+				jquery("#addToCartBtn"+selectedVal).click();
+			});
+
+			jquery(document.body).on('click', 'a[id^=m-addToCartVisBtn]', function(e) {
+				e.preventDefault();
+				var selectedVal = jquery("#m-uspsSkuSelector").val();
+				jquery("#m-addToCartBtn"+selectedVal).click();
+			});
+
+			jquery(document.body).on('click', '#addCart, #viewLabelAddCart, input[id^=addToCartBtn]',  function(e) {
+				e.preventDefault();
+				var pType = jquery('#clk_product_type').val();
+				if (pType === "PrepaidLabel"){
+					if(!validateFPPInventory()){
+						return false;
+					}
+					if(!validateFPPQuantity()){
+						return false;
+					}
+					USPS.ENDECASTOREUTIL._setAddressForm();
+					if (!USPS.ENDECASTOREUTIL._validateAddress()) {
+						 resetAddressFormErrors();
+						// show the return address pop up
+
+						if(jquery('#isLoggedin').val() == "true"){
+							jquery('.rtn-editAddrOnly-loggedin').click();
+						}else{
+							jquery('.rtn-edit').click();
+						}
+						return false;
+					 }
+						//Validate external AMS call.
+					if (!USPS.FPP.updateAddressForFPP()) {
+						resetAddressFormErrors();
+						// show the return address pop up
+						if(jquery('#isLoggedin').val() == "true"){
+							jquery('.rtn-editAddrOnly-loggedin').click();
+						}else{
+							jquery('.rtn-edit').click();
+						}
+						return false;
+					}
+				}
+				submitSerializedCartForm('addToCart','');
+			});
+
+			jquery(document.body).on('click', 'input[id^=m-addToCartBtn]',  function(e) {
+				e.preventDefault();
+				submitSerializedCartForm('addToCart','productDetailsModalForm');
+			});
+
+			jquery(document.body).on('click', '#atg_button_checkout', function (e){
+					e.preventDefault();
+					jquery('#atg_store_checkout').click();
+			});
+
+
+			function resetAddressFormErrors(){
+					jquery('.mult-error').hide();
+					jquery('.return-name-error, .return-address-error, .return-city-error,.return-state-error,.return-zip-error').hide();
+					jquery('#tFName, #tLName, #tCompany, #tAddress1, #tCity, #sState, #tZip').removeClass('error-input');
+			};
+
+			//update fpp address only from Return address prepaid modal for loginUser
+			// on an Edit click from product detail page.
+			jquery(document.body).on('click', '.update-fpp-addrOnly', function(e) {
+					resetAddressFormErrors();
+					if (USPS.ENDECASTOREUTIL._validateModalAddressMR()) {
+							if (USPS.FPP.updateAddressForFPP()) {
+								USPS.ENDECASTOREUTIL._setHidden();
+								USPS.ENDECASTOREUTIL._populateAddress();
+								closeModal();
+								jquery('#return-address-modal-dialog').modal('hide');
+								
+							}else{
+								jquery('.mult-error').show();
+							}
+					}
+			});
+
+
+			//add-to-cart from Return address prepaid modal for non login user
+			// following a add to cart click from product detail page for that non login user.
+			jquery(document.body).on('click', '.add-to-cart', function(e) {
+					e.preventDefault();
+					var pType = jquery('#clk_product_type').val();
+					if (pType === "PrepaidLabel"){
+						if (USPS.ENDECASTOREUTIL._validateModalAddressMR()) {
+							USPS.ENDECASTOREUTIL._setHidden();
+						    USPS.ENDECASTOREUTIL._populateAddress();
+							resetAddressFormErrors();
+								if (USPS.FPP.updateAddressForFPP()) {
+									submitSerializedCartForm('addToCart','');
+								}else{
+									jquery('.mult-error').show();
+									return false;
+								}
+						}
+					}
+					return true;
+            });
+
+			// update fpp address and update Order as well from Return address prepaid modal
+			// for an edit address clicked from cart page.
+			jquery(document.body).on('click', '.update-fpp-addr-in-cart', function(e) {
+					resetAddressFormErrors();
+					if (USPS.ENDECASTOREUTIL._validateModalAddressMR()) {
+						USPS.ENDECASTOREUTIL._setHidden();
+							if (USPS.FPP.updateAddressForFPP()) {
+								USPS.ENDECASTOREUTIL._populateAddress();
+								USPS.ENDECASTOREUTIL._setHiddenUpdateCart();
+								submitSerializedCartForm('updateFPPToCart','');
+							}
+							else{
+								jquery('.mult-error').show();
+								return false;
+							}
+					}
+			});
+
+			// Terms and Conditions for PFS-Local
+
+			jquery(document.body).on('click','#pfsl-terms', function(e) {
+				e.preventDefault();
+				openModal('pfslTermsAndConditions');
+			});
+
+			// Prepaid Return Buttons
+			// from product detail page where only address update should be done and order not changed.
+			// before adding to cart.
+			jquery(document.body).on('click','.rtn-editAddrOnly-loggedin', function(e) {
+				e.preventDefault();
+				closeModal();
+				USPS.ENDECASTOREUTIL._setAddressForm();
+				USPS.ENDECASTOREUTIL.checkModalForeignCountryFPP();
+				jquery('#saveAddFPPAddress').hide();
+				jquery('#updateFPPAddrInCart').hide();
+				jquery('#updateFPPAddrOnly').show();
+				resetAddressFormErrors();
+				openModal('returnAddress');
+			});
+
+			// this is clicked from the product detail page which is opened from cart to edit address
+			jquery(document.body).on('click','.rtn-edit-loggedin', function(e) {
+				e.preventDefault();
+				closeModal();
+				USPS.ENDECASTOREUTIL._setAddressForm();
+				jquery('#saveAddFPPAddress').hide();
+				jquery('#updateFPPAddrInCart').show(); // this will show button to update the order as well
+				jquery('#updateFPPAddrOnly').hide(); // this will show button to update the address only
+				resetAddressFormErrors();
+				openModal('editAddress');
+			});
+
+			// this is clicked for a non-logged in user
+			jquery(document.body).on('click','.rtn-edit', function(e) {
+				e.preventDefault();
+				closeModal();
+				USPS.ENDECASTOREUTIL._setAddressForm();
+				jquery('#saveAddFPPAddress').show();
+				jquery('#updateFPPAddrOnly').hide();
+				jquery('#updateFPPAddrInCart').hide();
+				if (window.location.search.indexOf('ciId')!=-1){
+					// Non login user trying to edit return address from cart ,
+					// but closed Modal and clicked AddCart instead.
+					openModal('editAddress');
+				}else{
+					openModal('returnAddress');
+				}
+			});
+
+			// Custom functions end.
+
+
+
+			// 88 is the width of the images/300 is the display for a line of images
+			jquery('.product-details .small-pct .content').css('width', jquery('.product-details .small-pct .content .mySlides').length * 88);
+			jquery('.view-product .small-pct .content').css('width', jquery('.view-product .small-pct .content .mySlides').length * 88);
+
+			//big carousel
+				jquery(document.body).on('click','.product-details .small-pct .btn-floatingtwo', function(e) {
+					valBackground = parseInt(jquery('.product-details .small-pct .content').css('left'));
+					valString = valBackground -88;
+					console.log((jquery('.product-details .small-pct .content .mySlides').length * 82)-300);
+					if (valString < (jquery('.product-details .small-pct .content .mySlides').length * 82 -300)*-1){
+
+						valString=(jquery('.product-details .small-pct .content .mySlides').length * 82 - 300) * -1;
+						jquery('.product-details .small-pct .btn-floatingtwo').addClass('disabled');
+					};
+					jquery('.product-details .small-pct .btn-floatingone').removeClass('disabled');
+
+					jquery('.product-details .small-pct .content').css('left', valString);
+				});
+
+
+				// disable carousel buttons when at limits
+				jquery(document.body).on('click','.product-details .small-pct .btn-floatingone', function(e) {
+					valBackground = parseInt(jquery('.product-details .small-pct .content').css('left')) + 88;
+					valString = valBackground;
+					if (valString>0){
+						valString=0;
+						jquery('.product-details .small-pct .btn-floatingone').addClass('disabled');
+					};
+					jquery('.product-details .small-pct .btn-floatingtwo').removeClass('disabled');
+					jquery('.product-details .small-pct .content').css('left', valString);
+				});
+
+				jquery(document.body).on('click','.view-product .small-pct .btn-floatingtwo', function(e) {
+					valBackground = parseInt(jquery('.view-product .small-pct .content').css('left'));
+					valString = valBackground -88;
+					console.log((jquery('.view-product .small-pct .content .mySlides').length * 82)-300);
+					if (valString < (jquery('.view-product .small-pct .content .mySlides').length * 82 -300)*-1){
+
+						valString=(jquery('.view-product .small-pct .content .mySlides').length * 82 - 300) * -1;
+						jquery('.view-product .small-pct .btn-floatingtwo').addClass('disabled');
+					};
+					jquery('.view-product .small-pct .btn-floatingone').removeClass('disabled');
+
+					jquery('.view-product .small-pct .content').css('left', valString);
+				});
+				// disable carousel buttons when at limits
+				jquery(document.body).on('click','.view-product .small-pct .btn-floatingone', function(e) {
+					valBackground = parseInt(jquery('.view-product .small-pct .content').css('left')) + 88;
+					valString = valBackground;
+					if (valString>0){
+						valString=0;
+						jquery('.view-product .small-pct .btn-floatingone').addClass('disabled');
+					};
+					jquery('.view-product .small-pct .btn-floatingtwo').removeClass('disabled');
+					jquery('.view-product .small-pct .content').css('left', valString);
+				});
+
+			// calculate width of image carousel based on content
+			jquery(document.body).on('click','.increase,.decrease', function(e) {
+				//c is input
+				// b is parent
+				resetFPPDisplayError();
+				b = jquery(this).parent();
+				c = parseInt(b.children('input').val());
+				if (jquery(this).hasClass('increase')){c=c+1;}else{c=c-1;if (c < 1){c = 1;}}
+				c = parseInt(c);
+				b.children('input').val(c);
+				qtyInputId = b.children('input').attr("id");
+				if(qtyInputId == 'm-cartQuantity'){
+					USPS.ENDECASTOREUTIL.refreshTotalsOnModal();
+				}else{
+					USPS.ENDECASTOREUTIL.refreshTotals();
+				}
+			});
+
+
+			/* BELOW Logic was provided as part of MResponsive initial Scripts. Seems not required and so commented. */
+		    /* quantity input arrow*/
+			// jquery(document.body).on('click','.quantity-stepdown', function(e){
+			// 	if (is_ie_edge) {
+			// 		 var value = (jquery(this).parent().find('.quantity').val() > 0 )? $j(this).parent().find('.quantity').val()-1: 0;
+			// 		 jquery(this).parent().find('.quantity').val(value)
+			// 		}else{
+			// 			this.parentNode.querySelector('input[type=number]').stepDown();
+			// 		}
+		 //    });
+
+			// jquery(document.body).on('click','.quantity-stepup', function(e){
+			// 	if (is_ie_edge) {
+			// 		 var value = parseInt(jquery(this).parent().find('.quantity').val())+1;
+			// 		 jquery(this).parent().find('.quantity').val(value);
+			// 		 }else{
+			// 			this.parentNode.querySelector('input[type=number]').stepUp();
+			// 		}
+		 //    });
+
+			// jquery(document.body).on('click','.quantity-stepup', function(e){
+		 //        var loctions = jquery(this).closest('tbody');
+		 //        var quantity = loctions.find('.total-quantity').val();
+		 //        if ((cal_total_dist_quantity(loctions) > quantity) && !(jquery(this).parent().children(':first-child').hasClass('total-quantity'))
+			// 		&& (!(jquery(this).parent().parent().parent().next().hasClass('alert-have-exceeded')))) {
+		 //            jquery(this).parent().parent().parent().after('<td colspan="5" class="alert-have-exceeded"><span role="alert" class="error-message" style="display:block; text-align: left;">You have exceeded the total number of item in your cart. Please adjust the total number before adding another location.</span></td>');
+		 //            loctions.find('.prod-detail tr.shipping-location-container .quantity-stepup').prop('disabled', true);
+		 //        } else {
+		 //            removeErrorMessage(jquery(this).closest('tbody'));
+		 //        }
+		 //    });
+
+			// jquery(document.body).on('click','.quantity-stepdown', function(e){
+		 //           if(!(jquery(this).parent().children(':first-child').hasClass('total-quantity'))){
+			// 		removeErrorMessage(jquery(this).closest('tbody'));
+			// 	   }else{
+			// 		   if( cal_total_dist_quantity(jquery(this).closest('tbody')) > jquery(this).closest('tbody').find('.total-quantity').val() &&
+			// 		   (!(jquery(this).parent().parent().parent().next().hasClass('alert-have-exceeded')))){
+			// 			   jquery(this).parent().parent().parent().after('<td colspan="5" class="alert-have-exceeded"><span role="alert" class="error-message" style="display:block; text-align: left;">You have exceeded the total number of item in your cart. Please adjust the total number before adding another location.</span></td>');
+			// 		   }
+			// 	   }
+		 //    });
+
+			// calculate width of image carousel based on content
+			jquery(document.body).on('click','.quantity-stepup,.quantity-stepdown', function(e) {
+				//c is input
+				// b is parent
+				resetFPPDisplayError();
+				b = jquery(this).parent();
+				c = parseInt(b.children('input').val());
+				if (jquery(this).hasClass('quantity-stepup')){c=c+1;}else{c=c-1;if (c < 1){c = 1;}}
+				c = parseInt(c);
+				b.children('input').val(c);
+				qtyInputId = b.children('input').attr("id");
+				if(qtyInputId == 'm-cartQuantity'){
+					USPS.ENDECASTOREUTIL.refreshTotalsOnModal();
+				}else{
+					USPS.ENDECASTOREUTIL.refreshTotals();
+				}
+			});
+
+			jquery(document.body).on('focusout','#m-cartQuantity, #cartQuantity, #tQuantity', function(e) {
+				var thisId = jquery(this).attr('id');
+				if(thisId == 'm-cartQuantity'){
+					USPS.ENDECASTOREUTIL.refreshTotalsOnModal();
+				}else{
+					USPS.ENDECASTOREUTIL.refreshTotals();
+				}
+			});
+
+			function validateFPPInventory(){
+				resetFPPDisplayError();
+				var selectedVal = jquery("#uspsSkuSelector").val();
+				var addCartLabel = jquery('#addCartLabel'+selectedVal).val();
+				if(addCartLabel == ''){
+					var errorMsg = '<p> No inventory available for SKU '+selectedVal+'</p>';
+					jquery("#mult-error").html(errorMsg).show();
+					return false;
+				}
+				return true;
+			}
+
+			function validateFPPQuantity(){
+					resetFPPDisplayError();
+					var errorMsg = '';
+					var temp = (jquery('#tQuantity').val()).trim();
+					if(temp == '' || isNaN(temp)) {
+						errorMsg = errorMsg + '<p>' + jquery('#quantityInvalid').val() + '</p>';
+					}else{
+						var c = parseInt(temp);
+
+						var maxStr = (jquery('#maxQuantity').val()).trim();
+						if(maxStr != ''){
+							var max = parseInt(maxStr);
+							if (c > max){
+								errorMsg = errorMsg + '<p>'+jquery('#quantityMoreThanMax').val()+ ' ' + max +'</p>';
+							}
+						}
+
+						var minStr = (jquery('#minQuantity').val()).trim();
+						if(minStr != ''){
+							var min = parseInt(minStr);
+							if (c < min){
+								errorMsg = errorMsg + '<p>'+ jquery('#quantityLessThanMin').val() + ' ' + min +'</p>';
+							}
+						}
+					}
+					if(errorMsg != ''){
+						jquery("#mult-error").html(errorMsg).show();
+						return false;
+					}
+					return true;
+			}
+
+			function resetFPPDisplayError(){
+				jquery("#mult-error").empty();
+				jquery("#mult-error").hide();
+			}
+
+			// give active state to color facets onclick - does not remove active state that comes from clicking red-x in breadcrumb
+			jquery(document.body).on('click','.result-grid', function(e) {
+				e.preventDefault();jquery(this).addClass('active');
+			});
+
+			//test to show errors
+			jquery(document.body).on('click','.error-button', function(e) {
+				e.preventDefault();
+				jquery('#firstname, #lastname, #companyname, #streetaddress, #city, #state, #zipcode').toggleClass('error-input');
+				jquery('.return-name-error, .return-address-error, .return-city-error,.return-state-error,.return-zip-error').toggleClass('e-active');
+			});
+
+			//highlight different format options on click
+			jquery(document.body).on('click', '.format-btn', function(e) {
+				a = jquery(this).parent().attr('class');
+				console.log(a);
+				jquery('.'+a+' .format-btn').removeClass('active');
+				jquery(this).addClass('active');
+				var thisId = jquery(this).attr('id');
+				var parentId = jquery(this).parent().attr('id');
+				if(parentId == 'm-sQuantity'){
+					jquery("#m-mult-error").empty();
+					jquery("#m-uspsSkuSelector").val(thisId);
+					var displaySku = jquery('#m-displaySku_'+thisId).val();
+					jquery("#m-selectedDisplaySku").html(displaySku);
+					USPS.ENDECASTOREUTIL.refreshTotalsOnModal();
+				}else{
+					jquery("#mult-error").empty();
+					jquery("#uspsSkuSelector").val(thisId);
+					var displaySku = jquery('#displaySku_'+thisId).val();
+					jquery("#selectedDisplaySku").html(displaySku);
+					jquery("#prodSkuSizeLabel").html("");
+					jquery("#prodDisplaySkuSize").html("");
+					var displaySize = jquery('#displaySize_'+thisId).val();
+					if (displaySize != "") {
+					   jquery("#skuSizeLabel").html("Size: ");
+					   jquery("#selectedDisplaySkuSize").html(displaySize);
+					}
+					else {
+					   jquery("#skuSizeLabel").html("");
+					   jquery("#selectedDisplaySkuSize").html("");
+				    }
+					USPS.ENDECASTOREUTIL.refreshTotals();
+				}
+			});
+
+			// added for Mobile Responsive class
+			jquery(document.body).on('click touch', '.item-size .btn-primary', function(e) {
+				a = jquery(this).parent().parent().attr('id');
+				//a = jquery(this).parent().parent().attr('class');
+				console.log(a);
+				jquery('#'+a+' .active').removeClass('active');
+				jquery(this).addClass('active');
+				//**** var thisId = jquery(this).attr('id');//skuid
+				// var thisId = jquery(this).parent().parent().attr('id');//skuid     box-size-btns
+				var thisId = jquery(this).parent().attr('id');//skuid
+				console.log('thisId = '+thisId);
+				//var parentId = jquery(this).parents('#quick-view-modal').attr('id');
+				//var parentId = jquery(this).parent().attr('id');      skuid
+				var parentId = jquery(this).parent().parent().attr('id');   // box-size-btns
+				console.log('parentId = '+parentId);
+				if(parentId == 'quick-view-modal'){
+					jquery("#m-mult-error").empty();
+					jquery("#m-uspsSkuSelector").val(thisId);
+					var displaySku = jquery('#m-displaySku_'+thisId).val();
+					jquery("#m-selectedDisplaySku").html(displaySku);
+					USPS.ENDECASTOREUTIL.refreshTotalsOnModal();
+				}else{
+					jquery("#mult-error").empty();
+					jquery("#uspsSkuSelector").val(thisId);
+					var displaySku = jquery('#displaySku_'+thisId).val();
+					jquery("#selectedDisplaySku").html(displaySku);
+					jquery("#prodSkuSizeLabel").html("");
+					jquery("#prodDisplaySkuSize").html("");
+					var displaySize = jquery('#displaySize_'+thisId).val();
+					if (displaySize != "") {
+					   jquery("#skuSizeLabel").html("Size: ");
+					   //jquery("#prodSkuSizeLabel").html("Size: ");
+					   jquery("#selectedDisplaySkuSize").html(displaySize);
+					   //jquery("#prodDisplaySkuSize").html(displaySize);
+					}
+					else {
+					   jquery("#skuSizeLabel").html("");
+					   jquery("#selectedDisplaySkuSize").html("");
+					}
+					USPS.ENDECASTOREUTIL.refreshTotals();
+				}
+			});
+
+			jquery(document.body).on('click', '.item-size', function(e) {
+				event.preventDefault();
+		        jquery('.item-size a.button--white').removeClass('active');
+		        jquery(this).find('a').addClass('active');
+
+				var thisId = jquery(this).attr('id');
+				var parentId = jquery(this).parent().parent().attr('id');
+
+				if(parentId == 'm-sQuantity'){
+					jquery("#m-mult-error").empty();
+					jquery("#m-uspsSkuSelector").val(thisId);
+					var displaySku = jquery('#m-displaySku_'+thisId).val();
+					jquery("#m-selectedDisplaySku").html(displaySku);
+					USPS.ENDECASTOREUTIL.refreshTotalsOnModal();
+				}else{
+					jquery("#mult-error").empty();
+					jquery("#uspsSkuSelector").val(thisId);
+					var displaySku = jquery('#displaySku_'+thisId).val();
+					jquery("#selectedDisplaySku").html(displaySku);
+					jquery("#prodSkuSizeLabel").html("");
+					jquery("#prodDisplaySkuSize").html("");
+					var displaySize = jquery('#displaySize_'+thisId).val();
+					if (displaySize != "") {
+					   jquery("#skuSizeLabel").html("Size: ");
+					   jquery("#selectedDisplaySkuSize").html(displaySize);
+					}
+					else {
+					   jquery("#skuSizeLabel").html("");
+					   jquery("#selectedDisplaySkuSize").html("");
+				    }
+					USPS.ENDECASTOREUTIL.refreshTotals();
+				}
+
+		    });
+
+			// click on carousel to change primary image
+			jquery(document.body).on('click', '.small-pct .mySlides', function(e) {
+				newSrc = jquery(this).attr('longdesc');
+				var zmImg =jquery(this).attr('srcset');
+				//zmImg = zmImg.slice(0, -3);
+				jquery('.image-to-zoom').attr('src',newSrc);
+				jquery('.image-to-zoom').attr('longdesc',zmImg);
+			});
+
+
+			jquery(document.body).on('click', '.global-info-icon', function(e) {
+                e.preventDefault();
+			});
+
+
+			/* Info Image ToolTip */
+			 jquery(document.body).on('mouseover', '.global-info-icon', function(e) {
+					var id = jquery(this).attr('id');
+					var contentId = id + '-content';
+					var thisContent = jquery('#' + contentId).html();
+					jquery('.global-info-icon').qtip('option','content.text',thisContent)
+			});
+
+			jquery('.global-info-icon').qtip({
+				content: "<p></p>",
+				events: {
+					render: function(event, api) {
+						// Grab the tip element
+						var elem = api.elements.tip;
+					}
+				},
+				position: {
+					my: 'left top', // Use the mouse position as the position origin
+					at: 'center right',
+					adjust: {
+						shift: true
+					},
+					adjust: {
+						method: 'shift'
+					}
+				},
+				hide: {
+					fixed: true,
+					delay: 300
+				},
+				style: {
+					classes: 'info-tooltip',
+					tip: {
+						corner: true,
+						height: 20,
+						width: 20
+					}
+				}
+
+			});
+
+
+			//tabs
+			jquery('.nav-tabs > li > a').click(function(event){
+				event.preventDefault();//stop browser to take action for clicked anchor
+
+				//get displaying tab content
+				var active_tab = jquery('.nav-tabs > li.active > a').attr('href');
+
+				//find actived navigation and remove 'active' css
+				var actived_nav = jquery('.nav-tabs > li.active');
+				actived_nav.removeClass('active');
+
+				//add 'active' css into clicked navigation
+				jquery(this).parents('li').addClass('active');
+
+				//hide displaying tab content
+				jquery(active_tab).removeClass('active');
+				jquery(active_tab).addClass('hide');
+
+				//show target tab content, the section
+				var target_tab_selector = jquery(this).attr('href');
+				jquery(target_tab_selector).removeClass('hide');
+				jquery(target_tab_selector).addClass('active');
+			});
+
+			//tab random for homepage
+			r_tab = Math.floor((Math.random() * jquery('.category-nav.nav-tabs li').length));
+			jquery('.category-nav.nav-tabs li').eq(r_tab).addClass('active');
+            jquery('.horizontal-tabs .tab-content').eq(r_tab).removeClass('hide').addClass('active');
+
+
+			/* Modal Control */
+
+            //Close Modals
+			jquery(document.body).on('click', '.btn-full-details', function (e){
+				closeModal();
+			});
+			//close to allow user to keep shopping
+			jquery(document.body).on('click', '.close_modal', function (e){
+				console.log('Close MODAL is clicked...............');
+				closeModal();
+				if((jquery(this).parent().is('#modal-prepaid-success')) ||(jquery(this).parent().is('#modal-product-cart'))){
+					window.location.replace(window.location.protocol+'//'+window.location.host+window.location.pathname);
+				}
+			});
+			// Keep Shopping button force page reload
+			jquery(document.body).on('click','.btn-keep-shop', function(e){
+				window.location.replace(window.location.protocol+'//'+window.location.host+window.location.pathname);
+			});
+
+			//open primary image in modal
+
+			jquery(document.body).on('click', '.product-details .Zoom_image', function (e){
+				e.preventDefault();
+				jquery("html, body").animate({ scrollTop: 0 }, "slow");
+				jquery('#modal-zoom-product .zoom-product img').attr('src', jquery('.image-to-zoom').attr('longdesc'));
+				openModal('zoomModal');
+			});
+			// open view product modal when quickview is clicked
+			jquery(document.body).on('click','.product-quickview, .homepage-product-quickview,.recently-viewed-product-quickview,.related-product-quickview, .two-thirds-product-quickview', function(e){
+				e.preventDefault();
+				jquery('.view-product').html('');
+				var pid = jquery(this).attr('id');
+				jquery('#clk_product_id').val(pid);
+				openModal('viewProduct',e);
+			});
+
+			jquery(document.body).on('click','.rtn-view-label,.rtn-addr-suc a', function(e){
+				openModal('viewLabel',e);
+			});
+
+			var ua = window.navigator.userAgent;
+			var old_ie = ua.indexOf('MSIE ');
+			var new_ie = ua.indexOf('Trident/');
+			var is_ie_edge= (old_ie > -1) || (new_ie > -1) ||(/Edge\//.test(navigator.userAgent));
+			
+			
+		function closeModalFrame() {
+			jquery('#modal-product-cart').removeClass('active');
+			jquery('#modal-holder.active').removeClass('active');					
+		}
+
+		function openModal(modalName,e){
+			console.log('openModal');
+			e.preventDefault();
+			var modal = jquery('#modal-holder');
+			var mod = jquery('#modal');
+			if (modal.hasClass('active')){
+				jquery('#modals .active').removeClass('active');
+			}
+			if (!modal.hasClass('active')){
+				modal.addClass('active');
+			}
+			switch(modalName) {
+				case 'viewProduct':
+					console.log('viewProduct');
+					mOpenProductDetail();
+					// jquery('.view-product').addClass('active');
+					//jquery('#quick-view-modal').modal();
+					break;
+				case 'zoomModal':
+					jquery('#modal-zoom-product').addClass('active');
+					break;
+				case 'productCart':
+					// jquery('#modal-product-cart').addClass('active');
+					jquery('#modal-product-cart').removeClass('active');
+					jquery('#modal-holder.active').removeClass('active');
+					jquery('#add-to-cart-modal').modal();
+					break;
+				case 'returnSuccess':
+					//jquery('#modal-prepaid-success').addClass('active');
+					jquery('#return-address-modal-dialog').modal('hide');
+					jquery('#edit-return-address-modal-dialog').modal('hide');
+					jquery('#modal-holder.active').removeClass('active');
+					jquery('#modal-prepaid-success').modal();
+					break;
+				case 'producterror':
+					jquery('#modal-product-error').addClass('active');
+					break;
+				case 'viewLabel':
+					closeModal();
+					jquery('#modal-prepaid-success').modal('hide');
+					jquery('#rtn-view-label-modal').modal();
+					//jquery('.view-label').addClass('active');
+					break;
+				case 'returnAddress':
+					jquery('#modal-product-cart').removeClass('active');
+					jquery('#modal-holder.active').removeClass('active');
+					jquery('#return-address-modal-dialog').modal();
+					//jquery('#return-address-model-dialog').addClass('active');
+					break;
+				case 'editAddress':
+					jquery('#modal-product-cart').removeClass('active');
+					jquery('#modal-holder.active').removeClass('active');
+					jquery('#edit-return-address-modal-dialog').modal();
+					//jquery('#edit-return-address-model-dialog').addClass('active');
+					break;
+				case 'pfslTermsAndConditions':
+					jquery('#pfsl-terms-model-dialog').addClass('active');
+					break;
+				default:
+					break;
+			}
+		}
+
+
+		function openModal(modalName){
+			console.log('openModal2');
+
+			var modal = jquery('#modal-holder');
+			var mod = jquery('#modals');
+			if (modal.hasClass('active')){
+				jquery('#modals .active').removeClass('active');
+
+			}
+			if (!modal.hasClass('active')){
+				modal.addClass('active');
+			}
+			switch(modalName) {
+				case 'viewProduct':
+					mOpenProductDetail();
+					// jquery('.view-product').addClass('active');
+					//jquery('#modal-product-cart').removeClass('active');
+					//jquery('#modal-holder.active').removeClass('active');
+					//jquery('#quick-view-modal').modal();
+					break;
+				case 'producterror':
+					jquery('#modal-product-error').addClass('active');
+					break;
+				case 'productCart':
+					// jquery('#modal-product-cart').addClass('active');
+					jquery('#modal-product-cart').removeClass('active');
+					jquery('#modal-holder.active').removeClass('active');
+					jquery('#add-to-cart-modal').modal();
+					break;
+				case 'zoomModal':
+					jquery('#modal-zoom-product').addClass('active');
+					break;
+				case 'returnSuccess':
+					//jquery('#modal-prepaid-success').addClass('active');
+					jquery('#return-address-modal-dialog').modal('hide');
+					jquery('#edit-return-address-modal-dialog').modal('hide');
+					jquery('#modal-holder.active').removeClass('active');
+					jquery('#modal-prepaid-success').modal();
+					break;
+				case 'viewLabel':
+					closeModal();
+					jquery('#modal-prepaid-success').modal('hide');
+					jquery('#rtn-view-label-modal').modal();
+					//jquery('.view-label').addClass('active');
+					break;
+				case 'returnAddress':
+					jquery('#modal-product-cart').removeClass('active');
+					jquery('#modal-holder.active').removeClass('active');
+					jquery('#return-address-modal-dialog').modal();
+					//jquery('#return-address-model-dialog').addClass('active');
+					break;
+				case 'editAddress':
+					jquery('#modal-product-cart').removeClass('active');
+					jquery('#modal-holder.active').removeClass('active');
+					jquery('#edit-return-address-modal-dialog').modal();
+					//jquery('#edit-return-address-model-dialog').addClass('active');
+					break;
+				case 'pfslTermsAndConditions':
+					jquery('#pfsl-terms-model-dialog').addClass('active');
+					break;
+				default:
+					break;
+			}
+		}
+		function closeModal(){
+			jquery('#modals .active').removeClass('active');
+			jquery('#modal-holder').removeClass('active');
+			jquery('#modal-product-cart').removeClass('active');
+		}
+
+
+		var pType = jquery('#clk_product_type').val();
+		if (pType === "PrepaidLabel"){
+			if (window.location.search.indexOf('ciId')!=-1){
+				//  Open up edit Return address modal for FPP AddToCart from Favorites list.
+				if(window.location.search.indexOf('savedFPP')!=-1){
+					USPS.ENDECASTOREUTIL._setAddressForm();
+					jquery('#saveAddFPPAddress').show();
+					jquery('#updateFPPAddrOnly').hide();
+					jquery('#updateFPPAddrInCart').hide();
+					openModal('returnAddress');
+				}
+				// Open up Edit Address modal for Prepaid Address when edit clicked from Cart page.
+				else{
+					USPS.ENDECASTOREUTIL._setAddressForm();
+					jquery('#saveAddFPPAddress').hide();
+					jquery('#updateFPPAddrInCart').show(); // this will show button to update the order as well
+					jquery('#updateFPPAddrOnly').hide(); // this will show button to update the address only
+					openModal('editAddress');
+				}
+			}
+		}
+
+		jquery('a.facet-toggle').click(function(event) {
+			event.preventDefault();
+
+			var a = jquery(this);
+			var p = a.parent();
+			var hiddenPArray = p.parent().children('p.hidden');
+
+			for (var i=0; i < hiddenPArray.length; i++) {
+				hiddenPArray.eq(i).toggle('slow');
+			}
+
+			if (p.hasClass('less')) {
+				p.removeClass('less');
+				a.text('Show More');
+			} else {
+				p.addClass('less');
+				a.text('Show Less');
+			}
+			redoPagination();
+		});
+
+		 function redoPagination(){
+			guide = jquery('.result-checkbox-filter-by-holder').css('height');
+			holder = jquery('.result-products-holder').css('height');
+			diff = parseInt(guide)-parseInt(holder);
+			jquery('.results-per-page').css('margin-top', diff);
+		}
+
+		 function reveal_modal_btn() {
+			// ESSENTIALLY THE SAME RESIZE SPECIFICALLY FOR MODALS
+			 if (jquery('.product-content .store-product-order .s-quantity .format-btn')){
+				btn_holder = jquery('.product-content .store-product-order .s-quantity');
+				btn_format = jquery('.product-content .store-product-order .s-quantity .format-btn');
+				btn_format.css('height','');
+				cHHigh=[];
+				jquery.each(btn_format, function(i,val) {
+					cHVal =  jquery(this).css('height');
+					cHHigh.push(parseInt(cHVal));
+				});
+				getHMaxValue = Math.max.apply(Math, cHHigh);
+				btn_format.css('height', getHMaxValue);
+				btn_holder.css('opacity', 1);
+			}
+		}
+
+		// Even up heights on results page
+		guide = jquery('.result-checkbox-filter-by-holder').css('height');
+		holder = jquery('.result-products-holder').css('height');
+		if (parseInt(guide)>parseInt(holder)){
+			diff = parseInt(guide)-parseInt(holder);
+			jquery('.results-per-page').css('margin-top', diff);
+		}else if(guide) {
+            jquery('.result-checkbox-filter-by-holder').css('min-height',jquery('.results-per-page').offset().top - 400);
+		}
+
+		// Ensure fiter option is unchecked when browser back button is used.
+		jquery('label[for^=checkbox-type-]').on('click', function(e) {
+			window.onbeforeunload = function() {
+				e.currentTarget.previousElementSibling.checked = false;
+			};
+		});		
+		function closeWhiteSpinner() {
+			jquery('.white-spinner-wrapper').hide();
+			clearInterval(spinner);
+			jquery('.white-spinner.j-spinner img').removeClass('visible');
+			jquery('.white-spinner.j-spinner img').eq(0).addClass('visible');
+			jquery('.white-spinner-progress').removeClass('spinnerWhite');
+		}
+
+		function loadSpinner() {
+			jquery('.white-spinner-progress').addClass('spinnerWhite');
+			jquery(".white-spinner-wrapper").show();
+			i = 0;
+			t = 0;
+			spinner = setInterval(function() {
+				jquery('.white-spinner.j-spinner img').eq(i).addClass('visible');
+				if (i > 0) {
+					jquery('.white-spinner.j-spinner img').eq(i - 1).removeClass('visible')
+				}
+				if (i == 0) {
+					jquery('.white-spinner.j-spinner img').eq(9).removeClass('visible')
+				}
+				i += 1;
+				if (i > 9) {
+					i = 0;
+				}
+				t += 1;
+				if (t > 100) clearInterval(spinner);
+			}, 100);
+		}
+});

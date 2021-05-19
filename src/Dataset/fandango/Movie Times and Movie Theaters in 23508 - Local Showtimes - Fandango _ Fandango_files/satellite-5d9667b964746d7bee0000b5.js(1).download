@@ -1,0 +1,21 @@
+_satellite.pushAsyncScript(function(event, target, $variables){
+  //Desktop MOP Template
+//Lucy in the Sky
+if(_satellite.getVar('Movie ID') == '216342'){
+  if(_satellite.getVar('Page Level 2') == 'movie | overview'){
+//PXL-313
+_satellite.addImage('https://d.agkn.com/iframe/10213/?che=%n')
+}
+}
+
+//Desktop MSP Template
+
+//Lucy in the Sky
+if(_satellite.getVar('Movie ID') == '216342'){
+  if(_satellite.getVar('Page Level 2') == 'movie times | by movie'){
+    //PXL-313
+    _satellite.addImage('https://d.agkn.com/iframe/10214/?che=%n')
+
+}
+}
+});

@@ -1,0 +1,372 @@
+// JavaScript Document
+// HTML5 FlashTalking Ad
+// FCB - Chicago
+
+// keep these as vars since we need to access globally
+var fCtaMouseover = false;
+
+var container, bannerButton, tlMain;
+var footerHeight = 82;
+
+var bannerwidth = 160;
+var bannerheight = 600;
+
+var txtFadeInTime = 0.5;
+var txtFadeOutTime = txtFadeInTime;
+var imgFadeInTime = txtFadeInTime;
+var imgFadeOutTime = txtFadeInTime;
+
+
+function loadScript(url, callback) {
+    // Adding the script tag to the head as suggested before
+    var head = document.getElementsByTagName("head")[0];
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src = url;
+
+    // Then bind the event to the callback function.
+    // There are several events for cross browser compatibility.
+    script.onreadystatechange = callback;
+    script.onload = callback;
+
+    // Fire the loading
+    head.appendChild(script);
+}
+
+// Function to run with any animations starting on load, or bringing in images etc
+function startAnim() {
+
+    // Logo img is 200%, its size is set from footerImg in Manifest
+    retinaImages("#imageImg1, #imageImg2, #imageImg3, #imageImg4, #imageImg5, #footerBorder");
+
+    // Containers
+    container = document.getElementById("container");
+    bannerButton = document.getElementById("exitBtn");
+
+    // add event listeners
+    bannerButton.addEventListener('mouseover', over);
+    bannerButton.addEventListener('click', click);
+
+    //hide all empty content on instantads variables
+    for (obj in myFT.instantAds) {
+        if (myFT.instantAds[obj] == "" || myFT.instantAds[obj] == "1x1_trans.png") {
+            var domid = document.getElementById(obj);
+            var innerFtElem = document.querySelectorAll("ft-dynamic[name='" + obj + "']");
+            if (innerFtElem && innerFtElem[0]) {
+                innerFtElem[0].style.display = "none";
+            }
+            if (domid) {
+                domid.style.display = "none";
+            }
+        }
+    }
+
+    //parse font color
+    var dynColor = myFT.instantAds.dynColor1;
+    if (dynColor && dynColor != "") {
+        var contentCopys = document.querySelectorAll("#content");
+        for (var i = 0; i < contentCopys.length; i++) {
+            contentCopys[i].style.color = dynColor;
+        }
+    }
+
+
+    //set footer and logo images and dimensions
+    var footerImgManifest = getImageFromMemory(myFT.instantAds.footerBgImg);
+
+    document.getElementById("footerSVG").setAttribute("width", footerImgManifest.width);
+    document.getElementById("footerSVG").setAttribute("height", footerImgManifest.height);
+
+    document.getElementById("footerMaskImage").setAttribute("xlink:href", myFT.instantAds.footerBgImg);
+    document.getElementById("footerMaskImage").setAttribute("width", footerImgManifest.width);
+    document.getElementById("footerMaskImage").setAttribute("height", footerImgManifest.height);
+
+    document.getElementById("footerBg").setAttribute("xlink:href", myFT.instantAds.footerBgImg);
+    document.getElementById("footerBg").setAttribute("width", footerImgManifest.width);
+    document.getElementById("footerBg").setAttribute("height", footerImgManifest.height);
+
+    document.getElementById("logo").setAttribute("xlink:href", myFT.instantAds.logoImg1);
+    document.getElementById("logo").setAttribute("width", footerImgManifest.width);
+    document.getElementById("logo").setAttribute("height", footerImgManifest.height);
+
+    //set bgColor from Manifest
+    var bgColor = myFT.instantAds.dynColor2;
+    document.getElementById("content").style.backgroundColor = bgColor;
+
+    //set priceLockupColor from Manifest for Price Lockup
+    var priceLockupColor = myFT.instantAds.dynColor3;
+    document.getElementById("pricepointWrapper").style.color = priceLockupColor;
+
+    //populate price point
+    populatePricepoint();
+
+    //timeout to be sure we have all assets to position parsed
+    //hide preload
+    TweenMax.set("#loading", { autoAlpha: 0 });
+    TweenMax.set(container, { alpha: 1, display: "block" });
+
+    // Main timeline
+    tlMain = new TimelineMax()
+        .call(init)
+        .add(step1(), "+=0.3")
+        .add(step2(), "+=1.5")
+        .add(step3(), "+=2")
+        .add(step4(), "+=2")
+        .add(step5(), "+=2")
+        .add(step6(), "+=2")
+        .addPause(15);
+
+
+    function init() {
+
+        //INITIAL POSITIONING
+        var _tl = new TimelineLite()
+
+            //endframe
+            .set('#webbugs', { left: 10, top: bannerheight - 35, height: footerHeight })
+
+            //footer
+            .set('#footerBgImg', { right: 0, top: bannerheight - footerHeight, height: footerHeight, position: "absolute" })
+            .set(container, { alpha: 1, display: "block" }) 
+
+        shwWebbug(1, _tl);
+    }
+
+    function step1() {
+        var tl = new TimelineLite()
+            .fromTo("#footerMaskImage", 0.5, {attr: { y: 82, x: 160 }}, {attr: { y: 0, x: 0 }}, 0)
+            .fromTo("#footerBorder", 0.5, { left: "100%", top: "100%" }, { left: "0%", top: "0%" }, 0)
+
+            .fromTo(["#copyTxt1", "#legalTxt1"], 0.5, { autoAlpha: 0 }, { autoAlpha: 1 }, 0)
+            .fromTo("#blurDeviation", 0.5 , {attr: { stdDeviation: 2 }}, {attr: { stdDeviation: 0 }}, 0.2)
+
+        shwWebbug(2, tl);
+        return tl;
+    }
+
+    function step2() {
+        var tl = new TimelineLite()
+            .to(["#copyTxt1", "#legalTxt1"], txtFadeOutTime, { autoAlpha: 0 }, 0)
+
+            .fromTo("#copyTxt2", txtFadeInTime, { autoAlpha: 0, x: "-100%" }, { autoAlpha: 1, x: "0%" }, 0)
+            .fromTo(["#imageImg2", "#legalTxt2"], imgFadeInTime, { autoAlpha: 0, x: "100%" }, { autoAlpha: 1, x: "0%" }, txtFadeInTime/2)
+
+        shwWebbug(3, tl);
+        return tl;
+    }
+
+    function step3() {
+        var tl = new TimelineLite()
+            .to("#copyTxt2", txtFadeOutTime, { autoAlpha: 0, x: "-100%" }, 0)
+            .to(["#imageImg2", "#legalTxt2"], imgFadeOutTime, { autoAlpha: 0, x: "100%" }, txtFadeInTime/2)
+            
+            .fromTo("#copyTxt3", imgFadeInTime, { autoAlpha: 0, x: "100%" }, { autoAlpha: 1, x: "0%" }, 0) 
+            .fromTo(["#imageImg3", "#legalTxt3"], txtFadeInTime, { autoAlpha: 0, x: "-100%" }, { autoAlpha: 1, x: "0%" }, txtFadeInTime/2)
+
+        shwWebbug(3, tl);
+        return tl;
+    }
+
+    function step4() {
+        var tl = new TimelineLite()
+            .to("#copyTxt3", imgFadeOutTime, { autoAlpha: 0, x: "100%" }, 0)
+            .to(["#imageImg3","#legalTxt3"], txtFadeOutTime, { autoAlpha: 0, x: "-100%" }, txtFadeInTime/2)
+
+            .fromTo("#copyTxt4", txtFadeInTime, { autoAlpha: 0, x: "-100%" }, { autoAlpha: 1, x: "0%" }, 0)
+            .fromTo(["#imageImg4", "#legalTxt4"], imgFadeInTime, { autoAlpha: 0, x: "100%" }, { autoAlpha: 1, x: "0%" }, txtFadeInTime/2)
+
+        shwWebbug(3, tl);
+        return tl;
+    }
+
+    function step5() {
+        var tl = new TimelineLite()
+            .to("#copyTxt4", txtFadeOutTime, { autoAlpha: 0, x: "-100%" }, 0)
+            .to(["#imageImg4", "#legalTxt4"], imgFadeOutTime, { autoAlpha: 0, x: "100%" }, txtFadeInTime/2)
+
+            .fromTo("#copyTxt5", imgFadeInTime, { autoAlpha: 0, x: "100%" }, { autoAlpha: 1, x: "0%" }, 0)
+            .fromTo(["#imageImg5", "#legalTxt5"], txtFadeInTime, { autoAlpha: 0, x: "-100%" }, { autoAlpha: 1, x: "0%" }, txtFadeInTime/2)
+
+        shwWebbug(3, tl);
+        return tl;
+    }
+
+    function step6() {
+        var tl = new TimelineLite()
+            .to("#copyTxt5", imgFadeOutTime, { autoAlpha: 0, x: "100%" }, 0)
+            .to(["#imageImg5", "#legalTxt5"], txtFadeOutTime, { autoAlpha: 0, x: "-100%" }, txtFadeInTime/2)
+                            
+            .fromTo("#lockupWrapper", 0.7, { x: bannerwidth }, { x: 0, ease:Power1.easeOut }, txtFadeInTime/2)
+            .fromTo("#pricepointWrapper", 0.7, { x: -bannerwidth }, { x: 0, ease:Power1.easeOut }, txtFadeInTime/2)
+            .fromTo("#productNameWrapper", 0.7, { x: -bannerwidth }, { x: 0, ease:Power1.easeOut }, txtFadeInTime/2)            
+            .fromTo("#legalTxt6", 0.7, { x: bannerwidth }, { x: 0, ease:Power1.easeOut }, txtFadeInTime/2)
+        shwWebbug(4, tl);
+        return tl;
+    }
+}
+
+function shwWebbug(frame, tlref) {
+    //webbug transition setup
+    var tt = 0.2;
+    // no content for this webbug
+    if (!myFT.instantAds["webBugTxt" + frame]) return;
+    // do nothing if its the same as displayed
+    var prevDisplayCopy = 0;
+    for (var j = 0; j < frame; j++) {
+        var val = myFT.instantAds["webBugTxt" + j];
+        if (val != "") prevDisplayCopy = val;
+    }
+    if (prevDisplayCopy == myFT.instantAds["webBugTxt" + frame]) return;
+    //hide all other webbugs
+    var prev = [];
+    for (var i = 0; i < 8; i++) {
+        if (document.getElementById("webBugTxt" + i) && i != frame) prev.push("#webBugTxt" + i);
+    }
+    //show time is 0 on the first frame
+    if (frame == 1) tt = 0.0001;
+    if (document.getElementById("webBugTxt" + frame)) {
+        if (prev.length) tlref.to(prev, tt, { autoAlpha: 0 }, 0);
+        tlref.fromTo("#webBugTxt" + frame, tt, { autoAlpha: 0 }, { autoAlpha: 1 }, tt / 2)
+    }
+}
+
+function click(e) {
+    if (e.currentTarget == exitBtn) {
+        // init clickAction
+        myFT.clickTag(1, myFT.instantAds.clickTagTxt);
+        // end clickAction
+    }
+}
+
+function over(e) {
+}
+
+function populatePricepoint(){
+    var dataPrice = myFT.instantAds.priceTxt;
+
+    //evaluate alternate ending
+    var pricepointAlign = document.getElementById("pricepointAlign");
+    var cta = document.getElementById("cta");
+    if(dataPrice == "" || !dataPrice || parseInt(dataPrice) == 0){
+        pricepointAlign.style.display = "none";
+        cta.className = "alternateCta";
+        return;
+    }
+
+    //sign position
+    var indexDollarSign = dataPrice.indexOf("$");
+    if(indexDollarSign != -1){
+        dataPrice = dataPrice.substring(indexDollarSign+1)
+    }
+    //
+    var priceComponents = dataPrice.split(".");
+    var usd = priceComponents[0];
+    var cents = null;
+    if(priceComponents.length > 1){
+        cents = priceComponents[1];
+    }
+    if(cents == "00") cents = null;
+
+    var textPriceDollars = document.getElementById("textPriceDollars");
+    var textPriceCents = document.getElementById("textPriceCents");
+    var textPriceMos = document.getElementById("mos");
+    textPriceDollars.innerHTML = usd;
+    if(cents){ 
+        textPriceCents.innerHTML = cents;
+    }else{
+        textPriceCents.style.display = "none";
+        textPriceMos.style.marginTop = "0px";
+    }
+}
+
+var imagesToPreload = [];
+
+function getImageFromMemory(src) {
+    for (var i = 0; i < imagesToPreload.length; i++) {
+        if (imagesToPreload[i].src.indexOf(src) != -1) return imagesToPreload[i];
+    }
+}
+
+function retinaImages(selector){
+    //aca va el codigo
+    var nodeList = document.querySelectorAll(selector);
+    for (var i = 0; i < nodeList.length; i++) {
+        var item = nodeList[i];
+        var imgs = item.getElementsByTagName("img");
+        for (var j = 0; j < imgs.length; j++) {
+            var image = imgs[j];
+            var preloadedImg = getPreloadedImageBySource(imgs[j].src);
+            image.width = preloadedImg.width/2
+            image.height = preloadedImg.height/2
+        }
+    }
+}
+
+function getPreloadedImageBySource(src){
+    for (var i = imagesToPreload.length - 1; i >= 0; i--) {
+        if(imagesToPreload[i].src == src){
+            return imagesToPreload[i];
+        }
+    }
+    return null;
+}
+
+function preloadImagesFromManifest() {
+    //all images to preload
+    var pathsToPreload = [];
+    var imagesLoaded = 0;
+    var timeout = null;
+
+    function addImage(imgPath) {
+        //check if already listed
+        for (var i = 0; i < pathsToPreload.length; i++) {
+            if (pathsToPreload[i] == imgPath) return;
+        }
+        //otherwise push
+        pathsToPreload.push(imgPath);
+    }
+
+    //get all images
+    for (var obj in myFT.instantAds) {
+        if ((/.*\.(gif|jpg|jpeg|tiff|png)$/g).test(myFT.instantAds[obj])) addImage(myFT.instantAds[obj]);
+    }
+
+    function preloadCompleted() {
+        document.getElementById("container").style.opacity = 1;
+        document.getElementById("loadingImage").style.opacity = 0;
+        clearTimeout(timeout);
+        setTimeout(startAnim, 200);
+    }
+
+    //preloadImages
+    for (var i = 0; i < pathsToPreload.length; i++) {
+        imagesToPreload[i] = new Image();
+        imagesToPreload[i].onload = function() {
+            imagesLoaded++;
+            if (imagesLoaded == pathsToPreload.length) {
+                //load finished
+                preloadCompleted();
+            }
+        }
+        imagesToPreload[i].onerror = function() {
+            imagesLoaded++;
+            if (imagesLoaded == pathsToPreload.length) {
+                //load finished
+                preloadCompleted();
+            }
+        }
+        imagesToPreload[i].src = pathsToPreload[i];
+    }
+    timeout = setTimeout(preloadCompleted, 4000);
+}
+
+myFT.on('instantads', function() {
+    //if fonts api aviliable be sure we have it loaded
+    if (document.fonts) {
+        document.fonts.ready.then(function() {
+            loadScript("https://cdnjs.cloudflare.com/ajax/libs/gsap/latest/TweenMax.min.js", preloadImagesFromManifest);
+        });
+    } else {
+        loadScript("https://cdnjs.cloudflare.com/ajax/libs/gsap/latest/TweenMax.min.js", preloadImagesFromManifest);
+    }
+});

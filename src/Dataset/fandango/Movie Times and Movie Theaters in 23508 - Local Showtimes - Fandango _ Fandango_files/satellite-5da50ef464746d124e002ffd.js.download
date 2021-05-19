@@ -1,0 +1,33 @@
+_satellite.pushAsyncScript(function(event, target, $variables){
+  //Desktop MOP Template
+//Knives Out 219390
+if(_satellite.getVar('Movie ID') == '219390'){
+  if(_satellite.getVar('Page Level 2') == 'movie | overview'){
+//pxl-320
+    (function(e,t,n){if(e.snaptr)return;var a=e.snaptr=function(){a.handleRequest?a.handleRequest.apply(a,arguments):a.queue.push(arguments)};a.queue=[];var s='script';r=t.createElement(s);r.async=!0;r.src=n;var u=t.getElementsByTagName(s)[0];u.parentNode.insertBefore(r,u);})(window,document,'https://sc-static.net/scevent.min.js');
+
+snaptr('init', '30f8c12c-3c1e-49fd-94b2-bfbcce6c71c0', {'user_email': '_INSERT_USER_EMAIL_'});
+snaptr('track', '30f8c12c-3c1e-49fd-94b2-bfbcce6c71c0', 'PAGE_VIEW');
+
+
+
+
+}
+}
+//Desktop MSP Template
+
+//Knives Out 219390
+if(_satellite.getVar('Movie ID') == '219390'){
+  if(_satellite.getVar('Page Level 2') == 'movie times | by movie'){
+//pxl-322
+    (function(e,t,n){if(e.snaptr)return;var a=e.snaptr=function(){a.handleRequest?a.handleRequest.apply(a,arguments):a.queue.push(arguments)};a.queue=[];var s='script';r=t.createElement(s);r.async=!0;r.src=n;var u=t.getElementsByTagName(s)[0];u.parentNode.insertBefore(r,u);})(window,document,'https://sc-static.net/scevent.min.js');
+
+snaptr('init', '30f8c12c-3c1e-49fd-94b2-bfbcce6c71c0', {'user_email': '_INSERT_USER_EMAIL_'});
+snaptr('track', '30f8c12c-3c1e-49fd-94b2-bfbcce6c71c0', 'PAGE_VIEW');
+
+ 
+
+}
+}
+
+});

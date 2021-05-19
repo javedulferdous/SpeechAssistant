@@ -1,0 +1,135 @@
+// pSlider, jQuery plugin for product slider.
+
+(function( $ ){
+
+  $.fn.pSlider = function( options ) {  
+
+	var settings = {
+	  'slideItems' : 3,
+	  'mode' : 'click',
+	  'speed' : 100,
+	  "easing": "swing"
+	};
+
+	return this.each(function() {  
+	
+		if ( options ) { $.extend( settings, options ); }
+		
+		var idDiv = $(this).attr('id');
+		var itemW = 0;
+		itemW += parseInt($(':first-child',this).css("width"));
+		itemW += parseInt($(':first-child',this).css("padding-left"));
+		itemW += parseInt($(':first-child',this).css("padding-right"));
+		itemW += parseInt($(':first-child',this).css("margin-left"));
+		itemW += parseInt($(':first-child',this).css("margin-right"));
+		var totalItems = $(this).children().length;
+		var finalW = totalItems * itemW;
+		//alert(finalW+' - '+itemW+' - '+totalItems);
+		$(this).html('<div class="inner">'+$(this).html()+'</div>');
+		$(".inner", this).css({
+		  "float": "left",
+		  "position": "relative",
+		  "top": "0px",
+		  "left": "0px",
+		  "width": finalW+"px"
+		});
+		
+		if($.browser.msie && (parseInt($.browser.version) < 8)) // IE 7 hack. 
+			$(this).css("position","relative"); 
+		
+		switch(settings.mode){
+		
+			case "click": $("#prev_"+idDiv).click(function(){
+							  var str = $(this).attr("id").split("_");
+							  var id = "#"+str[1];
+							  clickAnimate(id,"prev");
+						  });
+						  $("#next_"+idDiv).click(function(){
+							  var str = $(this).attr("id").split("_");
+							  var id = $("#"+str[1]);
+							  clickAnimate(id,"next");
+						  });
+						  $("#first_"+idDiv).click(function(){
+							  var str = $(this).attr("id").split("_");
+							  var id = $("#"+str[1]);
+							  clickAnimate(id,"next");
+						  });
+						  $("#last_"+idDiv).click(function(){
+							  var str = $(this).attr("id").split("_");
+							  var id = $("#"+str[1]);
+							  clickAnimate(id,"next");
+						  }); 
+						  break;
+						  
+			case "over":  $("#prev_"+idDiv).mouseover(function(){
+							  var str = $(this).attr("id").split("_");
+							  var id = "#"+str[1];
+							  overAnimate(id,"prev");
+						  });
+						  $("#prev_"+idDiv).mouseout(function(){
+							  var str = $(this).attr("id").split("_");
+							  var id = "#"+str[1];
+							  $(".inner",id).stop(true,false);
+						  });
+						  $("#next_"+idDiv).mouseover(function(){
+							  var str = $(this).attr("id").split("_");
+							  var id = $("#"+str[1]);
+							  overAnimate(id,"next");
+						  });
+						  $("#next_"+idDiv).mouseout(function(){
+							  var str = $(this).attr("id").split("_");
+							  var id = $("#"+str[1]);
+							  $(".inner",id).stop(true,false);
+						  });
+						  break;
+		};
+		
+		
+		
+		function clickAnimate(id, dir){
+			$(".inner",id).stop(true,true);
+			var innerLeft = parseInt($(".inner",id).css("left"));
+			var limit = (-1*finalW) + parseInt($(id).css("width"));
+			
+			switch(dir){
+			
+				case "prev": var w = innerLeft + (itemW * settings.slideItems);
+							//alert(w);
+							 if(w >= 0)
+								$(".inner",id).animate({ left: "0px" },settings.speed,settings.easing); 
+							 else
+								$(".inner",id).animate({ left: w+"px" },settings.speed,settings.easing); 
+							 break;
+							 
+				case "next": var w = innerLeft - (itemW * settings.slideItems);
+							//alert(w);
+							 if(w <= limit)
+								$(".inner",id).animate({ left: limit+"px" },settings.speed,settings.easing); 
+							 else
+								$(".inner",id).animate({ left: w+"px" },settings.speed,settings.easing); 
+							 break;
+			
+				case "first": $(".inner",id).animate({ left: "0px" },settings.speed),settings.easing; 
+							  break;
+							 
+				case "last": $(".inner",id).animate({ left: limit+"px" },settings.speed,settings.easing); 
+							 break;
+			};
+		}
+		
+		function overAnimate(id, dir){
+			$(".inner",id).stop(true,false);
+			var innerLeft = parseInt($(".inner",id).css("left"));
+			var limit = (-1*finalW) + parseInt($(id).css("width"));
+			switch(dir){
+			
+				case "prev": $(".inner",id).animate({ left: "0px" },settings.speed,settings.easing); break;
+							 
+				case "next": $(".inner",id).animate({ left: limit+"px" },settings.speed,settings.easing); break;
+			};
+		}
+		
+	});
+
+  };
+})( jQuery );

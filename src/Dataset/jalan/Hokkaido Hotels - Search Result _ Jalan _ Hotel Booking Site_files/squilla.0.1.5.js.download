@@ -1,0 +1,681 @@
+var __extends = (this && this.__extends) || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+};
+var Squilla;
+(function (Squilla) {
+    function emptyConfigData() { return { tests: {} }; }
+    Squilla.emptyConfigData = emptyConfigData;
+    ;
+})(Squilla || (Squilla = {}));
+var Squilla;
+(function (Squilla) {
+    function convertTestConfigData(_data) {
+        if (!_data) {
+            return null;
+        }
+        var testConfig = _data;
+        if (typeof _data.cookieName !== 'undefined') {
+            testConfig.storeKeyName = _data.cookieName;
+        }
+        if (typeof _data.remakeCookie !== 'undefined') {
+            testConfig.remakeValue = _data.remakeCookie;
+        }
+        if (typeof _data.patterns !== 'undefined') {
+            for (var i = 0, l = _data.patterns.length; i < l; i++) {
+                if (typeof _data.patterns[i].cookie !== 'undefined') {
+                    testConfig.patterns[i].range = _data.patterns[i].cookie;
+                }
+            }
+        }
+        return testConfig;
+    }
+    Squilla.convertTestConfigData = convertTestConfigData;
+    function convertConfigData(_data) {
+        var configData = Squilla.emptyConfigData();
+        if (!_data) {
+            return configData;
+        }
+        if (typeof _data.tests !== 'undefined') {
+            for (var testName in _data.tests) {
+                configData.tests[testName] = convertTestConfigData(_data.tests[testName]);
+            }
+        }
+        return configData;
+    }
+    Squilla.convertConfigData = convertConfigData;
+})(Squilla || (Squilla = {}));
+var Squilla;
+(function (Squilla) {
+    var Config = (function () {
+        function Config(configData) {
+            this.setConfigData(configData);
+        }
+        Config.prototype.setConfigData = function (_data) {
+            if (_data) {
+                this.data = Squilla.convertConfigData(_data);
+            }
+            else {
+                this.data = Squilla.emptyConfigData();
+            }
+        };
+        Config.prototype.getTest = function (testName) {
+            if (!this.data) {
+                return null;
+            }
+            return this.data.tests[testName];
+        };
+        Config.prototype.getTests = function () {
+            if (!this.data) {
+                return null;
+            }
+            return this.data.tests;
+        };
+        Config.prototype.setTest = function (testName, testConfig) {
+            if (!this.data) {
+                this.setConfigData(null);
+            }
+            this.data.tests = this.data.tests || {};
+            this.data.tests[testName] = Squilla.convertTestConfigData(testConfig);
+        };
+        return Config;
+    }());
+    Squilla.Config = Config;
+})(Squilla || (Squilla = {}));
+var Squilla;
+(function (Squilla) {
+    var originalPattern = 'O';
+    function setOriginalPattern(pattern) { originalPattern = pattern; }
+    Squilla.setOriginalPattern = setOriginalPattern;
+    function getOriginalPattern() { return originalPattern; }
+    Squilla.getOriginalPattern = getOriginalPattern;
+    var cookieExpiresDate = 14;
+    function setTestCookieExpiresDate(date) { cookieExpiresDate = date; }
+    Squilla.setTestCookieExpiresDate = setTestCookieExpiresDate;
+    function getTestCookieExpiresDate() { return cookieExpiresDate; }
+    Squilla.getTestCookieExpiresDate = getTestCookieExpiresDate;
+    var storageKeyName = 'jln_ab_squilla';
+    function setStorageKeyName(name) { storageKeyName = name; }
+    Squilla.setStorageKeyName = setStorageKeyName;
+    function getStorageKeyName() { return storageKeyName; }
+    Squilla.getStorageKeyName = getStorageKeyName;
+    var storageExpiresDate = 14;
+    function setStorageExpiresDate(date) { storageExpiresDate = date; }
+    Squilla.setStorageExpiresDate = setStorageExpiresDate;
+    function getStorageExpiresDate() { return storageExpiresDate; }
+    Squilla.getStorageExpiresDate = getStorageExpiresDate;
+    (function (StoreType) {
+        StoreType[StoreType["cookie"] = 0] = "cookie";
+        StoreType[StoreType["localStorage"] = 1] = "localStorage";
+    })(Squilla.StoreType || (Squilla.StoreType = {}));
+    var StoreType = Squilla.StoreType;
+    var storeType = StoreType.localStorage;
+    function setStoreType(type) { storeType = type; }
+    Squilla.setStoreType = setStoreType;
+    function getStoreType() { return storeType; }
+    Squilla.getStoreType = getStoreType;
+    function sendResult(testKey, pattern) {
+        pattern = pattern || originalPattern;
+        window['AB_TEST3'] = testKey + '-' + pattern;
+        return;
+    }
+    Squilla.sendResult = sendResult;
+    function setSendResultFunction(fn) {
+        var _fn = fn;
+        Squilla.sendResult = function (key, pat) {
+            if (pat === void 0) { pat = originalPattern; }
+            _fn(key, pat);
+        };
+    }
+    Squilla.setSendResultFunction = setSendResultFunction;
+})(Squilla || (Squilla = {}));
+var Squilla;
+(function (Squilla) {
+    function isBot() {
+        var ua = (function () {
+            if (!navigator || !navigator.userAgent) {
+                return null;
+            }
+            return navigator.userAgent;
+        })();
+        return !ua ||
+            !/^Mozilla|^DoCoMo|^KDDI|^SoftBank|^Opera|^Dalvik|^BlackBerry/.test(ua) ||
+            /[b|B]ot|[c|C]rawler|[s|S]pider/.test(ua);
+    }
+    Squilla.isBot = isBot;
+    function triggerCall(checkTrigger, fn) {
+        var ti, isDone = false, d = document;
+        if (checkTrigger()) {
+            fn();
+            return;
+        }
+        var onReadyStateChange = function () {
+            if (d.readyState === 'interactive') {
+                if (!isDone) {
+                    if (checkTrigger()) {
+                        isDone = true;
+                        fn();
+                    }
+                }
+                return;
+            }
+            if (d.readyState === 'complete') {
+                if (!isDone) {
+                    isDone = true;
+                    if (checkTrigger()) {
+                        fn();
+                    }
+                }
+            }
+        };
+        if (d.addEventListener) {
+            d.addEventListener('readystatechange', onReadyStateChange);
+        }
+        else {
+            d.onreadystatechange = onReadyStateChange;
+        }
+        ti = setInterval(function () {
+            if (isDone) {
+                clearInterval(ti);
+                return;
+            }
+            if (checkTrigger()) {
+                clearInterval(ti);
+                isDone = true;
+                fn();
+            }
+        }, 0);
+    }
+    function triggerBySelector(selector, fn) {
+        var checkTrigger, d = document;
+        if (typeof jQuery === 'undefined') {
+            if (!d.querySelectorAll) {
+                checkTrigger = function () { return false; };
+            }
+            checkTrigger = function () { return d.querySelectorAll(selector).length > 0; };
+        }
+        else {
+            checkTrigger = function () { return jQuery(selector).length > 0; };
+        }
+        triggerCall(checkTrigger, fn);
+    }
+    Squilla.triggerBySelector = triggerBySelector;
+    function triggerByVariable(varName, fn) {
+        triggerCall(function () { return typeof window[varName] !== 'undefined'; }, fn);
+    }
+    Squilla.triggerByVariable = triggerByVariable;
+    function addResources(resources) {
+        addStyleResources(resources.css);
+        addScriptResources(resources.script);
+    }
+    Squilla.addResources = addResources;
+    function preLoadStyleResources(csses) {
+        if (typeof csses !== 'undefined' && csses.length > 0) {
+            var hd = document.getElementsByTagName('head')[0];
+            for (var _i = 0, csses_1 = csses; _i < csses_1.length; _i++) {
+                var url = csses_1[_i];
+                var link = document.createElement('link');
+                link.rel = 'stylesheet';
+                link.type = 'text/css';
+                link.href = url;
+                link.media = 'all';
+                hd.appendChild(link);
+                setTimeout((function (_link) {
+                    return function () { hd.removeChild(_link); };
+                })(link), 10);
+            }
+        }
+    }
+    Squilla.preLoadStyleResources = preLoadStyleResources;
+    function addStyleResources(csses) {
+        if (typeof csses !== 'undefined' && csses.length > 0) {
+            var hd = document.getElementsByTagName('head')[0];
+            for (var _i = 0, csses_2 = csses; _i < csses_2.length; _i++) {
+                var url = csses_2[_i];
+                var link = document.createElement('link');
+                link.rel = 'stylesheet';
+                link.type = 'text/css';
+                link.href = url;
+                link.media = 'all';
+                hd.appendChild(link);
+            }
+        }
+    }
+    Squilla.addStyleResources = addStyleResources;
+    function addScriptResources(scripts) {
+        if (typeof scripts !== 'undefined' && scripts.length > 0) {
+            var hd = document.getElementsByTagName('head')[0];
+            for (var _i = 0, scripts_1 = scripts; _i < scripts_1.length; _i++) {
+                var url = scripts_1[_i];
+                if (document.readyState === 'complete') {
+                    var scr = document.createElement('script');
+                    scr.type = 'text/javascript';
+                    scr.src = url;
+                    hd.appendChild(scr);
+                }
+                else {
+                    document.write(['<scr', 'ipt type="text/javascript" src="', url, '"></scr', 'ipt>'].join(''));
+                }
+            }
+        }
+    }
+    Squilla.addScriptResources = addScriptResources;
+    function isLocalStorageEnable() {
+        try {
+            var storage = window.localStorage;
+            if (!storage) {
+                return false;
+            }
+            if (!('getItem' in storage
+                && 'setItem' in storage
+                && 'removeItem' in storage)) {
+                return false;
+            }
+            var key = '__squilla__check__';
+            var val = 'check';
+            storage.setItem(key, val);
+            if (storage.getItem(key) !== val) {
+                return false;
+            }
+            storage.removeItem(key);
+            return true;
+        }
+        catch (e) {
+            return false;
+        }
+    }
+    Squilla.isLocalStorageEnable = isLocalStorageEnable;
+    function getCookie(key) {
+        var value = "";
+        var cookie = "; " + document.cookie;
+        var parts = cookie.split("; " + key + "=");
+        if (parts.length === 2) {
+            value = decodeURIComponent(parts.pop().split(";").shift());
+        }
+        return value;
+    }
+    Squilla.getCookie = getCookie;
+    function getObjectFromRequestParameters() {
+        var queries = location.search.replace(/^\?/, "").split("&");
+        var params = {};
+        var decode = function (s) {
+            return decodeURIComponent(s.replace(/\+/g, " "));
+        };
+        for (var _i = 0, queries_1 = queries; _i < queries_1.length; _i++) {
+            var query = queries_1[_i];
+            var pair = query.split("=");
+            if (pair[0]) {
+                try {
+                    params[decode(pair[0])] = decode(pair[1] || "");
+                }
+                catch (e) { }
+            }
+        }
+        return params;
+    }
+    Squilla.getObjectFromRequestParameters = getObjectFromRequestParameters;
+})(Squilla || (Squilla = {}));
+var Squilla;
+(function (Squilla) {
+    var Test = (function () {
+        function Test(testName, config) {
+            this.events = {
+                'begin': function () { return; },
+                'end': function () { return; }
+            };
+            this.testVal = null;
+            this.addtionalStyles = [];
+            var conf = config.getTest(testName);
+            if (!conf) {
+                return;
+            }
+            if (typeof conf.stopDate !== 'undefined') {
+                try {
+                    var stopDate = Date.parse(conf.stopDate + " 23:59:59 GMT+0900");
+                    if (stopDate < new Date().getTime()) {
+                        return;
+                    }
+                }
+                catch (e) {
+                    return;
+                }
+            }
+            var testStore = Squilla.TestStoreManager.getTestStore(config);
+            if (!testStore.isEnable()) {
+                return;
+            }
+            this.testVal = testStore.getVal(testName);
+            this.testName = testName;
+            this.testConfig = conf;
+            var testPattern = testStore.checkPattern(testName);
+            this.pattern = testPattern !== null ? testPattern.pattern : void 0;
+            if (testPattern && typeof testPattern.additionalResources !== 'undefined') {
+                Squilla.addScriptResources(testPattern.additionalResources.script);
+                this.addtionalStyles = testPattern.additionalResources.css;
+                Squilla.preLoadStyleResources(this.addtionalStyles);
+            }
+        }
+        Test.prototype.on = function (eventName, proc) {
+            if (typeof this.events[eventName] === 'function') {
+                this.events[eventName] = proc;
+                return this;
+            }
+            if (!this.pattern) {
+                return this;
+            }
+            if (eventName === this.pattern) {
+                this.testProc = proc;
+            }
+            return this;
+        };
+        Test.prototype.begin = function (proc) { return this.on('begin', proc); };
+        Test.prototype.end = function (proc) { return this.on('end', proc); };
+        Test.prototype.proc = function (pattern, proc) { return this.on(pattern, proc); };
+        Test.prototype.run = function () {
+            if (Squilla.isBot()) {
+                return;
+            }
+            var ydUse = Squilla.getCookie("ydUse");
+            if (ydUse === "1" || ydUse === "2") {
+                return;
+            }
+            if (Squilla.getObjectFromRequestParameters()["sc_ap"] === "1" ||
+                Squilla.getCookie("sc_ap") === "1") {
+                return;
+            }
+            var ua = Squilla.target;
+            if (ua.browser.android && ua.browser.version < 3) {
+                return;
+            }
+            if (ua.browser.ios && ua.browser.version < 9) {
+                return;
+            }
+            if (ua.browser.ffos) {
+                return;
+            }
+            if (ua.isPC && ua.browser.safari) {
+                return;
+            }
+            if (ua.isPC && ua.browser.ie && ua.browser.version < 11) {
+                return;
+            }
+            Squilla.addStyleResources(this.addtionalStyles);
+            this.events['begin']();
+            if (typeof this.testProc === 'function') {
+                this.testProc();
+            }
+            if (this.testVal !== null) {
+                var conf = this.testConfig;
+                Squilla.sendResult(typeof conf.testKey === 'string' ? conf.testKey : this.testName, this.pattern);
+            }
+            this.events['end']();
+        };
+        return Test;
+    }());
+    Squilla.Test = Test;
+})(Squilla || (Squilla = {}));
+var Squilla;
+(function (Squilla) {
+    var config;
+    Squilla.target = getUA();
+    function version() {
+        return 'Squilla 0.1.5 fbc4204 build: 2018-02-21T02:30Z';
+    }
+    Squilla.version = version;
+    function init(_config) {
+        config = new Squilla.Config(_config);
+    }
+    Squilla.init = init;
+    function setTestConfig(testName, testConfig) {
+        config = config || new Squilla.Config(null);
+        config.setTest(testName, testConfig);
+    }
+    Squilla.setTestConfig = setTestConfig;
+    function test(testName) {
+        var abTest = new Squilla.Test(testName, config);
+        return abTest;
+    }
+    Squilla.test = test;
+    function __c() { return config; }
+    Squilla.__c = __c;
+    function getUA() {
+        var target = {
+            isPC: false,
+            isTablet: false,
+            isMobile: false,
+            browser: {}
+        };
+        var ua = navigator.userAgent.toLowerCase();
+        target.isMobile =
+            (ua.indexOf('windows') !== -1 && ua.indexOf('phone') !== -1) ||
+                ua.indexOf('iphone') !== -1 ||
+                ua.indexOf('ipod') !== -1 ||
+                (ua.indexOf('android') !== -1 && ua.indexOf('mobile') !== -1) ||
+                (ua.indexOf('firefox') !== -1 && ua.indexOf('mobile') !== -1) ||
+                ua.indexOf('blackberry') !== -1;
+        target.isTablet =
+            (ua.indexOf('windows') !== -1 && ua.indexOf('touch') !== -1) ||
+                ua.indexOf('ipad') !== -1 ||
+                (ua.indexOf('android') !== -1 && ua.indexOf('mobile') === -1) ||
+                (ua.indexOf('firefox') !== -1 && ua.indexOf('tablet') !== -1) ||
+                ua.indexOf('kindle') !== -1 ||
+                ua.indexOf('silk') !== -1 ||
+                ua.indexOf('playbook') !== -1;
+        target.isPC = !target.isMobile && !target.isTablet;
+        var versionMatcher = {
+            ie: /(msie|rv:?)\s?([0-9]+)([\.0-9]+)/,
+            ios: /(os)\s([0-9]+)([_0-9]+)/,
+            android: /(android)\s([0-9]+)([\.0-9]+)/
+        };
+        var prop, matcher;
+        target.browser.version = null;
+        target.browser.ie = /msie/.test(ua) || /trident/.test(ua);
+        target.browser.opera = /opera/.test(ua);
+        target.browser.safari = /safari/.test(ua) && !/chrome/.test(ua);
+        target.browser.iphone = /iphone/.test(ua);
+        target.browser.ipod = /ipod/.test(ua);
+        target.browser.ipad = /ipad/.test(ua);
+        target.browser.android = /android/.test(ua);
+        target.browser.ios = target.browser.iphone || target.browser.ipod || target.browser.ipad;
+        target.browser.ffos = /firefox/.test(ua) && /gecko/.test(ua) && /mobile/.test(ua) && !/android/.test(ua);
+        if (target.browser.ie || target.browser.ios || target.browser.android) {
+            if (target.browser.ie) {
+                prop = 'ie';
+            }
+            else if (target.browser.ios) {
+                prop = 'ios';
+            }
+            else if (target.browser.android) {
+                prop = 'android';
+            }
+            matcher = ua.match(versionMatcher[prop]);
+            if (matcher) {
+                target.browser.version = parseInt(matcher[2], 10);
+            }
+        }
+        return target;
+    }
+})(Squilla || (Squilla = {}));
+var Squilla;
+(function (Squilla) {
+    var TestStore = (function () {
+        function TestStore(config) {
+            this.config = config;
+        }
+        TestStore.prototype.getTestConfig = function (testName) {
+            if (!this.isEnable()) {
+                return null;
+            }
+            if (!this.config) {
+                return null;
+            }
+            var conf = this.config.getTest(testName);
+            if (!conf) {
+                return null;
+            }
+            return conf;
+        };
+        TestStore.prototype.getStoreKey = function (testName) {
+            var conf = this.getTestConfig(testName);
+            if (!conf) {
+                return null;
+            }
+            return conf.storeKeyName ? conf.storeKeyName : testName;
+        };
+        TestStore.prototype.getVal = function (testName) {
+            var _this = this;
+            var conf = this.getTestConfig(testName);
+            if (!conf) {
+                return null;
+            }
+            var storeVal = (function (keyName, remake) {
+                var val = _this.getItem(keyName);
+                if (val === null && remake) {
+                    val = 0 | Math.random() * 100;
+                }
+                return val;
+            })(this.getStoreKey(testName), typeof conf.remakeValue === 'boolean' ? conf.remakeValue : true);
+            if (storeVal !== null) {
+                this.setVal(testName, storeVal);
+            }
+            return storeVal;
+        };
+        TestStore.prototype.setVal = function (testName, val) {
+            var keyName = this.getStoreKey(testName);
+            if (keyName) {
+                this.setItem(keyName, val);
+            }
+        };
+        TestStore.prototype.checkPattern = function (testName) {
+            var conf = this.getTestConfig(testName);
+            if (!conf) {
+                return null;
+            }
+            var pattern = (function (storeVal, patterns) {
+                if (storeVal !== null) {
+                    for (var _i = 0, patterns_1 = patterns; _i < patterns_1.length; _i++) {
+                        var pattern = patterns_1[_i];
+                        if (pattern.range) {
+                            if (pattern.range.min <= storeVal
+                                && storeVal <= pattern.range.max) {
+                                return pattern;
+                            }
+                        }
+                    }
+                }
+                return null;
+            })(this.getVal(testName), conf.patterns);
+            return pattern;
+        };
+        return TestStore;
+    }());
+    Squilla.TestStore = TestStore;
+    var CookieTestStore = (function (_super) {
+        __extends(CookieTestStore, _super);
+        function CookieTestStore() {
+            _super.apply(this, arguments);
+        }
+        CookieTestStore.prototype.isEnable = function () { return 'cookie' in document; };
+        CookieTestStore.prototype.getItem = function (name) {
+            var cookies = document.cookie.split(';');
+            for (var _i = 0, cookies_1 = cookies; _i < cookies_1.length; _i++) {
+                var cookie = cookies_1[_i];
+                var parts = cookie.split('=');
+                var key = decodeURIComponent(parts.shift()).replace(' ', '');
+                if (key === name) {
+                    return +decodeURIComponent(parts.shift());
+                }
+            }
+            return null;
+        };
+        CookieTestStore.prototype.setItem = function (name, value) {
+            var cookie = encodeURIComponent(name) + "=" + encodeURIComponent(value.toString()) + "; path=/";
+            var cookieExpiresDate = Squilla.getTestCookieExpiresDate();
+            if (cookieExpiresDate) {
+                var dt = new Date();
+                dt.setDate(dt.getDate() + cookieExpiresDate);
+                cookie += "; expires=" + dt.toUTCString();
+            }
+            document.cookie = cookie;
+        };
+        return CookieTestStore;
+    }(TestStore));
+    var LocalStorageTestStore = (function (_super) {
+        __extends(LocalStorageTestStore, _super);
+        function LocalStorageTestStore() {
+            _super.apply(this, arguments);
+        }
+        LocalStorageTestStore.prototype.isEnable = function () { return Squilla.isLocalStorageEnable(); };
+        LocalStorageTestStore.prototype.getStorageData = function () {
+            var storageData = localStorage.getItem(Squilla.getStorageKeyName());
+            if (!storageData) {
+                return null;
+            }
+            try {
+                return JSON.parse(storageData);
+            }
+            catch (e) {
+                return null;
+            }
+        };
+        LocalStorageTestStore.prototype.clearStorageData = function (storageData) {
+            var delKeys = {};
+            var dt = new Date().getTime();
+            for (var key in storageData) {
+                var data = storageData[key];
+                if (data.expires < dt) {
+                    delKeys[key] = true;
+                }
+            }
+            for (var delKey in delKeys) {
+                delete storageData[delKey];
+            }
+        };
+        LocalStorageTestStore.prototype.getItem = function (keyName) {
+            var storageData = this.getStorageData();
+            if (!storageData) {
+                return null;
+            }
+            var data = storageData[keyName];
+            if (typeof data === 'undefined') {
+                return null;
+            }
+            if (data.expires < new Date().getTime()) {
+                return null;
+            }
+            return data.value;
+        };
+        LocalStorageTestStore.prototype.setItem = function (keyName, val) {
+            var storageData = this.getStorageData();
+            if (!storageData) {
+                storageData = {};
+            }
+            this.clearStorageData(storageData);
+            var expires = (function () {
+                var storageExpiresDate = Squilla.getStorageExpiresDate();
+                if (storageExpiresDate) {
+                    var dt = new Date();
+                    dt.setDate(dt.getDate() + storageExpiresDate);
+                    return dt.getTime();
+                }
+                return 0;
+            })();
+            storageData[keyName] = { value: val, expires: expires };
+            localStorage.setItem(Squilla.getStorageKeyName(), JSON.stringify(storageData));
+        };
+        return LocalStorageTestStore;
+    }(TestStore));
+    var TestStoreManager;
+    (function (TestStoreManager) {
+        var storeMap = {};
+        storeMap[Squilla.StoreType.cookie] = CookieTestStore;
+        storeMap[Squilla.StoreType.localStorage] = LocalStorageTestStore;
+        function getTestStore(config) {
+            var storeClass = storeMap[Squilla.getStoreType()];
+            return new storeClass(config);
+        }
+        TestStoreManager.getTestStore = getTestStore;
+    })(TestStoreManager = Squilla.TestStoreManager || (Squilla.TestStoreManager = {}));
+})(Squilla || (Squilla = {}));
+

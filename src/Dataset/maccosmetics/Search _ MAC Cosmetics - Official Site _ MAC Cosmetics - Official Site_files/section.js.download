@@ -1,0 +1,24 @@
+if (window.location == window.parent.location) {
+  lpTag.section = [Drupal.settings.lp.site_name];
+}
+
+if (window.location == window.parent.location && typeof Drupal.settings.lp != 'undefined' && typeof Drupal.settings.lp.sms_chat != 'undefined' && Drupal.settings.lp.sms_chat) {
+  var getMobileOperatingSystem = function() {
+    var userAgent = navigator.userAgent || navigator.vendor || window.opera;
+    if (/windows phone/i.test(userAgent)) {
+      return "Windows Phone";
+    }
+    if (/android/i.test(userAgent)) {
+      return "Android";
+    }
+    if (/iPad|iPhone|iPod/.test(userAgent) && !window.MSStream) {
+      return "iOS";
+    }
+    return "unknown";
+  };
+  var device_name = getMobileOperatingSystem().toLowerCase();
+  $('.js-'+device_name).removeClass('hidden');
+  lpTag.section.push("MAC_" + device_name);
+}
+
+

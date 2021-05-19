@@ -1,0 +1,70 @@
+_satellite.pushAsyncScript(function(event, target, $variables){
+  /**
+ * Rule:   "Criteo OneTag"
+ * Script: "Criteo"
+ */
+window.criteo_q = window.criteo_q || []
+try {
+  !(function() {
+    var e = 'true' === _satellite.getVar('is_mobile_device'),
+      t = _satellite.getVar('customer_email_address'),
+      a = _satellite.getVar('is_product_grid_page'),
+      r = _satellite.getVar('page_category'),
+      n = _satellite.getVar('page_name'),
+      o = !0
+    if ('home' === r) window.criteo_q.push({ event: 'viewHome' })
+    else if ('true' === a) {
+      var c = [],
+        s = document.querySelectorAll('.productList .productItem')
+      for (i = 0; i < s.length && !(i > 2); i++)
+        c.push(s[i].attributes['data-productid'].value)
+      window.criteo_q.push({ event: 'viewList', item: c })
+    } else if ('product' === r || 'partnumber' === r) {
+      var d = _satellite.getVar('product_id')
+      window.criteo_q.push({ event: 'viewItem', item: d })
+    } else if ('checkout:shopping cart' === n) {
+      var u = _satellite.getVar('cart').CartItems.map(function(e) {
+        return {
+          id: e.ProductId,
+          price: e.UnitFinalPrice,
+          quantity: e.Quantity
+        }
+      })
+      window.criteo_q.push({ event: 'viewBasket', item: u })
+    } else if ('checkout:confirmation' === n) {
+      u = window.TagManagementData.TagManagementDataOrder.OrderItems.map(
+        function(e) {
+          return {
+            id: e.ProductId,
+            price: e.UnitFinalPrice,
+            quantity: e.Quantity
+          }
+        }
+      )
+      window.criteo_q.push({
+        event: 'trackTransaction',
+        id: window.TagManagementData.TagManagementDataOrder.OrderId,
+        item: u
+      })
+    } else o = !1
+    if (o) {
+      window.criteo_q.push(
+        { event: 'setAccount', account: 48366 },
+        { event: 'setSiteType', type: e ? 'm' : 'd' },
+        { event: 'setEmail', email: t || '' }
+      )
+      var l = document.createElement('script')
+      ;(l.type = 'text/javascript'),
+        (l.async = !0),
+        (l.src =
+          ('https:' == document.location.protocol ? 'https://' : 'http://') +
+          'static.criteo.net/js/ld/ld.js')
+      var p = document.getElementsByTagName('body')[0]
+      p.appendChild(l)
+    }
+  })()
+} catch (e) {
+  console.log(e)
+}
+
+});

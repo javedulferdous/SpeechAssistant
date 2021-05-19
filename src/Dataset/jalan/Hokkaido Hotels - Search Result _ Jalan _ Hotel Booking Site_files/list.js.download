@@ -1,0 +1,316 @@
+var $lumpTarget = $('.jsc-lump-target'),
+	$sortTrigger = $('#jsi-toggle-sort-trigger'),
+	$sortTarget = $('#jsi-toggle-sort-target'),
+	$kvAccordionTrigger = $('#jsi-accordion-trigger'),
+	$kvAccordionTarget = $('#jsi-accordion-target'),
+	$submitBtn = $('.jsc-submit-btn'),
+	$lowerPrice = $('.jsc-lower-price'),
+	$upperPrice = $('.jsc-upper-price'),
+	$lowerPriceHidden = $('#jsi-lower-price-hidden'),
+	$upperPriceHidden = $('#jsi-upper-price-hidden');
+
+	var $pageUrl = window.location.href;
+	var $pageHostName = window.location.hostname;
+	
+	if($pageHostName.indexOf('www.jalan') > -1) {
+		if(($pageUrl.indexOf('/kr/') > -1) || ($pageUrl.indexOf('ko_KR') > -1)){
+			document.write("<script type=\"text/javascript\" src=\"/js/n_common.js\"></script>");
+		}
+	}
+
+$('.sort-toggle').on('click',function(e){
+	e.stopPropagation();
+});
+
+
+$('body').on('click',function(){
+	if($lumpTarget.is(':visible')){
+		$lumpTarget.hide();
+		$sortTrigger.removeClass('sort-box-hidden');
+		$sortTrigger.addClass('sort-box-visble');
+	}
+});
+
+
+$sortTrigger.on('click',function(){
+	if($sortTarget.is(':hidden')){
+		$lumpTarget.hide();
+		$sortTarget.slideDown(300);
+		$sortTrigger.removeClass('sort-box-visble');
+		$sortTrigger.addClass('sort-box-hidden');
+	}else{
+		$sortTarget.slideUp(300);
+		$sortTrigger.removeClass('sort-box-hidden');
+		$sortTrigger.addClass('sort-box-visble');
+	}
+});
+
+
+$kvAccordionTrigger.on('click',function(){
+	if($('.list-kv-contents').is(':animated')){
+		return;
+	}
+	if($kvAccordionTarget.is(':hidden')){
+		$kvAccordionTarget.slideDown(300);
+		$kvAccordionTrigger.text('Close search');
+	} else {
+		$kvAccordionTrigger.text('Search Again');
+		$kvAccordionTarget.slideUp(300);
+	}
+});
+
+
+var $bookmarkCheckboxContainer = $('#jsi-cassette-container > li');
+
+$bookmarkCheckboxContainer.each(function(){
+	var $myself = $(this),
+		$balloonTooltip = $myself.find('.jsc-balloon-tooltip'),
+		$bookmarkCheckbox = $myself.find('.jsc-bookmark-checkbox'),
+		$bookmarkLabel = $myself.find('.jsc-bookmark'),
+		$hotelId = $bookmarkCheckbox.data('yadoid'),
+		currentBookmarkData = localStorage.getItem("bookmark"),
+		currentBookmarkDataArray = currentBookmarkData ? currentBookmarkData.split(',') : [];
+
+	//初期状態はリセット
+	$bookmarkCheckbox.prop("checked", false);
+	$bookmarkLabel.removeClass('selected');
+
+	//ブックマークしている宿は、チェックする
+	for(var i=0; i<currentBookmarkDataArray.length; i++){
+		if(currentBookmarkDataArray[i] == $hotelId){
+			$bookmarkCheckbox.prop("checked", true);
+			$bookmarkLabel.addClass('selected');
+			break;
+		}
+	}
+
+	$bookmarkCheckbox.on('change',function(){
+		var selectedYadoID = $(this).data('yadoid');
+
+		if($bookmarkCheckbox.is(':checked')){
+			$balloonTooltip.show().delay(4000).fadeOut('slow');
+			$bookmarkLabel.addClass('selected');
+
+			var currentBookmarkData = localStorage.getItem("bookmark");
+			var currentBookmarkDataArray = currentBookmarkData ? currentBookmarkData.split(',') : [];
+			if(currentBookmarkData === null || currentBookmarkData === '') {
+				currentBookmarkData = $(this).data('yadoid');
+			} else {
+				currentBookmarkData += ',' + $(this).data('yadoid');
+			}
+
+			localStorage.setItem('bookmark', currentBookmarkData);
+
+		}else{
+			$balloonTooltip.hide();
+			$bookmarkLabel.removeClass('selected');
+
+			var currentBookmarkData = localStorage.getItem("bookmark");
+			var currentBookmarkDataArray = currentBookmarkData ? currentBookmarkData.split(',') : [];
+
+			//配列をループして値を照合して要素を削除
+			for(var i=0; i<currentBookmarkDataArray.length; i++){
+				if(currentBookmarkDataArray[i] == selectedYadoID){
+					//spliceメソッドで要素を削除
+					currentBookmarkDataArray.splice(i--, 1);
+				}
+			}
+
+			currentBookmarkData = currentBookmarkDataArray.join(',');
+
+			localStorage.setItem("bookmark", currentBookmarkData);
+		}
+	});
+});
+
+$submitBtn.click(function(){
+	var lowerPriceValue = $lowerPrice.text(),
+		upperPriceValue = $upperPrice.text();
+
+	$lowerPriceHidden.val(lowerPriceValue);
+	$upperPriceHidden.val(upperPriceValue);
+
+	$submitBtn.submit();
+});
+
+
+var JIB = JIB || {};
+JIB.LIST = {};
+
+JIB.LIST.COMPARISON_MANAGER = {
+	MAX_SELECTABLE_COUNT : 4,
+	
+	init : function(){
+		this.setParameters();
+		this.prepare();
+		this.bindEvent();
+		this.reportStatus();
+	},
+	setParameters : function(){
+		this.$body = $('body');
+		this.$resultDialog = $('#jsi-compare-result-dialog');
+		this.$results = $('#jsi-compare-result-container').children('li');
+		this.$wrapper = $('.jsc-cassette-container');
+		this.$background = $('<div />').addClass('compare-dialog-background');
+		this.$close = $('#jsi-compare-result-dialog-close');
+		this.$link = this.$resultDialog.find('.jsc-jump-to-compare-page');
+		this.targets = [];
+		
+		this.$body.append(this.$background);
+	},
+	prepare : function(){
+		for(var i = 0, length = this.$wrapper.size(); i < length; i++){
+			this.targets.push(new JIB.LIST.COMPARISON_TARGET(this.$wrapper.eq(i), this));
+		}
+	},
+	bindEvent : function(){
+		this.$close.add(this.$background).on('click', $.proxy(this.closeDialog, this));
+	},
+	closeDialog : function(event){
+		event.preventDefault();
+		
+		this.$background.hide();
+		this.$resultDialog.hide();
+	},
+	reportStatus : function(target){
+		var count = 0;
+		
+		for(var i = 0, length = this.targets.length; i < length; i++){
+			if(this.targets[i].isChecked()){
+				count++;
+			}
+		}
+		if(count >= this.MAX_SELECTABLE_COUNT){
+			for(var i = 0, index = 0, length = this.targets.length; i < length; i++){
+				var info = this.targets[i].getSelectedInfo();
+				
+				if(!info){
+					continue;
+				}
+				var $result = this.$results.eq(index);
+				
+				$result.find('.jsc-hotel-name').text(info.name);
+				$result.find('.jsc-hotel-image').attr('src', info.image);
+				
+				if(++index > this.MAX_SELECTABLE_COUNT){
+					break;
+				}
+			}
+			this.$link.attr('href', this.$link.attr('href').split('?')[0] + '?count=' + count);
+			this.$resultDialog.css({'margin-left' : -this.$resultDialog.outerWidth() / 2, 'margin-top' : -this.$resultDialog.outerHeight() / 2});
+			this.$background.show();
+			this.$resultDialog.show();
+		}
+		if(count <= this.MAX_SELECTABLE_COUNT){
+			for(var i = 0, length = this.targets.length; i < length; i++){
+				this.targets[i].reflectStatus(count);
+			}
+		}
+		if(count > this.MAX_SELECTABLE_COUNT && target){
+			target.clearCheck();
+		}
+	}
+};
+
+JIB.LIST.COMPARISON_TARGET = function($wrapper, manager){
+	this.$wrapper = $wrapper;
+	this.manager = manager;
+	this.init();
+};
+JIB.LIST.COMPARISON_TARGET.prototype= {
+	ANIMATION_TIME : 300,
+	LABEL_ADD : 'Add hotel',
+	LABEL_COMPARE : 'compare',
+	
+	init : function(){
+		this.setParameters();
+		this.bindEvent();
+		this.controlComparePanel();
+	},
+	setParameters : function(){
+		this.$control = this.$wrapper.find('.jsc-compare-control');
+		this.$count = this.$wrapper.find('.jsc-compare-count');
+		this.$text = this.$wrapper.find('.jsc-compare-text');
+		this.$trigger = this.$wrapper.find('.jsc-compare-trigger');
+		this.$image = this.$wrapper.find('.jsc-compare-image').find('img');
+		this.$hotelName = this.$wrapper.find('.jsc-compare-hotel-name');
+		this.$link = this.$wrapper.find('.jsc-jump-to-compare-page');
+		
+		this.wrapperHeight = this.$wrapper.find('.jsc-compare-container').outerHeight();
+		this.containerHeight = this.$control.outerHeight();
+	},
+	bindEvent : function(){
+		this.$trigger.on('click', $.proxy(this.controlComparePanel, this));
+	},
+	controlComparePanel : function(event){
+		this.manager.reportStatus(this);
+	},
+	reflectStatus : function(count){
+		this.$text.text(this.LABEL_COMPARE);
+		this.$count.text(count);
+		
+		if(this.$trigger.is(':checked')){
+			if(count <= 1){
+				this.$control.animate({top : this.wrapperHeight}, this.ANIMATION_TIME);
+				this.$text.text(this.LABEL_ADD);
+			}else{
+				this.$control.animate({top : this.wrapperHeight - this.containerHeight}, this.ANIMATION_TIME);
+			}
+		}else{
+			this.$control.animate({top : this.wrapperHeight}, this.ANIMATION_TIME);
+		}
+	},
+	isChecked : function(){
+		return this.$trigger.is(':checked');
+	},
+	clearCheck : function(){
+		this.$trigger.prop('checked', false);
+	},
+	getSelectedInfo : function(){
+		if(!this.isChecked()){
+			return null;
+		}
+		return {name : this.$hotelName.text(), image : this.$image.filter(':visible').attr('src')};
+	}
+};
+
+JIB.LIST.SLIDE_IMAGE = function($container){
+	this.$container = $container;
+	this.init();
+};
+
+JIB.LIST.SLIDE_IMAGE.prototype = {
+	init : function(){
+		this.setParameters();
+		this.bindEvent();
+	},
+	setParameters : function(){
+		this.$window = $(window);
+		this.$images = this.$container.find('li');
+		this.offset = this.$container.offset();
+		this.count = this.$images.size();
+		this.unit = Math.floor(this.$container.width() / this.count);
+	},
+	bindEvent : function(){
+		this.$container.on('mousemove', $.proxy(this.slideImage, this));
+	},
+	slideImage : function(event){
+		var x = event.clientX - this.offset.left - this.$window.scrollLeft();
+		
+		for(var i = 0, length = this.count; i < length; i++){
+			if(this.unit * (i + 1) >= x){
+				this.$images.hide();
+				this.$images.eq(i).show();
+				return;
+			}
+		}
+	}
+};
+
+$(function(){
+	JIB.LIST.COMPARISON_MANAGER.init();
+	
+	$('.jsc-compare-container').each(function(){
+		new JIB.LIST.SLIDE_IMAGE($(this));
+	});
+});

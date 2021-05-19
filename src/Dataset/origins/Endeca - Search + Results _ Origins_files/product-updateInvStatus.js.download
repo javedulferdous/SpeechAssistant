@@ -1,0 +1,99 @@
+(function($, prodcat) {
+
+$(document).on('product.updateInvStatus', '.js-product', function() {
+  var $addBtn = $('.js-add-to-cart', this);
+  var $addAllBtn = $('.js-add-all-to-cart', this);
+  var productId = $addBtn.data('product-id') || $(this).data('product-id');
+  var productData = prodcat.data.getProduct(productId);
+  var skuBaseId = $addBtn.data('sku-base-id') || $(this).data('sku-base-id');
+  var skuDataL2 = prodcat.data.getSku(skuBaseId);
+  var reorderStatuses = [ // these are the statuses that will trigger a product block to be reordered
+    2, // Temporarily Sold Out
+    3, // Coming Soon
+    7 // Sold Out
+  ];
+  var reorderTest = function(l2Cache) {
+    return _.contains(reorderStatuses, parseInt(l2Cache.INVENTORY_STATUS));
+  };
+  var reorderSoldOut = function(skuDataL2, el) {
+    var $el = $(el);
+    
+    if (!skuDataL2 || skuDataL2.length === 0 || $el.hasClass('sold-out-reorder-processed')) {
+      return;
+    }
+
+    if (!_.isArray(skuDataL2)) {
+      skuDataL2 = [ skuDataL2 ];
+    }
+
+    if (_.every(skuDataL2, reorderTest)) {
+      // only reorder the grid items once, breaks mixitup initialization otherwise
+      $el.once('sold-out-reorder').closest('.js-grid-item').appendTo($el.closest('.js-grid-item').parent());
+      prodcat.ui.grids.add($el.closest('.js-grid').get(0));
+    }
+  };
+
+  // Reordering sold out products (inv. status 7), to be last in display order on MPPs/anywhere they appear in a grid
+  if (_.has(site.translations.product, 'sold_out_reordering')) {
+    if (site.translations.product.sold_out_reordering_multi_sku && site.translations.product.sold_out_reordering_multi_sku === 'base') {
+      reorderSoldOut(skuDataL2, this);
+    } else if (site.translations.product.sold_out_reordering_multi_sku && site.translations.product.sold_out_reordering_multi_sku === 'all') {
+      if (productData) {
+        reorderSoldOut(productData.skus, this);
+      }
+    } else if ((!site.translations.product.sold_out_reordering_multi_sku || site.translations.product.sold_out_reordering_multi_sku === 'off') && $addBtn.length > 0) {
+      reorderSoldOut(skuDataL2, this);
+    }
+  }
+
+  //Reordering product if non shaded, non size and sold out
+  if ((productData && !productData.shaded) || (productData && !productData.sized) || skuDataL2 && skuDataL2.INVENTORY_STATUS === 7) {
+    reorderSoldOut(skuDataL2, this);
+  }
+
+  if (!$addBtn.length || $addAllBtn.length) {
+    return;
+  }
+
+  var settings = Drupal.settings || {};
+      settings = settings.common || {};
+
+  var hasWaitlist = Drupal.settings.common && Drupal.settings.common.has_waitlist;
+  var hasWaitlistTOS = Drupal.settings.common && Drupal.settings.common.has_waitlist_tos;
+  var disableWaitlistSoldout = settings.disable_waitlist_soldout;
+  var enableAddtocartNotifyme = settings.enable_addtocart_notifyme_tos;
+  if (!skuDataL2) {
+    return;
+  }
+  if (!('PRODUCT_ID' in skuDataL2) && productId) {
+    skuDataL2.PRODUCT_ID = productId;
+  }
+  if (!('SKU_BASE_ID' in skuDataL2) && skuBaseId) {
+    skuDataL2.SKU_BASE_ID = skuBaseId;
+  }
+
+  if (skuDataL2 && !skuDataL2.isShoppable) {
+    $addBtn.addClass('button--disabled').data('disabled', true);
+
+    if (hasWaitlist && (skuDataL2.INVENTORY_STATUS - 0 === 3 || (skuDataL2.INVENTORY_STATUS - 0 === 7 && !disableWaitlistSoldout))) {
+      $(document).trigger('product:waitlist:init', skuDataL2);
+    } else if (hasWaitlistTOS && skuDataL2.INVENTORY_STATUS - 0 === 2) {
+      $addBtn.addClass('button--disabled').data('disabled', true);
+      $(document).trigger('product:waitlist:init', skuDataL2);
+    }
+  } else if (hasWaitlistTOS && skuDataL2.isShoppable && skuDataL2.INVENTORY_STATUS - 0 === 2 && enableAddtocartNotifyme) {
+      $addBtn.removeClass('button--disabled').data('disabled', false);
+      $(document).trigger('product:waitlist:init', skuDataL2);
+  } else {
+    if (hasWaitlist && skuDataL2) {
+      $(document).trigger('product:waitlist:reset', skuDataL2);
+    }
+
+    $addBtn.removeClass('button--disabled').data('disabled', false);
+  }
+  if(Drupal.settings.common.enable_preorder && Drupal.behaviors.preOrder) {
+    $(document).trigger('isPreorder-init',skuDataL2);
+  }
+});
+
+})(jQuery, window.prodcat = window.prodcat || {});

@@ -1,0 +1,26 @@
+/**
+ * Rule:   "Cross Pixel Media Pixel"
+ * Script: "Load Cross Pixel Media Pixel"
+ */
+
+try {
+    (function (c, r, o, s) {
+
+        var cb = new Date().getTime();
+
+        c = '//tag.crsspxl.com/s1.js?d=316&cb='+cb;
+        r = document;
+        o = 'script';
+        s = r.createElement(o);
+        s.src = c;
+        s.type = 'text/java' + o;
+        s.defer = true;
+        s.charset = 'utf-8'
+        c = r.getElementsByTagName('body')[0];
+        c.appendChild(s);
+
+    }(document, 'script', 'crossMediaPixel'));
+}
+catch (e) {
+    console.log(e);
+}

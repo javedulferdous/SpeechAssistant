@@ -1,0 +1,3755 @@
+@font-face {
+	font-family: BentonSansRegular;
+	src: url('fonts/BentonSansRegular.woff')
+}
+
+@font-face {
+	font-family: BentonSansMedium;
+	src: url('fonts/BentonSansMedium.woff')
+}
+
+@font-face {
+	font-family: BentonSansLight;
+	src: url('fonts/BentonSansLight.otf')
+}
+
+body {
+	margin: 0;
+	font-family: BentonSansRegular
+}
+
+#lpChatWizFrameContainer {
+	position: relative;
+	margin-left: 0;
+	height: 410px;
+	-webkit-touch-callout: none;
+	-webkit-user-select: none;
+	-khtml-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none
+}
+
+#lpChatSlideOutContainer {
+	width: 264px;
+	height: 350px;
+	float: left;
+	border-radius: 20px 0 0 20px;
+	-moz-border-radius: 20px 0 0 20px;
+	-webkit-border-radius: 20px 0 0 20px;
+	border: 1px solid #e5e5e5;
+	text-align: center;
+	vertical-align: middle;
+	padding: 17px;
+	background: #f4f4f4
+}
+
+#lpChatSlideOutContainerFrame {
+	margin: 0;
+	padding: 0;
+	height: 350px;
+	border: 0 solid green;
+	overflow-x: auto
+}
+
+#lpChatSlideOutContainer p.field {
+	font-family: BentonSansMedium;
+	font-size: 13px;
+	color: #333
+}
+
+#lpChatSlideOutContainer input {
+	font-family: BentonSansRegular;
+	font-size: 13px;
+	color: #333
+}
+
+#lpChatSlideOutContainer {
+	text-align: left
+}
+
+#lpChatFrameContainer {
+	background-color: white;
+	float: right;
+	width: 400px
+}
+
+#lpChatMenuTable {
+	border-spacing: 0;
+	font-family: arial;
+	font-size: 12px;
+	color: white;
+	height: 40px;
+	background: #343e5e
+}
+
+#lpChatMenuTable TD,
+TR {
+	margin: 2px;
+	padding: 2px
+}
+
+#lpChatMessagesSection {
+	height1: 252px
+}
+
+#lpChatInputFieldSection {
+	height: 49px;
+	background: #fff;
+	border-top: 1px solid #e5e5e5
+}
+
+.lpChatInputTextField {
+	font-size: 13px;
+	color: #333;
+	font-family: BentonSansRegular;
+	width: 70%;
+	border: 1px solid #e5e5e5;
+	resize: none;
+	outline: 0;
+	margin: 5px 5px 5px 8px;
+	border-radius: 7px;
+	height: 33px;
+	padding: 2px 10px;
+	color: #333;
+	font-family: BentonSansRegular
+}
+
+.lpChatInputTextField::-ms-clear {
+	width: 0;
+	height: 0
+}
+
+.lpChatInputBlackLine {
+	width: 60%;
+	border-top: solid 2px #4c4c58
+}
+
+.lpChatAgentTypeRow {
+	font-family: arial;
+	font-size: 12px;
+	color: #62626d;
+	width: 100%;
+	text-align: center
+}
+
+.lpChatAgentType {
+	visibility: hidden
+}
+
+#lpChatFooterSection {
+	height: 30px;
+	background: #f5f5f5;
+	border-top: solid 1px #e5e5e5;
+	border-bottom: solid 1px #e5e5e5
+}
+
+.lpChatFooterWhite {
+	font-size: 11px;
+	color: #333;
+	width: 283px;
+	padding-top: 3px;
+	padding-bottom: 2px;
+	line-height: 18px
+}
+
+.lpChatFooterCyan {
+	color: #006890;
+	text-decoration: none;
+	font-size: 12px
+}
+
+#lpChatFooterSection .lpPadLeftRight19 {
+	padding-top: 1px
+}
+
+#lpChatFontSizeSmall {
+	font-family: arial;
+	font-size: 14px;
+	color: gray
+}
+
+#lpChatFontSizeMedium {
+	font-family: arial;
+	font-size: 18px;
+	color: cyan;
+	text-decoration: underline
+}
+
+#lpChatFontSizeLarge {
+	font-family: arial;
+	font-size: 20px;
+	color: gray
+}
+
+#lpChatOptionsMenu0 {
+	border-spacing: 0;
+	font-family: arial;
+	font-size: 12px;
+	color: white;
+	height: 40px;
+	background: #343e5e
+}
+
+.lpBubbleAgent {
+	position: relative;
+	margin: 0;
+	padding: 5px 10px;
+	max-width: 320px;
+	background-color: #2c78c0;
+	-moz-border-radius: 6px;
+	-webkit-border-radius: 6px;
+	border-radius: 6px;
+	display: inline-block;
+	color: white
+}
+
+.lpBubbleVisitor {
+	position: relative;
+	margin: 0;
+	padding: 5px 10px;
+	max-width: 320px;
+	background-color: #e0e0e0;
+	-moz-border-radius: 6px;
+	-webkit-border-radius: 6px;
+	border-radius: 6px;
+	display: inline-block;
+	color: gray
+}
+
+.lpBubbleAgentArrow {
+	z-index: 1;
+	position: absolute;
+	top: 6px;
+	border: 0;
+	left: -13px;
+	background-color: transparent
+}
+
+.lpBubbleVisitorArrow {
+	z-index: 1;
+	position: absolute;
+	top: 4px;
+	border: 0;
+	right: -11px;
+	background-color: transparent
+}
+
+.lpChatAgentVisitorNameLbl {
+	font-family: arial;
+	font-size: 12px;
+	font-weight: bold;
+	color: #5c5c5c
+}
+
+.lpChatAgentVisitorTimeLbl {
+	font-family: arial;
+	font-size: 12px;
+	color: gray;
+	width: 65px;
+	text-align: center
+}
+
+.lpChatSystemMessages {
+	border-spacing: 0;
+	border-padding: 0
+}
+
+.lpChatTextMessageSize {
+	font-family: arial;
+	font-size: 12px;
+	width: 100%
+}
+
+.lpChatTextMessageSizeSystem {
+	font-family: arial;
+	font-size: 12px;
+	color: red
+}
+
+#lpChatDropDownMenu {
+	height: 34px;
+	font: 12px GArial, Helvetica, sans-serif;
+	background: #343e5e;
+	border: 1px solid #343e5e;
+	min-width: 400px;
+	width: 475px;
+	margin: 0;
+	padding: 0
+}
+
+#lpChatDropDownMenu li {
+	list-style: none;
+	display: block;
+	float: left;
+	position: relative;
+	border-right: 1px solid #343e5e
+}
+
+#lpChatDropDownMenu li a {
+	padding: 0;
+	margin: 0;
+	line-height: 34px;
+	text-decoration: none;
+	border-right: 1px solid #343e5e;
+	height: 34px;
+	color: white;
+	text-shadow: 1px 1px 1px #343e5e
+}
+
+#lpChatDropDownMenu li a:hover {
+	color: orange;
+	background: #343e5e
+}
+
+#lpChatDropDownMenu ul {
+	background: #f0f2f7;
+	padding: 0;
+	border-bottom: 1px solid #343e5e;
+	border-right: 1px solid #343e5e;
+	border-left: 1px solid #343e5e;
+	border-radius: 0 0 3px 3px;
+	box-shadow: 2px 2px 3px #efefef;
+	-webkit-box-shadow: 2px 2px 3px #efefef;
+	-moz-box-shadow: 2px 2px 3px #efefef;
+	width: 163px
+}
+
+#lpChatDropDownMenu li.lpChatDropDownMenuSpacer {
+	height: 34px
+}
+
+#lpChatDropDownMenu li:hover {
+	background: #343e5e;
+	color: orange
+}
+
+#lpChatDropDownMenu li a {
+	display: block
+}
+
+#lpChatDropDownMenu li a img:hover {
+	opacity: .8;
+	filter: alpha(opacity=80)
+}
+
+#lpChatDropDownMenu ul li {
+	border-right: 0;
+	border-bottom: 1px solid #c3c3c3;
+	width: 163px;
+	height: 34px;
+	background: #343e5e;
+	text-align: center
+}
+
+#lpChatDropDownMenu ul li a {
+	border-right: 0;
+	color: white;
+	border-bottom: 0 solid #fff
+}
+
+#lpChatDropDownMenu ul li:hover {
+	background: #6791ad
+}
+
+#lpChatDropDownMenu ul li:last-child {
+	border-bottom: 0
+}
+
+#lpChatDropDownMenu ul li:last-child a {
+	border-bottom: 0
+}
+
+#lpChatDropDownMenu ul {
+	z-index: 3;
+	display: none;
+	visibility: hidden;
+	position: absolute;
+	top: 35px
+}
+
+#lpChatDropDownMenu ul ul {
+	top: 0;
+	left: 163px;
+	display: none;
+	visibility: hidden;
+	text-align: center;
+	background: #369
+}
+
+#lpChatDropDownMenu ul li {
+	display: block;
+	visibility: visible
+}
+
+#lpChatDropDownMenu li:hover>ul {
+	display: block;
+	visibility: visible
+}
+
+#lpChatSurveySectionTitle {
+	margin: 0;
+	padding: 5px 0;
+	border: 0 solid red;
+	text-align: left;
+	color: red
+}
+
+#lpPostChatSurveySectionBtn {
+	margin: 0;
+	padding: 5px 0;
+	border: 0 solid red;
+	color: red;
+	text-align: center
+}
+
+.lpChatSurveySectionQ {
+	margin: 0;
+	padding: 5px 0;
+	font-size: 13px;
+	color: #333;
+	font-family: BentonSansMedium;
+	text-align: left
+}
+
+.lpChatSurveySectionQ p {
+	margin: 0;
+	padding: 0 0 5px 15px;
+	border: 0 solid blue;
+	color: blue;
+	text-align: left
+}
+
+.lpChatSurveySectionQdesc {
+	margin-bottom: 5px
+}
+
+#lpChatSurveyQA {
+	font: 12px GArial, Helvetica, sans-serif;
+	background: white;
+	border: 1px solid #343e5e;
+	margin: 0;
+	padding: 10px
+}
+
+#lpPreChatSurveySectionTitle {
+	margin: 0;
+	border: 0 solid red;
+	text-align: left;
+	height: 55px;
+	padding: 5px 19px 6px 19px;
+	overflow: hidden
+}
+
+#lpPreChatSurveySectionTitle .lpChatSurveySectionLogo {
+	top: 5px
+}
+
+#lpPreChatSurveySectionBtn {
+	margin: 0;
+	padding: 5px;
+	border: 0 solid red;
+	background-color: white;
+	color: red;
+	text-align: center
+}
+
+#lpPreChatMessagesSection {
+	overflow-y: auto
+}
+
+.lpPreChatSurveySectionQ {
+	margin: 0;
+	padding: 5px;
+	border: 0 solid red;
+	background-color: white;
+	color: black;
+	text-align: left
+}
+
+.lpPreChatSurveySectionQ p {
+	margin: 0;
+	padding: 0 0 5px 15px;
+	border: 0 solid blue;
+	background-color: white;
+	color: blue;
+	text-align: left
+}
+
+.lpPreChatSurveyQA {
+	font: 12px GArial, Helvetica, sans-serif;
+	background: white;
+	border: 1px solid #343e5e;
+	margin: 0;
+	padding: 10px
+}
+
+.lpChatSurveySectionLogo {
+	width: 47px;
+	height: 47px;
+	vertical-align: middle
+}
+
+.lpChatSurveySectionText,
+.lpChatSurveySectionTextPost {
+	width: 80%;
+	line-height: 19px;
+	margin-left: 19px;
+	font-size: 13px;
+	color: #333
+}
+
+.lpChatSurveySectionTextPost {
+	width: 80%;
+	line-height: 15px
+}
+
+#lpOfflineSurveySubmitBtn,
+#lpEngagementQuestionSubmitBtn,
+#lpChatSurveySectionBtn {
+	margin: 0;
+	padding: 5px 0;
+	border: 0 solid red;
+	color: red;
+	text-align: center
+}
+
+.lpChatSurveySectionQ {
+	margin: 0;
+	padding: 5px 0;
+	font-size: 13px;
+	color: #333;
+	font-family: BentonSansMedium;
+	text-align: left
+}
+
+.lpChatSurveySectionQ p {
+	margin: 0;
+	padding: 0 0 5px 15px;
+	border: 0 solid blue;
+	color: blue;
+	text-align: left
+}
+
+.lpChatSurveySectionQdesc {
+	margin-bottom: 5px
+}
+
+#lpChatSurveyQA {
+	font: 12px GArial, Helvetica, sans-serif;
+	background: white;
+	border: 1px solid #343e5e;
+	margin: 0;
+	padding: 10px
+}
+
+#lpPreChatSurveySectionTitle {
+	margin: 0;
+	border: 0 solid red;
+	text-align: left;
+	height: 55px;
+	padding: 5px 19px 6px 19px;
+	overflow: hidden
+}
+
+#lpPreChatSurveySectionTitle .lpChatSurveySectionLogo {
+	top: 5px
+}
+
+#lpPreChatSurveySectionBtn {
+	margin: 0;
+	padding: 5px;
+	border: 0 solid red;
+	background-color: white;
+	color: red;
+	text-align: center
+}
+
+#lpPreChatMessagesSection {
+	overflow-y: auto
+}
+
+.lpPreChatSurveySectionQ {
+	margin: 0;
+	padding: 5px;
+	border: 0 solid red;
+	background-color: white;
+	color: black;
+	text-align: left
+}
+
+.lpPreChatSurveySectionQ p {
+	margin: 0;
+	padding: 0 0 5px 15px;
+	border: 0 solid blue;
+	background-color: white;
+	color: blue;
+	text-align: left
+}
+
+.lpPreChatSurveyQA {
+	font: 12px GArial, Helvetica, sans-serif;
+	background: white;
+	border: 1px solid #343e5e;
+	margin: 0;
+	padding: 10px
+}
+
+.lpChatSurveySectionLogo {
+	width: 47px;
+	height: 47px;
+	vertical-align: middle
+}
+
+.lpChatSurveySectionText,
+.lpChatSurveySectionTextPost {
+	width: 80%;
+	line-height: 19px;
+	margin-left: 19px;
+	font-size: 13px;
+	color: #333
+}
+
+.lpChatSurveySectionTextPost {
+	width: 80%;
+	line-height: 15px
+}
+
+#lpOfflineSurveySubmitBtn,
+#lpEngagementQuestionSubmitBtn,
+#lpPreChatSurveySubmitBtn {
+	width: 170px
+}
+
+.lpBlueButton {
+	font-size: 13px;
+	background: #006FCF;
+	height: 40px;
+	color: #fff;
+	margin-top: 1px;
+	line-height: 40px;
+	border-radius: 4px;
+	overflow: hidden;
+	display: inline-block;
+	text-align: center
+}
+
+#lpPreChatCloseBtn {
+	width: 90px;
+	height: 33px;
+	margin-top: 0
+}
+
+.lpLeft {
+	float: left
+}
+
+.lpClear {
+	clear: both
+}
+
+.lpRight {
+	float: right
+}
+
+.lpPointer {
+	cursor: pointer
+}
+
+.lpPosRel {
+	position: relative
+}
+
+.lpTextCenter {
+	text-align: center
+}
+
+.lpHeaderActionbuttons.minimize {
+	top: -6px
+}
+
+.lpMiddleSection {
+	background: #fff;
+	border-left: solid 1px #e5e5e5;
+	border-right: solid 1px #e5e5e5
+}
+
+.lpYscroll {
+	overflow-y: auto
+}
+
+.lpPaddingTopBottom20 {
+	padding: 20px 0
+}
+
+.lpChatLoadingSectionLoadingIcon {
+	height: 30px;
+	width: 30px
+}
+
+.lpHeight365 {
+	height: 364px
+}
+
+.lpChatLoadingSectionLogo {
+	height: 79px;
+	width: 79px
+}
+
+#lpChatMenuItemAudioBtnImg {
+	width: 43px;
+	top: -2px
+}
+
+.lpChatAgentType {
+	color: gray;
+	font-size: 13px
+}
+
+.lpLoadingMsg {
+	color: #333;
+	font-size: 13px
+}
+
+.lpLoadingMsgLt {
+	color: #666;
+	font-size: 13px;
+	font-family: BentonSansRegular
+}
+
+.lpLoadingMsgError {
+	color: red;
+	font-size: 13px
+}
+
+.lpPadLeftRight19 {
+	padding: 0 19px
+}
+
+.lpBottomBorder {
+	border-bottom: 1px solid black
+}
+
+.lpFont14px {
+	font-size: 14px
+}
+
+#lpFontStatus,
+#lpSoundStatus {
+	width: 40px;
+	display: inline-block;
+	color: white;
+	top: -4px;
+	font-size: 13px;
+	padding-left: 3px
+}
+
+.lpSystemMessageDiv,
+#lpSystemMessageDiv {
+	background1: #f2f2f2;
+	padding: 19px;
+	border-top1: 1px solid gray;
+	padding-top: 16px;
+	font-size: 13px;
+	font-family: BentonSansRegular;
+}
+
+.lpChatInfoTextLabel {
+	font-family: BentonSansMedium;
+	font-size: 13px
+}
+
+.lpChatInfoTextLine {
+	font-family: BentonSansRegular;
+	font-size: 13px;
+	background: #eef9cc;
+	margin: 10px;
+	padding: 3px 10px 3px 10px;
+	color: black;
+	border: 1px solid #d2e3a1;
+	border-radius: 10px;
+	-moz-border-radius: 10px;
+	-webkit-border-radius: 10px
+}
+
+.lpChatInfoText {
+	font-size: 13px
+}
+
+.lpHeight255 {
+	height: 255px
+}
+
+.lpHeight269 {
+	height: 269px
+}
+
+.lpHeight298 {
+	height: 298px
+}
+
+.lpWidth400 {
+	width: 400px
+}
+
+#lpEngagementQuestions {
+	text-align: left
+}
+
+#lpEngagementQuestions p {
+	margin: 0;
+	padding: 0
+}
+
+.lpEngagementQ {
+	text-align: left;
+	color: #002663;
+	font-size: 13px
+}
+
+.lpLine {
+	height: 1px;
+	widht: 100%;
+	background: #e5e5e5
+}
+
+.lpMenuButton {
+	margin-right: 10px
+}
+
+.lpMenutButtonContainer {
+	padding: 8px 0 0 21px
+}
+
+#lpChatMenuSection {
+	height: 105px;
+	font-size: 13px;
+	color: #1274b8;
+	border-left: none;
+	border-right: none;
+}
+
+.lpWelcomeMessage {
+	font-family: BentonSansMedium;
+	margin-bottom: 10px;
+	font-size: 13px
+}
+
+.lpMessage {
+	margin: 13px;
+	font-size: 13px;
+	margin-top: 6px;
+	margin-bottom: 6px;
+	overflow-wrap: break-word;
+}
+
+.lpBubble {
+	display: inline-block;
+	margin-top: 4px;
+	color: white;
+	border-radius: 7px;
+	padding: 10px;
+	text-align: left;
+	text-wrap: normal
+}
+
+.lpBlueBg {
+	background: #006FCF;
+	max-width: 87%;
+	word-wrap: break-word
+}
+
+.lpGreenBg {
+	background: #E5E5E5;
+	color: #666666;
+	max-width: 87%;
+	word-wrap: break-word
+}
+
+.lpTextRight {
+	text-align: right
+}
+
+.lpLogo79 {
+	padding: 45px 0 20px 0
+}
+
+.lpLogo87 {
+	padding: 87px 0 20px 0
+}
+
+.lpLogo40 {
+	padding: 40px 0 15px 0
+}
+
+.lpPadTop25 {
+	padding-top: 25px !important
+}
+
+.lpHoverDiv {
+	display: inline-block;
+	text-align: center;
+	position: absolute;
+	z-index: 100
+}
+
+.lpHoverDiv .lpMessage {
+	border: 1px solid #e5e5e5;
+	font-size: 13px;
+	color: #333;
+	border-radius: 5px;
+	padding: 5px 10px;
+	font-family: BentonSansRegular;
+	background: white;
+	box-shadow: 0 0 1px gray;
+	top: -23px
+}
+
+.lpArrowUp {
+	width: 0;
+	height: 0;
+	border-left: 8px solid transparent;
+	border-right: 8px solid transparent;
+	display: inline-block;
+	border-bottom: 8px solid #e5e5e5;
+	top: -7px
+}
+
+#lpSurveyQuestionsContainer select {
+	max-width: 93%
+}
+
+#lpSurveyQuestionsContainer .lpAnswerOptions,
+#lpSurveyQuestionsContainer input,
+#lpSurveyQuestionsContainer textarea,
+#lpSurveyQuestionsContainer select,
+.lpAnswerOptionSelect {
+	font-size: 13px;
+	font-family: BentonSansRegular
+}
+
+::-webkit-input-placeholder {
+	font-size: 12px
+}
+
+::-moz-placeholder {
+	font-size: 12px
+}
+
+:-ms-input-placeholder {
+	font-size: 12px
+}
+
+:-moz-placeholder {
+	font-size: 12px
+}
+
+.lpAnswerOptionSelect {
+	font-weight: normal !important
+}
+
+.lpAnserOptionsRadio {
+	float: left
+}
+
+.lpAnserOptionsDesc {
+	float: left;
+	width: 270px;
+	padding-left: 3px;
+	border: 0 solid green;
+	line-height: 22px
+}
+
+@media print {
+	#lpChatMessagesSection {
+		height1: auto;
+		overflow: visible
+	}
+	#lpPreChatCloseBtn,
+	#lpChatInputFieldSection {
+		display: none
+	}
+	#lpChatFrameContainer {
+		width: 100%
+	}
+	#lpChatFrameContainer {
+		box-shadow: none
+	}
+	#lpChatFooterSection {
+		width: 100%
+	}
+	.lpBubble {
+		color: #333
+	}
+}
+
+.lpGreenSystemInfo {
+	color: #4f7a28
+}
+
+.sprite-bg {
+	background: url(https://icm.aexp-static.com/content/dam/chat/prod/lechat/img/sprite.png) no-repeat top left;
+	display: inline-block
+}
+
+.hoverButton.sprite-bg {
+	width: 32px;
+	height: 32px
+}
+
+.sprite-font-decrease {
+	background-position: 0 -79px;
+	width: 32px;
+	height: 32px
+}
+
+.sprite-font-increase {
+	background-position: 0 -121px;
+	width: 32px;
+	height: 32px
+}
+
+.sprite-company-logo-small {
+	background: url(https://icm.aexp-static.com/content/dam/chat/prod/lechat/img/AXP_BlueBoxLogo_REGULAR.png) no-repeat center;
+	background-size: 70px;
+	width: 47px;
+	height: 47px;
+	display: inline-block;
+}
+
+.sprite-company-logo-large {
+	background: url(https://icm.aexp-static.com/content/dam/chat/prod/lechat/img/AXP_BlueBoxLogo_REGULAR.png) no-repeat center;
+	background-size: 120px;
+	display: inline-block;
+}
+
+.sprite-font-sound-off {
+	background-position: 0 -504px;
+	width: 32px;
+	height: 32px
+}
+
+.sprite-font-sound-on {
+	background-position: 0 -546px;
+	width: 32px;
+	height: 32px
+}
+
+.lpErrorMessage,
+.lpRequiredTxt {
+	color: red;
+	font-family: BentonSansRegular;
+	font-size: 13px
+}
+
+.lpErrorMessage {
+	padding: 5px 0 5px 0;
+	display: none
+}
+
+.lpErrorExclamation span {
+	background: url(https://icm.aexp-static.com/content/dam/chat/prod/lechat/img/error-message-icon.gif) no-repeat 0 0;
+	width: 20px;
+	height: 20px;
+	display: inline-block;
+	float: left
+}
+
+.lpErrorTxtMsg {
+	line-height: 22px;
+	padding-left: 23px;
+	text-align: left
+}
+
+.lpErrorExclamation span {
+	line-height: normal;
+	display: inline-block;
+	vertical-align: middle
+}
+
+.lpQuestionErrorBorder {
+	border: 1px solid red;
+	margin-bottom: 12px
+}
+
+#notificationDialog {
+	display: none;
+	position: absolute;
+	left: 0;
+	top: 0;
+	width: 100%;
+	height: 100%;
+	text-align: center;
+	z-index: 10;
+	border: 0 solid red;
+	font-family: BentonSansMedium;
+	font-size: 13px
+}
+
+#notificationDialog div {
+	width: 380px;
+	float: right;
+	margin: 23% 12px 20% 14px;
+	background-color: #eef9cc;
+	border: 0 solid #d2e3a1;
+	text-align: center;
+	box-shadow: 0 0 1px 2px #d2e3a1;
+	border-radius: 10px;
+	-moz-border-radius: 10px;
+	-webkit-border-radius: 10px
+}
+
+#notificationDialog div p {
+	margin: 0;
+	padding: 10px 5px 10px 5px
+}
+
+.lpChatMsg a,
+.lpChatMsg a:active,
+.lpChatMsg a:visited,
+.lpChatMsg a:hover,
+.lpChatMsg a:active {
+	color: white
+}
+
+.lpHeight364 {
+	height: 364px
+}
+
+.innersendbtn {
+	display: inline-block;
+	width: 39px;
+	padding-left: 9px;
+	line-height: 0
+}
+
+.outerwrappersendbtn {
+	background: 0;
+	height: 36px;
+	vertical-align: top;
+	padding: 9px;
+	font-size: .8125em;
+	text-decoration: none;
+	color: #002665;
+	position: relative;
+	border: 1px solid #ccc;
+	display: inline-block;
+	-webkit-box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	box-sizing: border-box;
+	margin-right: 2px;
+	background-color: #e8e8e8;
+	background-size: 100%;
+	background-image: -webkit-gradient(linear, 50% 0, 50% 100%, color-stop(0, #fff), color-stop(100%, #e8e8e8));
+	background-image: -webkit-linear-gradient(#fff, #e8e8e8);
+	background-image: -moz-linear-gradient(#fff, #e8e8e8);
+	background-image: -o-linear-gradient(#fff, #e8e8e8);
+	background-image: linear-gradient(#fff, #e8e8e8);
+	-webkit-border-radius: 5px;
+	-moz-border-radius: 5px;
+	-ms-border-radius: 5px;
+	-o-border-radius: 5px;
+	border-radius: 5px
+}
+
+#lpChatFooterMsg {
+	text-align: center;
+	width: 355px;
+	padding-top: 6px
+}
+
+#lpChatBodySection {
+	height: 376px
+}
+
+.lpChatMsg p {
+	margin: 0
+}
+
+.lpNewSection.lpHeight364 {
+	height: 410px
+}
+
+.lpChatContent .lpChatSurveySectionQdesc {
+	color: #666;
+	font-size: 14px;
+	font-family: BentonSansLight;
+	margin-bottom: 12px;
+	width: 100%;
+	text-align: center
+}
+
+@-moz-document url-prefix() {
+	.lpChatContent .lpChatSurveySectionQdesc {
+		margin-bottom: 8px
+	}
+}
+
+.lpChatContent .lpChatSurveySectionQ {
+	padding: 0 0 10px 0
+}
+
+.lpChatContent .lpChatSurveySectionQ .lpAnswerOptions {
+	margin-left: 8px
+}
+
+.lpChatContent textarea,
+.lpChatContent input {
+	border: 1px solid #ccc;
+	border-radius: 8px;
+	font-family: BentonSansRegular;
+	font-size: 13px;
+	padding: 5px;
+	margin: 0 !important;
+	width: 93%
+}
+
+.lpChatContent textarea {
+	padding: 8px 5px 2px 5px;
+	overflow-y: auto
+}
+
+.lpChatContent input[type="text"],
+.lpChatContent input[type="number"] {
+	height: 30px;
+	padding: 0 5px 10px 5px
+}
+
+.lpChatContent input[type="radio"],
+.lpChatContent input[type="checkbox"] {
+	width: 20px;
+	margin-top: 4px !important;
+	border-radius: 0;
+	border: 0 none
+}
+
+.lpChatContent .lpAnserOptionsDesc {
+	width: 88%
+}
+
+.ie9 .lpChatContent .lpAnserOptionsDesc,
+.ie10 .lpChatContent .lpAnserOptionsDesc,
+.ie11 .lpChatContent .lpAnserOptionsDesc {
+	margin-top: 4px
+}
+
+.ie10 .lpChatContent input[type="radio"],
+.ie10 .lpChatContent input[type="checkbox"] {
+	margin-top: 0 !important
+}
+
+.lpChatContent .lpErrorMessage {
+	padding: 0 0 10px 0;
+	padding-left: 10px;
+	margin-top: -6px
+}
+
+.lpChatContent .lpChatSurveyHeaderdesc {
+	font-family: BentonSansRegular;
+	font-size: 12px;
+	background-color: #006890;
+	color: #fff;
+	padding: 5px;
+	margin-bottom: 10px;
+	text-align: center
+}
+
+.lpChatContent #lpChatSurveySectionBtn {
+	padding: 0 0 5px 0;
+	margin-bottom: 4px
+}
+
+#lpPostChatSurveySectionBtn {
+	padding: 5 0 5px 0;
+	margin-bottom: 0px
+}
+
+#lpPostChatSurveySectionBtn .primary-button {
+	padding: 10px 20px;
+	width: 179px
+}
+
+#lpChatSurveySectionBtn .primary-button {
+	padding: 10px 20px;
+	width: 179px
+}
+
+#lpPostChatSurveySectionBtn .secondary-button {
+	width: 60px
+}
+
+#lpChatSurveySectionBtn .secondary-button {
+	width: 60px
+}
+
+#lpPreChatMessagesSection.lpNewSection .sprite-company-logo-small {
+	margin-top: 134px;
+	margin-bottom: 8px
+}
+
+#lpTextBlinking {
+	margin-top: -3px
+}
+
+.primary-button,
+.secondary-button {
+	border: 0 none;
+	border-radius: 5px;
+	padding: 10px 70px;
+	margin: 0 20px 9px 20px;
+	display: block;
+	color: #fff;
+	font-size: 13px;
+	font-family: BentonSansRegular;
+	background-color: #0a1a51;
+	background-size: 100%;
+	background-image: -webkit-gradient(linear, 50% 0, 50% 100%, color-stop(0, #0a1a51), color-stop(100%, #0a1a51));
+	background-image: -webkit-linear-gradient(#0a1a51, #0a1a51);
+	background-image: -moz-linear-gradient(#0a1a51, #0a1a51);
+	background-image: -o-linear-gradient(#0a1a51, #0a1a51);
+	background-image: linear-gradient(#0a1a51, #0a1a51);
+	text-decoration: none
+}
+
+.secondary-button {
+	color: #002665;
+	border: 1px solid #ccc;
+	padding: 10px 80px;
+	margin-bottom: 0;
+	background-color: #e8e8e8;
+	background-size: 100%;
+	background-image: -webkit-gradient(linear, 50% 0, 50% 100%, color-stop(0, #fff), color-stop(100%, #e8e8e8));
+	background-image: -webkit-linear-gradient(#fff, #e8e8e8);
+	background-image: -moz-linear-gradient(#fff, #e8e8e8);
+	background: -ms-linear-gradient(top, #fff 0, #e8e8e8 100%);
+	background-image: -o-linear-gradient(#fff, #e8e8e8);
+	background-image: linear-gradient(#fff, #e8e8e8);
+	filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffffff', endColorstr='#e8e8e8', GradientType=0)
+}
+
+.lpChatContent ul.ioaOptionsList {
+	background-color: #f0f1f1;
+	border: 1px solid #ccc;
+	border-radius: 5px;
+	width: 96%;
+	list-style-type: none;
+	margin: 0;
+	padding: 0;
+	padding: 4px 0;
+	position: absolute;
+	-webkit-box-shadow: 1px 1px 12px -2px rgba(0, 0, 0, 0.25);
+	-moz-box-shadow: 1px 1px 12px -2px rgba(0, 0, 0, 0.25);
+	box-shadow: 1px 1px 12px -2px rgba(0, 0, 0, 0.25);
+	z-index: 999;
+	height: 110px;
+	overflow-y: auto
+}
+
+.lpChatContent a.lpSelectedOption {
+	cursor: pointer;
+	display: inline-block;
+	border-radius: 6px;
+	padding: 15px;
+	height: 45px;
+	-webkit-box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	box-sizing: border-box;
+	background: #fff;
+	background: -moz-linear-gradient(top, #fff 0, #ccc 100%);
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0, #fff), color-stop(100%, #ccc));
+	background: -webkit-linear-gradient(top, #fff 0, #ccc 100%);
+	background: -o-linear-gradient(top, #fff 0, #ccc 100%);
+	background: -ms-linear-gradient(top, #fff 0, #ccc 100%);
+	background: linear-gradient(to bottom, #fff 0, #ccc 100%);
+	filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffffff', endColorstr='#cccccc', GradientType=0);
+	color: #333;
+	width: 97%;
+	text-align: left;
+	border: 1px solid #ccc;
+	text-decoration: none !important
+}
+
+.lpChatContent ul.ioaOptionsList li a {
+	color: #333;
+	display: block;
+	padding: 2px 10px;
+	text-decoration: none
+}
+
+.lpChatContent ul.ioaOptionsList li a.lpLiBgColor {
+	background-color: #3891fe;
+	color: #fff
+}
+
+.lpChatContent .lpDDarrow {
+	background: url(https://icm.aexp-static.com/content/dam/chat/prod/lechat/img/lpDownArrow.png) no-repeat 0 0;
+	display: inline-block;
+	height: 8px;
+	width: 13px;
+	float: right;
+	margin-top: 4px
+}
+
+.lpChatContent .lpAnswerOptionSelect {
+	position: relative
+}
+
+.lpChatContent .lpLiBgColor {
+	background-color: #3891fe;
+	color: #fff !important
+}
+
+.lpChatContent .lpAnswerOptions.CheckBoxHorizontal .lpCheckboxType,
+.lpChatContent .lpAnswerOptions.RadioButtonHorizontal .lpRadioBtnType {
+	float: left;
+	margin-right: 10px
+}
+
+.lpChatContent .lpAnswerOptions.CheckBoxHorizontal,
+.lpChatContent .lpAnswerOptions.RadioButtonHorizontal {
+	overflow: hidden;
+	margin: 0 auto;
+	width: 260px
+}
+
+.lpChatContent .CheckBoxHorizontal .lpAnserOptionsDesc,
+.lpChatContent .RadioButtonHorizontal .lpAnserOptionsDesc {
+	width: auto
+}
+
+.lpPurpleBg {
+	background: #FFFFFF;
+	color: #666666;
+	border: 1px solid #666666;
+	max-width: 87%
+}
+
+.lpPurpleBg:before {
+	border-color: transparent #dcdcdc !important
+}
+
+.lpMenutButtonContainer #lpPostChatSurveySubmitBtn {
+	width: 120px;
+	height: 33px;
+	font-size: 13px
+}
+
+#ninaSystemMessage {
+	text-align: center;
+	font-size: 13px;
+	padding: 3px;
+	color: #4e4d4d
+}
+
+#ninaHeader {
+	text-align: center;
+	background: #8b008b;
+	color: #fff;
+	padding: 6px;
+	font-weight: bold;
+	font-size: 13px
+}
+
+.ninaSystemDiv {
+	background: none !important;
+	padding: 0 !important
+}
+
+.ninaHdrspace {
+	padding-top: 9px
+}
+
+#lpNinaTransferChatBtn {
+	display: none;
+	width1: 120px;
+	padding: 0 !important;
+	padding-top1: 10px !important;
+	padding-right: 2px;
+	font-weight: bold;
+	height: 18px
+}
+
+#ninaTransferBtnImg {
+	background-position: 0 0;
+	width: 22px;
+	height: 20px;
+	background: url(https://icm.aexp-static.com/content/dam/chat/prod/lechat/img/sprite.png) no-repeat top left;
+	display: inline-block
+}
+
+#ninaTransferBtnTxt {
+	clear: both;
+	float: right;
+	padding-right: 5px;
+	font-size: 12px
+}
+
+.typeaheadresult {
+	font-size: 13px;
+	font-family: BentonSansRegular;
+	line-height: 14px;
+	padding-bottom: 3px;
+	padding-top: 3px
+}
+
+.typeaheadresult:hover {
+	background-color: #006890;
+	color: #fff
+}
+
+.typeaheadresulthover {
+	background-color: #006890;
+	color: #fff
+}
+
+.typeahead {
+	border: 1px solid #ccc;
+	position: relative;
+	width: 285px;
+	margin-left: 5px;
+	margin-top: -14px;
+	background-color: #fff;
+	height: 99px;
+	overflow-y: auto;
+	padding-left: 8px
+}
+
+.addFloatleft {
+	/*float:left*/
+}
+
+.addFloatright {
+	float: right
+}
+
+.choicelinks {
+	padding: 8px 10px;
+	color: #1274B8;
+	cursor: pointer;
+	border-top: 1px solid #666666;
+	margin-left: -10px;
+	margin-right: -10px;
+	text-align: center;
+}
+
+.lpPurpleBg a,
+.lpPurpleBg a:active,
+.lpPurpleBg a:visited,
+.lpPurpleBg a:hover,
+.lpPurpleBg a:active {
+	color: #1274b8 !important;
+	cursor: pointer
+}
+
+#ninaChatMessageSection .choicelinks {
+	cursor: default;
+	color: grey
+}
+
+#ninaReloadSystemMessage {
+	text-align: center;
+	font-size: 13px;
+	padding: 3px;
+	color: #4e4d4d;
+	padding-left: 10px;
+	padding-right: 10px;
+}
+
+.ninaReloadHdrspace {
+	padding-top: 9px
+}
+
+#lpSurveyQuestionsContainer.automationSurvey .lpChatSurveySectionQdesc {
+	display: inline-block
+}
+
+.automationSurvey .lpQuestionNumber {
+	width: 16px;
+	float: left;
+	margin: 3px
+}
+
+.automationSurvey .lpQuestionText {
+	float: left;
+	width: 310px;
+	padding-left: 3px;
+	padding-top: 3px
+}
+
+.automationSurvey .lpRequiredTxt {
+	display: inline-block;
+	float: left;
+	margin-top: 3px
+}
+
+.automationSurvey .lpAnserOptionsDesc {
+	width: 90%
+}
+
+.automationSurvey .lpSubAnswerText {
+	margin-left: 26px;
+	float: left;
+	width: 310px
+}
+
+.automationSurvey .lpAnswerOptions textarea {
+	width: 293px;
+	margin-left: 3px
+}
+
+.automationSurvey .lpAnswerOptions select {
+	margin-left: 3px
+}
+
+.automationSurvey .lpRequiredTxt {
+	display: none
+}
+
+.automationSurvey .lpQuestionRequired {
+	color: red
+}
+
+#lpSurveyQuestionsContainer.automationSurvey .lpAnswerOptions {
+	margin-left: 23px
+}
+
+#lpChatSurveySectionQErrorA1,
+#lpChatSurveySectionQErrorA0 {
+	padding-left: 27px
+}
+
+.messageSender {
+	margin-top: 13px
+}
+
+#lpPreChatSurveySubmitBtn {
+	width: 120px;
+	height: 40px;
+	font-size: 13px
+}
+
+#ninaSystemMessage {
+	text-align: center;
+	font-size: 13px;
+	padding: 7px;
+	color: #4e4d4d
+}
+
+#ninaHeader {
+	text-align: center;
+	background: #8b008b;
+	color: #fff;
+	padding: 6px;
+	font-weight: bold;
+	font-size: 13px
+}
+
+.ninaSystemDiv {
+	background: none !important;
+	padding: 0 !important
+}
+
+.ninaHdrspace {
+	padding-top: 9px
+}
+
+#lpNinaTransferChatBtn {
+	display: none;
+	width1: 120px;
+	padding: 0 !important;
+	padding-top1: 10px !important;
+	padding-right: 2px;
+	font-weight: bold;
+	height: 18px
+}
+
+#ninaTransferBtnImg {
+	background-position: 0 0;
+	width: 22px;
+	height: 20px;
+	background: url(https://icm.aexp-static.com/content/dam/chat/prod/lechat/img/sprite.png) no-repeat top left;
+	display: inline-block
+}
+
+#ninaTransferBtnTxt {
+	clear: both;
+	float: right;
+	padding-right: 5px;
+	font-size: 12px
+}
+
+.typeaheadresult {
+	font-size: 13px;
+	font-family: BentonSansRegular;
+	line-height: 14px;
+	padding-bottom: 3px;
+	padding-top: 3px
+}
+
+.typeaheadresult:hover {
+	background-color: #006890;
+	color: #fff
+}
+
+.typeaheadresulthover {
+	background-color: #006890;
+	color: #fff
+}
+
+.typeahead {
+	border: 1px solid #ccc;
+	position: relative;
+	width: 285px;
+	margin-left: 5px;
+	margin-top: -14px;
+	background-color: #fff;
+	height: 99px;
+	overflow-y: auto;
+	padding-left: 8px
+}
+
+.addFloatleft {
+	/*float:left*/
+}
+
+.addFloatright {
+	float: right
+}
+
+.choicelinks {
+	padding: 8px 10px;
+	color: #1274B8;
+	cursor: pointer;
+	border-top: 1px solid #666666;
+	margin-left: -10px;
+	margin-right: -10px;
+	text-align: center;
+}
+
+.lpPurpleBg a,
+.lpPurpleBg a:active,
+.lpPurpleBg a:visited,
+.lpPurpleBg a:hover,
+.lpPurpleBg a:active {
+	color: #1274b8 !important;
+	cursor: pointer
+}
+
+#ninaChatMessageSection .choicelinks {
+	cursor: default;
+	color: grey
+}
+
+#ninaReloadSystemMessage {
+	text-align: center;
+	font-size: 13px;
+	padding: 3px;
+	color: #4e4d4d;
+	padding-left: 10px;
+	padding-right: 10px;
+}
+
+.ninaReloadHdrspace {
+	padding-top: 9px
+}
+
+#lpSurveyQuestionsContainer.automationSurvey .lpChatSurveySectionQdesc {
+	display: inline-block
+}
+
+.automationSurvey .lpQuestionNumber {
+	width: 16px;
+	float: left;
+	margin: 3px
+}
+
+.automationSurvey .lpQuestionText {
+	float: left;
+	width: 310px;
+	padding-left: 3px;
+	padding-top: 3px
+}
+
+.automationSurvey .lpRequiredTxt {
+	display: inline-block;
+	float: left;
+	margin-top: 3px
+}
+
+.automationSurvey .lpAnserOptionsDesc {
+	width: 90%
+}
+
+.automationSurvey .lpSubAnswerText {
+	margin-left: 26px;
+	float: left;
+	width: 310px
+}
+
+.automationSurvey .lpAnswerOptions textarea {
+	width: 293px;
+	margin-left: 3px
+}
+
+.automationSurvey .lpAnswerOptions select {
+	margin-left: 3px
+}
+
+.automationSurvey .lpRequiredTxt {
+	display: none
+}
+
+.automationSurvey .lpQuestionRequired {
+	color: red
+}
+
+#lpSurveyQuestionsContainer.automationSurvey .lpAnswerOptions {
+	margin-left: 23px
+}
+
+#lpChatSurveySectionQErrorA1,
+#lpChatSurveySectionQErrorA0 {
+	padding-left: 27px
+}
+
+.messageSender {
+	margin-top: 13px
+}
+
+#lpPostChatSurveySubmitBtn {
+	width: 170px
+}
+
+.lpBlueButton {
+	font-size: 13px;
+	background: #006FCF;
+	height: 40px;
+	color: #fff;
+	margin-top: 1px;
+	line-height: 40px;
+	border-radius: 4px;
+	overflow: hidden;
+	display: inline-block;
+	text-align: center
+}
+
+#lpPreChatSurveySubmitBtn {
+	width: 170px
+}
+
+.lpGrayButton {
+	font-size: 13px;
+	background: #999;
+	height: 40px;
+	color: #fff;
+	margin-top: 1px;
+	line-height: 40px;
+	border-radius: 4px;
+	overflow: hidden;
+	display: inline-block;
+	text-align: center
+}
+
+#lpPostChatSurveySubmitBtn {
+	width: 170px
+}
+
+.lpGrayButton {
+	font-size: 13px;
+	background: #999;
+	height: 40px;
+	color: #fff;
+	margin-top: 1px;
+	line-height: 40px;
+	border-radius: 4px;
+	overflow: hidden;
+	display: inline-block;
+	text-align: center
+}
+
+#lpSurveyQuestionsContainer.automationSurvey #lpChatSurveySectionQ5,
+#lpSurveyQuestionsContainer.automationSurvey #lpChatSurveySectionQ6 {
+	display: none
+}
+
+#lpPreChatSurveySectionTitle {
+	height1: 65px;
+	!important
+}
+
+.lpChatSurveySectionTextPost {
+	width: 100%;
+	margin-left: 0px;
+}
+
+#lpChatTranscript {
+	padding: 0px 7px;
+	margin-top: 14px;
+	font-size: 12px;
+	height: 31px;
+	margin-left: 21px;
+}
+
+#lpChatTranscriptSection #lpChatMessagesSection {
+	height: 324px;
+}
+
+#lpBacktoSurvey {
+	padding: 1px 7px;
+	font-size: 12px;
+}
+
+#lpChatTranscriptSection .lpChatInfoText {
+	background: #fff;
+	padding-left: 19px;
+	padding-right: 19px;
+	text-align: center;
+}
+
+#lpChatTranscriptSection .chatinfofirst {
+	border-top: 1px solid gray;
+	padding-left: 19px;
+	padding-right: 19px;
+	padding-top: 16px;
+}
+
+#lpChatTranscriptSection .chatinfolast {
+	padding-bottom: 19px;
+}
+
+#postchatheader {
+	font-size: 12px;
+	font-weight: bold;
+	margin-top: 7px;
+	margin-left: 10px;
+}
+
+#postchatheaderbody {
+	margin-top: 5px;
+}
+
+#lpPreChatSurveySectionTitle.lpPostChatTitleHeader {
+	padding: 0px 19px 0px 19px;
+	height: 60px;
+}
+
+.lpccpSystemMessageDiv {
+	background: beige;
+	padding: 1px;
+	font-weight: bold;
+	text-align: center;
+}
+
+#confirmOverLay {
+	position: fixed;
+	opacity: 0.45;
+	height: 410px;
+	width: 100%;
+	z-index: 10000;
+	top: 0px;
+	left: 0px;
+	background-color: rgb(0, 0, 0);
+	display: none;
+}
+
+#confirmPrompt {
+	position: absolute;
+	height: 180px;
+	width: 80%;
+	top: 47px;
+	left: 39px;
+	background-color: white;
+	z-index: 11000;
+	display: none;
+}
+
+#confirmMessage {
+	margin: 29px 36px 24px 36px;
+	text-align: center;
+	color: #666666;
+	font-size: 13px;
+	font-family: BentonSansMedium;
+}
+
+#confirmButton {
+	height: 28px;
+	width: 170px;
+	background-color: #1274b8;
+	border-radius: 4px;
+	margin-left: 76px;
+	color: white;
+	padding-top: 12px;
+	font-size: 13px;
+	cursor: pointer;
+	text-align: center;
+}
+
+#confirmButton:focus {
+	outline: none;
+}
+
+#confirmCancel {
+	height: 28px;
+	width: 170px;
+	margin-left: 76px;
+	margin-top: 8px;
+	color: #1274b8;
+	padding-top: 12px;
+	font-size: 13px;
+	-webkit-border-radius: 4px;
+	-moz-border-radius: 4px;
+	-ms-border-radius: 4px;
+	-o-border-radius: 4px;
+	border-radius: 4px;
+	cursor: pointer;
+	text-align: center;
+}
+
+#confirmCancel:hover {
+	background: rgba(0, 0, 0, .1);
+	border-color: transparent;
+}
+
+#confirmCancel:focus {
+	outline: none;
+}
+
+#lpChatTranscriptSection {
+	display: none;
+}
+
+.lpChatMsg div:nth-child(1) {
+	color1: #ACE7F9;
+	padding-bottom: 10px;
+}
+
+.lpChatMsg div:nth-child(2) {
+	color1: #FCF751;
+}
+
+.lpChatMsg div:last-child {
+	padding-bottom: 0px;
+}
+
+
+/* NEW LE CODE*/
+
+.messageOwnerTypingInd,
+.messageOwner {
+	font-size: 10px;
+	color: gray;
+	padding-top: 2px !important;
+}
+
+
+/*US1137693*/
+
+
+/*removed the height as part of static */
+
+/*US1654868*/
+
+.conversationDate {
+	font-size: 11px;
+	text-align: center;
+	color: gray;
+	border: 1px solid gray;
+	width: 75px;
+	border-radius: 15px;
+	padding: 5px 20px 5px 20px;
+	margin: auto;
+}
+
+
+/** Temporary fix for iPhone SE */
+
+.res_300 .conversationDate {
+	width: 75px;
+	padding: 5px 10px 5px 10px;
+}
+
+.lpHoverDiv {
+	height: 30px;
+}
+
+#lpChatBodySection {
+	height: 409px;
+	margin-top: -1px;
+}
+
+.lpChatInputTextField {
+	font-size: 13px;
+	color: #333;
+	width: 100%;
+	border: none;
+	resize: none;
+	height: 22px;
+	padding: 5px 0;
+	font-family: BentonSansRegular;
+	vertical-align: middle;
+	outline: none;
+	margin: 0px;
+	border-radius: 0px;
+	margin-top: -3px;
+}
+
+.res_Small .lpChatInputTextField {
+	margin-top: -2px;
+}
+/** US1649698: Typing Bar - Desktop and Mobile Web */
+
+#lpChatInputFieldSection {
+	/* height: 44px; */
+	height: 55px;
+	background: #fff;
+	border-top: 1px solid #e5e5e5;
+	width: 100%;
+}
+
+.lpMenutButtonContainer {
+	padding: 4px 0 0 9px;
+	height: inherit;
+}
+
+#lpChatMessagesSection {
+	height1: 348px
+}
+
+.sprite-font-decrease {
+	background: url(https://icm.aexp-static.com/content/dam/chat/prod/lechat/img/decreasefont.png) no-repeat;
+	width: 20px;
+	height: 12px;
+	display: inline-block;
+	background-size: 100% 100%;
+}
+
+.sprite-font-increase {
+	background: url(https://icm.aexp-static.com/content/dam/chat/prod/lechat/img/increasefont.png) no-repeat;
+	width: 20px;
+	height: 12px;
+	display: inline-block;
+	background-size: 100% 100%;
+}
+
+.sprite-font-sound-off {
+	background: url(https://icm.aexp-static.com/content/dam/chat/prod/lechat/img/soundoff.png) no-repeat;
+	width: 20px;
+	height: 12px;
+	display: inline-block;
+	background-size: 100% 100%;
+}
+
+.sprite-font-sound-on {
+	background: url(https://icm.aexp-static.com/content/dam/chat/prod/lechat/img/soundon.png) no-repeat;
+	width: 20px;
+	height: 12px;
+	display: inline-block;
+	background-size: 100% 100%;
+}
+
+#lpchatbottomsection {
+	position: absolute;
+	/*bottom: 0px;*/
+	width: 100%;
+}
+
+.privacyStmntWrapper {
+	padding: 5px 0px;
+	text-align: left;
+}
+
+#lpPrivacyStmntBtn {
+	font-family: BentonSansRegular;
+	font-size: 13px;
+	cursor: pointer;
+	/* margin-left: -10px; */
+	/* padding: 2px 0 8px 0; */
+	color: #1274b8;
+}
+
+#lpPrivacyStmntBtn:focus {
+	outline: none;
+}
+
+#lptoolbar {
+	display: none;
+	width: 131px;
+	background-color: #fff;
+	text-align: center;
+	border: 1px solid #666666;
+	padding: 5px 1px 6px 1px;
+	position: fixed;
+	z-index: 1;
+	bottom: 44px;
+	left: 5px;
+	height: 105px;
+}
+
+#lptoolbar:before {
+	border-top-color: #666666 !important;
+}
+
+#lptoolbar:before {
+	position: absolute;
+	left: 5px;
+	top: 117px;
+	content: '';
+	height: 0;
+	width: 0;
+	border: 7px solid transparent;
+}
+
+#lptoolbar:after {
+	border-top-color: #fff !important;
+}
+
+#lptoolbar:after {
+	position: absolute;
+	left: 5px;
+	top: 115px;
+	content: '';
+	height: 0;
+	width: 0;
+	border: 7px solid transparent;
+}
+
+.lpMenutButtonContainer div {
+	/*display:  inline-block;*/
+}
+
+#LpSendDataButton a {
+	font-family: BentonSansRegular;
+	font-size: 13px;
+	text-decoration: none;
+	color: #1274b8;
+}
+
+/** US1649698: Typing Bar - Desktop and Mobile Web */
+
+#hamburgerimg,
+#lpxicon {
+	cursor: pointer;
+	text-align: center;
+	/* height: 41px; */
+	height: 55px;
+	line-height: 43px;
+	/* line-height: 50px; */
+}
+
+#lpxicon {
+	display: none;
+}
+
+
+/** US1649698: Typing Bar - Desktop and Mobile Web */
+
+#hamburgerimg img {
+	height: 10px;
+	width: 12px;
+	vertical-align: middle;
+}
+
+#lpxicon img {
+	width: 11px;
+	height: 10px;
+}
+
+#lpChatIptFieldSection {
+	margin-top: 10px;
+}
+
+#lpChatMenuSection {
+	height: 105px;
+}
+
+.lpMenuButton {
+	/* margin-right: 16px; */
+	padding: 5px 0;
+	text-align: left;
+}
+
+#lpChatFooterSection {
+	display: none;
+}
+
+.lpTextCenter {
+	font-size: 11px;
+}
+
+.addZeroSize {
+	font-size: 0px;
+}
+
+#lpChatMessagesSection {
+	-moz-user-select: text;
+	-khtml-user-select: text;
+	-webkit-user-select: text;
+	-ms-user-select: text;
+	user-select: text;
+}
+
+#lpChatTranscriptSection #lpChatMenuItemFontIncreaseBtn,
+#lpChatTranscriptSection #lpChatMenuItemFontDecreaseBtn {
+	display: none
+}
+
+.ptevent {
+	pointer-events: none;
+}
+
+
+/* code for recorded message */
+
+/* Modified for RWD Feature */
+
+#recordedmsg {
+	font-family: BentonSansRegular;
+	font-size: 12px;
+	background-color: #002665;
+	border-bottom: 1px solid #E5E5E5;
+	/** US1615559: Recorded and Monitored Message - Desktop and Mobile Web */
+	/*
+	height:  20px;
+    padding: 14px 12px;
+	*/
+}
+
+
+/* Modified for RWD Feature */
+
+#recordedmsg div {
+	display: inline-block;
+	text-align: center;
+	/** US1615559: Recorded and Monitored Message - Desktop and Mobile Web */
+	/* vertical-align: middle; */
+	/* margin-top: 12px;
+	margin-top: -4px;  */
+	/** US1615559: Recorded and Monitored Message - Desktop and Mobile Web */
+}
+
+
+/* Modified for RWD Feature */
+
+#monitortxt {
+	width: 100%;
+	/* margin-left:  10px; */
+	color: #FFFFFF;
+	padding: 11px 0px 11px 0px;
+	/** US1615559: Recorded and Monitored Message - Desktop and Mobile Web */
+}
+
+
+/*.res_300 #monitortxt, .res_350 #monitortxt{
+    width:  80%;
+}
+.res_400 #monitortxt{
+    width:  83%;
+}*/
+
+
+/* Modified for RWD Feature */
+
+#thanksref {
+	/** US1615559: Recorded and Monitored Message - Desktop and Mobile Web */
+	/* background: url(https://origin-pqgemapp.americanexpress.com/content/dam/chat/lechat/img/record-msg-close-filled.svg) no-repeat 10px 10px; */
+	background: url(https://icm.aexp-static.com/content/dam/chat/prod/lechat/img/chat-icon-close.svg) no-repeat 0px 0px;
+	height: 28px;
+	width: 16px;
+	background-size: 14px 49px;
+	/* float: right; */
+	padding: 10px;
+	/* margin-top: -1px !important; */
+	position: absolute;
+	right: 0;
+	top: 0;
+}
+
+
+/** US1615559: Recorded and Monitored Message - Desktop and Mobile Web */
+
+#thanksrefcursor {
+	height: 0px;
+	width: 20px;
+	padding-top: 20px;
+	right: 19px;
+	top: 14px;
+	position: absolute;
+	cursor: pointer;
+}
+
+#leSysMessageDiv,
+.lpTransferSystemMessageDiv,
+.lpErrorSystemMessageDiv {
+	color: gray;
+	text-align: center;
+	font-size: 13px;
+}
+
+#lpLowSystemMessageDiv,
+#lpNASystemMessageDiv {
+	text-align: center;
+	height: 30px;
+	background-color: #ce8e00;
+	color: #fff;
+	font-size: 13px;
+	position: absolute;
+	bottom: 0px;
+	width: 100%;
+	display: none;
+	font-family: BentonSansRegular;
+}
+
+#lpLowSystemMessageDiv div,
+#lpNASystemMessageDiv div {
+	margin-top: 7px;
+}
+
+.lpHeight398 {
+	height: 409px
+}
+
+#lePostChatTitleHeader {
+	height: 84px;
+}
+
+#lpSurveyQuestionsContainer {
+	margin-top: 5px;
+}
+
+
+/* code for elastic results */
+
+#commontopics {
+	height: 146px;
+	border-top: 1px solid #E5E5E5;
+	display: none;
+	overflow-y: auto;
+}
+
+#elasticresults {
+	/*max-height:  140px;*/
+	border-top: 1px solid #E5E5E5;
+	display: none;
+	/*overflow-y: auto;*/
+}
+
+.commontopics,
+.elasticresults {
+	margin: 10px 0px 10px 10px;
+}
+
+.commontopics div,
+.elasticresults div {
+	padding: 5px;
+	font-family: BentonSansRegular;
+	font-size: 13px;
+}
+
+.commontopics span,
+.elasticresults a {
+	text-decoration: none;
+	color: #1274B8;
+}
+
+.commontopics .commonhead {
+	color: #333;
+}
+
+#lpChatMainMessageSection {
+	position: relative;
+	height: 288px;
+	overflow: hidden;
+	width: 100%;
+}
+
+#lpChatMessagesSection {
+	max-height: 273px;
+	position: absolute;
+	bottom: 15px;
+	width: 100%;
+}
+
+.customercaretyping {
+	position: absolute;
+	bottom: 0px;
+	width: 100%;
+}
+
+#ninaChatMessageSection .conversationDate {
+	margin-top: 8px;
+}
+
+#lpPreChatSurveySubmitBtn {
+	margin-bottom: 10px;
+	margin-top: 10px;
+}
+
+#lpPostChatSurveySubmitBtn {
+	margin-bottom: 5px;
+}
+
+#ttrtime {
+	width: 86%;
+	margin-left: 23px;
+	padding-top: 10px;
+}
+
+.noninteractivesurvey {
+	color: #002663;
+	font-size: 13px;
+	width: 86%;
+	padding-left: 20px;
+	padding-right: 36px;
+}
+
+.noninteractivesurveyhdr {
+	color: #002663;
+	font-family: BentonSansMedium;
+	font-size: 15px;
+	padding-top: 10px;
+}
+
+.noninteractivesurveytq {
+	color: #002663;
+	font-size: 13px;
+	width: 86%;
+	padding-left: 20px;
+	padding-right: 36px;
+	font-family: BentonSansMedium;
+}
+
+.hurricanetext {
+	color: gray;
+	text-align: center;
+	font-size: 13px;
+	width: 86%;
+	margin-left: 23px;
+	padding-top: 10px;
+}
+
+.loader .lpPadLeftRight19 {
+	/*padding: 150px 19px; - modified to vertically center in mobile devices*/
+	padding: 40% 19px;
+	padding: -webkit-calc(50vh - 50px) 19px;
+	padding: -moz-calc(50vh - 50px) 19px;
+	padding: calc(50vh - 50px) 19px;
+}
+
+#lpChatLoader {
+	height: 409px;
+	margin-top: -1px;
+}
+
+
+/*View More History CSS*/
+
+#lpChatViewMoreHistory a {
+	cursor: pointer;
+	text-decoration: none;
+	color: #1274b8;
+	font-family: BentonSansRegular;
+}
+
+#lpChatViewMoreHistory {
+	display: none;
+	font-size: 13px;
+	font-family: BentonSansRegular;
+	text-align: center;
+	color: #1274b8;
+	padding: 9px 0px;
+}
+
+#lpChatViewMoreHistory a:hover {
+	text-decoration: underline;
+}
+
+#lpChatViewMoreHistory-img {
+	display: none;
+	height: 28px;
+	text-align: center;
+	padding: 6px 0px;
+}
+
+#lpChatViewMoreHistory-img img {
+	width: 6%
+}
+
+
+/*End of View More History CSS*/
+
+.lpGreenBg .lpChatMsg a,
+.lpGreenBg .lpChatMsg a:active,
+.lpGreenBg .lpChatMsg a:visited,
+.lpGreenBg .lpChatMsg a:hover,
+.lpGreenBg .lpChatMsg a:active {
+	color: #006890;
+}
+
+
+
+/** Modified/Added for intent selection using keyboard **/
+
+.commontopics div,
+.elasticresults div {
+	padding-left: 15px;
+}
+
+.commontopics,
+.elasticresults {
+	margin-left: 0px;
+}
+
+
+/*.commontopicresult-focus, .elasticresult-focus {
+    background-color: #1274b8;
+}
+
+.commontopicresult-focus a, .elasticresult-focus a{
+    color: white;
+}*/
+
+
+/*US1250803*/
+
+.commontopics span {
+	cursor: pointer;
+}
+
+.commontopicresult-focus,
+.elasticresult-focus {
+	outline: none;
+	background-color: #006FCF;
+}
+
+
+/*US1250803*/
+
+.commontopicresult-focus span,
+.elasticresult-focus a {
+	color: white;
+}
+
+
+/*US1250803*/
+
+.commontopicresult:focus,
+.elasticresult:focus {
+	outline: none;
+}
+
+
+/*US1250803*/
+
+
+/* .commontopicresult:hover , .elasticresult:hover{ 
+    outline : none;
+    background-color: #006FCF;
+}
+
+.commontopicresult:hover a, .elasticresult:hover a{
+    color: white;
+} */
+
+
+/** Modified/Added for intent selection using keyboard - End **/
+
+
+/* US1128982 Automation Survey - Rate my Service ~ Start */
+
+.rating {
+	display: inline-block;
+	position: relative;
+	margin-left: 0px !important;
+	line-height: 40px;
+}
+
+.rating label {
+	position: absolute;
+	top: 0;
+	left: 0;
+	cursor: pointer;
+}
+
+.rating label:last-child {
+	position: static;
+}
+
+.rating label:nth-child(1) {
+	z-index: 5;
+}
+
+.rating label:nth-child(2) {
+	z-index: 4;
+}
+
+.rating label:nth-child(3) {
+	z-index: 3;
+}
+
+.rating label:nth-child(4) {
+	z-index: 2;
+}
+
+.rating label:nth-child(5) {
+	z-index: 1;
+}
+
+.rating label input {
+	position: absolute;
+	top: 0;
+	left: 0;
+	opacity: 0;
+}
+
+.rating label .icon {
+	float: left;
+	color: transparent;
+	padding: 0 3px 0 3px;
+	font-size: 40px;
+}
+
+.rating label:last-child .icon {
+	color: #ccc;
+}
+
+.rating:not(:hover) label input:checked~.icon {
+	color: #1274b8;
+}
+
+.rating:hover label:hover input~.icon {
+	color: #1274b8;
+}
+
+.automationSurveyQ0 {
+	width: 98%;
+	margin: 0 auto;
+	text-align: center;
+	padding: 16px 0 0 0;
+}
+
+.automationQdesc0 {
+	font-family: BentonSansRegular;
+	color: #666;
+	margin-bottom: 0px !important;
+}
+
+.automationQdesc1 {
+	font-family: BentonSansRegular;
+	color: #666;
+}
+
+#ratingText {
+	color: #1274b8;
+	font-weight: bold;
+	text-align: center;
+}
+
+
+/* US1128982 Automation Survey - Rate my Service ~ End */
+
+
+/* US1128986 - Automation Issue Resolution ~ start*/
+
+.automationSurveyQ1 {
+	width: 98%;
+	margin: 0 auto;
+	text-align: center;
+	padding: 6px 0 3px 0;
+}
+
+.automationSurveyQ1NoBtn,
+.automationSurveyQ1YesBtn {
+	float: none !important;
+	margin: 2px 4px 4px 4px;
+	padding: 8px 10px;
+	width: 16%;
+	border: 1px solid #1274b8;
+	color: #1274b8;
+	background-color: #fff;
+	font-size: 13px;
+	cursor: pointer;
+	border-radius: 6px;
+}
+
+.selectedBtnStyle {
+	background-color: #1274B8;
+	color: #fff;
+}
+
+.issueResolveBtnWrapper {
+	margin-left: 0px !important;
+}
+
+.automationSurveyQ1YesBtn:hover {
+	color: #fff;
+	background-color: #1274b8;
+}
+
+.automationSurveyQ1NoBtn:hover {
+	color: #fff;
+	background-color: #1274b8;
+}
+
+
+/* US1128986 - Automation Issue Resolution ~ End*/
+
+
+/* US1128994 Automation Survey - Additional comment CSS start*/
+
+#feedbackQWrapper {
+	width: 100%;
+	margin: 0 auto;
+	text-align: center;
+	padding: 3px 0 2px 0;
+}
+
+.feedbackQdesc {
+	font-size: 13px;
+	margin-bottom: 7px;
+	color: #666;
+}
+
+#feedbackAns {
+	background-color: #f7f8f9;
+	border-radius: .25rem;
+	border: 1px solid #ccc;
+	padding: 6px;
+}
+
+#feedbackAnsLE {
+	background-color: #f7f8f9;
+	border-radius: .25rem;
+	border: 1px solid #ccc;
+	padding: 6px;
+	height: 45px;
+	width: 300px;
+}
+
+.greetm {
+	font-size: 10px;
+}
+
+.greetm.addZeroSize {
+	font-size: 0px;
+}
+
+
+/* US1128994 Automation Survey - Additional comment CSS end*/
+
+
+/* US1128930 Confirmation Screen after Post Chat Survey start*/
+
+#surveySubmisssionWrapper {
+	margin: 18% 8%;
+	text-align: center;
+}
+
+.logoWrapper {
+	padding-bottom: 12px;
+}
+
+.lpThanksGreeting {
+	padding-bottom: 10px;
+	color: #666;
+	font-weight: bold;
+}
+
+.lpThanksDescription {
+	font-size: 13px;
+	color: #666;
+}
+
+
+/* US1128930 Confirmation Screen after Post Chat Survey end*/
+
+
+/* US1137494: CEN Standard Survey - Rate My Service start */
+
+.standardSurveyQ0 {
+	text-align: center;
+	padding-top: 16px;
+}
+
+.standardSurveyQdesc0 {
+	margin-bottom: 0px !important;
+	display: block !important;
+}
+
+.lpQuestionText1 {
+	font-family: BentonSansRegular;
+	color: #666;
+	font-weight: bold;
+	font-size: 14px;
+}
+
+.lpQuestionText2 {
+	font-family: BentonSansRegular;
+	color: #666;
+	font-size: 12px;
+}
+
+#ratingTextCEN {
+	color: #1274b8;
+	font-weight: bold;
+	text-align: center;
+}
+
+
+/* US1137494: CEN Standard Survey - Rate My Service end */
+
+#checkLength {
+	display: none;
+	color: red;
+	padding-bottom: 5px;
+	font-size: 12px;
+}
+
+
+/*All CEN-Survey CSS */
+
+.survey-container {
+	text-align: center;
+	color: #666666;
+	font-family: BentonSansRegular;
+	font-size: 13px;
+	margin-top: 10px;
+}
+
+.star-rating-ques,
+.did-resolve-ques,
+.recommend-ques {
+	padding: 3px 3px;
+}
+
+.star-rating-label .label-top {
+	font-size: 18px;
+}
+
+.star-rating {
+	display: block;
+	text-align: center;
+	margin-top: -3px;
+}
+
+.rate-star {
+	font-size: 38px;
+	display: inline-block;
+	cursor: pointer;
+	padding: 0px 0%;
+	line-height: 45px;
+	color: #006FCF;
+	font-size: 3em;
+	position: relative;
+}
+
+.rate-star.rate-star-hovered:before,
+.rate-star.rate-star-active:before {
+	color: #006FCF;
+	content: '\2605';
+	/* Full star in UTF-8 */
+	position: absolute;
+	left: 0;
+}
+
+.rating-value {
+	color: #006FCF;
+	font-size: 11px;
+	font-weight: bold;
+	height: 14px;
+	line-height: 12px;
+	font-family: BentonSansMedium;
+}
+
+.did-resolve-label {
+	padding: 0px 0px 5px 0px;
+	margin-bottom: 5px;
+}
+
+.yesno-btn {
+	width: 17%;
+	height: 35px;
+	color: #006FCF;
+	border: solid 1px #006FCF;
+	background-color: white;
+	outline: none;
+	cursor: pointer;
+	margin-left: 2%;
+	border-radius: 4px;
+}
+
+.yesno-btn-active {
+	color: white;
+	background-color: #006FCF;
+	border: 2px solid #006FCF;
+	padding: 5px;
+	border-radius: 4px;
+}
+
+.yesno-btn:hover {
+	background-color: #006FCF;
+	color: white !important;
+}
+
+.recommend-label {
+	padding: 7px 0px 7px 0px;
+}
+
+.recommend-hint {
+	text-align: center;
+	width: 88%;
+	font-size: 10px;
+	padding: 0px 0px;
+	margin-left: 5%;
+}
+
+.recommend-hint #left {
+	display: inline-block;
+	color: #666666;
+	float: left;
+	font-weight: bold;
+	text-align: left;
+}
+
+.recommend-hint #right {
+	color: #666666;
+	display: inline-block;
+	float: right;
+	font-weight: bold;
+	text-align: right;
+}
+
+
+/**Slider CSS  - mobile*/
+
+.survey-slider-container .ui-slider a:link,
+.survey-slider-container .ui-slider a:visited,
+.survey-slider-container .ui-slider a:hover,
+.survey-slider-container .ui-slider a:active {
+	color: #666666;
+	text-decoration: none;
+}
+
+.survey-slider-container .ui-slider .ui-slider-track .ui-slider-handle {
+	text-align: center;
+	width: 18px;
+	height: 18px;
+	margin-top: -9px;
+	margin-left: -10px;
+	font-size: 12px;
+	line-height: 1.5em;
+	background: white;
+	cursor: pointer;
+	outline: none;
+	-webkit-box-shadow: none;
+	box-shadow: none;
+	border-radius: 10px;
+	border: solid 1px #666666;
+}
+
+.survey-slider-container .ui-slider {
+	margin: 0px;
+	height: 25px;
+}
+
+.survey-slider-container .ui-slider .ui-slider-track {
+	width: 88%;
+	height: 10px;
+	border-radius: 6px;
+	background: url(https://icm.aexp-static.com/content/dam/chat/prod/lechat/img/survey_slider.png) center center no-repeat;
+	background-size: cover;
+	outline: none;
+	left: 1%;
+	-webkit-box-shadow: none;
+	box-shadow: none;
+	border: none;
+}
+
+.survey-slider-container input {
+	display: none;
+}
+
+.survey-slider-container .ui-slider-track {
+	margin-left: 15px;
+}
+
+.selectstar-rating-label {
+	text-align: center;
+	width: 88%;
+	font-size: 10px;
+	padding: 0px 0px;
+	margin-left: 5%;
+	margin-top: -3px;
+	margin-bottom: 5px;
+}
+
+.error-message-lable {
+	text-align: center;
+	width: 88%;
+	font-size: 13px;
+	padding: 0px 0px;
+	margin-left: 5%;
+	display: none;
+	color: #b42c01;
+}
+
+
+/**Refer a friend banner CSS */
+
+#referFriendBanner {
+	background: #059e7a;
+	margin: 25% -10%;
+	text-align: center;
+	display: none;
+}
+
+.referWraper {
+	padding-bottom: 19px;
+	color: white;
+}
+
+.lpreferMessage {
+	padding-bottom: 5px;
+	color: #f7f8f9;
+	font-weight: bold;
+}
+
+.lpreferDescription {
+	padding-bottom: 25px;
+	font-size: 13px;
+	color: #f7f8f9;
+}
+
+a.button {
+	padding: .725rem 1.25rem;
+	background-color: white;
+	color: #1274B8;
+	border: solid 1px #0c9a79;
+	text-decoration: none;
+	outline: none;
+	cursor: pointer;
+	margin-left: 2%;
+	border-radius: 4px;
+	font-size: 13px;
+}
+
+a.button:hover {
+	background-color: #d2d1d1;
+	color: #006fcf;
+}
+
+
+/*All CEN-Survey CSS - END */
+
+
+/*All Automation-Survey CSS - Start */
+
+.automation-survey-container {
+	text-align: center;
+	color: #666666;
+	font-family: BentonSansRegular;
+	font-size: 14px;
+	margin-top: 17px;
+}
+
+.ayesno-btn {
+	width: 17%;
+	height: 35px;
+	color: #006FCF;
+	border: solid 1px #006FCF;
+	background-color: white;
+	outline: none;
+	cursor: pointer;
+	margin-left: 2%;
+	border-radius: 4px;
+}
+
+.ayesno-btn-active {
+	color: white;
+	background-color: #006FCF;
+	border: 2px solid #006FCF;
+	padding: 5px;
+	border-radius: 4px;
+}
+
+.ayesno-btn:hover {
+	background-color: #006FCF;
+	color: white !important;
+}
+
+.astar-rating-ques,
+.did-resolve-ques,
+.recommend-ques {
+	padding: 0px 0px;
+}
+
+.astar-rating-label .label-top {
+	font-size: 14px;
+}
+
+.astar-rating {
+	display: block;
+	text-align: center;
+	margin-top: 5px;
+}
+
+.arate-star {
+	font-size: 38px;
+	display: inline-block;
+	cursor: pointer;
+	padding: 0px 0%;
+	line-height: 45px;
+	color: #006FCF;
+	font-size: 3em;
+	position: relative;
+}
+
+.arate-star.arate-star-hovered:before,
+.arate-star.arate-star-active:before {
+	color: #006FCF;
+	content: '\2605';
+	/* Full star in UTF-8 */
+	position: absolute;
+	left: 0;
+}
+
+.arating-value {
+	color: #006FCF;
+	font-size: 11px;
+	font-weight: bold;
+	height: 14px;
+	line-height: 12px;
+	font-family: BentonSansMedium;
+}
+
+.aselectstar-rating-label {
+	text-align: center;
+	width: 88%;
+	font-size: 10px;
+	padding: 0px 0px;
+	margin-left: 5%;
+	margin-top: -3px;
+	margin-bottom: 5px;
+}
+
+.adid-resolve-label {
+	padding: 0px 0px 5px 0px;
+	margin-top: 17px;
+	margin-bottom: 5px;
+}
+
+.leave_response {
+	height: 40px;
+	Width: 200px;
+	background-color: #f7f8f9;
+	color: #343e5e;
+	font-size: 13px;
+	margin-top: 1px;
+	line-height: 40px;
+	border-radius: 4px;
+	border-radius: .25rem;
+	border: 1px solid #c8c9c7;
+	padding: 6px;
+}
+
+.lpLogo871 {
+	height: 85px;
+	margin-top: 115px;
+}
+
+.lpProactive {
+	max-width: 100%;
+}
+
+
+/*All Automation-Survey CSS - End */
+
+.lpPurpleBg .lpChatMsg .primaryButton {
+	color: white !important;
+	margin-top: 13px;
+	margin-bottom: 8px;
+	margin-left: 10px;
+	border-radius: 4px;
+	text-decoration: none !important;
+	background-color: #006FCF;
+	/* Green */
+	border: none;
+	height: 100%;
+	text-align: center;
+	display: inline-block;
+	font-size: 13px;
+	width: 84% !important;
+	padding: 15px;
+}
+
+.lpPurpleBg .lpChatMsg .secondButton {
+	color: #006FCF !important;
+	margin-top: 0px;
+	margin-bottom: 8px;
+	margin-left: 10px;
+	border-radius: 4px;
+	text-decoration: none !important;
+	background-color: #fff;
+	/* Green */
+	height: 100%;
+	text-align: center;
+	display: inline-block;
+	border: 1px solid #1274b8;
+	font-size: 13px;
+	width: 84% !important;
+	padding-top: 15px;
+	padding-right: 13px;
+	padding-bottom: 15px;
+	padding-left: 15px;
+}
+
+
+/*All Automation-Survey CSS - End */
+
+
+/*Tabbing issues*/
+
+.ayesno-btn:focus,
+#lpPreChatSurveySubmitBtn:focus,
+#confirmButton:focus,
+#confirmCancel:focus,
+.yesno-btn:focus {
+	outline: 1px dotted #212121;
+	outline: 5px auto -webkit-focus-ring-color;
+}
+
+
+/*Tabbing issues*/
+
+
+/*Automation dataElements*/
+
+.dataElemLine {
+	border-bottom: 1px solid gray;
+	margin-left: -9px;
+	margin-right: -10px;
+	margin-bottom: 15px;
+	margin-top: 5px;
+}
+
+.dataElem {
+	width: 98%;
+	margin-bottom: 10px;
+}
+
+span.dataElemVal {
+	float: right;
+	font-weight: bold;
+}
+
+
+/*Automation dataElements*/
+
+
+/*cobrowse messages*/
+
+.lpTransferSystemMessageDiv {
+	padding-top: 5px;
+	padding-bottom: 3px;
+}
+
+
+/*cobrowse messages*/
+
+
+/* CCP Typing Indicator - US1137693*/
+
+.lpCCPTypingBubble {
+	width: 8%;
+	height: 13px;
+	display: inline-block;
+	background: #006FCF url("https://icm.aexp-static.com/content/dam/chat/prod/lechat/img/typing-indicator.gif") no-repeat;
+	background-size: cover;
+	margin-top: 4px;
+	color: white;
+	border-radius: 7px;
+	padding: 10px;
+	text-align: left;
+	text-wrap: normal;
+}
+
+
+/* End: CCP Typing Indicator */
+
+
+/*Automation card selector*/
+
+.cardWrapper {
+	height: 40px;
+	text-align: left
+}
+
+span.cardArt {
+	float: left
+}
+
+span.cardInfo {
+	margin-left: 10px;
+	float: left;
+}
+
+.cardDesc {
+	padding-bottom: 3px !important
+}
+
+#chathistory span.cardArt {
+	width: 25%
+}
+
+#chathistory span.cardInfo {
+	width: 60%
+}
+
+.cardArt img {
+	width: 60px;
+	height: 38px;
+}
+
+
+/*Automation card selector*/
+
+
+
+#lpPostChatSurveySubmitBtn {
+	width: 170px
+}
+
+.lpWhiteButton {
+	font-size: 13px;
+	background: #fff;
+	height: 40px;
+	color: #006fcf;
+	margin-top: 1px;
+	line-height: 40px;
+	border-radius: 4px;
+	border: solid 1px #006FCF;
+	overflow: hidden;
+	display: inline-block;
+	text-align: center;
+}
+
+#chatWithCCPButton {
+	width: 270px;
+}
+/*---------RWD styles : need to remove the corresponding styles from above  --------------------*/
+
+#lpChatFrameContainer {
+	width: 100%;
+}
+
+.res_Small #lpChatFrameContainer {
+	background-color: white;
+	float: right;
+	width: 100%;
+}
+
+
+/* Commented For RWD Feature */
+
+
+/*.res_Small #recordedmsg {
+    font-family: BentonSansRegular;
+    font-size: 12px;
+    background-color: #002665;
+    height: 62px;
+    border-bottom: 1px solid #E5E5E5;
+    width: 100%;
+}
+
+.res_Small #recordedmsg div {
+    display: inline-block;
+    vertical-align: middle;
+    margin-top: 12px;
+    float: left;
+}
+
+
+.res_Small #monitortxt {
+    width: 70%;
+    margin-left: 10px;
+    color: #FFFFFF;
+}*/
+
+.res_Small .lpChatInputTextField {
+	font-size: 16px;
+	/** RWD Feature Change: changed 13px to 16px to fix zoom on selecting textbox */
+}
+
+.res_Small #feedbackAns {
+	background-color: #f7f8f9;
+	border-radius: .25rem;
+	border: 1px solid #ccc;
+	padding: 6px;
+	width: 80%;
+	font-size: 16px;
+}
+
+
+/*---------RWD styles : need to remove the corresponding styles from above  --------------------*/
+
+
+/*********** US1587629 ********/
+
+.chat-lpt-hamburger,
+.chat-lpt-textarea,
+.chat-lpt-send-button {
+	display: inline-block;
+}
+
+.chat-lpt-hamburger {
+	width: 8%;
+	vertical-align: top;
+}
+
+
+/** US1649698: Typing Bar - Desktop and Mobile Web */
+
+.chat-lpt-textarea {
+	width: 80%;
+	height: 21px;
+	/* margin-top: 10px; */
+	margin-top: 10px;
+}
+
+
+/** US1649698: Typing Bar - Desktop and Mobile Web */
+
+.chat-lpt-send-button {
+	width: 12%;
+	text-align: center;
+	/* vertical-align: top; */
+	vertical-align: middle;
+	/* height: 41px; */
+	height: 52px;
+	/* line-height: 41px; */
+	line-height: 46px;
+	cursor: pointer;
+}
+
+#lpChatIptFieldSection {
+	margin: 0;
+}
+
+
+/* For vertical alignment of sprite in small devices */
+
+.res_Small .lpLogo871 {
+	margin-top: 50vh;
+	margin-top: -webkit-calc(50vh - 100px);
+	margin-top: -moz-calc(50vh - 100px);
+	margin-top: calc(50vh - 100px);
+}
+
+
+/* adding pointer events to hamburger in small devices */
+
+.res_Small .ptevent {
+	pointer-events: auto;
+}
+
+
+/* US1615652 Transparent Background - Mobile Web Only */
+
+.res_Small #lpChatWizFrameContainer,
+.res_Small #lpChatFrameContainer,
+.res_Small #lpPreChatMessagesSection,
+.res_Small #lpChatLoader {
+	background-color: transparent !important;
+}
+
+
+/** US1615785: iPhone scrolling - Mobile web only */
+.res_Small #lpChatMessagesSection {
+	overscroll-behavior: contain;
+	-webkit-overflow-scrolling: touch !important;
+}
+
+
+/** US1615785: iPhone scrolling - Mobile web only - Chrome only */
+/** Applying or enabling momentum scrolling only for iOS devices with minimum device with of 320px and device pixel ratio of 2 */
+@media only screen and (min-device-width: 320px) and (-webkit-min-device-pixel-ratio: 2) {
+	@media {
+		/** US1808748: Investigate - Momentum scrolling in iPhone - Chrome - Mobile Web Only */
+		/** Increasing z-index when user click on hamburger icon */
+		.res_Small #lptoolbar {
+			z-index: 401;
+		}
+		/** US1808748: Investigate - Momentum scrolling in iPhone - Chrome - Mobile Web Only */
+		.res_Small #lpChatMessagesSection {
+			overscroll-behavior: contain;
+			overflow-scrolling: touch !important;
+			-moz-overflow-scrolling: touch !important;
+			-webkit-overflow-scrolling: touch !important;
+			transform: translate3d(0, 0, 0);
+			-ms-transform: translate3d(0, 0, 0);
+			-moz-transform: translate3d(0, 0, 0);
+			-webkit-transform: translate3d(0, 0, 0);
+			-webkit-transform: translateZ(0px);
+			-webkit-perspective: 800px;
+			perspective: 800px;
+			z-index: 400;
+		}
+	}
+}
+
+
+/* To disable blinking on click in mobiles */
+
+#lpChatMainMessageSection {
+	-webkit-tap-highlight-color: transparent;
+}
+
+
+/** US1615759: Chat Thank You Screen- Mobile Web Only */
+
+.res_Small #surveySubmisssionWrapper {
+	margin: 11% 0px;
+	margin: -webkit-calc(11vh - 0px) 0px;
+	margin: -moz-calc(11vh - 0px) 0px;
+	margin: calc(11vh - 0px) 0px;
+	padding: 28% 0px;
+	padding: -webkit-calc(28vh - 130px) 0px;
+	padding: -moz-calc(28vh - 130px) 0px;
+	padding: calc(28vh - 130px) 0px;
+}
+
+
+/** US1615759: Chat Thank You Screen- Mobile Web Only */
+
+.res_Small #referFriendBanner {
+	position: absolute;
+	width: 100%;
+	margin: 20% 0px;
+	margin: -webkit-calc(20vh) 0px;
+	margin: -moz-calc(20vh) 0px;
+	margin: calc(20vh) 0px;
+	padding: 28% 0px;
+	padding: -webkit-calc(28vh - 100px) 0px;
+	padding: -moz-calc(28vh - 100px) 0px;
+	padding: calc(28vh - 100px) 0px;
+}
+
+
+/** DE306156: RWD : SIT_Observation_iPhone SE_Horizontal Scroll appeared for one of the Marvin responses. */
+
+.res_Small .lpPurpleBg {
+	/** max-width: none !important; */
+	max-width: 87% !important;
+}
+
+.res_Small .dataElem {
+	display: flex;
+	align-items: center;
+}
+
+.res_Small .dataElemLbl {
+	/** width: 77%; */
+	flex: 2;
+}
+
+.res_Small .dataElemVal {
+	/** width: 23%; */
+	flex: 1;
+	text-align: right;
+}
+
+.res_Small #feedbackAnsLE {
+	width: 98%;
+	font-size: 16px;
+}
+
+.res_Small .survey-container .recommend-label {
+	margin-right: 3%;
+}
+
+
+/** US1656700: Icons in the header and in the “recorded and monitored” message bar - Desktop and Mobile Web */
+
+.res_Small #thanksref {
+	background: url(https://icm.aexp-static.com/content/dam/chat/prod/lechat/img/chat-icon-close.svg) no-repeat 0px 0px;
+	height: 28px;
+	width: 6px;
+	background-size: 18px 49px;
+}
+
+
+/*US1654868*/
+
+.conversationDateWrapper {
+	margin-top: 10px;
+}
+
+
+/** DE306156: RWD : SIT_Observation_iPhone SE_Horizontal Scroll appeared for one of the Marvin responses */
+
+.res_Small .lpBubble {
+	overflow-wrap: break-word;
+}
+
+
+/** US1615559: Recorded and Monitored Message - Desktop and Mobile Web - Applicable only for Mozilla Firefox - Desktop and Mobile */
+@-moz-document url-prefix() {
+	#thanksref {
+		background-size: 14px 14px;
+		margin-top: 20px !important;
+	}
+	#thanksrefcursor {
+		top: -5px;
+	}
+	.res_Small #thanksref {
+		background-size: 18px 18px;
+		margin-top: 17px !important;
+	}
+}
+
+
+/** US1615559: Recorded and Monitored Message - Desktop and Mobile Web - Applicable only for IE and EDGE - Desktop and Mobile */
+
+@media screen\0,
+@media screen\9 {
+	#thanksref {
+		background-size: 14px 14px;
+		margin-top: 20px !important;
+	}
+	#thanksrefcursor {
+		top: -5px;
+	}
+	.res_Small #thanksref {
+		background-size: 18px 18px;
+		margin-top: 17px !important;
+	}
+}
+
+@media only screen and (min-device-width: 320px) and (max-device-width: 480px) {
+	body {
+		-webkit-text-size-adjust: none;
+	}
+}
+
+
+/** To vertically align place holder text in typing bar */
+
+.res_Small .lpChatInputTextField::-moz-placeholder {
+	/* Mozilla Firefox 19+ */
+	line-height: 21px;
+}
+
+.res_Small .lpChatInputTextField::-webkit-input-placeholder {
+	/* Webkit */
+	line-height: 21px;
+}
+
+.res_Small .lpChatInputTextField:-ms-input-placeholder {
+	/* IE */
+	line-height: 21px;
+}
+/*scroll history*/
+#lpChatViewMoreHistory a{
+ color: white;
+ font-size:3px;
+}
+/**/

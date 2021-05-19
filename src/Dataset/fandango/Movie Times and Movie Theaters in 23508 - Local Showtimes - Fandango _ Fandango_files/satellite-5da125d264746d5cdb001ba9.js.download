@@ -1,0 +1,32 @@
+_satellite.pushAsyncScript(function(event, target, $variables){
+  //Desktop MOP Template
+//Countdown 220119
+if(_satellite.getVar('Movie ID') == '220119'){
+  if(_satellite.getVar('Page Level 2') == 'movie | overview'){
+    //PXL=319
+        var axel = Math.random() + "";
+        var a = axel * 10000000000000;
+        _satellite.loadScript('//4864311.fls.doubleclick.net/activityi;src=4864311;type=count0;cat=count000;dc_lat=;dc_rdid=;tag_for_child_directed_treatment=;tfua=;npa=;ord='+a)
+ 
+
+
+    
+
+
+}
+}
+//Desktop MSP Template
+
+//Countdown 220119
+if(_satellite.getVar('Movie ID') == '220119'){
+  if(_satellite.getVar('Page Level 2') == 'movie times | by movie'){
+
+  //PXL=319
+        var axel = Math.random() + "";
+        var a = axel * 10000000000000;
+        _satellite.loadScript('//4864311.fls.doubleclick.net/activityi;src=4864311;type=count0;cat=count001;dc_lat=;dc_rdid=;tag_for_child_directed_treatment=;tfua=;npa=;ord='+a)    
+
+}
+}
+
+});

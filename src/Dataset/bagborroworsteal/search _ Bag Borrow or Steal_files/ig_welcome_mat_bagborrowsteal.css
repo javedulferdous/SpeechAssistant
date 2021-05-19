@@ -1,0 +1,43 @@
+/* iGlobal Welcome Mat Styles */
+/* Authored by iGlobal Stores (www.iglobalstores.com) */
+
+/* igFlag controls the placement of the country flag on your website */
+#igFlag { width: 30px; position:absolute; left:-40px;top:-5px;}
+#igFlag img {max-width: 25px;cursor: pointer;margin-top: 7px;}
+
+/* Begin Modal Styles */
+#igSplashElement {position: fixed!important;top: 25%!important;left: 50%!important;transform: translateX(-50%) translateY(-25%);width: 500px;background-color: #fff;-webkit-box-shadow:  0px 0px 60px 0px rgba(0, 0, 0, 0.5);box-shadow:  0px 0px 60px 0px rgba(0, 0, 0, 0.5);font-family: 'PT Sans','Helvetica Neue', Helvetica, Arial, sans-serif; /* Set your preferred font here */color: #333;}
+.closeButton {display: none;position: absolute;top: 3px;right: 3px;}
+.close { cursor: pointer; }
+.igModalHeader {width: auto;background-color: transparent;text-align: center;color: #000;font-weight: bold;overflow: auto;margin-left: auto;margin-right: auto;padding: 0px;}
+.logoWrapper {float: none;width: auto;margin-left: auto;margin-right: auto;text-align: center;} /* If your logo is wider than 180px, you may wish to widen this and decrease the width of the .messageWrapper */
+.messageWrapper {margin-top: 2%;margin-bottom: 2%;float: none;width: auto;margin-right: auto;margin-left: auto;text-align: center;}
+
+p.countryP {
+    margin-top: 5px;
+    font-size: 14px!important;
+}
+.modalLogo {float: none;margin: 5px;width: auto;margin-left: auto;margin-right: auto;text-align: center;}
+.igModalHeader img.headerFlag {max-height: 39px;margin-bottom: -26px;}
+.headerZero {font-size: 14px;margin-bottom: 10px;}
+.headerOne { font-size: 30px; padding-left: 0.5em; color: #0068AC; /* Set the color of your choice here */ text-transform: uppercase; }
+.headerTwo { color: #999; margin-top: 7px; font-size: 12px; }
+.igModalBody {text-align: center;background-color: transparent;width: 100%;min-height: 150px;height: auto;}
+.countryDropDownWrapper {display: inline-block;width: 45%;min-width: 200px;min-height: 25px;border: 2px solid #000; /* Set the color of your choice here */margin: 0 auto;padding: 0;cursor: pointer;margin-top: 10px;margin-left: 10px;}
+#countrySelect {position: relative;height: 35px;width: 100%;padding: 0px 0px;padding-left: 5px;margin: 0px;font-size: 14px;color: #000!important;text-shadow: 0 1px 1px rgba(255, 255, 255, 0.75);cursor: pointer;-webkit-user-select: none;-moz-user-select: none;-ms-user-select: none;-o-user-select: none;user-select: none;background: none !important;border: 0 !important;border-radius: 10px;-webkit-appearance: none;-moz-appearance: window;appearance: none;ms-appearance: none;overflow: hidden;}
+#countrySelect option {color: black;}
+select::-ms-expand { display: none; }
+ul.featureList {padding: 10px!important;margin: 0;-webkit-padding-start: 0;background-color: #000;color: #eee;font-size: 16px;font-weight: bold;}
+ul.featureList li {list-style-type: none;padding: 10px 5px;font-size: 16px;font-weight: bold;}
+ul.featureList li strong { color: white; }
+ul.featureList li img { padding-top: 5px; max-width: 80px; margin-bottom: -15px; }
+.igWelcomeCTAButton {background: transparent;width: 100%;height: auto;}
+.igWelcomeCTAButton button {width: 225px;height: 50px;color: #eee;margin: 20px auto;border: none;font-size: 18px;font-weight: normal;background-color: #000;opacity: 1;text-shadow: none;float: none;box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);transition: all 0.3s cubic-bezier(.25,.8,.25,1);}
+
+@media screen and (max-width: 600px) { /* Responsive design sets a width of 400px for all devices <= 600px */
+	#igSplashElement { width: 400px; margin-left: -200px !important; }
+	.igModalHeader { width: 360px; }
+	.logoWrapper { float: none; width: auto; }
+	.modalLogo { float: none; margin: 10px auto; }
+	.messageWrapper { clear: both; }
+}

@@ -1,0 +1,150 @@
+(function($) {
+    var paymentOptionsRadiosChangeHandler = function() {
+        var selected = $("input[type='radio']:checked").val();
+        $('form p.extras').addClass('hidden');
+        $('#payment_method_' + selected + '_extras').toggleClass('hidden');
+        if ($('[name=saved_payment_method]').val() == selected) {
+            $(':submit').prop("disabled", true);
+        } else {
+            $(':submit').prop("disabled", false);
+        }
+    }
+
+    var authenticationStatusRadiosChangeHandler = function() {
+        $('form p.extras').hide();
+        $('[type=radio]').each(function(){
+            if($(this).is(':checked')) {
+                var field = $(this).attr('id');
+                $('#' + field + '_extras').show();
+            }
+        });
+    }
+
+    $(function() {
+        // the payment options page
+        if ($('.settings-payment-options-wrapper').length) {
+            var $paymentOptionsRadios = $('form [name=payment_method]');
+            $paymentOptionsRadios.on('change', paymentOptionsRadiosChangeHandler);
+            $("input[type='radio']:checked").trigger('change');
+        }
+
+        // the product authentications page
+        if ($('.product-authentication-wrapper').length) {
+            var $statusRadios = $('form [name=status]');
+            $statusRadios.on('change', authenticationStatusRadiosChangeHandler);
+            $statusRadios.trigger('change');
+        }
+    });
+    $('.get-tracking').on('click', function() {
+        $tracking = $('.tracking-modal');
+        $tracking.addClass('modal fade').removeClass('hidden');
+        $tracking.modal('show');
+        $tracking.html('');
+        $loader = $('.modal_loader');
+        $loader.show();
+
+        var shipmentId = $(this).data('shipment-id');
+        var isReturn = $(this).data('return');
+        $.ajax('/shipments/' + shipmentId + '/tracking', {
+            _method: 'POST',
+            data: {
+                isReturn: isReturn
+            }
+        }).done(function(response) {
+            $tracking.html('<div class="modal-dialog modal-lg"> <div class="modal-content push_back">' + response.view + '</div></div>');
+            $('.modal-footer').removeClass('hidden');
+            $('button.close').removeClass('hidden');
+            var shipping_status = response.status;
+            if(shipping_status != 'Unknown') {
+                updateShippingTracker(shipping_status);
+                getMap(response);
+            } else {
+                $('#map').html(
+                    '<div class="checkBackSoon">'+
+                    '<h3 class="text-center col-xs-12">Ready To Go!</h3>' +
+                    '<h4 class="text-center col-xs-12">Tracking details will be available once the package arrives at the ' + response.carrier + ' facility. Please check back soon!</h4>'+
+                    '</div>'
+                );
+            }
+
+            $loader.hide();
+        }).fail(function() {
+            $tracking.html('No Tracking Information Found');
+        });
+    })
+})(jQuery);
+
+function updateShippingTracker(status) {
+    $('.progress_bar li').removeClass('complete active');
+    switch (true) {
+        case (status === 'shipped'):
+            $('li.shipped').addClass('active');
+            $('li.shipped').prevAll().addClass('complete');
+            break;
+        case (status === 'In_transit'):
+            $('li.in_transit').addClass('active');
+            $('li.in_transit').prevAll().addClass('complete');
+            break;
+        case (status === 'Out_for_delivery'):
+            $('li.out_for_delivery').addClass('active');
+            $('li.out_for_delivery').prevAll().addClass('complete');
+            break;
+        case (status === 'Delivered'):
+            $('li.delivered').addClass('active');
+            $('li.delivered').prevAll().addClass('complete');
+            break;
+    }
+}
+
+function getMap(response) {
+    var bounds = new google.maps.LatLngBounds();
+    var map = new google.maps.Map(document.getElementById('map'), {
+        zoom: 2,
+        center: {
+            lat: 0,
+            lng: 0
+        },
+        draggable: false,
+        scrollwheel: false,
+        navigationControl: false,
+        mapTypeControl: false,
+        scaleControl: false,
+        streetViewControl: false
+    });
+    var geoCoder = new google.maps.Geocoder();
+    var cityState = response.shippingAddress.shipping_city.toUpperCase() + ', ' + response.shippingAddress.shipping_state;
+    var destination_address = response.shippingAddress.shipping_address_1 + ' ' + cityState;
+    geoCoder.geocode({
+        'address': destination_address
+    }, function (results) {
+        new google.maps.Marker({
+            position: results[0].geometry.location,
+            map: map
+        });
+        bounds.extend(results[0].geometry.location);
+        map.fitBounds(bounds);
+    });
+    var geoCoder2 = new google.maps.Geocoder(),
+      current_address;
+    if(response.currentCity && response.currentState) {
+      current_address = response.currentCity.toUpperCase() + ', ' + response.currentState;
+    } else {
+      current_address = 'Oceanside, CA'
+    }
+    if(current_address !== cityState){
+        geoCoder2.geocode({
+            'address': current_address
+        }, function (results) {
+            new google.maps.Marker({
+                position: results[0].geometry.location,
+                map: map
+            });
+            bounds.extend(results[0].geometry.location);
+            map.fitBounds(bounds);
+        });
+    }
+    var listener = google.maps.event.addListener(map, "idle", function() {
+        if (map.getZoom() > 16) map.setZoom(14);
+        google.maps.event.removeListener(listener);
+    });
+}

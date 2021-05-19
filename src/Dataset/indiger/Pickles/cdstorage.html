@@ -1,0 +1,19 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0044)https://www.bing.com/widget/render/cdstorage -->
+<html xmlns="http://www.w3.org/1999/xhtml"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        
+
+        
+    </head>
+    <body data-new-gr-c-s-check-loaded="14.982.0">
+        
+
+
+
+        
+        
+    <script type="text/javascript">var _bw,CrossDomainStorage;(function(n){n.si_ST=new Date})(_bw||(_bw={})),function(n){function t(t){return n._d.getElementById(t)}function i(n,t,i){return setTimeout(n,t,i)}function r(n){clearTimeout(n)}function u(){return(new Date).getTime()}n._w=window;n._d=document;n.sb_de=n._d.documentElement;n.sb_ie=!!n._w.ActiveXObject;n.sb_i6=n.sb_ie&&!n._w.XMLHttpRequest;n._ge=t;n.sb_st=i;n.sb_ct=r;n.sb_gt=u}(_bw||(_bw={})),function(n){var t=new function(){function r(n){return t[n]||(t[n]=[])}var t={},i=this;i.fire=function(t){for(var i=r(t),f=i.e=arguments,u=0;u<i.length;u++)i[u].d?n.sb_st(n.sj_wf(i[u],f),i[u].d):i[u](f)};i.bind=function(n,t,i,u){var f=r(n);t.d=u;f.push(t);i&&f.e&&t(f.e)};i.unbind=function(n,i){for(var r=0,u=t[n];u&&r<u.length;r++)if(u[r]==i){u.splice(r,1);break}}};n.sj_evt=t}(_bw||(_bw={})),function(n){function t(t,i,r,u){(t==n._w||t==n._d.body)&&i=="load"?n.sj_evt.bind("onP1",r,1):t.addEventListener?t.addEventListener(i,r,u):t.attachEvent?t.attachEvent("on"+i,r):t["on"+i]=r}function i(t,i,r,u){(t==n._w||t==n._d.body)&&i=="load"?n.sj_evt.unbind("onP1",r):t.removeEventListener?t.removeEventListener(i,r,u):t.detachEvent?t.detachEvent("on"+i,r):t["on"+i]=null}n.sj_be=t;n.sj_ue=i}(_bw||(_bw={})),function(n){var t=function(){function n(){this.registerMessageListner()}return n.prototype.registerMessageListner=function(){var n=this;_bw.sj_be(_bw._w,"message",function(t){return n.postMessageListner(t)},!1)},n.prototype.postMessageListner=function(n){var i,r,u,t,f,e;if(n&&n.data&&typeof n.data=="string"&&(i=n.data.indexOf(":"),i!=-1)&&(r=n.data.substring(0,i),r=="cdRequest")){u=n.data.substring(i+1);try{t=JSON.parse(u);switch(t.action){case"setItem":localStorage.setItem(t.key.toLowerCase(),JSON.stringify(t.value));break;case"getItem":f=localStorage.getItem(t.key.toLowerCase());e={callbackIdentifier:t.callbackIdentifier,value:JSON.parse(f)};n.source.postMessage("cdResponse:"+JSON.stringify(e),"*");break;case"removeItem":localStorage.removeItem(t.key.toLowerCase())}}catch(o){}}},n}();n.LocalStorage=t;new t}(CrossDomainStorage||(CrossDomainStorage={}))</script>
+
+    
+
+</body></html>

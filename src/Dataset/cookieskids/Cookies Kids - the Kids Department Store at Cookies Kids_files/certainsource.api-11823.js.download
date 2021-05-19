@@ -1,0 +1,61 @@
+window['CertainSourceObject'] = window['cs_api'] = (function(cs) {
+
+	// Server side Options
+	cs.serverOpts = {
+		client: "Cookies Kids",
+		siteid: 11823,
+		enable: true,	// Enable api
+  		log: "info",		// log to console, false, "info" or "debug"
+  		version: "1.8",	// javascript version loaded below
+  		domain: "link.cookieskids.calibr3.com", // Domain that all requests should be made to
+  		default_source: "Unidentified",
+  		default_ctrlid: 308482,
+		direct_ctrlid: 308484,
+		referral_ctrlid: 308483,
+		referralExclusionRegexp: "", // regexp that, if matched to referring hostname, will not use referring url to map source and control
+		default_rti: "f17428",
+		lightbox: {
+			instances: [],
+		},
+		cart: {},
+	};
+
+	cs.sourcePreprocess = function () {};
+	cs.controlPreprocess = function () {};
+
+	cs.sourceMapping = [
+//		/[?&]utm_source=([^&]+)/i,
+//		/[?&](?=.*utm_campaign=([^&]+))(?=.*utm_source=12345)(?=.*utm_medium=affiliate)/i,
+	];
+
+	cs.controlMapping = [
+//		{re: /[?&](?=.*utm_source=12345)(?=.*utm_medium=banner)/i, id: 99999},
+//		{re: /[?&]utm_source=facebook/i, id: 99999},
+//		{re: /www\.google\.[a-z.]+/i, id: 99999},
+//		{re: /search\.yahoo\.[a-z.]+/i, id: 99999},
+//		{re: /www.bing.com/i, id: 99999},
+//		{re: /https?:\/\/(.*facebook.com)/i, id: 99999},
+	];
+
+
+	cs.rtiMappings = [
+//		{re: /start.html/i, id: "d16074"},
+	];
+
+	// Add domains that our api code is placed on to enable cross domain messaging
+	cs.originMapping = [
+		/wwwtest.certainsource.com/i,
+	];
+	// Load main module after setting up server side options
+	var v = cs.serverOpts.version;
+	var src = "//static.onlinedialog.com/js/api/lib/" + v + "/certainsource.api-" + v + ".min.js";
+
+	// Load main module after setting up server side options
+	var d = document;
+	var s = d.createElement('script'); s.type = 'text/javascript'; s.async = true;
+	s.id = "certainsource-script";
+	s.src = src;
+	var h = d.getElementsByTagName('head')[0]; h.appendChild(s);
+
+	return cs;
+})(window['CertainSourceObject'] || window.cs_api || {});

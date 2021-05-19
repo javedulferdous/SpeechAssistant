@@ -1,0 +1,57 @@
+<!-- TEALIUM Loading script asynchronously -->
+(function(site, ServiceRegistry, ServiceBus, Topics) {
+  window.loadTealium = function(a, b, c, d) {
+    var tealium_profile_by_locale = Drupal.settings.analytics.tealium_profile_by_locale;
+    var currentProfile = Drupal.settings.analytics.tealium_profile;
+    var tealiumUrl = Drupal.settings.analytics.tealium_url || 'tags.tiqcdn.com';
+    if (tealium_profile_by_locale) {
+      var localeMatch = document.cookie.match(new RegExp('(?:^|; )LOCALE=([^;]*)'));
+      if (localeMatch && localeMatch.length !== 0) {
+        var locale = localeMatch[1];
+        if (tealium_profile_by_locale[locale] !== undefined) {
+          currentProfile = tealium_profile_by_locale[locale];
+        } else {
+          currentProfile = Drupal.settings.analytics.tealium_profile;
+        }
+      } else {
+        currentProfile = Drupal.settings.analytics.tealium_profile;
+      }
+    }
+
+    window.utag_cfg_ovrd = window.utag_cfg_ovrd || {};
+    window.utag_cfg_ovrd.path = '//' + tealiumUrl + '/utag/esteelauder/' + currentProfile + '/' + Drupal.settings.analytics.tealium_env + '/';
+
+    if (Drupal.settings.common && Drupal.settings.common.stardust) {
+      if (ServiceRegistry && ServiceRegistry['elc-service-analytics']) {
+        window.utag_cfg_ovrd.noview = true;
+        window.utag_stardust = 1;
+      }
+    }
+
+    a = window.utag_cfg_ovrd.path + 'utag.js';
+    b = document; c = 'script'; d = b.createElement(c); d.src = a; d.type = 'text/java' + c; d.async = true;
+    a = b.getElementsByTagName(c)[0]; a.parentNode.insertBefore(d, a);
+    d.handlerFlag = 0; d.onreadystatechange = function() {
+      if ((this.readyState === 'complete' || this.readyState === 'loaded') && !d.handlerFlag) {
+        d.handlerFlag = 1; 
+        site.elcEvents.dispatch('tealium:loaded');
+        if (window.utag_stardust) {
+            ServiceBus.emit(Topics.events.ANALYTICS_LOADED);
+        }
+      }
+    }; d.onload = function() {
+      if (!d.handlerFlag) {
+        d.handlerFlag = 1; 
+        site.elcEvents.dispatch('tealium:loaded');
+        if (window.utag_stardust) {
+            ServiceBus.emit(Topics.events.ANALYTICS_LOADED);
+        }
+      }
+    };
+  };
+})(
+  window.site || {},
+  window.ServiceRegistry || {},
+  window.GlobalServiceBus || {},
+  window.ServiceBusTopics || {}
+);

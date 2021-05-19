@@ -1,0 +1,21 @@
+define(["global","jquery"], function(global, $) {
+
+	$(document).ready(function(){
+
+		SZ.bottomBar = function() {
+
+			var bottomBarWrapper = $('#BottomBar');
+			var bottomBarAd = $(bottomBarWrapper.selector + ' iframe');
+			var bottomBarAdContainer = $(bottomBarAd.selector).parent();
+
+			// Check if bottom bar ad exsits and add show class to #BottomBar if div containing iframe by double click isnt hidden 
+			if (bottomBarAd.length && !bottomBarAdContainer.attr('style')) {
+				bottomBarWrapper.addClass('show');
+			}
+
+		}; new SZ.bottomBar();
+
+	});
+
+
+});

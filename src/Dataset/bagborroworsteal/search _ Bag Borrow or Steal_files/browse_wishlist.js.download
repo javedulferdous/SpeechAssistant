@@ -1,0 +1,178 @@
+
+function wishListCloseDiv(){								   
+	$("#wishListDiv").hide();										
+}
+
+function showWishListDiv(){   
+	var x = ($(window).width() / 2) - ($("#wishListDiv").width() / 2);																
+	var y = ($(window).height() / 2) - ($("#wishListDiv").height() / 2);									
+	var object = this;   
+	this.popupDiv = document.getElementById('wishListDiv');        		
+	
+	object.popupDiv.style.top = y + "px"; 
+	object.popupDiv.style.left = x + 'px';  
+	$("#wishListDiv").show();
+		if (isCustomer  && isAuthenticated){																	
+			checkIsCurrentItem()
+		}else{
+			$("#wishlistIntro").show();
+		}
+}
+
+function showWishListDivById(productId){   
+  var windowOffsetY = 0;
+  if (window.pageYOffset) windowOffsetY = pageYOffset;
+  if (document.body.scrollTop) windowOffsetY = document.body.scrollTop;
+  if (document.documentElement.scrollTop) windowOffsetY = document.documentElement.scrollTop;
+
+	var x = ($(window).width() / 2) - ($("#wishListDiv").width() / 2);																
+	var y = windowOffsetY + ($(window).height() / 2) - ($("#wishListDiv").height() / 2);									
+	var object = this;   
+	this.popupDiv = document.getElementById('wishListDiv');        		
+	
+	object.popupDiv.style.top = y + "px"; 
+	object.popupDiv.style.left = x + 'px';  
+	$("#wishListDiv").show();
+		if (isCustomer  && isAuthenticated){																	
+			checkIsCurrentItemById(productId)
+		}else{
+			$("#wishlistIntro").show();
+		}
+}
+          
+             
+  function addToList(){                         
+    
+   var saveStr=addToListUrlStr + '?productId=' + productIdStr  ;
+      $.ajax({
+             type: "POST",
+             url: saveStr,
+             success: function(){
+																loadWishTabs();
+                								}
+           });  
+     
+   }
+
+	function addToListById(productId){                         
+    
+   var saveStr=addToListUrlStr + '?productId=' + productId  ;
+      $.ajax({
+             type: "POST",
+             url: saveStr,
+             success: function(){
+																loadWishTabs();
+                								}
+           });  
+     
+   }
+
+	 
+                        
+
+		var datailPageTabData;	      	                        
+	     
+          
+    function checkIsCurrentItem(){         	
+     	$.post(checkExistsUrlStr, function(data) { 
+     		
+     		//alert(data); 
+     			if(data=="true"){ 		                       	
+          	$("#currentItem").show(); 
+          	$("#wishListCloseCont").show();	
+          	$("#wishlistIntro").hide();	
+          	$("#dropFormDrop").hide();	
+          	$("#singleTabNotice").hide();	
+          	$("#wishListMoveConfirm").hide();	
+         	//console.log("eval as true");
+        	}else {          		
+          	addToList(0);      
+          	//Fire Omniture Event(#7)
+          	var s=s_gi(omnitureReportSuiteStr);	s.linkTrackVars='events';      	s.linkTrackEvents='event7'; s.events='event7'; s.tl(this,'o','Wishlist Add');       
+        	}												
+     		
+     		
+     		}); 
+     	
+     					
+          		
+    }
+                		
+    function checkIsCurrentItemById(productId){         	
+     	$.post(checkExistsUrlStrNoId+productId, function(data) { 
+     		//alert(data); 
+     			if(data=="true"){ 		                       	
+          	$("#currentItem").show(); 
+          	$("#wishListCloseCont").show();	
+          	$("#wishlistIntro").hide();	
+          	$("#dropFormDrop").hide();	
+          	$("#singleTabNotice").hide();	
+          	$("#wishListMoveConfirm").hide();	
+         	//console.log("eval as true");
+        	}else {          		
+          	addToListById(productId);      
+          	//Fire Omniture Event(#7)
+          	var s=s_gi(omnitureReportSuiteStr);	s.linkTrackVars='events';      	s.linkTrackEvents='event7'; s.events='event7'; s.tl(this,'o','Wishlist Add');       
+        	}												
+     		}); 
+    } 	
+     					
+          		
+          
+   function loadWishTabs(){
+	 	var tabCount;
+		tabCount=0;	 
+	 	targetDiv = $("#dropFormDrop");    
+    	$.getJSON(wishListTabsUrlStr,
+        function(data){                             
+        $.each(data, function() {                                    
+          targetDiv.append('<option value="' + this.id + '">' + this.name + '</option>');  
+     			tabCount++;
+          });
+			datailPageTabData=data;
+			if(parseInt(tabCount) <=1 ){
+            $("#wishListCloseCont").show();                                    
+            $("#singleTabNotice").show();
+             //alert("inside conditional" +  tabCount);
+           }else{
+     				 $("#wishlistIntro").show();
+             $("#dropFormDrop").show();	   
+             $("#wishListCloseCont").show();	    	                                 
+           }
+        });      
+                  
+	tabCount=0;
+
+    }
+            										
+function moveToTab(id){                           
+   var saveStr=addToListUrlStr + '?productId=' + productIdStr + '&bucketId=' + id ;
+   //alert(saveStr);
+   $.ajax({
+          type: "POST",
+         	url: saveStr,
+          success: function(){
+						$("#wishlistIntro").hide();
+            $("#saveSearchRequest").hide();
+						$("#dropFormDrop").hide();
+            $("#wishListMoveConfirm").show(); 																		
+						$("#wishListCloseCont").show();
+						var formIdSrt=$("#dropFormDrop").val()
+						$("#moveConfirmTab").append(getTabName(parseInt(formIdSrt)) + " ");
+
+           }
+     });  
+
+
+}
+            
+function getTabName(bucketId){
+ var tabNameStr
+    $.each(datailPageTabData, function() {                                    
+				if(this.id==bucketId){
+					tabNameStr=this.name;
+				}                      				
+     });
+
+	return(tabNameStr);  
+}	 

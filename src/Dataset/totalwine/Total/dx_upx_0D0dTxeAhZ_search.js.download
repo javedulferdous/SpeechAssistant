@@ -1,0 +1,342 @@
+(function() {
+
+  var UST_NAME = 'dx_upx_0D0dTxeAhZ_search.js';
+  var CONSENT_PARAMETER = 'cs';
+
+  /** get the value of any key passed to a query string that links this script *
+   *  E.G <script type='text/javascript' src='cti.w55c.net/ct/dx_upx_0DAbt8AQLM.js?dx_UST_stage=TD_[stage]&dx_UST_model=[model]'></script>
+   */
+  var getScriptLinkQueryParameters = function (name) {
+
+    var scripts = document.getElementsByTagName('script');
+    var dxScript = '';
+    var scriptTokens = [];
+
+    for (var i = 0; i < scripts.length; i++) {
+      if (scripts[i].src && scripts[i].src.indexOf(UST_NAME) > -1) {
+        dxScript = scripts[i];
+
+        scriptTokens = dxScript.src.split('?');
+
+        if (scriptTokens.length > 1) {
+          break;
+        }
+      }
+    }
+
+    if (dxScript === '' || scriptTokens.length < 2) {
+      return '';
+    }
+
+    var scriptQueryString = scriptTokens[1];
+    var queryStringValues = scriptQueryString.split('&');
+
+    for (var j = 0; j < queryStringValues.length; j++) {
+      if (queryStringValues[j].toLowerCase().indexOf(name.toLowerCase()) != -1) {
+        return queryStringValues[j].split('=')[1];
+      }
+    }
+
+    return '';
+  };
+
+  var firePixel = function (pixelIds) {
+    if (pixelIds === '') {
+      return;
+    }
+    var consentStringValue = getScriptLinkQueryParameters(CONSENT_PARAMETER);
+    var uspsConsentString = getUSPS();
+    var dxDomain = '//tags.w55c.net/rs?id=';
+    var pixels = pixelIds.split(',');
+
+    for (var i = 0; i < pixels.length; i++) {
+      var dxPixelId = pixels[i];
+      var cb = Math.floor(Math.random() * 99999);
+      var pixelSrc = dxDomain + dxPixelId + '&rnd=' + cb;
+
+      if (consentStringValue !== '') {
+        pixelSrc += '&cs=' + consentStringValue;
+      }
+
+      if (uspsConsentString !== '') {
+        pixelSrc += '&us_privacy=' + uspsConsentString;
+      }
+
+      var img = document.createElement('img');
+      img.src = pixelSrc;
+    }
+  };
+
+  var normalizeUrl = function (normURL) {
+    var replacedURL = normURL.replace(/^https?:\/\//, '');
+
+    if (replacedURL.substr(-1) == '/') {
+      replacedURL = replacedURL.substr(0, replacedURL.length - 1);
+    }
+
+    return replacedURL;
+  };
+
+  /* Main function to fire pixel based on matching the current URL to the URL Map */
+  var dxUpx = function () {
+    // This represents a list of pixel ids to fire.  The default is the diagnostic pixel.
+    var dxPixelIds = [];
+    var normalizedUrl = normalizeUrl(window.location.href);
+
+    for(var pixel in pixelMap){
+      if(pixelMap.hasOwnProperty(pixel) && pixelMap[pixel].indexOf(normalizedUrl) > 0)
+        dxPixelIds.push(pixel);
+    }
+
+     firePixel(dxPixelIds.toString());
+  };
+
+  var getUSPS = function() {
+    var uspsConsentString = '';
+
+    var ccpaCallback = function (uspData, success) {
+      if (success) {
+        uspsConsentString = uspData.uspString;
+      }
+    };
+
+    // Get CCPA consent string if API is available
+    if (typeof __uspapi == typeof(Function)) {
+      __uspapi('getUSPData', 1, ccpaCallback);
+    }
+
+    return uspsConsentString;
+  };
+
+  var pixelMap = {
+    '43b3179677b64ffa8ea7b29c72a6942a' : [
+      'www.totalwine.com/beer/c/c0010?text=beer',
+      'www.totalwine.com/search/all?text=Stella',
+      'www.totalwine.com/search/all?text=Beer%20Kegs',
+      'www.totalwine.com/beer/kegs/c/41520?text=keg',
+      'www.totalwine.com/beer/import-beer/c/516520?brandcode=corona&text=coronas&text=corona',
+      'www.totalwine.com/search/all?text=Coors%20Light',
+      'www.totalwine.com/search/all?text=Michelob%20Ultra',
+      'www.totalwine.com/beer/brand/bud-light?viewall=true&sort=most-popular&text=bud+light',
+      'www.totalwine.com/search/all?text=Heineken',
+      'www.totalwine.com/search/all?text=miller%20lite',
+      'www.totalwine.com/search/all?text=Blue%20Moon'
+    ],
+    'd8c52641b11f4c6fbc00137022bbda49': [
+      'www.totalwine.com/search/all?text=silver%20oak',
+      'www.totalwine.com/search/all?text=Josh',
+      'www.totalwine.com/search/all?text=Stella%20Rosa',
+      'www.totalwine.com/search/all?text=caymus',
+      'www.totalwine.com/search/all?text=Pinot%20Noir',
+      'www.totalwine.com/search/all?text=Cabernet%20Sauvignon',
+      'www.totalwine.com/wine/white-wine/chardonnay/c/000004?viewall=true&text=chardonnay',
+      'www.totalwine.com/search/all?text=Moscato',
+      'www.totalwine.com/search/all?text=Rose',
+      'www.totalwine.com/search/all?text=champagne',
+      'www.totalwine.com/search/all?text=Moet',
+      'www.totalwine.com/wine/italy/veneto/prosecco/c/000626?text=prosecco',
+      'www.totalwine.com/search/all?text=Veuve%20Clicquot'
+    ],
+    '21f52c1d1b534d1a9a96ee8f29c5f567': [
+      'www.totalwine.com/search/all?text=caymus',
+      'www.totalwine.com/search/all?text=Pinot%20Noir',
+      'www.totalwine.com/search/all?text=Cabernet%20Sauvignon',
+      'www.totalwine.com/wine/red-wine/c/000009?text=red+wine'
+    ],
+    '846f3ed520974accb37cb37da2af61ad': [
+      'www.totalwine.com/wine/white-wine/chardonnay/c/000004?viewall=true&text=chardonnay',
+      'www.totalwine.com/search/all?text=Moscato',
+      'www.totalwine.com/search/all?text=Stella%20Rosa',
+      'www.totalwine.com/wine/white-wine/c/000002?text=white+wine'
+    ],
+    'ca0e64694f624b57a43ca67713a1b2e0': [
+      'www.totalwine.com/search/all?text=Rose',
+      'www.totalwine.com/search/all?text=champagne',
+      'www.totalwine.com/search/all?text=Moet',
+      'www.totalwine.com/wine/italy/veneto/prosecco/c/000626?text=prosecco',
+      'www.totalwine.com/search/all?text=Veuve%20Clicquot'
+    ],
+    '7f87659cd90143dfa1a583371f6c2857': [
+      'www.totalwine.com/search/all?text=Grey%20Goose%20Vodka',
+      'www.totalwine.com/search/all?text=Tito%20s%20Handmade%20Vodka',
+      'www.totalwine.com/search/all?text=ciroc',
+      'www.totalwine.com/spirits/vodka/c/000897?text=vodka',
+      'www.totalwine.com/search/all?text=sMIRNOFF',
+      'www.totalwine.com/search/all?text=Titos',
+      'www.totalwine.com/search/all?text=tito',
+      'www.totalwine.com/search/all?text=Grey%20goose',
+      'www.totalwine.com/search/all?text=Absinthe',
+      'www.totalwine.com/search/all?text=White%20claw',
+      'www.totalwine.com/search/all?text=triple%20sec',
+      'www.totalwine.com/search/all?text=hennessy',
+      'www.totalwine.com/search/all?text=Grand%20Marnier',
+      'www.totalwine.com/search/all?text=Remy',
+      'www.totalwine.com/search/all?text=henn',
+      'www.totalwine.com/spirits/tequila/c/000824?viewall=true&text=tequila',
+      'www.totalwine.com/search/all?text=Patron',
+      'www.totalwine.com/search/all?text=Don%20Julio%201942%20Tequila',
+      'www.totalwine.com/search/all?text=Patron%20Silver',
+      'www.totalwine.com/spirits/brand/don-julio?viewall=true&sort=most-popular&text=don+julio',
+      'www.totalwine.com/search/all?text=Casamigos',
+      'www.totalwine.com/search/all?text=Crown%20royal',
+      'www.totalwine.com/search/all?text=Jameson',
+      'www.totalwine.com/search/all?text=Crown%20royal%20peach',
+      'www.totalwine.com/search/all?text=Jack%20Daniels',
+      'www.totalwine.com/search/all?text=Hibiki',
+      'www.totalwine.com/search/all?text=Jack%20Daniel%20s',
+      'www.totalwine.com/search/all?text=Crown',
+      'www.totalwine.com/search/all?text=Glenlivet',
+      'www.totalwine.com/search/all?text=lagavulin',
+      'www.totalwine.com/spirits/c/c0030?spiritsproducttype=american-whiskey,bourbon,canadian-whisky,irish-whiskey,other-imported-whiskey,scotch,white-whiskey-moonshine&viewall=true&text=whiskey',
+      'www.totalwine.com/search/all?text=Jack',
+      'www.totalwine.com/search/all?text=Jameson%20Irish%20Whiskey',
+      'www.totalwine.com/search/all?text=nikka',
+      'www.totalwine.com/search/all?text=yamazaki',
+      'www.totalwine.com/search/all?text=highland%20park',
+      'www.totalwine.com/search/all?text=The%20Glenlivet',
+      'www.totalwine.com/search/all?text=Bourbon',
+      'www.totalwine.com/search/all?text=Buffalo%20Trace%20Bourbon',
+      'www.totalwine.com/search/all?text=Woodford%20Reserve',
+      'www.totalwine.com/search/all?text=Henry%20Mckenna',
+      'www.totalwine.com/search/all?text=Blantons%20Bourbon',
+      'www.totalwine.com/search/all?text=Evan%20Williams',
+      'www.totalwine.com/search/all?text=Angels%20Envy',
+      'www.totalwine.com/search/all?text=Elijah%20Craig',
+      'www.totalwine.com/search/all?text=Old%20Forester',
+      'www.totalwine.com/spirits/brand/wl-weller?text=weller',
+      'www.totalwine.com/search/all?text=four%20roses',
+      'www.totalwine.com/search/all?text=Blanton%20s%20Bourbon',
+      'www.totalwine.com/search/all?text=Eagle%20rare',
+      'www.totalwine.com/search/all?text=Blanton',
+      'www.totalwine.com/search/all?text=blantons',
+      'www.totalwine.com/search/all?text=makers%20mark',
+      'www.totalwine.com/search/all?text=pappy%20van%20winkle',
+      'www.totalwine.com/search/all?text=Jim%20beam',
+      'www.totalwine.com/search/all?text=Knob%20creek',
+      'www.totalwine.com/search/all?text=Wild%20Turkey',
+      'www.totalwine.com/search/all?text=WL%20Weller',
+      'www.totalwine.com/spirits/scotch/c/000885?text=scotch',
+      'www.totalwine.com/search/all?text=Ardbeg',
+      'www.totalwine.com/search/all?text=Johnnie%20Walker',
+      'www.totalwine.com/search/all?text=Balvenie',
+      'www.totalwine.com/search/all?text=Johnnie%20Walker%20Blue%20Label',
+      'www.totalwine.com/search/all?text=Johnnie%20Walker%20Black%20Label',
+      'www.totalwine.com/search/all?text=Macallan',
+      'www.totalwine.com/search/all?text=Glenfiddich',
+      'www.totalwine.com/search/all?text=Oban',
+      'www.totalwine.com/search/all?text=Laphroaig',
+      'www.totalwine.com/spirits/gin/c/000870?viewall=true&text=gin',
+      'www.totalwine.com/search/all?text=Rum',
+      'www.totalwine.com/search/all?text=Bacardi'
+    ],
+    '4f2a76a35bc74b9cb675caa53b46c3d7': [
+      'www.totalwine.com/spirits/tequila/c/000824?viewall=true&text=tequila',
+      'www.totalwine.com/search/all?text=Patron',
+      'www.totalwine.com/search/all?text=Don%20Julio%201942%20Tequila',
+      'www.totalwine.com/search/all?text=Patron%20Silver',
+      'www.totalwine.com/spirits/brand/don-julio?viewall=true&sort=most-popular&text=don+julio',
+      'www.totalwine.com/search/all?text=Casamigos'
+    ],
+    '2789c274ad814fe8b561c7eaa6998679': [
+      'www.totalwine.com/spirits/gin/c/000870?viewall=true&text=gin'
+    ],
+    'a6930a11adc743c283b6b96af14ee6f7': [
+      'www.totalwine.com/search/all?text=Rum',
+      'www.totalwine.com/search/all?text=Bacardi'
+    ],
+    'fdc9b79177034c2ab303eb66b3298657': [
+      'www.totalwine.com/search/all?text=Crown%20royal',
+      'www.totalwine.com/search/all?text=Jameson',
+      'www.totalwine.com/search/all?text=Crown%20royal%20peach',
+      'www.totalwine.com/search/all?text=Jack%20Daniels',
+      'www.totalwine.com/search/all?text=Hibiki',
+      'www.totalwine.com/search/all?text=Jack%20Daniel%20s',
+      'www.totalwine.com/search/all?text=Crown',
+      'www.totalwine.com/search/all?text=Glenlivet',
+      'www.totalwine.com/search/all?text=lagavulin',
+      'www.totalwine.com/spirits/c/c0030?spiritsproducttype=american-whiskey,bourbon,canadian-whisky,irish-whiskey,other-imported-whiskey,scotch,white-whiskey-moonshine&viewall=true&text=whiskey',
+      'www.totalwine.com/search/all?text=Jack',
+      'www.totalwine.com/search/all?text=Jameson%20Irish%20Whiskey',
+      'www.totalwine.com/search/all?text=nikka',
+      'www.totalwine.com/search/all?text=yamazaki',
+      'www.totalwine.com/search/all?text=highland%20park',
+      'www.totalwine.com/search/all?text=The%20Glenlivet',
+      'www.totalwine.com/search/all?text=Bourbon',
+      'www.totalwine.com/search/all?text=Buffalo%20Trace%20Bourbon',
+      'www.totalwine.com/search/all?text=Woodford%20Reserve',
+      'www.totalwine.com/search/all?text=Henry%20Mckenna',
+      'www.totalwine.com/search/all?text=Blantons%20Bourbon',
+      'www.totalwine.com/search/all?text=Evan%20Williams',
+      'www.totalwine.com/search/all?text=Angels%20Envy',
+      'www.totalwine.com/search/all?text=Elijah%20Craig',
+      'www.totalwine.com/search/all?text=Old%20Forester',
+      'www.totalwine.com/spirits/brand/wl-weller?text=weller',
+      'www.totalwine.com/search/all?text=four%20roses',
+      'www.totalwine.com/search/all?text=Blanton%20s%20Bourbon',
+      'www.totalwine.com/search/all?text=Eagle%20rare',
+      'www.totalwine.com/search/all?text=Blanton',
+      'www.totalwine.com/search/all?text=blantons',
+      'www.totalwine.com/search/all?text=makers%20mark',
+      'www.totalwine.com/search/all?text=pappy%20van%20winkle',
+      'www.totalwine.com/search/all?text=Jim%20beam',
+      'www.totalwine.com/search/all?text=Knob%20creek',
+      'www.totalwine.com/search/all?text=Wild%20Turkey',
+      'www.totalwine.com/search/all?text=WL%20Weller',
+      'www.totalwine.com/spirits/scotch/c/000885?text=scotch',
+      'www.totalwine.com/search/all?text=Ardbeg',
+      'www.totalwine.com/search/all?text=Johnnie%20Walker',
+      'www.totalwine.com/search/all?text=Balvenie',
+      'www.totalwine.com/search/all?text=Johnnie%20Walker%20Blue%20Label',
+      'www.totalwine.com/search/all?text=Johnnie%20Walker%20Black%20Label',
+      'www.totalwine.com/search/all?text=Macallan',
+      'www.totalwine.com/search/all?text=Glenfiddich',
+      'www.totalwine.com/search/all?text=Oban',
+      'www.totalwine.com/search/all?text=Laphroaig'
+    ],
+    '1f1ed4034d3a4bad907cb24f886d5a3e': [
+      'www.totalwine.com/search/all?text=Bourbon',
+      'www.totalwine.com/search/all?text=Buffalo%20Trace%20Bourbon',
+      'www.totalwine.com/search/all?text=Woodford%20Reserve',
+      'www.totalwine.com/search/all?text=Henry%20Mckenna',
+      'www.totalwine.com/search/all?text=Blantons%20Bourbon',
+      'www.totalwine.com/search/all?text=Evan%20Williams',
+      'www.totalwine.com/search/all?text=Angels%20Envy',
+      'www.totalwine.com/search/all?text=Elijah%20Craig',
+      'www.totalwine.com/search/all?text=Old%20Forester',
+      'www.totalwine.com/spirits/brand/wl-weller?text=weller',
+      'www.totalwine.com/search/all?text=four%20roses',
+      'www.totalwine.com/search/all?text=Blanton%20s%20Bourbon',
+      'www.totalwine.com/search/all?text=Eagle%20rare',
+      'www.totalwine.com/search/all?text=Blanton',
+      'www.totalwine.com/search/all?text=blantons',
+      'www.totalwine.com/search/all?text=makers%20mark',
+      'www.totalwine.com/search/all?text=pappy%20van%20winkle',
+      'www.totalwine.com/search/all?text=Jim%20beam',
+      'www.totalwine.com/search/all?text=Knob%20creek',
+      'www.totalwine.com/search/all?text=Wild%20Turkey',
+      'www.totalwine.com/search/all?text=WL%20Weller'
+    ],
+    '19edc11974664606a95289004944cc66': [
+      'www.totalwine.com/spirits/scotch/c/000885?text=scotch',
+      'www.totalwine.com/search/all?text=Ardbeg',
+      'www.totalwine.com/search/all?text=Johnnie%20Walker',
+      'www.totalwine.com/search/all?text=Balvenie',
+      'www.totalwine.com/search/all?text=Johnnie%20Walker%20Blue%20Label',
+      'www.totalwine.com/search/all?text=Johnnie%20Walker%20Black%20Label',
+      'www.totalwine.com/search/all?text=Macallan',
+      'www.totalwine.com/search/all?text=Glenfiddich',
+      'www.totalwine.com/search/all?text=Oban',
+      'www.totalwine.com/search/all?text=Laphroaig'
+    ]
+  };
+
+  // be sure page loads before running
+  if (document.readyState !== "loading") {
+    dxUpx();
+  } else {
+    document.addEventListener("DOMContentLoaded", function(event) {
+      dxUpx();
+    });
+  }
+
+})();

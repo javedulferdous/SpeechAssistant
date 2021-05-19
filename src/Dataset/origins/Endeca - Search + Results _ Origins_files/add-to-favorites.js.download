@@ -1,0 +1,22 @@
+(function($) {
+
+/*
+ ***********************
+ * Add-to-favorites button
+ ***********************
+ */
+
+$(document).on('click keydown', '.js-add-to-favorites', function(e) {
+  var keycode = site.getKeycode(e);
+  if (keycode === 1 || keycode === 13) {
+    e.preventDefault();
+    var skuBaseId = $(this).data('sku-base-id');
+    prodcat.ui.addToFavorites({skuBaseId: skuBaseId, $el: $(this)});
+  }
+});
+
+$(document).on('focus', '.js-add-to-favorites', function() {
+  $('.product-attribute').removeAttr('tabindex');
+});
+
+})(jQuery);

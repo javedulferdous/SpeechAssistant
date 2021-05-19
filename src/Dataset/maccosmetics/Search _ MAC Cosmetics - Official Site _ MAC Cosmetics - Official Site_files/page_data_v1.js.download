@@ -1,0 +1,59 @@
+var Model = Model || {};
+var page_data = page_data || {};
+
+/**
+  * Singleton data model that handles collecting page_data info for an SPP page.
+  * This singleton has a simple getter method that looks to see if spp page data has already been collected or not.
+  * If it has, it will return the stored spp rpcdata object.
+  * Otherwise, it will go fetch that data, store and then return.
+  * Model can be expanded to handle more than just spp pages if needed.
+*/
+Model.PageData = (function() {
+
+  var that = {};
+
+  that.data = null;
+
+  /**
+    * Method to return the spp page data object by either returning if already stored, or
+    *   calling the global variable page_data to get it from there.
+    * The first time the model is called, it will go to the page_data object and store it internally.
+    * Afterwards, it was simply return the stored data object.
+    * Eventually, this can be broken out to include other page_data objects, like MPP if needed.
+  */
+  that.get = function() {
+    if (that.data) {
+      return that.data;
+    } else {
+      var pageData = page_data || null;
+      if (!pageData) {
+        return null;
+      } else {
+        that.data = pageData ? that.sort(pageData) : {};
+        return that.data;
+      }
+    }
+  };
+
+  /**
+    * Method that sorts the catalog object between SPP and MPP pages.
+    * If the catalog object has an spp data object, it will just return the first object.
+    * If the catalog object has an mpp object, it will return all the category data.
+    * If the catalog data has neither, null is returned.
+  */
+  that.sort = function(pageData) {
+    var data = null;
+    var rpcData = null;
+    if ( pageData['catalog-spp'] ) {
+      rpcData = pageData['catalog-spp'];
+      data = (rpcData && rpcData.products) ? rpcData.products[0] : null;
+    } else if ( pageData['catalog-mpp'] ) {
+      rpcData = pageData['catalog-mpp'];
+      data = (rpcData && rpcData.categories) ? rpcData.categories[0] : null;
+    }
+    return data;
+  };
+
+  return that;
+
+}());

@@ -1,0 +1,502 @@
+var imageArray = new Array(),
+    loadedImgs = 0,
+    checkTimer,
+    adWidth,
+    adHeight,
+    jsCheck;
+
+var tl; // timeline Max
+
+window.onload = function() {
+    initializeAPI();
+}
+
+function initializeAPI() {
+    main.classList.add(checkPlatform()[0] + "-" + checkPlatform()[1]);
+
+    myFT.on("richload", function() {
+        myFT.on("instantads", function() {
+            checkTimer = setInterval(checkAPI, 100);
+        });
+    });
+}
+
+var checkAPI = function() {
+    if (myFT.richloadsLoaded == true && myFT.instantAdsLoaded == true) {
+        clearInterval(checkTimer);
+        setInstantAds();
+    }
+}
+
+function setInstantAds() {
+//    try {
+        adWidth = myFT.manifestProperties.width;
+        adHeight = myFT.manifestProperties.height;
+
+        //FRAME 1 START
+        var F1 = document.createElement("div");
+        F1.id = "F1_cont";
+        F1.style.position = "absolute";
+        F1.style.left = "0px";
+        F1.style.top = "0px";
+        F1.style.width = adWidth + "px";
+        F1.style.height = adHeight + "px";
+        F1.style.pointerEvents = "none";
+        main.appendChild(F1);
+
+        var F1_bkg_img = document.createElement("img");
+        F1_bkg_img.id = "F1_bkg_img";
+        F1_bkg_img.style.position = "absolute";
+        F1_bkg_img.style.left = "0px";
+        F1_bkg_img.style.top = "0px";
+        F1_bkg_img.style.width = adWidth + "px";
+        F1_bkg_img.style.height = adHeight + "px";
+        F1.appendChild(F1_bkg_img);
+        imageArray.push([F1_bkg_img, myFT.instantAds.F1_bkg_img]);
+
+        var logo_img = document.createElement("img");
+        logo_img.id = "logo_img";
+        logo_img.style.position = "absolute";
+        logo_img.style.left = "0px";
+        logo_img.style.top = "0px";
+        logo_img.style.width = adWidth + "px";
+        logo_img.style.height = adHeight + "px";
+        F1.appendChild(logo_img);
+        imageArray.push([logo_img, myFT.instantAds.logo_img]);
+
+        var promoLogo_img = document.createElement("img");
+        promoLogo_img.id = "promoLogo_img";
+        promoLogo_img.style.position = "absolute";
+        promoLogo_img.style.left = "0px";
+        promoLogo_img.style.top = "0px";
+        promoLogo_img.style.width = adWidth + "px";
+        promoLogo_img.style.height = adHeight + "px";
+        F1.appendChild(promoLogo_img);
+        imageArray.push([promoLogo_img, myFT.instantAds.SeoA_logo_img]);
+
+        var F1_headline_txt = document.createElement("div");
+        F1_headline_txt.id = "F1_headline_txt";
+        F1_headline_txt.classList.add("headlines");
+        F1_headline_txt.style.fontSize ="17.5px";
+        F1_headline_txt.style.color = myFT.instantAds.F1_headline_color;
+        F1_headline_txt.style.left = myFT.instantAds.F1_headline_xy.split(",")[0] + "px";
+        F1_headline_txt.style.top = myFT.instantAds.F1_headline_xy.split(",")[1] + "px";
+        F1.appendChild(F1_headline_txt);
+        F1_headline_txt.innerHTML = myFT.instantAds.F1_headline_text;
+
+        var F1_disclaimer_txt_style = myFT.instantAds.F1_disclaimerTxt_size_hex_xy.split('|');
+        var F1_disclaimer_txt = document.createElement("div");
+        F1_disclaimer_txt.id = "F1_disclaimer_txt";
+        F1_disclaimer_txt.classList.add("disclaimers");
+        F1_disclaimer_txt.style.fontSize = F1_disclaimer_txt_style[0] + "px";
+        F1_disclaimer_txt.style.color = F1_disclaimer_txt_style[1];
+        F1_disclaimer_txt.style.left = F1_disclaimer_txt_style[2].split(",")[0] + "px";
+        F1_disclaimer_txt.style.top = F1_disclaimer_txt_style[2].split(",")[1] + "px";
+        F1.appendChild(F1_disclaimer_txt);
+        F1_disclaimer_txt.innerHTML = myFT.instantAds.F1_disclaimer_text;
+        //FRAME 1 END
+
+        //FRAME 2 START
+        var F2 = document.createElement("div");
+        F2.id = "F2_cont";
+        F2.style.position = "absolute";
+        F2.style.left = "0px";
+        F2.style.top = "0px";
+        F2.style.width = adWidth + "px";
+        F2.style.height = adHeight + "px";
+        F2.style.pointerEvents = "none";
+        main.appendChild(F2);
+
+        var F2_bkg_img = document.createElement("img");
+        F2_bkg_img.id = "F2_bkg_img";
+        F2_bkg_img.style.position = "absolute";
+        F2_bkg_img.style.left = "0px";
+        F2_bkg_img.style.top = "0px";
+        F2_bkg_img.style.width = adWidth + "px";
+        F2_bkg_img.style.height = adHeight + "px";
+        F2.appendChild(F2_bkg_img);
+        imageArray.push([F2_bkg_img, myFT.instantAds.F2_bkg_img]);
+
+        var f2_logo_img = document.createElement("img");
+        f2_logo_img.id = "f2_logo_img";
+        f2_logo_img.style.position = "absolute";
+        f2_logo_img.style.left = "0px";
+        f2_logo_img.style.top = "0px";
+        f2_logo_img.style.width = adWidth + "px";
+        f2_logo_img.style.height = adHeight + "px";
+        F2.appendChild(f2_logo_img);
+        imageArray.push([f2_logo_img, myFT.instantAds.logo_img]);
+
+        var F2_headline_txt = document.createElement("div");
+        F2_headline_txt.id = "F2_headline_txt";
+        F2_headline_txt.classList.add("headlines");
+        F2_headline_txt.classList.add("headlines-centered");
+        F2_headline_txt.style.fontSize = "17.5px";
+        F2_headline_txt.style.color = myFT.instantAds.F2_headline_color;
+        F2_headline_txt.style.left = myFT.instantAds.F2_headline_xy.split(",")[0] + "px";
+        F2_headline_txt.style.top = myFT.instantAds.F2_headline_xy.split(",")[1] + "px";
+        F2.appendChild(F2_headline_txt);
+        F2_headline_txt.innerHTML = myFT.instantAds.F2_headline_text;
+
+        var F2_disclaimer_txt_style = myFT.instantAds.F2_disclaimerTxt_size_hex_xy.split('|');
+        var F2_disclaimer_txt = document.createElement("div");
+        F2_disclaimer_txt.id = "F2_disclaimer_txt";
+        F2_disclaimer_txt.classList.add("disclaimers");
+        F2_disclaimer_txt.style.fontSize = F2_disclaimer_txt_style[0] + "px";
+        F2_disclaimer_txt.style.color = F2_disclaimer_txt_style[1];
+        F2_disclaimer_txt.style.left = F2_disclaimer_txt_style[2].split(",")[0] + "px";
+        F2_disclaimer_txt.style.top = F2_disclaimer_txt_style[2].split(",")[1] + "px";
+        F2.appendChild(F2_disclaimer_txt);
+        F2_disclaimer_txt.innerHTML = myFT.instantAds.F2_disclaimer_text;
+        //FRAME 2 END
+
+        //FRAME 3 START
+        var F3 = document.createElement("div");
+        F3.id = "F3_cont";
+        F3.style.position = "absolute";
+        F3.style.left = "0px";
+        F3.style.top = "0px";
+        F3.style.width = adWidth + "px";
+        F3.style.height = adHeight + "px";
+        F3.style.pointerEvents = "none";
+        main.appendChild(F3);
+
+        var F3_bkg_img = document.createElement("img");
+        F3_bkg_img.id = "F3_bkg_img";
+        F3_bkg_img.style.position = "absolute";
+        F3_bkg_img.style.left = "0px";
+        F3_bkg_img.style.top = "0px";
+        F3_bkg_img.style.width = adWidth + "px";
+        F3_bkg_img.style.height = adHeight + "px";
+        F3.appendChild(F3_bkg_img);
+        imageArray.push([F3_bkg_img, myFT.instantAds.F3_bkg_img]);
+
+        var f3_logo_img = document.createElement("img");
+        f3_logo_img.id = "f3_logo_img";
+        f3_logo_img.style.position = "absolute";
+        f3_logo_img.style.left = "0px";
+        f3_logo_img.style.top = "0px";
+        f3_logo_img.style.width = adWidth + "px";
+        f3_logo_img.style.height = adHeight + "px";
+        F3.appendChild(f3_logo_img);
+        imageArray.push([f3_logo_img, myFT.instantAds.logo_img]);
+
+        var f3_promoLogo_img = document.createElement("img");
+        f3_promoLogo_img.id = "f3_promoLogo_img";
+        f3_promoLogo_img.style.position = "absolute";
+        f3_promoLogo_img.style.left = "0px";
+        f3_promoLogo_img.style.top = "0px";
+        f3_promoLogo_img.style.width = adWidth + "px";
+        f3_promoLogo_img.style.height = adHeight + "px";
+        F3.appendChild(f3_promoLogo_img);
+        imageArray.push([f3_promoLogo_img, myFT.instantAds.SeoA_logo_img]);
+
+        var cta_txt = document.createElement("div");
+        cta_txt.id = "cta_txt";
+        cta_txt.classList.add("cta");
+        cta_txt.style.fontSize = "11px";
+        cta_txt.style.fontFamily = "audi-extendedbold";
+        cta_txt.style.color = myFT.instantAds.CTA_Copy_Color;
+        cta_txt.style.left = myFT.instantAds.CTA_xy.split(",")[0] + "px";
+        cta_txt.style.top = myFT.instantAds.CTA_xy.split(",")[1] + "px";
+        F3.appendChild(cta_txt);
+        cta_txt.innerHTML = myFT.instantAds.CTA_Copy;
+
+        var F3_headline_txt = document.createElement("div");
+        F3_headline_txt.id = "F3_headline_txt";
+        F3_headline_txt.classList.add("headlines");
+        F3_headline_txt.classList.add("headlines-centered");
+        F3_headline_txt.style.fontSize = "17.5px";
+        F3_headline_txt.style.color = myFT.instantAds.F3_headline_color;
+        F3_headline_txt.style.left = myFT.instantAds.F3_headline_xy.split(",")[0] + "px";
+        F3_headline_txt.style.top = myFT.instantAds.F3_headline_xy.split(",")[1] + "px";
+        F3.appendChild(F3_headline_txt);
+        F3_headline_txt.innerHTML = myFT.instantAds.F3_headline_text;
+
+        var F3_disclaimer_txt_style = myFT.instantAds.F3_disclaimerTxt_size_hex_xy.split('|');
+        var F3_disclaimer_txt = document.createElement("div");
+        F3_disclaimer_txt.id = "F3_disclaimer_txt";
+        F3_disclaimer_txt.classList.add("disclaimers");
+        F3_disclaimer_txt.style.fontSize = F3_disclaimer_txt_style[0] + "px";
+        F3_disclaimer_txt.style.color = F3_disclaimer_txt_style[1];
+        F3_disclaimer_txt.style.left = F3_disclaimer_txt_style[2].split(",")[0] + "px";
+        F3_disclaimer_txt.style.top = F3_disclaimer_txt_style[2].split(",")[1] + "px";
+        F3.appendChild(F3_disclaimer_txt);
+        F3_disclaimer_txt.innerHTML = myFT.instantAds.F3_disclaimer_text;
+
+        replay.style.position = "absolute";
+        replay.style.visibility = "hidden";
+        replay.style.pointerEvents = "auto";
+        replay.style.cursor = "pointer";
+        replay.style.fontFamily = "audi-normal";
+        replay.style.textDecoration = "underline";
+        replay.style.fontSize = "9px";
+        replay.style.color = "#FFF";
+        replay.style.left = myFT.instantAds.Replay_Copy_xy.split(",")[0] + "px";
+        replay.style.top = myFT.instantAds.Replay_Copy_xy.split(",")[1] + "px";
+        replay.innerHTML = myFT.instantAds.Replay_Copy;
+        //FRAME 3 END
+
+        //SPRITE
+        var sprite = document.createElement("div");
+        sprite.id = "sprite";
+        sprite.style.position = "absolute";
+        sprite.style.pointerEvents = "none";
+        sprite.style.left = "0px";
+        sprite.style.top = "0px";
+        sprite.style.width = adWidth + "px";
+        sprite.style.height = adHeight + "px";
+        sprite.style.backgroundSize = "cover";
+        main.appendChild(sprite);
+        imageArray.push([sprite, "https://cdn.flashtalking.com/130396/SeoA_spriteSheets/spritesheet_300x250.png"]);
+
+        replay.addEventListener("click", function() {
+            TweenLite.set(F1_headline_txt, {
+                opacity: 0,
+            });
+            TweenLite.to(F1_cont, 1, {
+                opacity: 1,
+            });
+            TweenLite.to(F3_bkg_img, 1, {
+                opacity: 0,
+            });
+            TweenLite.to(f3_logo_img, 1, {
+                opacity: 0,
+            });
+            TweenLite.to(f3_promoLogo_img, 1, {
+                opacity: 0,
+            });
+            TweenLite.to(F3_headline_txt, 1, {
+                opacity: 0,
+            });
+            TweenLite.to(F3_disclaimer_txt, 1, {
+                opacity: 0,
+            });
+            TweenLite.to(replay, 1, {
+                pointerEvents: "none",
+                opacity: 0,
+            });
+            TweenLite.to(cta_txt, 1, {
+                opacity: 0,
+                onComplete: function() {
+                    tl.restart();
+                }
+            });
+        });
+
+
+
+        preloadImage(initializeUnit);
+//    } catch (error) {
+//        console.error("Error on setInstantAds(): " + error.message);
+//    }
+}
+
+function preloadImage(callback) {
+    try {
+        a = imageArray;
+
+        if (a.length != 0) {
+            for (var i = 0; i < a.length; i++) {
+                if (a[i][0].tagName.toLowerCase() == "img") {
+                    a[i][0].src = a[i][1];
+                    a[i][0].addEventListener("load", function f(e) {
+                        e.currentTarget.removeEventListener(e.type, f);
+                        loadedImgs++;
+                    }, false);
+                } else {
+                    a[i][0].style.backgroundImage = "url('" + a[i][1] + "')";
+
+                    var o = new Image();
+                    o.src = a[i][1];
+                    o.addEventListener("load", function f(e) {
+                        e.currentTarget.removeEventListener(e.type, f);
+                        loadedImgs++;
+                    }, false);
+                }
+            }
+
+            var t = setInterval(function() {
+                if (a.length === loadedImgs) {
+                    clearInterval(t);
+                    callback();
+                }
+            }, 100);
+        } else {
+            setTimeout(callback, 100);
+        }
+    } catch (error) {
+        console.error("Error on preloadImage(): " + error.message);
+    }
+}
+
+function initializeUnit() {
+    try {
+        setTimeout(function() {
+            myFT.applyClickTag(main, 1, myFT.instantAds.Click_URL);
+            main.style.visibility = "visible";
+            if (myFT.instantAds.replay_trueFalse == "true") {
+                replay.style.visibility = "visible";    
+            }
+            startAnimation();
+        }, 500);
+
+    } catch (error) {
+        console.error("Error on initializeUnit(): " + error.message);
+    }
+}
+
+function startAnimation() {
+    tl = new TimelineMax();
+
+    tl.fromTo(F1_headline_txt, 0.5, {
+        opacity: 0,
+        y: 5
+    }, {
+        opacity: 1,
+        y: 0,
+        ease: Power4.easeInOut
+    }, 0.25);
+    
+    tl.to(F1_cont, 2, {
+        opacity: 0,
+    }, '+=2');
+    
+    tl.add("transition1")
+    
+    tl.fromTo(sprite, 3, {
+        backgroundPosition: "0px 0px",
+    }, {
+        backgroundPosition: "-19500px 0px",
+        ease: "steps(65)",
+    }, 'transition1-=2.5');
+
+    tl.fromTo(F2_bkg_img, 2, {
+        opacity: 0
+    }, {
+        opacity: 1,
+    }, 'transition1-=1');
+
+    tl.fromTo(f2_logo_img, 2, {
+        opacity: 0
+    }, {
+        opacity: 1,
+    }, 'transition1-=1');
+
+    tl.fromTo(F2_disclaimer_txt, 2, {
+        opacity: 0
+    }, {
+        opacity: 1,
+    }, 'transition1-=1');
+
+    tl.fromTo(F2_headline_txt, 0.5, {
+        opacity: 0,
+        y: 5
+    }, {
+        opacity: 1,
+        y: 0,
+        ease: Power4.easeInOut
+    }, '-=0.95');
+
+    tl.to(F2_cont, 2, {
+        opacity: 0,
+    }, '+=2');
+    
+    tl.add("transition2")
+
+    tl.fromTo(sprite, 3, {
+        backgroundPosition: "0px 0px",
+    }, {
+        backgroundPosition: "-19500px 0px",
+        ease: "steps(65)",
+    }, 'transition2-=2.5');
+
+    tl.fromTo(F3_bkg_img, 2, {
+        opacity: 0
+    }, {
+        opacity: 1,
+    }, 'transition2-=1');
+
+    tl.fromTo(f3_logo_img, 2, {
+        opacity: 0
+    }, {
+        opacity: 1,
+    }, 'transition2-=1');
+
+    tl.fromTo(f3_promoLogo_img, 2, {
+        opacity: 0
+    }, {
+        opacity: 1,
+    }, 'transition2-=1');
+    
+    tl.fromTo(F3_disclaimer_txt, 2, {
+        opacity: 0
+    }, {
+        opacity: 1,
+    }, 'transition2-=1');
+
+    tl.fromTo(cta_txt, 2, {
+        opacity: 0
+    }, {
+        opacity: 1,
+    }, 'transition2-=1');
+
+    tl.fromTo(replay, 2, {
+        pointerEvents: "none",
+        opacity: 0
+    }, {
+        pointerEvents: "auto",
+        opacity: 1,
+    }, 'transition2-=1');
+
+    tl.fromTo(F3_headline_txt, 0.5, {
+        opacity: 0,
+        y: 5
+    }, {
+        opacity: 1,
+        y: 0,
+        ease: Power4.easeInOut
+    }, '-=0.95');
+}
+
+function checkPlatform() {
+    try {
+        var a = new Array();
+
+        if (navigator.platform.toLowerCase().indexOf("mac") > -1) {
+            a[0] = "macOS";
+        } else if (navigator.platform.toLowerCase().indexOf("win") > -1) {
+            a[0] = "windows";
+        } else {
+            if (navigator.userAgent.match(/iPhone|iPad|iPod/i)) {
+                a[0] = "iOS";
+            } else if (navigator.userAgent.match(/Opera Mini/i)) {
+                a[0] = "opera";
+            } else if (navigator.userAgent.match(/Android/i)) {
+                a[0] = "android";
+            } else if (navigator.userAgent.match(/BlackBerry/i)) {
+                a[0] = "BlackBerry";
+            } else if (navigator.userAgent.match(/IEMobile/i) || navigator.userAgent.match(/WPDesktop/i)) {
+                a[0] = "WindowsPhone";
+            }
+        }
+
+        var MSIE = window.navigator.userAgent.indexOf("MSIE ");
+        var Edge = window.navigator.userAgent.indexOf("Edge/");
+        var Trdt = window.navigator.userAgent.indexOf("Trident/");
+
+        if (navigator.userAgent.toLowerCase().indexOf("chrome") > -1) {
+            a[1] = "chrome";
+        } else if (navigator.userAgent.toLowerCase().indexOf("firefox") > -1) {
+            a[1] = "firefox";
+        } else if (navigator.vendor && navigator.vendor.toLowerCase().indexOf("apple") > -1) {
+            a[1] = "safari";
+        } else if (MSIE > 0 || Edge > 0 || Trdt > 0) {
+            a[1] = "IE";
+        }
+
+        return a;
+    } catch (error) {
+        console.error("Error on checkPlatform(): " + error.message);
+    }
+}

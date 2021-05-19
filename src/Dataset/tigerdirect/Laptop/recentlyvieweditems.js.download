@@ -1,0 +1,102 @@
+var PDP = PDP || {};
+
+isLocalStorageAvailable = function () {
+	//return false; // testing purpose - cookie testing
+    return typeof localStorage !== "undefined";
+};
+
+PDP.recentlyViewed = (function ($) {
+    var _saveItems = function (params) {
+        try {
+            var itemDetails = params.itemDetails;
+            maxItemsCnt = parseInt(params.maxItemsCount);
+            if (isLocalStorageAvailable()) {
+                var items = JSON.parse(localStorage.getItem("recentlyViewedItems")) || {};
+                if (!items.hasOwnProperty('itemsList')) { items.itemsList = []; }
+				var findItem = -1;
+                for (i = 0; i < items.itemsList.length; i++) {
+					if(items.itemsList[i].itemNo == itemDetails.itemNo){
+						findItem = i;
+					}
+				}	
+				if(findItem>-1){
+					items.itemsList.splice(findItem, 1)
+				}
+                var len = items.itemsList.unshift(itemDetails);
+                if (len > maxItemsCnt) {
+                    items.itemsList.splice(maxItemsCnt, len - maxItemsCnt);
+                }
+                items.timeStamp = new Date();
+                localStorage.setItem("recentlyViewedItems", JSON.stringify(items));
+            }
+            else {
+				var Cookie30DaysExpire = new Date();
+				Cookie30DaysExpire.setTime(Cookie30DaysExpire.getTime() + (30 * 24 * 60 * 60 * 1000));
+                var items1 = $.cookie("recentlyViewedItems");
+                if (items1) {
+                    var itemsArr = [];
+                    items1 = items1.split('~');
+                    for (var i = 0; i < items1.length; i++) {
+                        var itemArr = items1[i].split('|=');
+						if(itemArr[0] != itemDetails.itemNo){
+	                        itemsArr.push({ itemNo: itemArr[0], desc: itemArr[1], imageUrl: itemArr[2], reviewCnt: itemArr[3], itemUrl: itemArr[4], rating: itemArr[5],ratingImg:itemArr[6] });
+						}
+                    }
+                    var len1 = itemsArr.unshift(itemDetails);
+                    if (len1 > maxItemsCnt) {
+                        itemsArr.splice(maxItemsCnt, len1 - maxItemsCnt);
+                    }
+                    $.cookie("recentlyViewedItems", itemsArr.map(function (elem) {
+                        return elem.itemNo + "|=" + elem.desc + "|=" + elem.imageUrl + "|=" + elem.reviewCnt + "|=" + elem.itemUrl + "|=" + elem.rating + "|=" + elem.ratingImg;
+                    }).join("~"), { expires: Cookie30DaysExpire, path: "/" }); 
+                }
+                else {
+                    $.cookie("recentlyViewedItems", itemDetails.itemNo + "|=" + itemDetails.desc + "|=" +
+                        itemDetails.imageUrl + "|=" + itemDetails.reviewCnt + "|=" + itemDetails.itemUrl + "|=" + itemDetails.rating + "|=" + itemDetails.ratingImg, { expires: Cookie30DaysExpire, path: "/" });
+                }
+            }
+        }
+        catch (e) { }
+    };
+    var _getItems = function () {
+        try {
+            if (isLocalStorageAvailable()) {
+                var items = JSON.parse(localStorage.getItem("recentlyViewedItems")) || {};
+                if (items && items.itemsList) {
+                    var lastUpdatedDate = items.timeStamp;
+                    var timeDiff = Math.abs((new Date()).getTime() - new Date(lastUpdatedDate).getTime());
+                    var elapsedDays = Math.ceil(timeDiff / (1000 * 3600 * 24));
+                    if (elapsedDays <= 30) {//check if localstorage is less than 30days old then return otherwise remove
+                        return items.itemsList;
+                    }
+                    else {
+                        localStorage.removeItem("recentlyViewedItems");
+                        return [];
+                    }
+                } else {
+                    return [];
+                }
+            }
+            else {
+                var items1 = $.cookie("recentlyViewedItems");
+                if (items1) {
+                    var itemsArr = [];
+                    items1 = items1.split('~');
+                    for (var i = 0; i < items1.length; i++) {
+                        var itemArr = items1[i].split('|=');
+                        itemsArr.push({ itemNo: itemArr[0], desc: itemArr[1], imageUrl: itemArr[2], reviewCnt: itemArr[3], itemUrl: itemArr[4], rating: itemArr[5],ratingImg:itemArr[6] });
+                    }
+                    return itemsArr;
+                }
+                return [];
+            }
+        }
+        catch (e) { }
+    };
+
+    return {
+        saveItems: _saveItems,
+        getItems: _getItems
+    };
+})(jQuery);
+

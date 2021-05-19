@@ -1,0 +1,51 @@
+_satellite.pushAsyncScript(function(event, target, $variables){
+  //My Spy 218211
+if(_satellite.getVar('Movie ID') == '218211'){
+//Desktop MOP
+  if(_satellite.getVar('Page Level 2') == 'movie | overview'){
+
+        //pxl-503
+ _satellite.addImage('//insight.adsrvr.org/track/pxl/?adv=6j81p06&ct=0:jbwe0uo&fmt=4');
+
+    //pxl-502
+(function(e,t,n){if(e.snaptr)return;var a=e.snaptr=function(){a.handleRequest?a.handleRequest.apply(a,arguments):a.queue.push(arguments)};a.queue=[];var s='script';r=t.createElement(s);r.async=!0;r.src=n;var u=t.getElementsByTagName(s)[0];u.parentNode.insertBefore(r,u);})(window,document,'https://sc-static.net/scevent.min.js');
+snaptr('init', '2ac13bc1-653b-409d-9b57-323f6ee1d22d', {'user_email': '_INSERT_USER_EMAIL_'});
+snaptr('track', '2ac13bc1-653b-409d-9b57-323f6ee1d22d', 'PAGE_VIEW');
+
+
+
+ 
+}
+
+
+//Desktop MSP
+  if(_satellite.getVar('Page Level 2') == 'movie times | by movie'){
+
+        //pxl-503
+ _satellite.addImage('https://insight.adsrvr.org/track/pxl/?adv=6j81p06&ct=0:yeimae4&fmt=4')
+
+        //pxl-502
+(function(e,t,n){if(e.snaptr)return;var a=e.snaptr=function(){a.handleRequest?a.handleRequest.apply(a,arguments):a.queue.push(arguments)};a.queue=[];var s='script';r=t.createElement(s);r.async=!0;r.src=n;var u=t.getElementsByTagName(s)[0];u.parentNode.insertBefore(r,u);})(window,document,'https://sc-static.net/scevent.min.js');
+snaptr('init', '2ac13bc1-653b-409d-9b57-323f6ee1d22d', {'user_email': '_INSERT_USER_EMAIL_'});
+snaptr('track', '2ac13bc1-653b-409d-9b57-323f6ee1d22d', 'PAGE_VIEW');
+//PXL-504
+ _satellite.loadScript('https://www.googletagmanager.com/gtag/js?id=AW-752676527')
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'AW-752676527');
+gtag('event', 'conversion', {'send_to': 'AW-752676527/OPftCNaS0bQBEK_d8-YC'});
+
+//PXL-505
+ _satellite.loadScript('https://www.googletagmanager.com/gtag/js?id=AW-752676536')
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'AW-752676536');
+gtag('event', 'conversion', {'send_to': 'AW-752676536/mM-PCJ-a0bQBELjd8-YC'});
+
+
+}
+}
+
+});

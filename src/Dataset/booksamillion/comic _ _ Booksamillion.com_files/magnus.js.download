@@ -1,0 +1,981 @@
+////////////////////////////////////////////////////////////////////////////////
+// (c) Copyright DCS7 LLC 2015 All rights reserved   ///////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+
+function _MAGNUS_159(name,value,days,path,domain) {
+    var expires;
+    var date = new Date();
+    date.setTime(date.getTime()+(days*24*60*60*1000));
+    var expiration = date.toGMTString();
+    var cString = name + "=" + value + ";expires=" + expiration + ";path=/;" + "domain=" + domain;
+    document.cookie =  cString;
+}
+
+function _MAGNUS_160(name) {
+    var nameEQ = name + "=";
+    var ca = document.cookie.split(';');
+    for(var i=0;i < ca.length;i++) {
+        var c = ca[i];
+        while (c.charAt(0)==' ') {
+            c = c.substring(1,c.length);
+        }
+        if (c.indexOf(nameEQ) === 0) {
+            return c.substring(nameEQ.length,c.length);
+        }
+    }
+    return null;
+}
+
+
+  function isIE7() {
+    // detection IE7 since it does not have native JSON object
+    var ua = navigator.userAgent;
+    if (ua.indexOf('MSIE 7') > 0) {
+        return true;
+    } else {
+      return false;
+    }
+  }
+   
+  function jsonParseWrapper(aJson) {
+        // fake JSON parser for IE 7 dinosaurs
+        // dangerously assume aJson is somewhat well-formed for MAGNUS flat json strings
+        // change 2016.6.9  for extraction only of _MAGNUS fields
+        var parsedJson = new Object();
+        if (isIE7()) {
+            var regex = /(\{.*})/;
+            var match = regex.exec(aJson);
+            if (match[0]) {
+                //it sort of looks like json...at least our stuff
+                var nuJson = aJson.substring(1, aJson.length - 2);
+                //console.log(nuJson);
+                nuJson = nuJson.replace(/ /g, '');
+                nuJson = nuJson.replace(/"/g, '');
+                nuJson = nuJson.replace('http:', 'http&'); //avoid bad split later
+                var xJson = nuJson.split(',');
+                for (var i in xJson) {
+                    var piece = xJson[i].split(':');
+                    piece[0] = piece[0].replace(/"/g, '');
+                    piece[1] = piece[1].replace(/http&/, 'http:');
+                    piece[1] = piece[1].replace(/"/g, '');
+                    parsedJson[piece[0]] = piece[1];
+                }
+                //console.log("well?");
+                return parsedJson;
+            } else {
+                return null;
+            }
+
+        } else {
+            // do native JSON parse on it
+            parsedJson = JSON.parse(aJson);
+            return parsedJson;
+        }
+
+    }
+
+
+function _MAGNUS_166 (challenge,difficulty)
+{
+// next set of functions are enclosed in the scope of _MAGNUS_166()
+    function _MAGNUS_161 (hexA,hexB)
+    {
+        if (hexA == hexB) {return 0;}
+        if (hexA > hexB) {return 1;}
+        if (hexA < hexB) {return -1;}
+        return 0;
+    }
+    
+    function _MAGNUS_162 (diff)
+    {
+        var diff2hex = new Array();
+        diff2hex[0]="80000000";
+        diff2hex[1]="40000000";
+        diff2hex[2]="20000000";
+        diff2hex[3]="10000000";
+        diff2hex[4]="08000000";
+        diff2hex[5]="04000000";
+        diff2hex[6]="02000000";
+        diff2hex[7]="01000000";
+        diff2hex[8]="00800000";
+        diff2hex[9]="00400000";
+        diff2hex[10]="00200000";
+        diff2hex[11]="00100000";
+        diff2hex[12]="00080000";
+        diff2hex[13]="00040000";
+        diff2hex[14]="00020000";
+        diff2hex[15]="00010000";
+        diff2hex[16]="00008000";
+        diff2hex[17]="00004000";
+        diff2hex[18]="00002000";
+        diff2hex[19]="00001000";
+        diff2hex[20]="00000800";
+        diff2hex[21]="00000400";
+        diff2hex[22]="00000200";
+        diff2hex[23]="00000100";
+        diff2hex[24]="00000080";
+        diff2hex[25]="00000040";
+        diff2hex[26]="00000020";
+        diff2hex[27]="00000010";
+        diff2hex[28]="00000008";
+        diff2hex[29]="00000004";
+        diff2hex[30]="00000002";
+        diff2hex[31]="00000001";
+        return diff2hex[diff];
+    }
+    
+    
+    function _MAGNUS_163 (hex,d)
+    {
+        var dhex = _MAGNUS_162(d);
+        var comp = _MAGNUS_161 (dhex,hex);
+        if (comp>=0) {return 1;}
+        else {return 0;}
+    }
+    
+    function _MAGNUS_164 (challenge,solution)
+    {
+        var c = challenge;
+        var preimage = solution + c;
+        var solutionCandidate = _MAGNUS_184(preimage);
+        return solutionCandidate;
+    }
+    
+    
+    function _MAGNUS_165 (solutionHash,difficulty)
+    {
+        var hex2first = solutionHash.substring(0,8);
+        if (_MAGNUS_163(hex2first,difficulty) == 1) {
+            return 1;
+        } else {
+            return 0;
+        }
+    }
+    
+    // main body of this function
+
+    var i = 0;
+    var solution;
+    while (1) {
+        var candidate = _MAGNUS_164 (challenge,i);
+        var checkValue = _MAGNUS_165(candidate,difficulty);
+        if (checkValue == 1) {
+            solution = i;
+            return solution;}
+        i++;
+        if (i>2147483648) { // level 31
+            return '{STATUS:TIMEOUT}';
+        }
+    }
+    return '{STATUS:TIMEOUT}';
+}
+
+
+function _MAGNUS_168(challengeBase,cnonce){
+    var challengePreimage = challengeBase + cnonce;
+    var challenge =  _MAGNUS_184 (challengePreimage);
+    return challenge;
+}
+
+function _MAGNUS_184(data) {
+
+// locals for hash function
+var _MAGNUS_196 = new Array(
+    0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5,
+    0x3956c25b, 0x59f111f1, 0x923f82a4, 0xab1c5ed5,
+    0xd807aa98, 0x12835b01, 0x243185be, 0x550c7dc3,
+    0x72be5d74, 0x80deb1fe, 0x9bdc06a7, 0xc19bf174,
+    0xe49b69c1, 0xefbe4786, 0x0fc19dc6, 0x240ca1cc,
+    0x2de92c6f, 0x4a7484aa, 0x5cb0a9dc, 0x76f988da,
+    0x983e5152, 0xa831c66d, 0xb00327c8, 0xbf597fc7,
+    0xc6e00bf3, 0xd5a79147, 0x06ca6351, 0x14292967,
+    0x27b70a85, 0x2e1b2138, 0x4d2c6dfc, 0x53380d13,
+    0x650a7354, 0x766a0abb, 0x81c2c92e, 0x92722c85,
+    0xa2bfe8a1, 0xa81a664b, 0xc24b8b70, 0xc76c51a3,
+    0xd192e819, 0xd6990624, 0xf40e3585, 0x106aa070,
+    0x19a4c116, 0x1e376c08, 0x2748774c, 0x34b0bcb5,
+    0x391c0cb3, 0x4ed8aa4a, 0x5b9cca4f, 0x682e6ff3,
+    0x748f82ee, 0x78a5636f, 0x84c87814, 0x8cc70208,
+    0x90befffa, 0xa4506ceb, 0xbef9a3f7, 0xc67178f2);
+
+var _MAGNUS_197, _MAGNUS_198, _MAGNUS_199;
+var _MAGNUS_200 = "0123456789abcdef";
+
+function _MAGNUS_169(n,x) {
+    return ((x >>> n) | (x << (32 - n)));
+}
+
+function _MAGNUS_170(x,y,z) {
+    return ((x & y) ^ (~x & z));
+}
+
+function _MAGNUS_171(x,y,z) {
+    return ((x & y) ^ (x & z) ^ (y & z));
+}
+
+function _MAGNUS_172(x) {
+    return (_MAGNUS_169(2, x) ^ _MAGNUS_169(13, x) ^ _MAGNUS_169(22, x));
+}
+function _MAGNUS_173(x) {
+    return (_MAGNUS_169(6, x) ^ _MAGNUS_169(11, x) ^ _MAGNUS_169(25, x));
+}
+function _MAGNUS_174(x) {
+    return (_MAGNUS_169(7, x) ^ _MAGNUS_169(18, x) ^ (x >>> 3));
+}
+function _MAGNUS_175(x) {
+    return (_MAGNUS_169(17, x) ^ _MAGNUS_169(19, x) ^ (x >>> 10));
+}
+function _MAGNUS_176(W, j) {
+    return (W[j&0x0f] += _MAGNUS_175(W[(j+14)&0x0f]) + W[(j+9)&0x0f] +
+        _MAGNUS_174(W[(j+1)&0x0f]));
+}
+
+function _MAGNUS_177(x, y)
+{
+    var lsw = (x & 0xffff) + (y & 0xffff);
+    var msw = (x >> 16) + (y >> 16) + (lsw >> 16);
+    return (msw << 16) | (lsw & 0xffff);
+}
+
+function _MAGNUS_178() {
+    _MAGNUS_197 = new Array(8);
+    _MAGNUS_198 = new Array(2);
+    _MAGNUS_199 = new Array(64);
+    _MAGNUS_198[0] = _MAGNUS_198[1] = 0;
+    _MAGNUS_197[0] = 0x6a09e667;
+    _MAGNUS_197[1] = 0xbb67ae85;
+    _MAGNUS_197[2] = 0x3c6ef372;
+    _MAGNUS_197[3] = 0xa54ff53a;
+    _MAGNUS_197[4] = 0x510e527f;
+    _MAGNUS_197[5] = 0x9b05688c;
+    _MAGNUS_197[6] = 0x1f83d9ab;
+    _MAGNUS_197[7] = 0x5be0cd19;
+}
+
+function _MAGNUS_179() {
+    var a, b, c, d, e, f, g, h, T1, T2;
+    var W = new Array(16);
+
+    a = _MAGNUS_197[0];
+    b = _MAGNUS_197[1];
+    c = _MAGNUS_197[2];
+    d = _MAGNUS_197[3];
+    e = _MAGNUS_197[4];
+    f = _MAGNUS_197[5];
+    g = _MAGNUS_197[6];
+    h = _MAGNUS_197[7];
+
+    for(var i=0; i<16; i++)
+        W[i] = ((_MAGNUS_199[(i<<2)+3]) | (_MAGNUS_199[(i<<2)+2] << 8) | (_MAGNUS_199[(i<<2)+1] << 16) | (_MAGNUS_199[i<<2] << 24));
+
+    for(var j=0; j<64; j++) {
+        T1 = h + _MAGNUS_173(e) + _MAGNUS_170(e, f, g) + _MAGNUS_196[j];
+        if(j < 16) T1 += W[j];
+        else T1 += _MAGNUS_176(W, j);
+        T2 = _MAGNUS_172(a) + _MAGNUS_171(a, b, c);
+        h = g;
+        g = f;
+        f = e;
+        e = _MAGNUS_177(d, T1);
+        d = c;
+        c = b;
+        b = a;
+        a = _MAGNUS_177(T1, T2);
+    }
+
+    _MAGNUS_197[0] += a;
+    _MAGNUS_197[1] += b;
+    _MAGNUS_197[2] += c;
+    _MAGNUS_197[3] += d;
+    _MAGNUS_197[4] += e;
+    _MAGNUS_197[5] += f;
+    _MAGNUS_197[6] += g;
+    _MAGNUS_197[7] += h;
+}
+
+function _MAGNUS_180(data, inputLen) {
+    var i, j, index, curpos = 0;
+    index = ((_MAGNUS_198[0] >> 3) & 0x3f);
+    var remainder = (inputLen & 0x3f);
+
+    if ((_MAGNUS_198[0] += (inputLen << 3)) < (inputLen << 3)) _MAGNUS_198[1]++;
+    _MAGNUS_198[1] += (inputLen >> 29);
+
+    for(i=0; i+63<inputLen; i+=64) {
+        for(j=index; j<64; j++)
+            _MAGNUS_199[j] = data.charCodeAt(curpos++);
+        _MAGNUS_179();
+        index = 0;
+    }
+
+    for(j=0; j<remainder; j++){_MAGNUS_199[j] = data.charCodeAt(curpos++);}
+}
+
+function _MAGNUS_181() {
+    var index = ((_MAGNUS_198[0] >> 3) & 0x3f);
+    _MAGNUS_199[index++] = 0x80;
+    var i;
+    if(index <= 56) {
+        for(i=index; i<56; i++)
+            _MAGNUS_199[i] = 0;
+    } else {
+        for(i=index; i<64; i++)
+            _MAGNUS_199[i] = 0;
+        _MAGNUS_179();
+        for(i=0; i<56; i++)
+            _MAGNUS_199[i] = 0;
+    }
+    _MAGNUS_199[56] = (_MAGNUS_198[1] >>> 24) & 0xff;
+    _MAGNUS_199[57] = (_MAGNUS_198[1] >>> 16) & 0xff;
+    _MAGNUS_199[58] = (_MAGNUS_198[1] >>> 8) & 0xff;
+    _MAGNUS_199[59] = _MAGNUS_198[1] & 0xff;
+    _MAGNUS_199[60] = (_MAGNUS_198[0] >>> 24) & 0xff;
+    _MAGNUS_199[61] = (_MAGNUS_198[0] >>> 16) & 0xff;
+    _MAGNUS_199[62] = (_MAGNUS_198[0] >>> 8) & 0xff;
+    _MAGNUS_199[63] = _MAGNUS_198[0] & 0xff;
+    _MAGNUS_179();
+}
+
+function _MAGNUS_182() {
+    var output = new String();
+    for(var i=0; i<8; i++) {
+        for(var j=28; j>=0; j-=4)
+            output += _MAGNUS_200.charAt((_MAGNUS_197[i] >>> j) & 0x0f);
+    }
+    return output;
+}
+//dead code, not used, hex instead
+function _MAGNUS_183() {
+    var j=0;
+    var output = new Array(32);
+    for(var i=0; i<8; i++) {
+        output[j++] = ((_MAGNUS_197[i] >>> 24) & 0xff);
+        output[j++] = ((_MAGNUS_197[i] >>> 16) & 0xff);
+        output[j++] = ((_MAGNUS_197[i] >>> 8) & 0xff);
+        output[j++] = (_MAGNUS_197[i] & 0xff);
+    }
+    return output;
+}
+
+
+    _MAGNUS_178();
+    _MAGNUS_180(data, data.length);
+    _MAGNUS_181();
+    return _MAGNUS_182();
+}
+
+function _MAGNUS_185(finger,challenge) {
+    var munger = finger + challenge;
+    var mungee = _MAGNUS_184(munger);
+    return mungee;
+}
+
+function _MAGNUS_186(str) {
+    return (!str || 0 === str.length);
+}
+
+function _MAGNUS_190(from,to)
+{
+    return Math.floor(Math.random()*(to-from+1)+from);
+}
+
+function _MAGNUS_191() {
+    var low = 0;
+    var hi = 2147483648;
+    return _MAGNUS_190(low,hi);
+}
+
+
+
+function _MAGNUS_192()  {
+    
+    function _MAGNUS_187() {
+        var u = '';
+        u+=navigator.userAgent;
+        u+='|'+screen.height;
+        u+='|'+screen.width;
+        u+='|'+screen.colorDepth;
+        var d = new Date();
+        var oz =d.getTimezoneOffset();
+        u+='|'+oz;
+        try {
+            if (typeof window.sessionStorage != 'undefined') {
+                u+='|'+'SS1';
+            } else {
+                u+='|'+'SS0'; 
+            }
+        } catch(e) {
+               u+='|'+'SS0'; 
+        }
+        try {
+            if (typeof window.localStorage != 'undefined') {
+                u+='|'+'LS1';
+            } else {
+                u+='|'+'LS0'; 
+            }
+        } catch(e) {
+                u+='|'+'LS0'; 
+        }
+        return u;
+    }
+    
+    function _MAGNUS_188() {
+        var ps = "";
+        var numPlugins = navigator.plugins.length;
+        var i;
+        if (numPlugins > 0) for (i = 0; i < numPlugins; i++) {
+            var plugin =  navigator.plugins[i];
+            ps = ps + plugin.name;
+            ps = ps + plugin.filename;
+            ps = ps + plugin.description;
+            var numTypes = plugin.length;
+            for (j = 0; j < numTypes; j++) {
+                var mimetype = plugin[j];
+                if (mimetype) {
+                    var enabled = "No";
+                    var enabledPlugin = mimetype.enabledPlugin;
+                    if (enabledPlugin && (enabledPlugin.name == plugin.name)) enabled = "Yes";
+                    ps = ps + enabled;
+                }
+            }
+        }
+        return ps;
+    }
+    
+    
+    function _MAGNUS_189() {
+    var canvasData;
+    try {
+        var canvas = document.createElement("canvas");
+        canvas.height = 60;
+        canvas.width = 400;
+        var canvasContext = canvas.getContext("2d");
+        canvas.style.display = "inline";
+        canvasContext.textBaseline = "alphabetic";
+        canvasContext.fillStyle = "#f60";
+        canvasContext.fillRect(125, 1, 62, 20);
+        canvasContext.fillStyle = "#069";
+        canvasContext.font = "11pt no-real-font-123";
+        canvasContext.fillText("0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ, \ud83d\ude03", 2, 15);
+        canvasContext.fillStyle = "rgba(102, 304, 0, 0.7)";
+        canvasContext.font = "18pt Arial";
+        canvasContext.fillText("The quick brown fox jumps over the lazy dog Cwm fjordbank glyphs vext quiz, \ud83d\ude03", 4, 45);
+        canvasData = canvas.toDataURL();
+      } catch(e){
+        canvasData = "Canvas Finger - Not supported";
+      }
+        var canvasFinger = _MAGNUS_184(canvasData);
+        return canvasFinger
+    }  
+    
+    var UA = _MAGNUS_187();
+    var plugList = _MAGNUS_188();
+    var cannedFinger = _MAGNUS_189();
+    var rawFinger = UA + plugList + cannedFinger;
+    var Finger = _MAGNUS_184(rawFinger);
+    return Finger;
+}
+
+function _MAGNUS_193(){
+    var cookieFinger = _MAGNUS_160('_MAGNUS_129');
+    var cookieFingerNonce = _MAGNUS_160('_MAGNUS_130');
+    var cookieFingerNonceMac = _MAGNUS_160('_MAGNUS_131');
+    var computedFinger = _MAGNUS_192();
+    // may want to check for cookieFinger differing from computedFinger (finger drift)
+    var fingerJson = '{}';
+    if (_MAGNUS_186(cookieFinger) || _MAGNUS_186(cookieFingerNonce) || _MAGNUS_186(cookieFingerNonceMac)){
+        fingerJson = '{"_MAGNUS_129": "'
+        +  computedFinger + '","_MAGNUS_130": "", "_MAGNUS_131": ""}';
+    } else {
+        fingerJson = '{"_MAGNUS_129": "' + computedFinger
+        + '","_MAGNUS_130":"' + cookieFingerNonce + '", "_MAGNUS_131": "' + cookieFingerNonceMac + '"}';
+    }
+    return fingerJson;
+
+}
+
+function _MAGNUS_194(pJson) {
+    var puzzle;
+    try {
+        puzzle = jsonParseWrapper(pJson);
+    } catch(e) {
+        return ( errorHandler('INVALID','INVALID_JSON'));
+    }
+
+    var _MAGNUS_118 = puzzle._MAGNUS_118;
+    if (!_MAGNUS_118) {
+        document.write("<B>You do not have JavaScript and/or COOKIES enabled. Please enable those features to continue.</B>");
+    return ( errorHandler('INVALID','INVALID_JSON'));
+    } else {
+        puzzle._MAGNUS_135 = _MAGNUS_191();
+        var fullChallenge = _MAGNUS_168(puzzle._MAGNUS_120,puzzle._MAGNUS_135);
+        puzzle._MAGNUS_119 = fullChallenge;
+        var solution = 0;
+        solution = _MAGNUS_166(fullChallenge,puzzle._MAGNUS_132);
+
+        var sj = '{';
+        sj = sj + '"_MAGNUS_129": "' + puzzle._MAGNUS_129 + '",';
+        sj = sj + '"_MAGNUS_130": "' + puzzle._MAGNUS_130 + '",';
+        sj = sj + '"_MAGNUS_131": "' + puzzle._MAGNUS_131 + '",';
+        sj = sj + '"_MAGNUS_118": "' + puzzle._MAGNUS_118 + '",';
+        sj = sj + '"_MAGNUS_119": "' + puzzle._MAGNUS_119 + '",';
+        sj = sj + '"_MAGNUS_136": "' + solution + '",';
+        sj = sj + '"_MAGNUS_120": "' + puzzle._MAGNUS_120 + '",';
+        sj = sj + '"_MAGNUS_134": "' + puzzle._MAGNUS_134 + '",';
+        sj = sj + '"_MAGNUS_135": "' + puzzle._MAGNUS_135 + '",';
+        sj = sj + '"_MAGNUS_127": "' + puzzle._MAGNUS_127 + '",';
+        sj = sj + '"_MAGNUS_132": "' + puzzle._MAGNUS_132 + '",';
+        sj = sj + '"_MAGNUS_133": "' + puzzle._MAGNUS_133 + '",';
+        sj = sj + '"_MAGNUS_126": "' + puzzle._MAGNUS_126 + '",';
+        sj = sj + '"_MAGNUS_144": "' + puzzle._MAGNUS_144 + '",';
+        sj = sj + '"_MAGNUS_145": "' + puzzle._MAGNUS_145 + '",';
+        sj = sj + '"_MAGNUS_212": "' + puzzle._MAGNUS_212 + '",';
+        sj = sj + '"_MAGNUS_103": "' + puzzle._MAGNUS_103 + '",';
+        sj = sj + '"_MAGNUS_104": "' + puzzle._MAGNUS_104 + '"';
+        if (puzzle._MAGNUS_140 && puzzle._MAGNUS_141) {
+	    sj = sj + ',' + '"_MAGNUS_140": "' + puzzle._MAGNUS_140 + '",';
+            sj = sj + '"_MAGNUS_141": "' + puzzle._MAGNUS_141 + '"';
+	}
+        sj = sj + '}';
+
+        return sj;
+    }
+}
+
+function _MAGNUS_195 (formId) {
+      //var text = "";
+      // change 2016.6.9  for extraction only of _MAGNUS fields
+      var selectField = new Array();
+      selectField["_MAGNUS_140"]=1;
+      selectField["_MAGNUS_141"]=1;
+      selectField["_MAGNUS_103"]=1;
+      selectField["_MAGNUS_104"]=1;
+      selectField["_MAGNUS_212"]=1;
+      selectField["_MAGNUS_142"]=1;
+      selectField["_MAGNUS_143"]=1;
+      selectField["_MAGNUS_121"]=1;
+      selectField["_MAGNUS_144"]=1;
+      selectField["_MAGNUS_145"]=1;
+      selectField["_MAGNUS_129"]=1;
+      selectField["_MAGNUS_130"]=1;
+      selectField["_MAGNUS_131"]=1;
+      selectField["_MAGNUS_SDS"]=1;
+      selectField["tdGetPuzzleEndpoint"]=1;
+      selectField["tdVerifyEndpoint"]=1;
+      selectField["FORM_ID"]=1;
+      selectField["URL"]=1;
+
+      var i;
+      var formJson = '{';
+      var x = document.getElementById(formId);
+      for (i = 0; i < x.length ;i++) {
+        var fieldName = x.elements[i].name;
+        if (selectField[fieldName] == 1) {
+            var fieldValue = x.elements[i].value;
+            formJson += ('"' + fieldName + '":"' + fieldValue + '",');
+  
+        }     
+      }
+      formJson += '}';
+      var tmp = formJson.replace(/\,\}$/,'}');
+      formJson = tmp;
+      var checkJson;
+      try {
+          checkJson = jsonParseWrapper(formJson);
+      } catch (e){
+            return( errorHandler('INVALID','FORM JSON did not parse correctly.'));
+      }
+      // return json of the form fields
+      return formJson;
+
+ }
+
+
+function getHiddenFieldByName(fieldName,formId) {
+      //var text = "";
+      var i;
+      var fieldValue = '';
+      var x = document.getElementById(formId);
+      if (x == undefined) {
+        console.log ('Error: FORM_ID for the form is undefined');
+        return null;
+      }
+      for (i = 0; i < x.length ;i++) {
+        if (x.elements[i].name == fieldName) {
+            fieldValue = x.elements[i].value;
+        }
+      }  
+      return fieldValue;
+    
+}
+
+/////////////////////////////
+// MAIN start of the SCRIPT//
+/////////////////////////////
+
+    function _MAGNUS_201() {
+        var formId;
+        var clientId;
+        var corsPuzzleRequestUrl;
+        var corsVerifierUrl;
+        var _MAGNUS_204;
+        var _MAGNUS_205;
+        var apiToken;
+        var apiTokenMac;
+        var _MAGNUS_140;
+        var _MAGNUS_141;
+        var _MAGNUS_121;
+        var _MAGNUS_202;
+        var _MAGNUS_203;
+        var maxTries = 3;
+        var xhrTimeout = 5000;  // 5 seconds for timeout
+        var step1Abort = false;
+        var step3Abort = false;
+        var step1Tries = 0;
+        var step3Tries = 0;
+        var _MAGNUS_SDS;
+        var urlPrefix;
+        var urlPrefixMac;
+
+        if (window.XMLHttpRequest) {
+            _MAGNUS_202 = new XMLHttpRequest();
+        } else {
+            // code for IE6, IE5
+            _MAGNUS_202 = new ActiveXObject("Microsoft.XMLHTTP");
+        }
+
+        if (window.XMLHttpRequest) {
+            _MAGNUS_203 = new XMLHttpRequest();
+        } else {
+            // code for IE6, IE5
+            _MAGNUS_203 = new ActiveXObject("Microsoft.XMLHTTP");
+        }
+
+        //_MAGNUS_202.timeout = xhrTimeout;
+        //_MAGNUS_203.timeout = xhrTimeout;
+        _MAGNUS_202.ontimeout = function (){
+            step1Abort = true;
+            _MAGNUS_202.abort();
+            if (step1Tries < maxTries) {
+                doTransactionDefenderStep1();
+                step1Tries++;
+            }
+            else {
+                // bail out of this failure
+                var dummy = undefined;
+                doFinalAction(formId,dummy,false);
+            }
+        };
+
+        _MAGNUS_203.ontimeout = function () {
+            step3Abort = true;
+            _MAGNUS_203.abort();
+            if (step3Tries < maxTries) {
+                doTransactionDefenderStep3();
+                step3Tries++;
+            }
+            else {
+                // bail out of this failure
+                var dummy = undefined;
+                doFinalAction(formId,dummy,false);
+            }
+        };
+
+        _MAGNUS_202.onreadystatechange = doTransactionDefenderStep2;
+        _MAGNUS_203.onreadystatechange = doTransactionDefenderStep4;
+
+        // this starts steps 1-2-3-4 in callback sequence of XHRs
+        doTransactionDefenderStep1(formId);
+
+        function doTransactionDefenderStep1() {
+            // these are in the outer scope
+            formId = _MAGNUS_160('FORM_ID');
+            clientId = getHiddenFieldByName('_MAGNUS_212', formId);
+            apiToken = getHiddenFieldByName('_MAGNUS_103', formId);
+            apiTokenMac = getHiddenFieldByName('_MAGNUS_104', formId);
+            _MAGNUS_140 = getHiddenFieldByName('_MAGNUS_140', formId);
+            _MAGNUS_141 = getHiddenFieldByName('_MAGNUS_141',formId);
+
+            corsPuzzleRequestUrl = getHiddenFieldByName('tdGetPuzzleEndpoint', formId);
+            corsVerifierUrl = getHiddenFieldByName('tdVerifyEndpoint', formId);
+            _MAGNUS_204 = corsPuzzleRequestUrl + '?apiToken=' + apiToken + '&apiTokenMAC=' + apiTokenMac;
+            _MAGNUS_205 = corsVerifierUrl;
+
+            SITE_DEFENDER_SCOPE = getHiddenFieldByName('_MAGNUS_SDS', formId);
+            if (formId.indexOf('SITE_DEFENDER') > -1) {
+                _MAGNUS_121 = getHiddenFieldByName('_MAGNUS_121',formId);
+            } else {
+                _MAGNUS_121 = '';
+            }
+
+            urlPrefix =  getHiddenFieldByName('_MAGNUS_144', formId);
+            urlPrefixMac = getHiddenFieldByName('_MAGNUS_145', formId);
+            var q4 = urlPrefix;
+            var q5 = urlPrefixMac;
+
+            if (_MAGNUS_202) {
+                var q1, q2, q3, q6;
+                var myFingerJson;
+                if (_MAGNUS_140.indexOf('SITE_DEFENDER') > -1) {
+                    // get the fingerprint
+                    myFingerJson = _MAGNUS_193();
+                    try {
+                        var myFinger = jsonParseWrapper(myFingerJson);
+                        q3 = myFinger._MAGNUS_129;
+                    } catch (e) {
+                        return (errorHandler('INVALID', 'Invalid Finger JSON'));
+                    }
+                    // get the urlPrefix and Mac set as vars
+                    // these cookies may be missing at this point
+                    q1 = _MAGNUS_160('_MAGNUS_131');
+                    q2 = _MAGNUS_160('_MAGNUS_130');
+
+                } else {
+                    // it is a Transaction Defender case, but stand-alone or protected ?
+                    if (SITE_DEFENDER_SCOPE.indexOf('yes') > -1) {
+                        //it is in the URL_PREFIX protected by siteDefender, so cookie/prints are here
+                        q1 = _MAGNUS_160('_MAGNUS_131');
+                        q2 = _MAGNUS_160('_MAGNUS_130');
+                        q3 = _MAGNUS_160('_MAGNUS_129');
+                        q4 = _MAGNUS_160('_MAGNUS_144');
+                        q5 = _MAGNUS_160('_MAGNUS_145');
+                        clientId = _MAGNUS_160('_MAGNUS_212');
+                    } else {
+                        // it is a stand-alone TransactionDefender situation, no cookies around
+                        //clientId = formField._MAGNUS_212;
+                        // these are likely missing here, but maybe not
+                        q1 = _MAGNUS_160('_MAGNUS_131');
+                        q2 = _MAGNUS_160('_MAGNUS_130');
+                        // get the fingerprint
+                        myFingerJson = _MAGNUS_193();
+                        try {
+                            var myFinger = jsonParseWrapper(myFingerJson);
+                            q3 = myFinger._MAGNUS_129;
+                        } catch (e) {
+                            return (errorHandler('INVALID', 'Invalid Finger JSON'));
+                        }
+                    }
+                }
+
+                // build up the JSON string
+                q6 = '{"_MAGNUS_131":"' + q1 + '",';
+                q6 += '"_MAGNUS_130":"' + q2 + '",';
+                q6 += '"_MAGNUS_129":"' + q3 + '",';
+                q6 += '"_MAGNUS_212":"' + clientId + '",';
+                q6 += '"_MAGNUS_144":"' + q4 + '",';
+                q6 += '"_MAGNUS_145":"' + q5 + '",';
+
+                if (formId.indexOf('SITE_DEFENDER') > -1) {
+                    q6 += '"_MAGNUS_121":"' + _MAGNUS_121 + '",';
+                }
+                q6 += '"_MAGNUS_140":"' + _MAGNUS_140 + '",';
+                q6 += '"_MAGNUS_141":"' + _MAGNUS_141 + '"}';
+                q6 = encodeURI(q6);
+                var q7 = _MAGNUS_204 + '&puzzleRequestJson=' + q6;
+                step1Abort = false;
+                _MAGNUS_202.open('GET', q7, true);
+                _MAGNUS_202.timeout = xhrTimeout;
+                _MAGNUS_202.responseType = 'text';
+                _MAGNUS_202.withCredentials = false;
+                _MAGNUS_202.send();
+            } else {
+                return (errorHandler('STATUS', 'NOXHR'));
+            }
+        }
+
+        function retryStep1() {
+            step1Tries++;
+            if (step1Tries < maxTries) {
+                doTransactionDefenderStep1();
+            } else {
+                step1Abort = true;
+                var dummy = undefined;
+                doFinalAction(formId,dummy,false);
+            }
+        }
+
+        // if this gets invoked, then abort is false
+        function doTransactionDefenderStep2() {
+            if (_MAGNUS_202.readyState == 4) {
+                if (_MAGNUS_202.status === 200) {
+                    var z = _MAGNUS_202.responseText;
+                    if (z === undefined) {
+                        // service is off the air possibly
+                        retryStep1();
+                    }
+                    var z1 = z;
+                    var z2;
+                    try {
+                        z2 = jsonParseWrapper(z1);
+                    } catch (e) {
+                        return (errorHandler('INVALID', 'INVALID_JSON'));
+                    }
+                    var z4 = z2.STATUS;
+                    var z5 = z2._MAGNUS_146;
+                    if (z5 == 'LOCKOUT') {
+                        return (errorHandler(z4, z5));
+                    }
+                    if (z4 == 'VALID') {
+                        var solution = _MAGNUS_194(z1);
+                        doTransactionDefenderStep3(solution);
+                        return (successHandler(z4, z5))
+                    } else {
+                        return (errorHandler(z4, z5));
+                    }
+                } // 200
+                else {  // error
+                    retryStep1();
+                }
+            }
+            else {
+
+            }
+        }
+
+        function doTransactionDefenderStep3(solution) {
+            if (_MAGNUS_203) {
+                var z0;
+
+                try {
+                    z0 = jsonParseWrapper(solution);
+                } catch (e) {
+                    return (errorHandler('INVALID_JSON', zz));
+                }
+
+                var z2 = encodeURI(solution);
+                var z4 = z0._MAGNUS_103;
+                var z6 = z0._MAGNUS_104;
+                var z7 = _MAGNUS_205 + '?' + 'apiToken=' + z4 + '&apiTokenMAC=' + z6 + '&solutionJson=' + z2;
+                _MAGNUS_203.open('GET', z7, true);
+                _MAGNUS_203.timeout = xhrTimeout;
+                _MAGNUS_203.responseType = 'text';
+                _MAGNUS_203.withCredentials = false;
+                _MAGNUS_203.send();
+                return (successHandler('STATUS', 'SUCCESS'));
+            } else {
+                return (errorHandler('STATUS', 'NOXHR'));
+            }
+        }
+
+        function retryStep3() {
+            step3Tries++;
+            if (step3Tries < maxTries) {
+                doTransactionDefenderStep3();
+            } else {
+                step3Abort = true;
+                var dummy = undefined;
+                doFinalAction(formId,dummy,false);
+            }
+        }
+
+        function doTransactionDefenderStep4() {
+            var z1 = undefined;
+            if (_MAGNUS_203.readyState == 4) {
+                if (_MAGNUS_203.status == 200) {
+                    var z = _MAGNUS_203.responseText;
+                    if (z === undefined) {
+                        // service is off the air possibly
+                        retryStep3();
+                    }
+                    try {
+                        z1 = jsonParseWrapper(z);
+                    } catch (e) {
+                        return (errorHandler('INVALID_JSON', z));
+                    }
+                    var z2 = z1.STATUS;
+                    if (z2 == 'VALID') {
+                        // formId is global set by PHP processor
+                        // see if it is TD or SD action-on-solution
+                        doFinalAction(formId,z1,true);
+                    } else {
+                        return (errorHandler('STATUS', z2));
+                    }
+                } else {  // of 200
+                    retryStep3();
+                }
+                return (successHandler('STATUS', 'SUCCESS'));
+            }
+            else { //not ready state 4
+            }
+        }
+
+        function doFinalAction(formId, z1, success){
+            if (success){
+                if (formId.indexOf('SITE_DEFENDER') > -1) {
+                    //set the magic cookies
+                    _MAGNUS_159('_MAGNUS_137', z1._MAGNUS_137, z1._MAGNUS_124, z1._MAGNUS_125, z1._MAGNUS_123);
+                    _MAGNUS_159('_MAGNUS_129', z1._MAGNUS_129, z1._MAGNUS_124, z1._MAGNUS_125, z1._MAGNUS_123);
+                    _MAGNUS_159('_MAGNUS_130', z1._MAGNUS_130, z1._MAGNUS_124, z1._MAGNUS_125, z1._MAGNUS_123);
+                    _MAGNUS_159('_MAGNUS_131', z1._MAGNUS_131, z1._MAGNUS_124, z1._MAGNUS_125, z1._MAGNUS_123);
+                    _MAGNUS_159('_MAGNUS_127', z1._MAGNUS_127, z1._MAGNUS_124, z1._MAGNUS_125, z1._MAGNUS_123);
+                    _MAGNUS_159('_MAGNUS_212', z1._MAGNUS_212, z1._MAGNUS_124, z1._MAGNUS_125, z1._MAGNUS_123);
+                    _MAGNUS_159('_MAGNUS_127_MAC', z1._MAGNUS_127_MAC, z1._MAGNUS_124, z1._MAGNUS_125, z1._MAGNUS_123);
+                    _MAGNUS_159('_MAGNUS_144', urlPrefix, z1._MAGNUS_124, z1._MAGNUS_125, z1._MAGNUS_123);
+                    _MAGNUS_159('_MAGNUS_145', urlPrefixMac, z1._MAGNUS_124, z1._MAGNUS_125, z1._MAGNUS_123);
+                    var ck = _MAGNUS_160('_MAGNUS_131');
+                    if (ck == z1._MAGNUS_131) {
+                        //console.log('Assigning window location to $theUrl');
+                        var theUrlEncoded = getHiddenFieldByName('THE_URL', formId);
+                        var theUrl = decodeURIComponent(theUrlEncoded);
+                        window.location.assign(theUrl);
+                    }
+
+                } else {
+                    // it is a some TRANSACTION_DEFENDER form to submit
+                    _MAGNUS_159('_MAGNUS_137', z1._MAGNUS_137, z1._MAGNUS_124, z1._MAGNUS_125, z1._MAGNUS_123);
+                    _MAGNUS_159('_MAGNUS_129', z1._MAGNUS_129, z1._MAGNUS_124, z1._MAGNUS_125, z1._MAGNUS_123);
+                    _MAGNUS_159('_MAGNUS_130', z1._MAGNUS_130, z1._MAGNUS_124, z1._MAGNUS_125, z1._MAGNUS_123);
+                    _MAGNUS_159('_MAGNUS_131', z1._MAGNUS_131, z1._MAGNUS_124, z1._MAGNUS_125, z1._MAGNUS_123);
+                    var x = document.getElementById(formId);
+                    var i;
+                    for (i = 0; i < x.length; i++) {
+                        if (x.elements[i].name == '_MAGNUS_142') {
+                            x.elements[i].value = z1._MAGNUS_142;
+                        }
+                        if (x.elements[i].name == '_MAGNUS_143') {
+                            x.elements[i].value = z1._MAGNUS_143;
+                        }
+                        if (x.elements[i].name == '_MAGNUS_129') {
+                            x.elements[i].value = z1._MAGNUS_129;
+                        }
+                        if (x.elements[i].name == '_MAGNUS_130') {
+                            x.elements[i].value = z1._MAGNUS_130;
+                        }
+                        if (x.elements[i].name == '_MAGNUS_131') {
+                            x.elements[i].value = z1._MAGNUS_131;
+                        }
+                    }
+                    if ($j_1_11('#accountLogin').length > 0) {
+			$j_1_11('#accountLogin').append('<input type="hidden" name="login" value="YES" />');
+	            }
+                    document.getElementById(formId).submit();
+                }
+
+            } else {
+                // a failed protocol interaction has occurred...proceeding without TACs
+                 document.getElementById(formId).submit();
+            }
+        }
+
+        function errorHandler(status, reason) {
+            if (reason == 'LOCKOUT') {
+                console.log('This device is locked out.  Wait a while before retry');
+            } else if (status == 'INVALID_JSON') {
+                console.log('Invalid JSON' + reason);
+            } else if (status == 'VALID') {
+                console.log('{Status:' + status + ',Reason:' + reason + '}');
+            } else if (reason == 'NOXHR') {
+                console.log('No XHR object');
+            } else if (reason == 'INVALID') {
+                console.log("INVALID response");
+            } else if (reason == 'EXPIRED') {
+                console.log("Authorization or Puzzle has EXPIRED");
+            } else {
+                console.log('{Status:' + status + ',Reason:' + reason + '}');
+            }
+        }
+
+        function successHandler(status, reason) {
+            console.log('{Status:' + status + ',Reason:' + reason + '}');
+        }
+    }

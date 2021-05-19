@@ -1,0 +1,67 @@
+(function (w, d) {
+  if (!navigator.sendBeacon) {
+    console.debug('sendBean is not supported for this browser');
+    return;
+  }
+
+  const clicktrackUrl = pageOptions['clicktrackUrl'];
+  if (!clicktrackUrl) {
+    console.debug('clicktrackUrl is not set on this page');
+    return;
+  }
+
+  const slConfig = {
+    isFF: navigator.userAgent.toLowerCase().indexOf('firefox') > -1,
+    headers: {
+      // unfortunately we cannot set referrer header to google
+    },
+    refocusDelay: 100,
+    visibilityCheckDelay: 1000
+  };
+  console.debug('set SL config to: %o', slConfig);
+
+  var iframeMouseOver = false;
+  w.addEventListener('blur', function (e) {
+    const elem = d.activeElement;
+    console.debug('Blur event caught on element: %o and current mouse in iframe?: %s', elem.tagName, iframeMouseOver);
+
+    // if clicks inside iframe, FF sets the active tag to be BODY, while other browsers set to IFRAME
+    if ((elem.tagName === 'IFRAME' || slConfig.isFF) && iframeMouseOver) {
+      console.debug('Detected possible iframe click');
+
+      setTimeout(function () {
+        console.debug('Current page visibility is: %o', d.visibilityState);
+        // we use visibility check to prevent tracking if user merely click inside the iframe, but not on the link
+        // this is necessary to browsers except for FF
+        if (d.visibilityState !== "visible") {
+          console.debug('Fire the tracking call: %o', clicktrackUrl);
+          navigator.sendBeacon(clicktrackUrl, new Blob([], slConfig.headers));
+        }
+      }, slConfig.visibilityCheckDelay);
+    }
+
+    // this is necessary to allow blur event to fire again after click
+    setTimeout(function () {
+      console.debug('Put focus back to root window');
+      w.focus();
+    }, slConfig.refocusDelay);
+
+  });
+
+  $(".sponsoredLinks, .sponsored-links").each(function (i, elem) {
+    console.debug('Register mouse event handler for SL clicks');
+    elem.addEventListener('mouseout', function () {
+      console.debug('Mouse moved out of sponsored link block');
+      iframeMouseOver = false;
+    });
+
+    elem.addEventListener('mouseover', function () {
+      console.debug('Mouse moved over sponsored link block');
+      iframeMouseOver = true;
+    });
+  });
+
+  // put initial focus on top window
+  w.focus();
+
+})(top, document);

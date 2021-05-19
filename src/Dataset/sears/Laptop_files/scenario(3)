@@ -1,0 +1,16 @@
+window.DigitalFeedback['https://digitalfeedback.us.confirmit.com/api/digitalfeedback/loader/prod/scenario?programKey=vfTGhk&scenarioId=600&programVersion=83'] = function (api) {
+// check nth visitor session variable on each page.  if not present, set nth visitor.
+if (sessionStorage.getItem("nthvistor"))
+{
+  isNthVisitor = sessionStorage.getItem("nthvistor") == "1" ? true : false;
+}
+else
+{
+  isNthVisitor = Math.random() < 25/100;    // change to 1/10 for 10%
+  sessionStorage.setItem("nthvistor",isNthVisitor ? "1" : "0");   // 1 to show, 0 to not show
+}
+
+if(!isNthVisitor)
+  return;
+
+};

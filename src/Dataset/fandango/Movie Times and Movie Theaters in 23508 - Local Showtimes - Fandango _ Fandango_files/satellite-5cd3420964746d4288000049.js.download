@@ -1,0 +1,18 @@
+_satellite.pushAsyncScript(function(event, target, $variables){
+  if(_satellite.getVar('Movie ID') == '188283'  || _satellite.getVar('Movie ID') == '217197'  || _satellite.getVar('217197') == '217553'  || 
+	_satellite.getVar('Movie ID') == '211515'  || _satellite.getVar('Movie ID') == '215871'  || _satellite.getVar('Movie ID') == '217934' ||
+	_satellite.getVar('Movie ID') == '217935'  || _satellite.getVar('Movie ID') == '214978'  || _satellite.getVar('Movie ID') == '218144' ||
+	_satellite.getVar('Movie ID') == '218145'  || _satellite.getVar('Movie ID') == '185803'  || _satellite.getVar('Movie ID') == '215915' ||
+	_satellite.getVar('Movie ID') == '215970' || _satellite.getVar('Movie ID') == '185800' || _satellite.getVar('Movie ID') == '186301' || _satellite.getVar('Movie ID') == '205252' ||
+	_satellite.getVar('Movie Name').toLowerCase().indexOf('captain marvel') != -1	|| _satellite.getVar('Movie Name').toLowerCase().indexOf('dumbo') != -1	|| _satellite.getVar('Movie Name').toLowerCase().indexOf('penguins') != -1	||
+	_satellite.getVar('Movie Name').toLowerCase().indexOf('avengers') != -1	|| _satellite.getVar('Movie Name').toLowerCase().indexOf('aladdin') != -1	|| _satellite.getVar('Movie Name').toLowerCase().indexOf('toy story') != -1	|| 
+	_satellite.getVar('Movie Name').toLowerCase().indexOf('lion king') != -1	|| _satellite.getVar('Movie Name').toLowerCase().indexOf('artemis fowl') != -1	|| _satellite.getVar('Movie Name').toLowerCase().indexOf('frozen') != -1	|| 
+	_satellite.getVar('Movie Name').toLowerCase().indexOf('mistress of evil') != -1	|| _satellite.getVar('Movie Name').toLowerCase().indexOf('star wars') != -1 || _satellite.getVar('Movie ID') == '218843' || _satellite.getVar('Movie ID') == '220099' || _satellite.getVar('Movie ID') == '220100'){
+			 var script = document.createElement('script');
+		script.src = '//cdn.unid.go.com/js/unid.min.js';
+		script.setAttribute('data-client', 'THIRD-FANDANGO.UNID.WEB');
+		(document.head||document.getElementsByTagName('head')[0]).appendChild(script);
+
+}
+
+});

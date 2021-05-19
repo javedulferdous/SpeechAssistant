@@ -1,0 +1,2 @@
+(window.gvpc_user_generated_content_ugc_stats=window.gvpc_user_generated_content_ugc_stats||[]).push([[1],{50:function(n){n.exports={openModal:"openModal",fancyComponent:"fancyComponent",modalYouClickedOpen:"modalYouClickedOpen"}},51:function(n,e,o){"use strict";o.r(e);var t=o(50);e.default={common:t}}}]);
+//# sourceMappingURL=1-193a0943f09065a1c269d4dff5f43186.mjs.map

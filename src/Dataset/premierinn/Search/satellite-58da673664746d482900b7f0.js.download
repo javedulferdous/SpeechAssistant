@@ -1,0 +1,92 @@
+_satellite.pushAsyncScript(function(event, target, $variables){
+  try{
+  if(document.location.hostname.match(/nativ\-systems\.com/gmi)){
+    //prelive workaround:
+    if(document.location.hostname.match(/prelive/gmi)){
+
+    setTimeout(function(){
+  /* Rule Id: 1626231 */
+  if (window.navigator.userAgent.match(/MSIE 8/gmi)) {
+    var startOfURL = "http://uk.premierinn.com";
+    if (window.location.href.match(/cid\=/gm)) {
+      var endOfURL = "cid" + location.href.split(/cid/gmi)[1] + "&intcmp=ie8-redirect";
+    } else if (window.location.href.match(/CID\=/gm)) {
+      var endOfURL = "cid" + location.href.split(/CID/gmi)[1] + "&intcmp=ie8-redirect";
+    } else {
+      var endOfURL = "intcmp=ie8-redirect";
+    }
+    var fullRedirectURL = startOfURL + "?" + endOfURL;
+    if (window.location.href.match(/premierinn(\.de\.de\-qa\.nativ\-systems\.com|\.de\.de\-staging\.nativ\-systems|\.de\.10\.uat\.nativ\-systems|\-com\-de\-qa\.onelink\-translations)/gmi)) {} else {
+
+      {
+       alert("You\'re using an older web browser which isn\'t compatible with the latest version of our Premier Inn website.\n\nWe recommend you update your browser to enjoy our new improved PremierInn.com experience.");
+      }
+    }
+  }
+
+  if (window.navigator.userAgent.match(/MSIE 9/gmi)) {
+    var startOfURL = "http://uk.premierinn.com";
+    if (window.location.href.match(/cid\=/gm)) {
+      var endOfURL = "cid" + location.href.split(/cid/gmi)[1] + "&intcmp=ie9-redirect";
+    } else if (window.location.href.match(/CID\=/gm)) {
+      var endOfURL = "cid" + location.href.split(/CID/gmi)[1] + "&intcmp=ie9-redirect";
+    } else {
+      var endOfURL = "intcmp=ie9-redirect";
+    }
+    var fullRedirectURL = startOfURL + "?" + endOfURL;
+    if (window.location.href.match(/premierinn(\.de\.de\-qa\.nativ\-systems\.com|\.de\.de\-staging\.nativ\-systems|\.de\.10\.uat\.nativ\-systems|\-com\-de\-qa\.onelink\-translations)/gmi)) {} else {
+
+      {
+      alert("You\'re using an older web browser which isn\'t compatible with the latest version of our Premier Inn website.\n\nWe recommend you update your browser to enjoy our new improved PremierInn.com experience.");
+      }
+    }
+  }
+
+  }, 2000);
+  }
+  }else{
+  setTimeout(function(){
+  /* Rule Id: 1626231 */
+  if (window.navigator.userAgent.match(/MSIE 8/gmi)) {
+    var startOfURL = "http://uk.premierinn.com";
+    if (window.location.href.match(/cid\=/gm)) {
+      var endOfURL = "cid" + location.href.split(/cid/gmi)[1] + "&intcmp=ie8-redirect";
+    } else if (window.location.href.match(/CID\=/gm)) {
+      var endOfURL = "cid" + location.href.split(/CID/gmi)[1] + "&intcmp=ie8-redirect";
+    } else {
+      var endOfURL = "intcmp=ie8-redirect";
+    }
+    var fullRedirectURL = startOfURL + "?" + endOfURL;
+    if (window.location.href.match(/premierinn(\.de\.de\-qa\.nativ\-systems\.com|\.de\.de\-staging\.nativ\-systems|\.de\.10\.uat\.nativ\-systems|\-com\-de\-qa\.onelink\-translations)/gmi)) {} else {
+
+      {
+      alert("You\'re using an older web browser which isn\'t compatible with the latest version of our Premier Inn website.\n\nWe recommend you update your browser to enjoy our new improved PremierInn.com experience.");
+      }
+    }
+  }
+
+  if (window.navigator.userAgent.match(/MSIE 9/gmi)) {
+    var startOfURL = "http://uk.premierinn.com";
+    if (window.location.href.match(/cid\=/gm)) {
+      var endOfURL = "cid" + location.href.split(/cid/gmi)[1] + "&intcmp=ie9-redirect";
+    } else if (window.location.href.match(/CID\=/gm)) {
+      var endOfURL = "cid" + location.href.split(/CID/gmi)[1] + "&intcmp=ie9-redirect";
+    } else {
+      var endOfURL = "intcmp=ie9-redirect";
+    }
+    var fullRedirectURL = startOfURL + "?" + endOfURL;
+    if (window.location.href.match(/premierinn(\.de\.de\-qa\.nativ\-systems\.com|\.de\.de\-staging\.nativ\-systems|\.de\.10\.uat\.nativ\-systems|\-com\-de\-qa\.onelink\-translations)/gmi)) {} else {
+
+      {
+      alert("You\'re using an older web browser which isn\'t compatible with the latest version of our Premier Inn website.\n\nWe recommend you update your browser to enjoy our new improved PremierInn.com experience.");
+      }
+    }
+  }
+
+  }, 2000);
+  }
+}
+catch(err){
+	_satellite.notify("Page Load Rule Error - IE8/9 Redirect:" + err.message,[3]);
+}
+});

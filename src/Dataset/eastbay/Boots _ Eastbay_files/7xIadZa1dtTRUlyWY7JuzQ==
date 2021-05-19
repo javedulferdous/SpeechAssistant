@@ -1,0 +1,70 @@
+(function() {
+    var interceptInitFn = 
+    	function(interceptHost, orgId, key, interceptPort, isTesting, enableLogger, clientHost, clientVersion, loadTestCustomJS) {
+    	
+    	//Temp placeholder code for backwards compatibility. To be removed at some point
+    	
+    	var testingParamMap = {"isTesting":"IM_loadInterceptsInTest", "loadTestCustomJS":"IM_loadTestCustomJS"};
+    	
+    	handleLocalStorageOverrides = function(testingParamName, testingParamValue) {
+    	
+    	if(testingParamValue !== true){
+	    	try{
+	    		testingParamValue = localStorage.getItem(testingParamMap[testingParamName]);
+	    		try {
+					testingParamValue =  JSON.parse(testingParamValue);
+				}catch (ex){			
+					testingParamValue = false;
+				}
+	
+				if(testingParamValue == null){
+					testingParamValue=false;			
+				}
+				
+	    	}catch (err){
+	    		console.log("localStorage isn't initialized");
+	    	}
+    	}  
+    		return testingParamValue;
+    	
+    	}
+    	isTesting = handleLocalStorageOverrides("isTesting",isTesting);
+    	loadTestCustomJS = handleLocalStorageOverrides("loadTestCustomJS",loadTestCustomJS);
+		//END Temp placeholder code
+    	
+    	this.go = function() {
+			var baseScriptEl = document.createElement("script");
+			baseScriptEl.type = "text/javascript";
+			baseScriptEl.async = true;
+			baseScriptEl.setAttribute('crossorigin', "anonymous");
+		    baseScriptEl.src = '//' + clientHost + '/intercept-client-v' + clientVersion + '.js';
+		    
+		    if(document.body) {
+				document.body.appendChild(baseScriptEl);
+		     }
+			
+			var waitForBaseJS = function(){
+				if (window.IMI && IMI.InterceptUtil) {
+					clearInterval(checkExist);
+					
+					// Set config
+					IMI.Config.host = interceptHost;
+					IMI.Config.orgId = orgId;
+					IMI.Config.key = key;
+					IMI.Config.port = interceptPort;
+					IMI.Config.testing = isTesting;
+					IMI.Config.loadTestCustomJS = loadTestCustomJS;
+					
+					// Evaluate intercepts
+					IMI.InterceptUtil.loadAndEvaluateIntercepts();
+	    		}	    		
+			};
+			var checkExist = setInterval(waitForBaseJS, 100);
+			setTimeout(function(){ clearInterval(checkExist); }, 10000);
+			
+        };
+    };
+    try {
+        (new interceptInitFn('dispawsusva.inmoment.com', 931, '7xIadZa1dtTRUlyWY7JuzQ==', 80, false, false, 'intercept-client.inmoment.com', '1.13.0', false)).go()
+    } catch (i) {console.log(i);}
+})();

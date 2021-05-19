@@ -1,0 +1,38 @@
+_satellite.pushAsyncScript(function(event, target, $variables){
+  try{
+  if (window.location.href.indexOf("/business-booker/") == -1){
+  var ft_referrer = 'ft_referrer=' + encodeURIComponent(window.location.href),
+      ftXRef = '&ftXRef=N/A',
+      ftXValue = '&ftXValue=N/A',
+      ftU1 = '&U1=' + _satellite.getVar('searchFirstHotelCode'),
+      ftU2 = '&U2=' + _satellite.getVar('searchCheckInDate'),
+      ftU3 = '&U3=' + _satellite.getVar('searchCheckOutDate'),
+      ftU4 = '&U4=' + _satellite.getVar('searchNumberOfNights'),
+      ftU5 = '&U5=' + _satellite.getVar('searchNumberOfRooms'),
+      ftU6 = '&U6=' + _satellite.getVar('searchRoomType'),
+      ftU7 = '&U7=Hotel room',
+      ftU8 = '&U8=N/A',
+      ftU9 = '&U9=' + _satellite.getVar('searchFirstHotelCode'),
+      ftU10 = '&U10=' + _satellite.getVar('pageName'),
+      ftU11 = '&U11=' + _satellite.getVar('searchNumberOfAdults'),
+      ftU12 = '&U12=' + _satellite.getVar('searchNumberOfChildren'),
+      ftU13 = '&U13=' + _satellite.getVar('searchWeekdaysFromTo'),
+      ftU14 = '&U14=N/A',
+      cacheBuster = Math.random() * 1e6,
+      proto = document.location.protocol;
+
+  ((function(e, t) {
+    var n = function() {
+      var e = t.createElement("iframe");
+      e.src = proto + "//servedby.flashtalking.com/container/8416;62459;6532;iframe/?" + ft_referrer + ftXRef + ftXValue + ftU1 + ftU2 + ftU3 + ftU4 + ftU5 + ftU6 + ftU7 + ftU8 + ftU9 + ftU10 + ftU11 + ftU12 + ftU13 + ftU14 + cacheBuster;
+      e.style.cssText = "position: absolute;visibility: hidden;width: 1px;height: 1px;";
+      t.body.appendChild(e);
+    };
+    n();
+  })(window, document));
+  }
+}
+catch(err) {
+  _satellite.notify("Direct Call Rule Error - Combined - Resp SRP List Flashtalking Tag: " + err.message,[3]);
+}
+});

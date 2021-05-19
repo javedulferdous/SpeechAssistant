@@ -1,0 +1,97 @@
+var site = site || {};
+var profileRequests = profileRequests || '';
+site.profile = site.profile || {};
+
+/**
+  * Function that stores any common functionality between PC and Mobile.
+  * Any common helper functionality, variables, etc should be added here using the private this object.
+  *
+*/
+site.profile.common = function() {
+
+  // Method to get the profile events class from /sites/all/modules/custom/personal_block/js/events.js if available.
+  var _getEventClass = function() {
+    return (site.profile && site.profile.events) ? site.profile.events() : {};
+  };
+
+  // Method to handle the gathering and storing of the page_data for mpp and spp pages.
+  this.data = {
+    mpp : function(data, products) {
+      if (!data || !products) {
+        return null;
+      };
+      var obj           = {}
+      obj['cpp']        = data['catalog-cpp'] || {};
+      obj['mpp']        = data['catalog-mpp'] || {};
+      obj['products']   = products || {};
+      obj['category']   = obj['mpp'] ? obj['mpp'].categories : [];
+      obj['parent']     = obj['cpp'] ? obj['cpp'].categories : [];
+      return obj;
+    },
+    spp : function(data, products) {
+      if (!data || !products) {
+        return null;
+      };
+      var obj           = {}
+      obj['cpp']        = data['catalog-cpp'] || {};
+      obj['spp']        = data['catalog-spp'] || {};
+      obj['products']   = products || '';
+      var cppCatData    = ( obj['cpp'] && obj['cpp'].categories ) ? obj['cpp'].categories : [];
+      jQuery(cppCatData).each(function() {
+        if (this.PARENT_CAT_ID) {
+          obj['category'] = [this];
+        } else {
+          obj['parent'] = [this];
+        }
+      });
+      return obj;
+    },
+    product : function(data, products) {
+      if (!data || !products) {
+        return null;
+      };
+      var obj       = {}
+      if (data['catalog-mpp']) {
+        obj = this.mpp(data, products);
+      } else if (data['catalog-spp']) {
+        obj = this.spp(data, products);
+      };
+      return obj;
+    }
+  };
+
+  // Method to handle collecting the sku matche rules for the product pages.
+  this.skuMatch = {
+    undertoneOrIntensity : {
+      set : function(products) {
+        if (!products
+            || !jQuery.isArray(products)
+           ) {
+          return null;
+        };
+        var that = this;
+        $(products).each( function() {
+          var prod      = this;
+          var prodData  = prod.data;
+          profileRequests.push({
+            rule   : 'sku_matches_undertone_or_intensity',
+            rule_id  : prodData.PRODUCT_ID,
+            params   : {
+              PROD_CAT_IDS : [prodData.PRODUCT_ID]
+            },
+            callback : function(result) {
+              var match = result.getValue('PROD_CAT_MATCHES');
+              if (!match[0]) {
+                return null;
+              };
+              var firstMatch = match[0];
+              if (firstMatch.SKU_ID !== prod.getState('sku')) {
+                prod.$element.trigger('product:change_shade', [{sku: firstMatch.SKU_ID}]);
+              };
+            }
+          });
+        });
+      }
+    }
+  };
+};

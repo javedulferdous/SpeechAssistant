@@ -1,0 +1,37 @@
+_satellite.pushAsyncScript(function(event, target, $variables){
+  //Waves MOP 220088
+if(_satellite.getVar('Page Level 2') == 'movie | overview'){
+if(_satellite.getVar('Movie ID') == '220088'){
+	//PXL-280
+	_satellite.loadScript("https://www.googletagmanager.com/gtag/js?id=AW-709527754")
+	window.dataLayer = window.dataLayer || [];
+	function gtag(){dataLayer.push(arguments);}
+	gtag('js', new Date());
+	gtag('config', 'AW-709527754');
+	//event for Movie Overview Page
+	gtag('event', 'conversion', {'send_to': 'AW-709527754/F6XACMGezqsBEMqRqtIC'});
+
+	//PXL-281
+	_satellite.addImage('//insight.adsrvr.org/track/conv/?adv=y80w81u&ct=0:t302tbl&fmt=4')
+
+}
+}
+
+//Waves 220088 MSP
+if(_satellite.getVar('Page Level 2') == 'movie times | by movie'){
+if(_satellite.getVar('Movie ID') == '220088'){
+	//PXL-280
+	_satellite.loadScript("https://www.googletagmanager.com/gtag/js?id=AW-709527754")
+	window.dataLayer = window.dataLayer || [];
+	function gtag(){dataLayer.push(arguments);}
+	gtag('js', new Date());
+	gtag('config', 'AW-709527754');
+	//event for Movie Overview Page
+	gtag('event', 'conversion', {'send_to': 'AW-709527754/Cq-ACPWuzqsBEMqRqtIC'});
+
+	//PXL-281
+	_satellite.addImage('//insight.adsrvr.org/track/conv/?adv=y80w81u&ct=0:0ci5u3g&fmt=4')
+
+}
+}
+});

@@ -1,0 +1,1226 @@
+$('form').get(0).reset();
+
+var $calendarTrigger2 = $('.jsc-calendar-trigger2'),
+	$calendarTarget2 = $('.jsc-calendar-target2'),
+	$checkInTrigger2 = $('.jsc-check-in-trigger2'),
+	$roomTrigger2 = $('.jsc-room-trigger2'),
+	$roomTarget2 = $('.jsc-room-target2'),
+	$adultTrigger2 = $('.jsc-adult-trigger2'),
+	$adultTarget2 = $('.jsc-adult-target2'),
+	$childTrigger2 = $('.jsc-child-trigger2'),
+	$childTarget2 = $('.jsc-child-target2'),
+	$bgElement = $('#jsi-bg-element'),
+	$body = $('body'),
+	$searchForm2 = $('.jsc-search-form2');
+
+	// アラート
+	$alert = $('.jsc-alert'),
+	$alertCloseBtn = $('#jsi-alert-close'),
+
+	$kvFormInput = $('input'),
+	$bgPrefecturesList = $('.jsc-bg-prefectures-list'),
+	$prefecturesListContainer = $('.prefectures-list-container'),
+
+	// 部屋数パネル
+	$roomCrackPanel2 = $('#jsi-room-crack-panel2'),
+	$roomCrackPanelListItem2 = $roomCrackPanel2.find('.room-crack-panel-list > li'),
+	$paneladultsTrigger2 = $('.jsc-panel-adults-trigger2'),
+	$searchCloseBtnRoom2 = $('#jsi-search-close-btn-room2');
+
+$(function(){
+	//sessionStorageの値を取得し、inputに値を入れる
+	// var adultNumData = sessionStorage.getItem('adult');
+	// var childNumData = sessionStorage.getItem('child');
+	// $adultTrigger2.val(adultNumData);
+	// $childTrigger2.val(childNumData);
+
+	// if($adultTrigger2.val() === ''){
+	// 	$adultTrigger2.val('2')
+	// }
+	// if($childTrigger2.val() === ''){
+	// 	$childTrigger2.val('0');
+	// }
+
+	var controlPlaceHolder = function($target, placeholder){
+		if($target.val().length == 0 || $target.val() == placeholder){
+			$target.css('color', '#C0C0C0').val(placeholder);
+		}else{
+			$target.css('color', '#464646');
+		}
+	};
+	$placeholderTarget.each(function(){
+		var $self = $(this),
+			placeholder = $self.data('placeholder');
+
+		controlPlaceHolder($self, placeholder);
+
+		$self.on('focus', function(){
+			if($self.val() == placeholder){
+				$self.css('color', '#464646').val('');
+			}
+		});
+		$self.on('blur', function(){
+			controlPlaceHolder($self, placeholder);
+		});
+	});
+
+
+	// 黒背景の高さ設定
+	var bodyHeight = $body.height();
+	$bgElement.css('height', bodyHeight + 73);
+
+	/* ----------------------------------------------------
+		イベントを中止させる。
+	---------------------------------------------------- */
+	$('.side-kv-search').on('click',function(e){
+		e.stopPropagation();
+	});
+	$('.header-toggle').on('click',function(e){
+		e.stopPropagation();
+	});
+	$('#jsi-alert').on('click',function(e){
+		e.stopPropagation();
+	});
+	$('.map').on('click',function(e){
+		e.stopPropagation();
+	});
+	$('.room-crack-panel-inner').on('click',function(e){
+		e.stopPropagation();
+	});
+
+	/* ----------------------------------------------------
+		bodyをクリックで全てのタブを閉じる。
+	---------------------------------------------------- */
+
+	$('body').on('click',function(){
+
+		$adultTrigger2.removeAttr("disabled");
+		$childTrigger2.removeAttr("disabled");
+		$adultTrigger2.parent('.side-kv-members-select').removeClass('disabled');
+		$childTrigger2.parent('.side-kv-members-select').removeClass('disabled');
+
+		$bgElement.hide();
+		$('input').removeClass('selected');
+
+		$roomCrackPanelListItem2.removeClass('jsc-list-right-side');
+	});
+
+	/* ----------------------------------------------------
+		Destinationの開閉
+	---------------------------------------------------- */
+	$alertCloseBtn.on('click',function(e){
+		e.stopPropagation();
+		$alert.hide();
+	});
+
+	/* ----------------------------------------------------
+		カレンダーの開閉
+	---------------------------------------------------- */
+	$calendarTrigger2.on('focus',function(e){
+		$lumpTarget.hide();
+		$kvFormInput.removeClass('selected');
+		$checkInTrigger2.addClass('selected');
+
+		if($calendarTarget2.is(':hidden')){
+			$calendarTarget2.slideDown(300);
+		}
+	});
+
+
+	/* ----------------------------------------------------
+	room数の開閉
+	---------------------------------------------------- */
+	$roomTrigger2.on('keyup focus',function(e){
+		$kvFormInput.removeClass('selected');
+		$roomTrigger2.addClass('selected');
+		$('input').removeClass('selected');
+		if(!e.keyCode || e.keyCode == 9){
+			if($roomTrigger2.val() > 1){
+				$roomTarget2.hide();
+			}
+			$lumpTarget.hide();
+			if($roomTarget2.is(':hidden')){
+				$roomTarget2.slideDown(300);
+			}
+		}
+	});
+	$roomTarget2.find('li').each(function(){
+		var $myself = $(this);
+		$myself.on('click',function(){
+			$kvFormInput.removeClass('selected');
+			var text = $myself.text();
+			$roomTrigger2.val(text);
+			$roomTarget2.slideUp(300);
+			$roomTrigger2.removeClass('selected');
+
+
+
+
+			if($roomTrigger2.val() > 1){
+				$roomCrackPanel2.fadeIn(300);
+
+				$adultTrigger2.attr("disabled", "disabled");
+				$childTrigger2.attr("disabled", "disabled");
+				$adultTrigger2.parent('.side-kv-members-select').addClass('disabled');
+				$childTrigger2.parent('.side-kv-members-select').addClass('disabled');
+				$bgElement.show();
+
+				$roomCrackPanelListItem2.hide();
+				var roomVal = parseInt($roomTrigger2.val());
+				for(var i = 0; i < $roomCrackPanelListItem2.length; i++){
+					if(i < roomVal){
+						$roomCrackPanelListItem2.eq(i).show();
+						$adultTrigger2.val($roomTrigger2.val());
+						$childTrigger2.val(0);
+						$roomCrackPanel2.find('input').val(0);
+						$paneladultsTrigger2.val(1);
+						$roomCrackPanelListItem2.eq(roomVal - 1).addClass('jsc-list-right-side');
+					}
+				}
+				return;
+			}else if($roomTrigger2.val() == 1){
+				$bgElement.hide();
+				$adultTrigger2.val(2);
+				$childTrigger2.val(0);
+			}
+			$adultTarget2.slideDown(300);
+			$adultTrigger2.addClass('selected');
+		});
+	});
+
+
+	/* ----------------------------------------------------
+		大人人数の開閉
+	---------------------------------------------------- */
+	$adultTrigger2.on('keyup focus',function(e){
+		$kvFormInput.removeClass('selected');
+		$adultTrigger2.addClass('selected');
+		$('input').removeClass('selected');
+		var roomVal = parseInt($roomTrigger2.val());
+		if(!e.keyCode || e.keyCode == 9){
+			if($roomTrigger2.val() > 1){
+				$roomCrackPanel2.fadeIn(300);
+				if($roomTrigger2.val() > 1){
+					$adultTrigger2.attr("disabled", "disabled");
+					$childTrigger2.attr("disabled", "disabled");
+					$adultTrigger2.parent('.side-kv-members-select').addClass('disabled');
+					$childTrigger2.parent('.side-kv-members-select').addClass('disabled');
+					$bgElement.show();
+					$roomCrackPanelListItem2.eq(roomVal - 1).addClass('jsc-list-right-side');
+				}
+				$adultTarget2.hide();
+				return;
+			}
+			$lumpTarget.hide();
+			if($adultTarget2.is(':hidden')){
+				$adultTarget2.slideDown(300);
+			}
+		}
+	});
+	$adultTarget2.find('li').each(function(){
+		var $myself = $(this);
+		$myself.on('click',function(){
+			$kvFormInput.removeClass('selected');
+			var text = $myself.text();
+			$adultTrigger2.val(text);
+			$adultTarget2.slideUp(300);
+			$adultTrigger2.removeClass('selected');
+		});
+	});
+
+
+	/* ----------------------------------------------------
+		子供人数の開閉
+	---------------------------------------------------- */
+	$childTrigger2.on('keyup focus',function(e){
+		$roomCrackPanel2.fadeIn(300);
+		$bgElement.show();
+		$adultTrigger2.attr("disabled", "disabled");
+		$childTrigger2.attr("disabled", "disabled");
+		$adultTrigger2.parent('.side-kv-members-select').addClass('disabled');
+		$childTrigger2.parent('.side-kv-members-select').addClass('disabled');
+		$('input').removeClass('selected');
+		$roomTarget2.hide();
+		$adultTarget2.hide();
+
+		var roomVal = parseInt($roomTrigger2.val());
+		$roomCrackPanelListItem2.eq(roomVal - 1).addClass('jsc-list-right-side');
+
+		if($roomTrigger2.val() == 1){
+			$roomCrackPanel2.fadeIn(300);
+			$roomCrackPanelListItem2.hide();
+			for(var i = 0; i < $roomCrackPanelListItem2.length; i++){
+				if(i < roomVal){
+					$roomCrackPanelListItem2.eq(i).show();
+					$roomCrackPanel2.find('input').val(0);
+				}
+			}
+			$paneladultsTrigger2.val($adultTrigger2.val());
+			return;
+		}
+	});
+
+
+	/* ----------------------------------------------------
+		ルーム数パネルのアコーディオン
+	---------------------------------------------------- */
+	$roomCrackPanel2.find('.human-number').each(function(){
+		var $myself = $(this);
+		var $trigger = $myself.find('input');
+		var $target = $myself.find('ul');
+		var totalAllInput;
+		var totalAdults;
+		$trigger.on('keyup focus',function(){
+			$roomCrackPanel2.find('.human-number > ul').hide();
+			$('input').removeClass('selected');
+			$trigger.addClass('selected');
+			$target.slideDown(300);
+		});
+		$target.find('li').each(function(){
+			var $self = $(this);
+			$self.on('click',function(){
+				var text = $self.text();
+				$trigger.val(text);
+				$target.slideUp(300);
+				$('input').removeClass('selected');
+
+				var visibleAllInput = jQuery('input:visible');
+				totalAllInput = 0;
+				$('#jsi-room-crack-panel2 .human-number').find(visibleAllInput).each(function(){
+					var point = $(this).val();
+					totalAllInput = parseInt(point) + totalAllInput;
+				});
+
+				var visibleAdults = jQuery('.jsc-panel-adults-trigger2:visible');
+				totalAdults = 0;
+				$('#jsi-room-crack-panel2').find(visibleAdults).each(function(){
+					var point = $(this).val();
+					totalAdults = parseInt(point) + totalAdults;
+				});
+				$adultTrigger2.val(totalAdults);
+				$childTrigger2.val(totalAllInput - totalAdults);
+			});
+		});
+	});
+
+	$searchCloseBtnRoom2.on('click',function(){
+		if($roomCrackPanel2.is(':visible')){
+			$adultTrigger2.removeAttr("disabled");
+			$childTrigger2.removeAttr("disabled");
+			$adultTrigger2.parent('.side-kv-members-select').removeClass('disabled');
+			$childTrigger2.parent('.side-kv-members-select').removeClass('disabled');
+			$roomCrackPanel2.hide();
+			$bgElement.hide();
+			$roomCrackPanelListItem2.removeClass('jsc-list-right-side');
+		}
+	});
+
+
+	/* ----------------------------------------------------
+		Tabを押した時の処理
+	---------------------------------------------------- */
+	$toggleCompanyTrigger.on('click keyup',function(e){
+		if(!e.keyCode || e.keyCode == 9){
+			$lumpTarget.hide();
+			if($toggleCompanyTarget.is(':hidden')){
+				$toggleCompanyTarget.show();
+			}else{
+				$toggleCompanyTarget.hide();
+			}
+		}
+	});
+	$toggleCompanyTarget.find('li').on("click",function(){
+		$toggleCompanyTarget.hide();
+	});
+	$toggleCurrencyTrigger.on('click keyup',function(e){
+		if(!e.keyCode || e.keyCode == 9){
+			$lumpTarget.hide();
+			if($toggleCurrencyTarget.is(':hidden')){
+				$toggleCurrencyTarget.show();
+			}else{
+				$toggleCurrencyTarget.hide();
+			}
+		}
+	});
+
+
+
+	// Submitボタンが押された場合
+	$('#jsi-search-submit-btn').on('click',function(event){
+
+    //一覧画面から大人、子供の値を渡すためにsessionStorageに格納
+    // var adultNum = $adultTrigger2.val();
+    //   childNum = $childTrigger2.val();
+    // sessionStorage.setItem('adult', adultNum);
+    // sessionStorage.setItem('child', childNum);
+
+    var isEmpty = false;
+    $placeholderTarget.each(function(){
+      var $self = $(this);
+
+      if(($self.val().length == 0 || $self.val() == $self.data('placeholder')) && $self.is(':visible')){
+        isEmpty = true;
+        return false;
+      }
+    });
+
+    if(isEmpty){
+      $alert.show();
+      $alert.find('.alert-error-description').html('We need at least part of the name to start searching.');
+      return false;
+    }
+
+    // 送信クエリ構築
+    var frm = document.forms['Form'];
+
+    // formにスライダーの料金を設定する
+    if(!$('#wrapper').hasClass('detail-page')){
+      var minPrice = document.getElementById('slider-snap-value-lower').textContent;
+      var maxPrice = document.getElementById('slider-snap-value-upper').textContent;
+
+      switch (frm.crcyCd.value){
+        case 'USD':
+          frm.minPriceUsd.value = minPrice;
+          frm.maxPriceUsd.value = maxPrice;
+          break;
+        case 'CNY':
+          frm.minPriceCny.value = minPrice;
+          frm.maxPriceCny.value = maxPrice;
+          break;
+        case 'KRW':
+          frm.minPriceKrw.value = minPrice;
+          frm.maxPriceKrw.value = maxPrice;
+          break;
+        case 'THB':
+          frm.minPriceThb.value = minPrice;
+          frm.maxPriceThb.value = maxPrice;
+          break;
+        case 'IDR':
+          frm.minPriceIdr.value = minPrice;
+          frm.maxPriceIdr.value = maxPrice;
+          break;
+        case 'MYR':
+          frm.minPriceMyr.value = minPrice;
+          frm.maxPriceMyr.value = maxPrice;
+          break;
+        case 'EUR':
+          frm.minPriceEur.value = minPrice;
+          frm.maxPriceEur.value = maxPrice;
+          break;
+        case 'TWD':
+          frm.minPriceTwd.value = minPrice;
+          frm.maxPriceTwd.value = maxPrice;
+          break;
+        case 'HKD':
+          frm.minPriceHkd.value = minPrice;
+          frm.maxPriceHkd.value = maxPrice;
+          break;
+        default:
+          frm.minPrice.value = minPrice;
+          frm.maxPrice.value = maxPrice;
+      }
+    }
+
+    // 人数・部屋割
+    var roomCnt = $roomTrigger2.val(),
+        adult = 0,
+        child1 = 0,
+        child2 = 0,
+        child3 = 0,
+        child4 = 0,
+        child5 = 0,
+        strRoomCrack = '';
+
+    for (var i = 0, strAdultClass = ''; i < roomCnt; i++) {
+      strAdultClass = roomCnt == 1 ? '.jsc-adult-trigger2' : '.jsc-panel-adults-trigger2:eq(' + i + ')';
+
+      var strChild1Class = '.jsc-panel-children-trigger2:eq(' + i + ')';
+      var strChild2Class = '.jsc-panel-meals-beds-trigger2:eq(' + i + ')';
+      var strChild3Class = '.jsc-panel-meals-trigger2:eq(' + i + ')';
+      var strChild4Class = '.jsc-panel-beds-trigger2:eq(' + i +')';
+      var strChild5Class = '.jsc-panel-no-meals-beds-trigger2:eq(' + i + ')';
+
+      // 各年齢区分の人数を集計
+      adult += parseInt($(strAdultClass).val(), 10);
+      child1 += parseInt($(strChild1Class).val(), 10);
+      child2 += parseInt($(strChild2Class).val(), 10);
+      child3 += parseInt($(strChild3Class).val(), 10);
+      child4 += parseInt($(strChild4Class).val(), 10);
+      child5 += parseInt($(strChild5Class).val(), 10);
+
+      // 部屋割文字列
+      if (i != 0) {
+        strRoomCrack += ',';
+      }
+
+      strRoomCrack += String(parseInt($(strAdultClass).val(), 10));
+      strRoomCrack += String(parseInt($(strChild1Class).val(), 10));
+      strRoomCrack += String(parseInt($(strChild2Class).val(), 10));
+      strRoomCrack += String(parseInt($(strChild3Class).val(), 10));
+      strRoomCrack += String(parseInt($(strChild4Class).val(), 10));
+      strRoomCrack += String(parseInt($(strChild5Class).val(), 10));
+    }
+
+    // 送信用formに人数を設定
+    frm.adultNum.value = adult;
+    frm.child1Num.value = child1;
+    frm.child2Num.value = child2;
+    frm.child3Num.value = child3;
+    frm.child4Num.value = child4;
+    frm.child5Num.value = child5;
+    frm.roomCrack.value = strRoomCrack;
+
+    // サイド検索formの中身をコピー
+    var frm0 = document.forms['side_search1'];
+
+    var outYear = '',
+        outMonth = '',
+        outDay = '',
+        homeYear = '',
+        homeMonth = '',
+        homeDay = '';
+
+    try {
+      var inDateParts = frm0.checkinDate.value.split('/');
+      var outDateParts = frm0.checkoutDate.value.split('/');
+
+      outYear = parseInt('20'+inDateParts[2],10);
+      outMonth = parseInt(inDateParts[0],10);
+      outDay = parseInt(inDateParts[1],10);
+
+      homeYear = parseInt('20'+outDateParts[2],10);
+      homeMonth = parseInt(outDateParts[0],10);
+      homeDay = parseInt(outDateParts[1],10);
+
+      var outDate = new Date(outYear, (outMonth - 1), outDay, 0, 0, 0);
+      var homeDate = new Date(homeYear, (homeMonth -1), homeDay, 0, 0, 0);
+
+      var stayCount = 1;
+      var tmpDate = new Date(outDate.getTime() + (1000 * 60 * 60 * 24));
+
+      while (tmpDate.getTime() < homeDate.getTime()) {
+        stayCount++;
+        tmpDate = new Date(tmpDate.getTime() + (1000 * 60 * 60 * 24));
+      }
+
+      frm.stayYear.value  = outYear;
+      frm.stayMonth.value = outMonth;
+      frm.stayDay.value   = outDay;
+      frm.stayCount.value = stayCount;
+
+    } catch (e) {
+    }
+
+    var area = '';
+    var actKeys = 'screenId,distCd,afCd,stnCd,lrgOsnCd,osnCd,ssc,rootCd,'
+                + 'minPrice,maxPrice,'
+                + 'careOutsidePool,careBeach5,careStation5,carePak,careItnr,careNsmr,careBath,careOnsen,'
+                + 'careBathRent,carePribateBath,careDinRoom,carePet,careHighClass,carePoint,careSweet,careBt,'
+                + 'careEsthetics,careLookoutBath,careSauna,careTakkyu,careJacuzzi,careMassage,careSkiRent,'
+                + 'careBoardRent,careSogei,careBrkRoom,careDinPrv,careBrkPrv,careChekout11,'
+                + 'roomSingle,roomTriple,roomJstyle,roomTwin,room4bed,roomHwstyle,roomDouble,roomOther,'
+                + 'yadHb,yadKc,yadRk,yadKy,yadPm,mealType,reShFlg,activeSort,photo,idx,vosFlg,listId,roomCrack,'
+                + 'checkinTime,useTime,careCard,careCardOnly,careOpenbath,careKake,careNigori,yadNo,careExchange5,careFrontExchange,careTouristInfo5,crcyCd,'
+                + 'fltYadNm,'
+                + 'stayYear,stayMonth,stayDay,stayCount,'
+                + 'adultNum,child1Num,child2Num,child3Num,child4Num,child5Num,langCd,sortIndex,'
+                + 'mealTypeNo,mealTypeBFst,mealTypeDiner,mealTypeBoth,'
+                + 'roomFacilityNonSmorking,roomFacilitySmorking,'
+                + 'paymentOC,paymentLocal,'
+                + 'internetFreeWifi,internetPaidWifi,internetFreeWired,internetPaidWired,'
+                + 'awardEarlyBird,awardLimitedTime';
+
+    var submitFormEncoder = function(frm, excludes, includes) {
+      var ary1 = [],
+          ary2 = [],
+          act = '',
+          excludesAry = stringSprit(excludes),
+          includesAry = stringSprit(includes);
+
+      if (frm.elements['dateUndecided'] == null || frm.elements['dateUndecided'].value == '' ||
+        (frm.elements['dateUndecided'].type == 'checkbox' && frm.elements['dateUndecided'].checked == false)) {
+        // 日付指定の場合
+        for (var i = 0, j = frm.elements.length; i < j; i++) {
+          var flg = checkParameter(ary2, frm, i, excludesAry, includesAry);
+
+          if(flg) {
+            ary1.push(frm.elements[i].name + '=' + encodeURIComponent(frm.elements[i].value));
+            ary2.push(frm.elements[i].name);
+          }
+        }
+      } else {
+        // 日付未定の場合
+        for (var i = 0, j = frm.elements.length; i < j; i++) {
+          var flg = checkParameter(ary2, frm, i, excludesAry, includesAry);
+
+          if(flg) {
+            switch(frm.elements[i].name){
+              case 'stayYear':
+              case 'stayMonth':
+              case 'stayDay':
+                ary1.push(frm.elements[i].name + '=');
+                ary2.push(frm.elements[i].name);
+                continue;
+              default:
+            }
+
+            ary1.push(frm.elements[i].name + '=' + encodeURIComponent(frm.elements[i].value));
+            ary2.push(frm.elements[i].name);
+          }
+        }
+      }
+
+      for(var i = 0, j = ary1.length; i < j; i++) {
+        if(i == 0) {
+          act += '?';
+        } else {
+          act += '&';
+        }
+        act += ary1[i];
+      }
+
+      return act;
+    };
+
+    if($('#wrapper').hasClass('detail-page')){
+      // 詳細画面の場合の追加パラメーター
+      actKeys += ',bedSingle,bedDouble,bedQueen,bedKing,bedExtra,bedFuton,'
+               + 'roomFacilityBath,roomFacilityToilet';
+    }
+
+    // 一覧画面の場合の追加パラメーター
+    if(!$('#wrapper').hasClass('detail-page')){
+      area = frm.kenCd.value == '' ? ',frwdDest' : ',kenCd,lrgCd,smlCd';
+      actKeys += area;
+    }
+
+    var act = submitFormEncoder(frm, '', actKeys);
+
+    if (act.charAt(0) == '&' || act.charAt(0) == '?') {
+      act = '?' + act.substring(1);
+    }
+
+    var submitForm = document.forms['submitForm'];
+    targetUrl = $('#wrapper').hasClass('detail-page') ? '3100/uiw3101.do?' : '1400/uiw1402.do?';
+
+    submitForm.action = '/ui/uip' + targetUrl + act + '&scVal=02';
+    submitForm.method = 'post';
+    submitForm.submit();
+  });
+
+
+  $('#jsi-detail-submit-btn').on('click',function(event){
+    var roomCnt = $roomTrigger.val(),
+        adult = 0,
+        child1 = 0,
+        child2 = 0,
+        child3 = 0,
+        child4 = 0,
+        child5 = 0,
+        strRoomCrack = '';
+
+    for (var i = 0, strAdultClass = ''; i < roomCnt; i++) {
+      strAdultClass = roomCnt == 1 ? '.jsc-adult-trigger' : '.jsc-panel-adults-trigger:eq(' + i + ')';
+
+      var strChild1Class = '.jsc-panel-children-trigger:eq(' + i + ')';
+      var strChild2Class = '.jsc-panel-meals-beds-trigger:eq(' + i + ')';
+      var strChild3Class = '.jsc-panel-meals-trigger:eq(' + i + ')';
+      var strChild4Class = '.jsc-panel-beds-trigger:eq(' + i +')';
+      var strChild5Class = '.jsc-panel-no-meals-beds-trigger:eq(' + i + ')';
+
+      child1 += parseInt($(strChild1Class).val(), 10);
+      child2 += parseInt($(strChild2Class).val(), 10);
+      child3 += parseInt($(strChild3Class).val(), 10);
+      child4 += parseInt($(strChild4Class).val(), 10);
+      child5 += parseInt($(strChild5Class).val(), 10);
+
+      if (i != 0) {
+        strRoomCrack += ",";
+      }
+
+      strRoomCrack += String(parseInt($(strAdultClass).val(), 10));
+      strRoomCrack += String(parseInt($(strChild1Class).val(), 10));
+      strRoomCrack += String(parseInt($(strChild2Class).val(), 10));
+      strRoomCrack += String(parseInt($(strChild3Class).val(), 10));
+      strRoomCrack += String(parseInt($(strChild4Class).val(), 10));
+      strRoomCrack += String(parseInt($(strChild5Class).val(), 10));
+    }
+
+    var frm = document.forms['Form'];
+
+    frm.adultNum.value = adult;
+    frm.child1Num.value = child1;
+    frm.child2Num.value = child2;
+    frm.child3Num.value = child3;
+    frm.child4Num.value = child4;
+    frm.child5Num.value = child5;
+    frm.roomCrack.value = strRoomCrack;
+
+    var outYear = '',
+        outMonth = '',
+        outDay = '',
+        homeYear = '',
+        homeMonth = '',
+        homeDay = '';
+
+    try {
+
+      if (checkIn.year != null && checkIn.month != null && checkIn.date != null && checkOut.year != null && checkOut.month != null && checkOut.date != null) {
+        outYear = parseInt(checkIn.year, 10);
+        outMonth = parseInt(checkIn.month, 10);
+        outDay = parseInt(checkIn.date, 10);
+
+        homeYear = parseInt(checkOut.year, 10);
+        homeMonth = parseInt(checkOut.month, 10);
+        homeDay = parseInt(checkOut.date, 10);
+
+        var outDate = new Date(outYear, (outMonth - 1), outDay, 0, 0, 0);
+        var homeDate = new Date(homeYear, (homeMonth -1), homeDay, 0, 0, 0);
+
+        var stayCount = 1;
+        var tmpDate = new Date(outDate.getTime() + (1000 * 60 * 60 * 24));
+
+        while (tmpDate.getTime() < homeDate.getTime()) {
+          stayCount++;
+          tmpDate = new Date(tmpDate.getTime() + (1000 * 60 * 60 * 24));
+        }
+
+        frm.stayYear.value  = outYear;
+        frm.stayMonth.value = outMonth;
+        frm.stayDay.value   = outDay;
+        frm.stayCount.value = stayCount;
+      }
+
+    } catch (e) {
+    }
+
+    // 詳細画面の場合の追加パラメーター
+    var actKeys = 'screenId,distCd,afCd,stnCd,lrgOsnCd,osnCd,ssc,rootCd,'
+        +'minPrice,maxPrice,'
+        +'careOutsidePool,careBeach5,careStation5,carePak,careItnr,careNsmr,careBath,careOnsen,'
+        +'careBathRent,carePribateBath,careDinRoom,carePet,careHighClass,carePoint,careSweet,careBt,'
+        +'careEsthetics,careLookoutBath,careSauna,careTakkyu,careJacuzzi,careMassage,careSkiRent,'
+        +'careBoardRent,careSogei,careBrkRoom,careDinPrv,careBrkPrv,careChekout11,'
+        +'roomSingle,roomTriple,roomJstyle,roomTwin,room4bed,roomHwstyle,roomDouble,roomOther,'
+        +'yadHb,yadKc,yadRk,yadKy,yadPm,mealType,reShFlg,activeSort,photo,idx,vosFlg,listId, roomCrack,'
+        +'checkinTime,useTime,careCard,careCardOnly,careOpenbath,careKake,careNigori,yadNo,careExchange5,careFrontExchange,careTouristInfo5,crcyCd,'
+        +'fltYadNm,'
+        +'stayYear,stayMonth,stayDay,stayCount,'
+        +'adultNum,child1Num,child2Num,child3Num,child4Num,child5Num,langCd,sortIndex,'
+        +'mealTypeNo,mealTypeBFst,mealTypeDiner,mealTypeBoth,'
+        +'roomFacilityNonSmorking,roomFacilitySmorking,'
+        +'internetFreeWifi,internetPaidWifi,internetFreeWired,internetPaidWired,'
+        +'paymentOC,paymentLocal,'
+        +'awardEarlyBird,awardLimitedTime,'
+        +'bedSingle,bedDouble,bedQueen,bedKing,bedExtra,bedFuton,'
+        +'roomFacilityBath,roomFacilityToilet';
+
+    var submitFormEncoder = function(frm, excludes, includes) {
+      var ary1 = [],
+          ary2 = [],
+          act = '',
+          excludesAry = stringSprit(excludes),
+          includesAry = stringSprit(includes);
+
+      if (frm.elements['dateUndecided'] == null || frm.elements['dateUndecided'].value == '' ||
+        (frm.elements['dateUndecided'].type == 'checkbox' && frm.elements['dateUndecided'].checked == false)) {
+        // 日付指定の場合
+        for (var i = 0, j = frm.elements.length; i < j; i++) {
+          var flg = checkParameter(ary2, frm, i, excludesAry, includesAry);
+
+          if(flg) {
+            ary1.push(frm.elements[i].name + '=' + encodeURIComponent(frm.elements[i].value));
+            ary2.push(frm.elements[i].name);
+          }
+        }
+      } else {
+        // 日付未定の場合
+        for (var i = 0, j = frm.elements.length; i < j; i++) {
+          var flg = checkParameter(ary2, frm, i, excludesAry, includesAry);
+
+          if(flg) {
+            switch(frm.elements[i].name){
+              case 'stayYear':
+              case 'stayMonth':
+              case 'stayDay':
+                ary1.push(frm.elements[i].name + '=');
+                ary2.push(frm.elements[i].name);
+                continue;
+              default:
+            }
+
+            ary1.push(frm.elements[i].name + '=' + encodeURIComponent(frm.elements[i].value));
+            ary2.push(frm.elements[i].name);
+          }
+        }
+      }
+
+      for(var i = 0, j = ary1.length; i < j; i++) {
+        if(i == 0) {
+          act += '?';
+        } else {
+          act += '&';
+        }
+        act += ary1[i];
+      }
+
+      return act;
+    };
+
+    var act = submitFormEncoder(frm, '', actKeys);
+
+    if (act.charAt(0) == '&' || act.charAt(0) == '?') {
+      act = '' + act.substring(1);
+    }
+
+    var submitForm = document.createElement('form'),
+        targetUrl = '/ui/uip3100/uiw3101.do?';
+
+    submitForm.action = targetUrl + act;
+    submitForm.method = 'post';
+
+    document.body.appendChild(submitForm);
+    submitForm.submit();
+  });
+
+  $('.jsc-list-filter-submit-btn').on('click',function(event){
+
+    var isEmpty = false;
+
+    $placeholderTarget.each(function(){
+      var $self = $(this);
+
+      if(($self.val().length == 0 || $self.val() == $self.data('placeholder')) && $self.is(':visible')){
+        isEmpty = true;
+        return false;
+      }
+    });
+
+    // 送信クエリ構築
+    var frm = document.forms['Form'];
+
+    // formにスライダーの料金を設定する
+    var minPrice = document.getElementById('slider-snap-value-lower').textContent;
+    var maxPrice = document.getElementById('slider-snap-value-upper').textContent;
+
+    switch(frm.crcyCd.value){
+      case 'USD':
+        frm.minPriceUsd.value = minPrice;
+        frm.maxPriceUsd.value = maxPrice;
+        break;
+      case 'CNY':
+        frm.minPriceCny.value = minPrice;
+        frm.maxPriceCny.value = maxPrice;
+        break;
+      case 'KRW':
+        frm.minPriceKrw.value = minPrice;
+        frm.maxPriceKrw.value = maxPrice;
+        break;
+      case 'THB':
+        frm.minPriceThb.value = minPrice;
+        frm.maxPriceThb.value = maxPrice;
+        break;
+      case 'IDR':
+        frm.minPriceIdr.value = minPrice;
+        frm.maxPriceIdr.value = maxPrice;
+        break;
+      case 'MYR':
+        frm.minPriceMyr.value = minPrice;
+        frm.maxPriceMyr.value = maxPrice;
+        break;
+      case 'EUR':
+        frm.minPriceEur.value = minPrice;
+        frm.maxPriceEur.value = maxPrice;
+        break;
+      case 'TWD':
+        frm.minPriceTwd.value = minPrice;
+        frm.maxPriceTwd.value = maxPrice;
+        break;
+      case 'HKD':
+        frm.minPriceHkd.value = minPrice;
+        frm.maxPriceHkd.value = maxPrice;
+        break;
+      default:
+        frm.minPrice.value = minPrice;
+        frm.maxPrice.value = maxPrice;
+    }
+
+    // 人数・部屋割
+    var roomCnt = $roomTrigger2.val(),
+        adult = 0,
+        child1 = 0,
+        child2 = 0,
+        child3 = 0,
+        child4 = 0,
+        child5 = 0,
+        strRoomCrack = '';
+
+    for (var i = 0, strAdultClass = ''; i < roomCnt; i++) {
+      strAdultClass = roomCnt == 1 ? '.jsc-adult-trigger2' : '.jsc-panel-adults-trigger2:eq(' + i + ')';
+
+      var strChild1Class = '.jsc-panel-children-trigger2:eq(' + i + ')';
+      var strChild2Class = '.jsc-panel-meals-beds-trigger2:eq(' + i + ')';
+      var strChild3Class = '.jsc-panel-meals-trigger2:eq(' + i + ')';
+      var strChild4Class = '.jsc-panel-beds-trigger2:eq(' + i +')';
+      var strChild5Class = '.jsc-panel-no-meals-beds-trigger2:eq(' + i + ')';
+
+      // 各年齢区分の人数を集計
+      adult += parseInt($(strAdultClass).val(), 10);
+      child1 += parseInt($(strChild1Class).val(), 10);
+      child2 += parseInt($(strChild2Class).val(), 10);
+      child3 += parseInt($(strChild3Class).val(), 10);
+      child4 += parseInt($(strChild4Class).val(), 10);
+      child5 += parseInt($(strChild5Class).val(), 10);
+
+      // 部屋割文字列
+      if (i != 0) {
+        strRoomCrack += ',';
+      }
+
+      strRoomCrack += String(parseInt($(strAdultClass).val(), 10));
+      strRoomCrack += String(parseInt($(strChild1Class).val(), 10));
+      strRoomCrack += String(parseInt($(strChild2Class).val(), 10));
+      strRoomCrack += String(parseInt($(strChild3Class).val(), 10));
+      strRoomCrack += String(parseInt($(strChild4Class).val(), 10));
+      strRoomCrack += String(parseInt($(strChild5Class).val(), 10));
+    }
+
+    // 送信用formに人数を設定
+    frm.adultNum.value = adult;
+    frm.child1Num.value = child1;
+    frm.child2Num.value = child2;
+    frm.child3Num.value = child3;
+    frm.child4Num.value = child4;
+    frm.child5Num.value = child5;
+    frm.roomCrack.value = strRoomCrack;
+
+    // サイド検索formの中身をコピー
+    var frm0 = document.forms['side_search1'];
+
+    var outYear = '',
+        outMonth = '',
+        outDay = '',
+        homeYear = '',
+        homeMonth = '',
+        homeDay = '';
+
+    try {
+      var inDateParts = frm0.checkinDate.value.split('/');
+      var outDateParts = frm0.checkoutDate.value.split('/');
+
+      outYear = parseInt('20'+inDateParts[2], 10);
+      outMonth = parseInt(inDateParts[0], 10);
+      outDay = parseInt(inDateParts[1], 10);
+
+      homeYear = parseInt('20'+outDateParts[2], 10);
+      homeMonth = parseInt(outDateParts[0], 10);
+      homeDay = parseInt(outDateParts[1], 10);
+
+      var outDate = new Date(outYear, (outMonth - 1), outDay, 0, 0, 0);
+      var homeDate = new Date(homeYear, (homeMonth -1), homeDay, 0, 0, 0);
+
+      var stayCount = 1;
+      var tmpDate = new Date(outDate.getTime() + (1000 * 60 * 60 * 24));
+
+      while (tmpDate.getTime() < homeDate.getTime()) {
+        stayCount++;
+        tmpDate = new Date(tmpDate.getTime() + (1000 * 60 * 60 * 24));
+      }
+
+      frm.stayYear.value  = outYear;
+      frm.stayMonth.value = outMonth;
+      frm.stayDay.value   = outDay;
+      frm.stayCount.value = stayCount;
+
+    } catch (e) {
+    }
+
+    var area= '';
+
+    if(!$('#wrapper').hasClass('detail-page')){
+      area = frm.kenCd.value == '' ? ',frwdDest' : ',kenCd,lrgCd,smlCd';
+    }
+
+    var actKeys = 'screenId,distCd,afCd,stnCd,lrgOsnCd,osnCd,ssc,rootCd,'
+        +'minPrice,maxPrice,'
+        +'careOutsidePool,careBeach5,careStation5,carePak,careItnr,careNsmr,careBath,careOnsen,'
+        +'careBathRent,carePribateBath,careDinRoom,carePet,careHighClass,carePoint,careSweet,careBt,'
+        +'careEsthetics,careLookoutBath,careSauna,careTakkyu,careJacuzzi,careMassage,careSkiRent,'
+        +'careBoardRent,careSogei,careBrkRoom,careDinPrv,careBrkPrv,careChekout11,'
+        +'roomSingle,roomTriple,roomJstyle,roomTwin,room4bed,roomHwstyle,roomDouble,roomOther,'
+        +'yadHb,yadKc,yadRk,yadKy,yadPm,mealType,reShFlg,activeSort,photo,idx,vosFlg,listId, roomCrack,'
+        +'checkinTime,useTime,careCard,careCardOnly,careOpenbath,careKake,careNigori,yadNo,careExchange5,careFrontExchange,careTouristInfo5,crcyCd,'
+        +'fltYadNm,'
+        +'stayYear,stayMonth,stayDay,stayCount,'
+        +'adultNum,child1Num,child2Num,child3Num,child4Num,child5Num,langCd,'
+        +'mealTypeNo,mealTypeBFst,mealTypeDiner,mealTypeBoth,'
+        +'roomFacilityNonSmorking,roomFacilitySmorking,'
+        +'internetFreeWifi,internetPaidWifi,internetFreeWired,internetPaidWired,'
+        +'paymentOC,paymentLocal,'
+        +'awardEarlyBird,awardLimitedTime'
+        + area;
+
+    var submitFormEncoder = function(frm, excludes, includes) {
+      var ary1 = [],
+          ary2 = [],
+          act = '',
+          excludesAry = stringSprit(excludes),
+          includesAry = stringSprit(includes);
+
+      if (frm.elements['dateUndecided'] == null || frm.elements['dateUndecided'].value == '' ||
+        (frm.elements['dateUndecided'].type == 'checkbox' && frm.elements['dateUndecided'].checked == false)) {
+        // 日付指定の場合
+        for (var i = 0, j = frm.elements.length; i < j; i++) {
+          var flg = checkParameter(ary2, frm, i, excludesAry, includesAry);
+
+          if(flg) {
+            ary1.push(frm.elements[i].name + '=' + encodeURIComponent(frm.elements[i].value));
+            ary2.push(frm.elements[i].name);
+          }
+        }
+      } else {
+        // 日付未定の場合
+        for (var i = 0, j = frm.elements.length; i < j; i++) {
+          var flg = checkParameter(ary2, frm, i, excludesAry, includesAry);
+
+          if(flg) {
+            switch(frm.elements[i].name){
+              case 'stayYear':
+              case 'stayMonth':
+              case 'stayDay':
+                ary1.push(frm.elements[i].name + '=');
+                ary2.push(frm.elements[i].name);
+                continue;
+              default:
+            }
+
+            ary1.push(frm.elements[i].name + '=' + encodeURIComponent(frm.elements[i].value));
+            ary2.push(frm.elements[i].name);
+          }
+        }
+      }
+
+      for(var i = 0, j = ary1.length; i < j; i++) {
+        if(i == 0) {
+          act += '?';
+        } else {
+          act += '&';
+        }
+        act += ary1[i];
+      }
+
+      return act;
+    };
+
+    var act = submitFormEncoder(frm, '', actKeys);
+
+    if (act.charAt(0) == '&' || act.charAt(0) == '?') {
+      act = '' + act.substring(1);
+    }
+
+    var submitForm = document.forms['submitForm'],
+        targetUrl = '/ui/uip1400/uiw1402.do?';
+
+    submitForm.action = targetUrl + act + '&scVal=02';
+    submitForm.method = 'post';
+    submitForm.submit();
+  });
+
+  //Submitボタンが押された場合(Filter)
+  $('.jsc-detail-filter-list-btn').on('click',function(event){
+
+    var isEmpty = false;
+
+    $placeholderTarget.each(function(){
+      var $self = $(this);
+
+      if(($self.val().length == 0 || $self.val() == $self.data('placeholder')) && $self.is(':visible')){
+        isEmpty = true;
+        return false;
+      }
+    });
+
+    // 送信クエリ構築
+    var frm = document.forms['Form'];
+
+    // 人数・部屋割
+    var roomCnt = $roomTrigger2.val();
+    var adult = 0;
+    var child1 = 0;
+    var child2 = 0;
+    var child3 = 0;
+    var child4 = 0;
+    var child5 = 0;
+    var strRoomCrack = '';
+
+    for (var i = 0, strAdultClass = ''; i < roomCnt; i++) {
+      strAdultClass = roomCnt == 1 ? '.jsc-adult-trigger2' : '.jsc-panel-adults-trigger2:eq(' + i + ')';
+
+      var strChild1Class = '.jsc-panel-children-trigger2:eq(' + i + ')';
+      var strChild2Class = '.jsc-panel-meals-beds-trigger2:eq(' + i + ')';
+      var strChild3Class = '.jsc-panel-meals-trigger2:eq(' + i + ')';
+      var strChild4Class = '.jsc-panel-beds-trigger2:eq(' + i +')';
+      var strChild5Class = '.jsc-panel-no-meals-beds-trigger2:eq(' + i + ')';
+
+      // 各年齢区分の人数を集計
+      adult += parseInt($(strAdultClass).val(), 10);
+      child1 += parseInt($(strChild1Class).val(), 10);
+      child2 += parseInt($(strChild2Class).val(), 10);
+      child3 += parseInt($(strChild3Class).val(), 10);
+      child4 += parseInt($(strChild4Class).val(), 10);
+      child5 += parseInt($(strChild5Class).val(), 10);
+
+      // 部屋割文字列
+      if (i != 0) {
+        strRoomCrack += ',';
+      }
+
+      strRoomCrack += String(parseInt($(strAdultClass).val(), 10));
+      strRoomCrack += String(parseInt($(strChild1Class).val(), 10));
+      strRoomCrack += String(parseInt($(strChild2Class).val(), 10));
+      strRoomCrack += String(parseInt($(strChild3Class).val(), 10));
+      strRoomCrack += String(parseInt($(strChild4Class).val(), 10));
+      strRoomCrack += String(parseInt($(strChild5Class).val(), 10));
+    }
+
+    // 送信用formに人数を設定
+    frm.adultNum.value = adult;
+    frm.child1Num.value = child1;
+    frm.child2Num.value = child2;
+    frm.child3Num.value = child3;
+    frm.child4Num.value = child4;
+    frm.child5Num.value = child5;
+    frm.roomCrack.value = strRoomCrack;
+
+    // サイド検索formの中身をコピー
+    var frm0 = document.forms['side_search1'];
+
+    var outYear = '',
+        outMonth = '',
+        outDay = '',
+        homeYear = '',
+        homeMonth = '',
+        homeDay = '';
+
+    try {
+      var inDateParts = frm0.checkinDate.value.split('/');
+      var outDateParts = frm0.checkoutDate.value.split('/');
+
+      outYear = parseInt('20'+inDateParts[2], 10);
+      outMonth = parseInt(inDateParts[0], 10);
+      outDay = parseInt(inDateParts[1], 10);
+
+      homeYear = parseInt('20'+outDateParts[2], 10);
+      homeMonth = parseInt(outDateParts[0], 10);
+      homeDay = parseInt(outDateParts[1], 10);
+
+      var outDate = new Date(outYear, (outMonth - 1), outDay, 0, 0, 0);
+      var homeDate = new Date(homeYear, (homeMonth -1), homeDay, 0, 0, 0);
+
+      var stayCount = 1;
+      var tmpDate = new Date(outDate.getTime() + (1000 * 60 * 60 * 24));
+
+      while (tmpDate.getTime() < homeDate.getTime()) {
+        stayCount++;
+        tmpDate = new Date(tmpDate.getTime() + (1000 * 60 * 60 * 24));
+      }
+
+      frm.stayYear.value  = outYear;
+      frm.stayMonth.value = outMonth;
+      frm.stayDay.value   = outDay;
+      frm.stayCount.value = stayCount;
+
+    } catch (e) {
+    }
+
+    var area = '';
+
+    if(!$('#wrapper').hasClass('detail-page')){
+      area = frm.kenCd.value == '' ? ',frwdDest' : ',kenCd,lrgCd,smlCd';
+    }
+
+    var actKeys = 'screenId,distCd,afCd,stnCd,lrgOsnCd,osnCd,ssc,rootCd,'
+        +'minPrice,maxPrice,'
+        +'careOutsidePool,careBeach5,careStation5,carePak,careItnr,careNsmr,careBath,careOnsen,'
+        +'careBathRent,carePribateBath,careDinRoom,carePet,careHighClass,carePoint,careSweet,careBt,'
+        +'careEsthetics,careLookoutBath,careSauna,careTakkyu,careJacuzzi,careMassage,careSkiRent,'
+        +'careBoardRent,careSogei,careBrkRoom,careDinPrv,careBrkPrv,careChekout11,'
+        +'roomSingle,roomTriple,roomJstyle,roomTwin,room4bed,roomHwstyle,roomDouble,roomOther,'
+        +'yadHb,yadKc,yadRk,yadKy,yadPm,mealType,reShFlg,activeSort,photo,idx,vosFlg,listId, roomCrack,'
+        +'checkinTime,useTime,careCard,careCardOnly,careOpenbath,careKake,careNigori,yadNo,careExchange5,careFrontExchange,careTouristInfo5,crcyCd,'
+        +'fltYadNm,'
+        +'stayYear,stayMonth,stayDay,stayCount,'
+        +'adultNum,child1Num,child2Num,child3Num,child4Num,child5Num,langCd,sortIndex,'
+        +'mealTypeNo,mealTypeBFst,mealTypeDiner,mealTypeBoth,'
+        +'roomFacilityNonSmorking,roomFacilitySmorking,roomFacilityBath,roomFacilityToilet,'
+        +'internetFreeWifi,internetPaidWifi,internetFreeWired,internetPaidWired,'
+        +'awardEarlyBird,awardLimitedTime,'
+        +'bedSingle,bedDouble,bedQueen,bedKing,bedExtra,bedFuton'
+        + area;
+
+    var submitFormEncoder = function(frm, excludes, includes) {
+      var ary1 = [],
+          ary2 = [],
+          act = '',
+          excludesAry = stringSprit(excludes),
+          includesAry = stringSprit(includes);
+
+      if (frm.elements['dateUndecided'] == null || frm.elements['dateUndecided'].value == '' ||
+        (frm.elements['dateUndecided'].type == 'checkbox' && frm.elements['dateUndecided'].checked == false)) {
+        // 日付指定の場合
+        for (var i = 0, j = frm.elements.length; i < j; i++) {
+          var flg = checkParameter(ary2, frm, i, excludesAry, includesAry);
+
+          if(flg) {
+            ary1.push(frm.elements[i].name + '=' + encodeURIComponent(frm.elements[i].value));
+            ary2.push(frm.elements[i].name);
+          }
+        }
+      } else {
+        // 日付未定の場合
+        for (var i = 0, j = frm.elements.length; i < j; i++) {
+          var flg = checkParameter(ary2, frm, i, excludesAry, includesAry);
+
+          if(flg) {
+            switch(frm.elements[i].name){
+              case 'stayYear':
+              case 'stayMonth':
+              case 'stayDay':
+                ary1.push(frm.elements[i].name + '=');
+                ary2.push(frm.elements[i].name);
+                continue;
+              default:
+            }
+
+            ary1.push(frm.elements[i].name + '=' + encodeURIComponent(frm.elements[i].value));
+            ary2.push(frm.elements[i].name);
+          }
+        }
+      }
+
+      for(var i = 0, j = ary1.length; i < j; i++) {
+        if(i == 0) {
+          act += '?';
+        } else {
+          act += '&';
+        }
+        act += ary1[i];
+      }
+
+      return act;
+    };
+
+    var act = submitFormEncoder(frm, '', actKeys);
+
+    if (act.charAt(0) == '&' || act.charAt(0) == '?') {
+      act = '' + act.substring(1);
+    }
+
+    var submitForm = document.forms['submitForm'],
+        targetUrl = '/ui/uip3100/uiw3101.do?';
+
+    submitForm.action = targetUrl + act + '&scVal=02';
+    submitForm.method = 'post';
+    submitForm.submit();
+  });
+});

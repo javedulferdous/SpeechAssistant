@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<!-- saved from url=(0378)https://icm.aexp-static.com/content/dam/chat/prod/lechat/html/leChatWireFrame.html?dB=large&rW=null&dH=969&lpchatactive=false&marvinchatactive=false&lpctrycd=US&intlvr=67&src=https://www.amextravel.com&setatbbv=&setatesc=&setatcnvsid=&levisitorId=&lesessionId=&leinteractionContextId=&lecid=&leeid=&lelastAgent=&lepriority=&lprecmon=&lpstate=&jwtValue=&travelpage=true&qlpscont= -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=windows-1252"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="HandheldFriendly" content="true">
+<script src="https://icm.aexp-static.com/content/dam/chat/prod/lechat/html/leChatWireFrame.html?dB=large&amp;rW=null&amp;dH=969&amp;lpchatactive=false&amp;marvinchatactive=false&amp;lpctrycd=US&amp;intlvr=67&amp;src=https://www.amextravel.com&amp;setatbbv=&amp;setatesc=&amp;setatcnvsid=&amp;levisitorId=&amp;lesessionId=&amp;leinteractionContextId=&amp;lecid=&amp;leeid=&amp;lelastAgent=&amp;lepriority=&amp;lprecmon=&amp;lpstate=&amp;jwtValue=&amp;travelpage=true&amp;qlpscont="></script>
+<script src="./jquery-1.11.1.min.js.download"></script>
+<script src="./s_code_global_context.js.download"></script>
+
+<script async="false">
+/*To avoid Jquery mobile template applying to whole page this script needs to 
+be executed before jquery.mobile.slider.min.js is loaded.*/
+$(document).on("mobileinit", function () {
+    //$.mobile.ignoreContentEnabled=true;
+	$.mobile.autoInitializePage = false;
+});
+
+var qstr=getQueryStrings();
+var  searchStr = "?"+qstr["intlvr"];
+ 
+ createScript('https://icm.aexp-static.com/content/dam/chat/prod/lechat/js/chatWidgetConfig.js'+searchStr);
+ createScript('https://icm.aexp-static.com/content/dam/chat/prod/lechat/js/chatWidgetAssist.js'+searchStr);
+ createScript('https://icm.aexp-static.com/content/dam/chat/prod/lechat/js/chatWidgetCore.js'+searchStr);
+ // createScript('https://icm.aexp-static.com/content/dam/chat/prod/lechat/js/browser.min.js'+searchStr);
+ createScript('https://icm.aexp-static.com/content/dam/chat/prod/lechat/js/leoYyLJr.js'+searchStr);
+ createScript('https://icm.aexp-static.com/content/dam/chat/prod/lechat/js/bluebird.min.js'+searchStr);
+ createScript('https://icm.aexp-static.com/content/dam/chat/prod/lechat/js/messagingapi.js'+searchStr);
+ createScript('https://sales.liveperson.net/hcp/html/SurveyLogicInstance.min.js');
+			  
+ //createLink('https://icm.aexp-static.com/content/dam/chat/prod/lechat/css/jquery.mobile.slider.structure.min.css'+searchStr);			  
+ createLink('https://icm.aexp-static.com/content/dam/chat/prod/lechat/css/chatWidgetFrame.css'+searchStr);
+ createLink('https://icm.aexp-static.com/content/dam/chat/prod/lechat/css/surveystyles.css'+searchStr);
+               
+ function createScript(scriptUrl){
+    console.log(scriptUrl);
+    var verHead = document.getElementsByTagName('head').item(0);
+    var scriptTag = document.createElement("script");
+    scriptTag.type = "text/javascript";
+    scriptTag.async = false;
+    scriptTag.src = scriptUrl;
+    verHead.appendChild(scriptTag);
+ }
+               
+ function createLink(linkUrl){
+    console.log(linkUrl);
+     var verHead = document.getElementsByTagName('head').item(0);
+    var linkTag = document.createElement("link");
+    linkTag.rel = "stylesheet";
+    linkTag.href = linkUrl;
+    verHead.appendChild(linkTag);
+}
+
+function getQueryStrings() {
+        var assoc = {};
+        var decode = function(s) {
+            return decodeURIComponent(s.replace(/\+/g, " "));
+        };
+        var queryString = location.search.substring(1);
+        var keyValues = queryString.split('&');
+
+        for (var i in keyValues) {
+            var key = keyValues[i].split('=');
+            if (key.length > 1) {
+                assoc[decode(key[0])] = decode(key[1]);
+            }
+        }
+
+        return assoc;
+    }
+</script><script type="text/javascript" src="./chatWidgetConfig.js.download"></script><script type="text/javascript" src="./chatWidgetAssist.js.download"></script><script type="text/javascript" src="./chatWidgetCore.js.download"></script><script type="text/javascript" src="./leoYyLJr.js.download"></script><script type="text/javascript" src="./bluebird.min.js.download"></script><script type="text/javascript" src="./messagingapi.js.download"></script><script type="text/javascript" src="./SurveyLogicInstance.min.js.download"></script><link rel="stylesheet" href="./chatWidgetFrame.css"><link rel="stylesheet" href="./surveystyles.css">
+</head><body data-new-gr-c-s-check-loaded="14.983.0"><div id="lpChatWizFrameContainer" class=" res_large res_null">
+	<div id="lpChatFrameContainer">
+		<div id="lpChatBodySection" class="lpHeight365"></div>
+		<div id="lpChatFooterSection" class="lpMiddleSection">
+			<div class="lpPadLeftRight19">
+				<div id="lpChatFooterMsg" class="lpLeft lpChatFooterWhite"><a id="lpPrivacyStmntBtn" class="lpChatFooterCyan" tabindex="0">Privacy Statement</a><a id="lpNinaTransferChatBtn" class="lpChatFooterCyan" tabindex="0" style="cursor: pointer;display:none;">Chat with a Customer Care Professional</a></div>
+				<!-- <div class="lpRight">
+					<div id="lpPreChatCloseBtn" class='lpTextCenter lpPointer lpBlueButton'>Close</div>
+				</div> -->
+				<div class="lpClear"></div>
+			</div>
+		</div>
+	</div>
+	<div id="sendexitsurvey"></div>
+	<div id="sendofflinemsg"></div>
+	<div id="sendOffermsg"></div>
+	<div id="notificationDialog" title="Notification"></div>
+</div></body></html>

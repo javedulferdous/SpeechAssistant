@@ -1,0 +1,262 @@
+
+.brokentypename	{
+	color: #434343;
+	font-weight: bold;
+}
+.brokenarrow	{
+	position: relative;
+	top: 3px;
+	margin-right: 3px;
+}
+.option-head	{
+	margin-bottom: 10px;
+}
+#buildtext	{
+	font-weight: bold;
+	font-size: 17px;
+	display: block;
+	margin-bottom: 20px;
+	color:#434343;
+}
+#kwmx-subskuprice-lower	{
+	font-size: 24px;
+}
+.brokentype	{
+	color:#434343;
+}
+.kwmx-options-body, #kwmx-options-body00 .broken, #expand000	{
+	display: none;
+}
+
+#kwmx-options-body00, #kwmx-options-body00 div:nth-of-type(1) .broken{
+	display: block;
+}
+.brimgholder	{
+	background-color:#ffffff;
+	width:300px;
+	height: 150px;
+	box-sizing: border-box;
+	padding: 10px;	
+	text-align: center;
+	margin: 15px auto;
+
+}
+.brthumbholder	{
+	cursor:pointer;
+	width: 42px;
+	height:42px;
+	padding:2px;
+	margin:  0 10px 10px 10px;
+	float: left;
+	background-color:#ffffff;
+	text-align: center;
+	border: solid 1px #fafafa;
+}
+.brThumb	{
+	max-width: 42px;
+	max-height: 42px;
+	
+}
+
+.brokenitems	{
+	border-bottom: solid 2px #bebebe;
+	padding-bottom: 10px;
+	margin-bottom: 12px;
+}
+#broken-0	{
+	border-top: solid 2px #bebebe;
+}
+.brimgholder img	{
+	max-width: 280px;
+	max-height: 130px;
+}
+.brThumb	{
+	max-width:40px;
+	max-height: 40px;
+}
+
+.reset-selections	{
+	cursor: pointer;
+	height: 19px;
+	width: 127px;
+}
+
+.blocker-textbox	{
+	width: 42px;	
+	left: -52px;
+	height: 42px;
+}
+
+
+
+.blocker-colorcodes	{
+	width: 42px;
+	height: 30px;
+	left: -52px;	
+}
+
+#optionsreset	{
+	max-width: 140px;
+}
+
+
+
+#upload-image-holder .styled-select {
+border:0;
+border-radius:0;
+background-image: none;
+height: 28px;
+margin-top: 9px;
+}
+#upload-image-text {
+background-image: url('https://lib.store.yahoo.net/lib/sportsunlimited/browseforfile3.png');
+background-repeat:no-repeat;
+background- size: auto 28px;
+height: 28px;
+}
+#upload-image-text a {
+display:block;
+height: 28px;
+width: 152px;
+opacity: 0;
+}
+
+
+#multiheader	{
+	font-weight: bold;
+	margin-top: 30px;
+}
+#multiheader div	{
+	display: inline-block;
+	text-align: center;
+}
+#multiheader div:nth-of-type(1)	{
+	width: 40px;
+	margin-right: 20px;
+}
+#multiheader div:nth-of-type(2)	{
+	width: 162px;
+	margin-right: 12px;
+}
+#multiheader div:nth-of-type(3)	{
+	width: 50px;
+}
+
+.sizerow	{
+	display: block;
+	position: relative;
+}
+.sizebox	{
+	width: 67px;
+	display: inline-block;
+}
+#multiadditems .size-option	{
+	display: inline-block!important;
+	float: none!important;
+	margin-bottom:0!important;
+}
+.mprices	{
+	width: 162px;
+	text-align: center;
+	display: inline-block;
+	font-weight: bold;
+}
+.minputs	{
+	margin-left:9px;
+	width: 76px;
+	position: relative;
+	top: 12px;
+	display: inline-block;
+	height: 42px;
+}
+.vwqtys	{
+	width:40px;
+	height:35px;
+	border:solid 2px #666666;
+	text-align:center;
+	position: absolute;
+	top: 0;
+	left: 0;
+}
+.qtybtn	{
+	display: inline-block;
+	height: 30px;
+	width:27px;
+	margin-left: 6px;
+	position: absolute;
+	top: 2px;
+	right:0;
+}
+.qtybtn img	{
+	display: block;
+	cursor: pointer;
+	width: 27px;
+	height: 16px;
+}
+	
+.qtybtn img:nth-of-type(1)	{
+	margin-bottom: 3px;
+}
+#vp	{
+	font-size: 16px;
+	margin-top: 20px;
+}
+#vp-title	{
+	font-weight: bold;
+	margin-bottom: 20px;
+}
+.vp-left, .vp-right	{
+	float: left;
+	width: 110px;
+	text-align: center;
+	font-size: 16px;
+	border-bottom: solid 1px #e8e8e8;
+	padding-top: 10px;
+	padding-bottom: 10px;
+}
+.vp-right	{
+	padding-left: 290px;
+	padding-right: 60px;
+}
+.vol-holder	{
+	margin-bottom: 15px;
+}
+#upload-image-holder	{
+	display: none;
+}
+/*-----TABLET-----*/
+@media (max-width: 979px)	{
+	#multiadditems .size-option	{
+		padding-left:0!important;
+		padding-right: 0!important;
+	}
+	#vp	{
+		display: inline-block;
+	}
+
+	.vp-right	{
+		padding-left: 145px;
+		padding-right: 13px;
+	}
+}
+
+/*----MOBILE------*/
+@media (max-width: 767px)	{
+	#multiadditems .size-option	{
+		padding: 14px!important;
+	}	
+	
+	#vp	{
+		display: block;
+		background-color:#ffffff;
+		margin-top: 0;
+	}
+	.vp-right	{
+		padding-left: 75px;
+		padding-right: 5px;
+	}
+	.mprices, #multiheader div:nth-of-type(2)	{
+		width: 130px;
+	}
+
+}

@@ -1,0 +1,212 @@
+"use strict";"object"!=typeof window.CP&&(window.CP={}),window.CP.PenTimer={programNoLongerBeingMonitored:!1,timeOfFirstCallToShouldStopLoop:0,_loopExits:{},_loopTimers:{},START_MONITORING_AFTER:2e3,STOP_ALL_MONITORING_TIMEOUT:5e3,MAX_TIME_IN_LOOP_WO_EXIT:2200,exitedLoop:function(o){this._loopExits[o]=!0},shouldStopLoop:function(o){if(this.programKilledSoStopMonitoring)return!0;if(this.programNoLongerBeingMonitored)return!1;if(this._loopExits[o])return!1;var t=this._getTime();if(0===this.timeOfFirstCallToShouldStopLoop)return this.timeOfFirstCallToShouldStopLoop=t,!1;var i=t-this.timeOfFirstCallToShouldStopLoop;if(i<this.START_MONITORING_AFTER)return!1;if(i>this.STOP_ALL_MONITORING_TIMEOUT)return this.programNoLongerBeingMonitored=!0,!1;try{this._checkOnInfiniteLoop(o,t)}catch(o){return this._sendErrorMessageToEditor(),this.programKilledSoStopMonitoring=!0,!0}return!1},_sendErrorMessageToEditor:function(){try{if(this._shouldPostMessage()){var o={action:"infinite-loop",line:this._findAroundLineNumber()};parent.postMessage(JSON.stringify(o),"*")}else this._throwAnErrorToStopPen()}catch(o){this._throwAnErrorToStopPen()}},_shouldPostMessage:function(){return document.location.href.match(/boomerang/)},_throwAnErrorToStopPen:function(){throw"We found an infinite loop in your Pen. We've stopped the Pen from running. Please correct it or contact support@codepen.io."},_findAroundLineNumber:function(){var o=new Error,t=0;if(o.stack){var i=o.stack.match(/boomerang\S+:(\d+):\d+/);i&&(t=i[1])}return t},_checkOnInfiniteLoop:function(o,t){if(!this._loopTimers[o])return this._loopTimers[o]=t,!1;var i=t-this._loopTimers[o];if(i>this.MAX_TIME_IN_LOOP_WO_EXIT)throw"Infinite Loop found on loop: "+o},_getTime:function(){return+new Date}},window.CP.shouldStopExecution=function(o){var t=window.CP.PenTimer.shouldStopLoop(o);return t===!0&&console.warn("[CodePen]: An infinite loop (or a loop taking too long) was detected, so we stopped its execution. Sorry!"),t},window.CP.exitedLoop=function(o){window.CP.PenTimer.exitedLoop(o)};
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) {if (window.CP.shouldStopExecution(1)){break;} var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); }
+window.CP.exitedLoop(1);
+ } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var LPUtils = function () {
+  function LPUtils() {
+    _classCallCheck(this, LPUtils);
+  }
+
+  _createClass(LPUtils, null, [{
+    key: "getDomain",
+    value: function getDomain(account, name) {
+      var domains = account.startsWith("le") ? "hc1n.dev.lprnd.net" : "adminlogin.liveperson.net";
+      return new Promise(function (res, rej) {
+        return $.ajax({
+          url: "https://" + domains + "/csdr/account/" + account + "/service/" + name + "/baseURI.lpCsds?version=1.0",
+          jsonp: "cb",
+          jsonpCallback: "domainCallback",
+          cache: true,
+          dataType: "jsonp",
+          success: function success(data) {
+            return res(data.ResultSet.lpData[0].lpServer);
+          },
+          error: function error(e, text) {
+            return rej(text);
+          }
+        });
+      });
+    }
+  }, {
+    key: "agentProfile",
+    value: function agentProfile(account, agentID) {
+      var _this = this;
+
+      return new Promise(function (res, rej) {
+        return _this.getDomain(account, "acCdnDomain").then(function (accdnDomain) {
+          return $.ajax({
+            url: "https://" + accdnDomain + "/api/account/" + account + "/configuration/le-users/users/" + agentID,
+            jsonp: "cb",
+            jsonpCallback: "apCallback",
+            cache: true,
+            dataType: "jsonp",
+            success: function success(accdnResp) {
+              return res(accdnResp);
+            }
+          });
+        });
+      });
+    }
+  }, {
+    key: "signup",
+    value: function signup(account) {
+      var _this2 = this;
+
+      return new Promise(function (res, rej) {
+        return _this2.getDomain(account, "idp").then(function (idpDomain) {
+          return $.ajax({
+            url: "https://" + idpDomain + "/api/account/" + account + "/signup.jsonp",
+            jsonp: "callback",
+            dataType: "jsonp",
+            success: function success(idpResp) {
+              return res(idpResp.jwt);
+            }
+          });
+        });
+      });
+    }
+  }, {
+    key: "getJWT",
+
+
+    // fetch jwt from localstorage or create one
+    value: function getJWT(account) {
+      var localJWT = localStorage.getItem(account + "-jwt");
+      if (localJWT) return Promise.resolve(localJWT);else return this.signup(account).then(function (newJWT) {
+        localStorage.setItem(account + "-jwt", newJWT);
+        return Promise.resolve(newJWT);
+      });
+    }
+  }, {
+    key: "clearJWT",
+    value: function clearJWT(account) {
+      localStorage.removeItem(account + "-jwt");
+    }
+  }]);
+
+  return LPUtils;
+}();
+// LPUtils.getDomain("qa20971604", "idp").then(r => console.log(r));
+// LPUtils.signup("qa20971604").then(r => console.log(r));
+
+var LPWs = function () {
+  _createClass(LPWs, null, [{
+    key: "connect",
+    value: function connect(url) {
+      return new LPWs(url)._connect();
+    }
+  }, {
+    key: "connectDebug",
+    value: function connectDebug(url) {
+      return new LPWs(url, true)._connect();
+    }
+  }]);
+
+  function LPWs(url, debug) {
+    _classCallCheck(this, LPWs);
+
+    this.reqs = {};
+    this.subs = [];
+    this.url = url;
+    this.debug = debug;
+  }
+
+  _createClass(LPWs, [{
+    key: "_connect",
+    value: function _connect() {
+      var _this3 = this;
+
+      return new Promise(function (resolve, reject) {
+        var ws = new WebSocket(_this3.url);
+        _this3.ws = ws;
+        ws.onopen = function () {
+          return resolve(_this3);
+        };
+        ws.onmessage = function (msg) {
+          return _this3.onmessage(msg);
+        };
+        ws.onclose = function (evt) {
+          _this3.ws = null;
+          reject(evt);
+        };
+      });
+    }
+  }, {
+    key: "request",
+    value: function request(type, body, headers) {
+      var _this4 = this;
+
+      return new Promise(function (resolve, reject) {
+        var obj = {
+          "kind": "req",
+          "type": type,
+          "body": body || {},
+          "id": Math.floor(Math.random() * 1e9),
+          "headers": headers
+        };
+        _this4.reqs[obj.id] = function (type, code, body) {
+          return resolve({
+            type: type,
+            code: code,
+            body: body
+          });
+        };
+        var str = JSON.stringify(obj);
+        if (_this4.debug) console.log("sending: " + str);
+        _this4.ws.send(str);
+      });
+    }
+  }, {
+    key: "onNotification",
+    value: function onNotification(filterFunc, _onNotification) {
+      this.subs.push({
+        filter: filterFunc,
+        cb: _onNotification
+      });
+    }
+  }, {
+    key: "toFuncName",
+    value: function toFuncName(reqType) {
+      var str = reqType.substr(1 + reqType.lastIndexOf('.'));
+      return str.charAt(0).toLowerCase() + str.slice(1);
+    }
+  }, {
+    key: "registerRequests",
+    value: function registerRequests(arr) {
+      var _this5 = this;
+
+      arr.forEach(function (reqType) {
+        return _this5[_this5.toFuncName(reqType)] = function (body, headers) {
+          return _this5.request(reqType, body, headers);
+        };
+      });
+    }
+  }, {
+    key: "onmessage",
+    value: function onmessage(msg) {
+      if (this.debug) console.log("recieved: " + msg.data);
+      var obj = JSON.parse(msg.data);
+      if (obj.kind == "resp") {
+        var id = obj.reqId;
+        delete obj.reqId;
+        delete obj.kind;
+        this.reqs[id].call(this, obj.type, obj.code, obj.body);
+        delete this.reqs[id];
+      } else if (obj.kind == "notification") {
+        this.subs.forEach(function (sub) {
+          if (sub.filter.call(this, obj)) {
+            sub.cb.call(this, obj.body);
+          };
+        });
+      }
+    }
+  }]);
+
+  return LPWs;
+}();
+
+// LPWs.connect("wss://echo.websocket.org").then(lpws => console.log(`lpws was opened.`));

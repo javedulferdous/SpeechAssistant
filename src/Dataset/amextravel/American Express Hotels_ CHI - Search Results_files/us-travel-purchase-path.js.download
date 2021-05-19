@@ -1,0 +1,125 @@
+// US Travel
+
+// Logo override
+
+var sheet = (function() {
+	// Create the <style> tag
+	var style = document.createElement("style");
+
+	// WebKit hack :(
+	style.appendChild(document.createTextNode(""));
+
+	// Add the <style> element to the page
+	document.head.appendChild(style);
+
+	return style.sheet;
+})();
+
+var addCSSRule = function(sheet, selector, rules, index) {
+	if("insertRule" in sheet) {
+		sheet.insertRule(selector + "{" + rules + "}", index);
+	}
+	else if("addRule" in sheet) {
+		sheet.addRule(selector, rules, index);
+	}
+};
+
+addCSSRule(sheet, ".lp_bottom-logo-icon", "display: none !important;", 0);
+addCSSRule(sheet, ".lp_thank_you_container .lp_image", "display: none !important;", 0);
+
+lpTag.windowSelectors = [
+  '#lpChatWizContainer',
+  '#lpChatTitleContainerMin',
+  '.lp_maximized',
+  '.lp_minimized'
+];
+
+lpTag.checkDiv = function(selector) {
+  var el = document.querySelector(selector);
+  var elVisible = false;
+  if(el !== null) {
+    if (el.offsetWidth != 0 && el.offsetHeight != 0) {
+      var innerHTML = el.innerHTML;
+      var strippedHTML = innerHTML.replace(/\s/g, '');
+      elVisible =  strippedHTML !== '';
+    }
+  }
+  return elVisible;
+};
+
+lpTag.engagementVisibility = 'visible';
+
+lpTag.windowVisiblity = function() {
+  var windowVisiblity = false;
+  var i;
+  for (i = 0; i < lpTag.windowSelectors.length; i++) {
+    if (lpTag.checkDiv(lpTag.windowSelectors[i])) {
+      windowVisiblity = true;
+      break;
+    }
+  }
+  return windowVisiblity;
+};
+
+lpTag.checkWindow = function() {
+  if (lpTag.windowVisiblity()) {
+    if (lpTag.engagementVisibility === 'visible') {
+      lpTag.engagementVisibility = 'hidden';
+      var engs = document.getElementsByClassName('LPMcontainer');
+      for (var i = 0; i < engs.length; i++) {
+        engs[i].style.visibility = 'hidden';
+      }
+    }
+  } else {
+     if (lpTag.engagementVisibility === 'hidden') {
+      lpTag.engagementVisibility = 'visible';
+      var engs = document.getElementsByClassName('LPMcontainer');
+      for (var i = 0; i < engs.length; i++) {
+        engs[i].style.visibility = 'visible';
+      }
+    }
+  }
+}
+
+lpTag.checkForWindow = function() {
+  lpTag.checkWindow();
+  setTimeout(lpTag.checkForWindow, 2000);
+}
+
+setTimeout(lpTag.checkForWindow, 2000);
+
+lpTag.events.bind('LP_OFFERS', 'OFFER_DISPLAY', function() {
+  var engs = document.getElementsByClassName('LPMcontainer');
+  var i;
+  if (lpTag.windowVisiblity()) {
+    for (i = 0; i < engs.length; i++) {
+      engs[i].style.visibility = 'hidden';
+    }
+  } else if (document.location.href.match(/help/i)) {
+    for (i = 0; i < engs.length; i++) {
+      engs[i].style.display = 'inherit';
+      engs[i].style.width = '100%';
+      if (engs[i].classList.match(/row/i) === null) {
+        engs[i].classList += ' row';
+      }
+    }
+  }
+});
+
+// Keep alive function
+
+function _keepAlive(evData) {
+		
+	if (evData && evData.state.match(/chatting/i)) {
+		timeoutWidget.setActiveSession();
+		window.keepAliveTimer = setInterval(function(){ timeoutWidget.setActiveSession(); }, 240000);
+	}
+	if (evData && evData.state.match(/ended/i)) {
+		clearInterval(keepAliveTimer);
+	}
+}
+
+var lpButtonDiv = document.createElement('DIV');
+lpButtonDiv.id = "lpButtonDiv";
+lpButtonDiv.style.cssText = "position:fixed; bottom:20px; right:20px; z-index:10399;";
+document.body.appendChild(lpButtonDiv);

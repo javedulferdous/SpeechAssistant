@@ -1,0 +1,92 @@
+_satellite.pushAsyncScript(function(event, target, $variables){
+  //Desktop MOP Template
+//Call of the Wild 221546
+if(_satellite.getVar('Movie ID') == '221546'){
+  if(_satellite.getVar('Page Level 2') == 'movie | overview'){
+    
+     //pxl-437 MOP
+  _satellite.loadScript('https://www.googletagmanager.com/gtag/js?id=AW-700969353');
+window.dataLayer = window.dataLayer || [];  function gtag(){dataLayer.push(arguments);}  
+gtag('js', new Date());  
+gtag('config', 'AW-700969353')
+gtag('event', 'conversion', {'send_to': 'AW-700969353/HxomCMG1jbkBEInjn84C'}); 
+
+
+ //pxl-437 MOP
+  _satellite.loadScript('https://www.googletagmanager.com/gtag/js?id=AW-709805659');
+window.dataLayer = window.dataLayer || [];  function gtag(){dataLayer.push(arguments);}  
+gtag('js', new Date());  
+gtag('config', 'AW-709805659')
+gtag('event', 'conversion', { 'send_to': 'AW-709805659/LIc7CN6Gq7kBENuMu9IC', 'transaction_id': '' }); 
+    
+    //Call of the wild MOP pxl-437
+ _satellite.addImage('https://d.agkn.com/iframe/7043/?che=%n&uid=[third_party_user_id]&type=14143008&ouid='+_satellite.getVisitorId().getMarketingCloudVisitorID());
+/* Removed 1/23/20    
+//pxl-437
+_satellite.loadScript('https://www.googletagmanager.com/gtag/js?id=DC-3944448');
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+
+  gtag('config', 'DC-3944448');
+  gtag('config', 'AW-700969353');
+  gtag('config', 'AW-709805659');
+
+  gtag('event', 'conversion', {
+    'allow_custom_scripts': true,
+    'send_to': 'DC-3944448/14143008/141430+standard'
+  });
+*/
+
+
+}
+}
+//Desktop MSP Template
+
+//Call of the Wild 221546
+if(_satellite.getVar('Movie ID') == '221546'){
+  if(_satellite.getVar('Page Level 2') == 'movie times | by movie'){
+    
+    
+ //pxl-437 MSP
+  _satellite.loadScript('https://www.googletagmanager.com/gtag/js?id=AW-700969353');
+window.dataLayer = window.dataLayer || [];  function gtag(){dataLayer.push(arguments);}  
+gtag('js', new Date());  
+gtag('config', 'AW-700969353')
+gtag('event', 'conversion', {'send_to': 'AW-700969353/_kA6CKriqLkBEInjn84C'}); 
+
+
+ //pxl-437 MDP
+  _satellite.loadScript('https://www.googletagmanager.com/gtag/js?id=AW-709805659');
+window.dataLayer = window.dataLayer || [];  function gtag(){dataLayer.push(arguments);}  
+gtag('js', new Date());  
+gtag('config', 'AW-709805659')
+gtag('event', 'conversion', { 'send_to': 'AW-709805659/LIc7CN6Gq7kBENuMu9IC', 'transaction_id': '' });
+
+    
+    //Call of the wild MSP pxl-437
+ _satellite.addImage('https://d.agkn.com/iframe/7043/?che=%n&uid=[third_party_user_id]&type=14143009&ouid='+_satellite.getVisitorId().getMarketingCloudVisitorID());
+/* Removed 1/23/20   
+//pxl-437
+_satellite.loadScript('https://www.googletagmanager.com/gtag/js?id=DC-3944448');
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+
+  gtag('config', 'DC-3944448');
+  gtag('config', 'AW-700969353');
+  gtag('config', 'AW-709805659');
+
+  gtag('event', 'conversion', {
+    'allow_custom_scripts': true,
+    'send_to': 'DC-3944448/14143009/141430+standard'
+  });
+
+*/
+
+}
+}
+
+});

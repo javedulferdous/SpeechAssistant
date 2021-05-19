@@ -1,0 +1,61 @@
+var prodcat = prodcat || {};
+var site = site || {};
+var MantleReviews = MantleReviews || {};
+var generic = generic || {};
+
+(function($, settings) {
+  $(document).on ('endeca.search.results.loaded', function(event, data) {
+    var productData = data.results.products.resultData || {};
+
+    // Set a context so that we're not targeting the entire page a second time
+    var $c = $('.js-end-results');
+
+    // If there are no product results, then show the no-results layer
+    if (productData.length === 0) {
+      $('.js-end-summary', $c).show();
+    } else {
+      // Add the product data to the data store
+      prodcat.data.updateProducts(productData, false);
+    }
+
+    // Initialize the prodcat UI stuff
+    if (prodcat.ui && prodcat.ui.init) {
+      prodcat.ui.init($c);
+    }
+
+    // Now that the product grid JS is in a behavoir, we can just reattach everything with a new context
+    Drupal.attachBehaviors($c, settings);
+
+    if (typeof site.l2Request !== 'undefined') {
+      site.l2Request.params = site.l2Request.getParams();
+      generic.jsonrpc.fetch(site.l2Request);
+    }
+    
+    var $mpp_layouts = $('.js-end-results-container');
+    $mpp_layouts.each(function(i, obj) {
+      var $mpp = $(obj);
+      var $grids = $('.js-end-product-results', $mpp);
+      // capture sort selection events and tell grid to sort
+      $mpp.on('mpp-sort:selected', function(e, val) {
+        $grids.trigger('mantle-grid:sort-selected', [val]);
+      });
+    });
+
+    // Render the reviews
+    if (!_.isUndefined(Drupal.settings.power_reviews)) {
+      MantleReviews.render();
+    }
+    // Initialize some UI stuff for product grids
+    // $(window).trigger('load.productGrid');
+
+    var mixer = mixitup('.js-product-grid');
+    mixer.forceRefresh();
+  });
+  $(document).on('click', '.js-summary-search-icon', function() {
+    var $searchInput = $('.js-summary-search-input').find('.js-end-search-term');
+    if ($searchInput.val() === $searchInput.attr('data-value')) {
+      $searchInput.val('');
+    }
+    $('.js-end-search-again-input').trigger('click');
+  });
+})(jQuery, Drupal.settings);

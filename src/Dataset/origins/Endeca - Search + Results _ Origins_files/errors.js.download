@@ -1,0 +1,11 @@
+(function($) {
+
+// @TODO: This probably needs to be nicer, not just dumping errors to an alert
+// box.
+$(document).on('addToCart.failure addToWishlist.failure', function(event, errorObjectsArray) {
+  // Escape any html in the alert box.
+  var prodAddedMsg = $('<div/>').html(errorObjectsArray[0].text).text();
+  alert(prodAddedMsg);
+});
+
+})(jQuery);

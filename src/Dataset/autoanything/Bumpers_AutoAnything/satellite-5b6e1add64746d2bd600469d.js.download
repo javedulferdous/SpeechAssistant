@@ -1,0 +1,31 @@
+_satellite.pushAsyncScript(function(event, target, $variables){
+  // PLR:    OptinMonster Tag
+// Script: Email Signup Event Listener
+
+if ($.cookie('customer_has_provided_email') != '0') {
+  return;
+}
+
+document.addEventListener('om.Optin.success', function(event) {
+  try {
+    var data = event.detail.Optin.data;
+    var email = data && data.fields && data.fields.email;
+
+    if (email && AA && AA.Footer) {
+      $.cookie('sc_customer_email_address', email, { 
+        raw: true, 
+        path: '/', 
+        expires: 1826, 
+        domain: '' + window.COOKIE_DOMAIN + '' 
+      });
+
+      var footerForm = document.querySelector('#SignUpSaveForm');
+      footerForm.querySelector('.signUpEmail').value = email;
+      AA.Footer.emailSignUp($(footerForm), window.AccountDataAccess.EmailRegistrationSources.ECP_PROPMT);
+    }
+  }
+  catch (ex) {
+    console.log(ex);
+  }
+});
+});

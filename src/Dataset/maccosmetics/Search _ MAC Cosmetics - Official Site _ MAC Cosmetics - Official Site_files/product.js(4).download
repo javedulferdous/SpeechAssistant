@@ -1,0 +1,126 @@
+site.endeca.result.product = jQuery.extend(true, {}, generic.endeca.result.product, {
+
+  displayResult: function(args) {
+    // add anything new here
+    // this is where we set variables used in mustache, shared product template
+    // for MPP we use php functions to provide these vars in mac_product.module
+    // we must also set theme here so the product template can also be used for search results
+    this.resultData.mac_product_layout = { product_teaser: 1 };
+
+    // defaultSku
+    var matchedSKU = $.grep(this.resultData.skus, function(element) {
+      return element.matched === 1;
+    });
+
+    this.resultData.defaultSku = jQuery.grep(this.resultData.skus, function(el, idx) {
+      return el.DEFAULT_SKU == 1;
+    })[0] || (matchedSKU.length > 0 ? matchedSKU[0] : this.resultData.skus[0]);
+
+    this.resultData.SKU_BASE_ID = this.resultData.defaultSku.SKU_BASE_ID;
+    this.resultData.SKU_ID = this.resultData.defaultSku.SKU_ID;
+    this.resultData.MISC_FLAG = this.resultData.defaultSku.MISC_FLAG || '';
+    // medium image - convert to array
+    this.resultData.defaultSku.MEDIUM_IMAGE = $.makeArray(this.resultData.defaultSku.MEDIUM_IMAGE);
+    this.resultData.MEDIUM_IMAGE = this.resultData.defaultSku.MEDIUM_IMAGE;
+    if (this.resultData.MEDIUM_IMAGE.length > 1) {
+      this.resultData.mac_img_alts = { has_medium_alt: 1 };
+    }
+    // custom processing for sku as product, single shaded, sku counts
+    var skuCount = this.resultData.skus.length;
+    var isShaded = this.resultData.shaded;
+    var isSku = this.resultData.sku_as_product;
+    var shadeNameNoSpaces;
+    var UrlRoute;
+    var shadeNameString;
+    var isShadedSKU = false;
+    if (isSku) {
+      this.resultData.product_teaser_mini = 1;
+      this.resultData.mini_teaser = 1;
+      // set a new url for shaded skus so we can target shade on spp load
+      if (isShaded) {
+        isShadedSKU = true;
+      }
+    } else {
+      if (this.resultData.skus.length > 1 && isShaded) {
+        this.resultData.sku_count = this.resultData.skus.length;
+        isShadedSKU = true;
+      }
+      if (this.resultData.skus.length <= 1 && isShaded) {
+        this.resultData.shaded = 0;
+        isShadedSKU = false;
+      }
+    }
+    if (isShadedSKU) {
+      var SkuShadeName = this.resultData.defaultSku.SHADENAME;
+      shadeNameNoSpaces = characterEncode(SkuShadeName);
+      UrlRoute = '#!/shade/' + shadeNameNoSpaces;
+      this.resultData.url = this.resultData.url + UrlRoute;
+    }
+
+    // product rating percentage - rating_percentage var
+    var ratingAverage = this.resultData.AVERAGE_RATING;
+    var ratingScale = 5;
+    var ratingCalc = ratingAverage / ratingScale;
+    var ratingPercentage = Math.round(ratingCalc * 100);
+    if (ratingPercentage > 0) {
+      this.resultData.rating_percentage = ratingPercentage;
+      this.resultData.AVERAGE_RATING_PERCENT = ratingPercentage;
+    }
+
+    // inventory status
+    var invStatus = this.resultData.defaultSku.INVENTORY_STATUS;
+    var isPreOrder = this.resultData.defaultSku.isPreOrder || 0;
+    this.resultData.INVENTORY_STATUS = this.resultData.defaultSku.INVENTORY_STATUS;
+    this.resultData.isComingSoon = 0;
+    this.resultData.isOrderable = 0;
+    this.resultData.isShoppable = this.resultData.defaultSku.shoppable;
+    if (invStatus == 3) {
+      this.resultData.isComingSoon = 1;
+    }
+    if (this.resultData.defaultSku.LIFE_OF_PRODUCT == 2) { // backorderable
+      this.resultData.isOrderable = 1;
+      this.resultData.isShoppable = 1;
+    }
+    if (this.resultData.INVENTORY_STATUS == 1 || (Drupal.settings.globals_variables.display_notify_tos == 0 && this.resultData.INVENTORY_STATUS == 2)) {
+      this.resultData.isOrderable = 1;
+      this.resultData.isShoppable = 1;
+    }
+    if (Drupal.settings.globals_variables.enable_preorder && isPreOrder && (invStatus === 2 || invStatus === 7)) {
+      this.resultData.isShoppable = this.resultData.defaultSku.shoppable;
+    }
+
+    // this comes last
+    this._super(args);
+    function characterEncode(str) {
+      shadeNameString = str.toString().split(' ').join('_');
+      return encodeURIComponent(shadeNameString).replace(/[!'()*]/g, function(c) {
+        return '%' + c.charCodeAt(0).toString(16);
+      });
+    }
+  },
+
+  // after render
+  displayResultCallbackBrand: function() {
+    if (site &&
+                site.productApp &&
+                site.productApp.addProduct
+    ) {
+      var numberOfOccurrenceList = jQuery.grep(this.resultData.skus, function(sku) {
+        return sku.INVENTORY_STATUS == 7;
+      });
+      site.productApp.addProduct(
+        site.productApp.createProduct(
+          { prodid: this.resultData.PRODUCT_ID, sku: this.resultData.defaultSku.SKU_ID },
+          this.node.find('.product')
+            .addClass(this.resultData.skus.length == numberOfOccurrenceList.length ? 'all-shaded-sold-out' : '')
+            .addClass(this.resultData.isComingSoon ? 'product--coming-soon' : 'product--not-coming-soon')
+            .addClass(this.resultData.isOrderable ? 'product--orderable' : 'product--not-orderable')
+            .addClass(this.resultData.isShoppable ? 'product--shoppable' : 'product--not-shoppable')
+            .addClass('prod_inv_status-' + this.resultData.INVENTORY_STATUS)
+            .attr('data-inv-status', this.resultData.INVENTORY_STATUS),
+          this.resultData
+        ).attachDOM()
+      );
+    }
+  }
+});

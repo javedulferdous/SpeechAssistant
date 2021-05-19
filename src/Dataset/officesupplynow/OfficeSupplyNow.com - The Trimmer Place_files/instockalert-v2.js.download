@@ -1,0 +1,36 @@
+!(function(){
+  // store the name of the Analytics object
+  window.InstockAlerts = 'ia';
+  // check whether the Analytics object is defined
+  if (!('ia' in window)){
+    // define the Analytics object
+    window.ia = function(){
+      // add the tasks to the queue
+      window.ia.q.push(arguments);
+    };
+    // create the queue
+    window.ia.q = [];
+  }
+  // store the current timestamp
+  window.ia.l = (new Date()).getTime();
+  //css
+  var style =document.createElement("link");
+  style.rel  = "stylesheet";
+  style.type = "text/css";
+  style.href = "//instockalerts.co/instocka_app/public/assets/css/instockalerts-style.css";
+  document.getElementsByTagName("head")[0].appendChild(style);
+  //load utils theme
+  var script   = document.createElement('script');
+  script.type  = "text/javascript";
+  script.src   = '//instockalerts.co/instocka_app/public/assets/js/stencil-utils.min.js';
+  script.async = true;
+  document.getElementsByTagName("head")[0].appendChild(script);
+  // create a new script element
+  var script   = document.createElement('script');
+  script.type  = "text/javascript";
+  script.src   = '//instockalerts.co/instocka_app/public/assets/js/instocka_v2.js';
+  script.async = true;
+  // insert the script element into the document  
+  document.getElementsByTagName("head")[0].appendChild(script);
+  
+})();

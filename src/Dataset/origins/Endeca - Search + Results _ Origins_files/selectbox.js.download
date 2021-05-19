@@ -1,0 +1,33 @@
+var site = site || {};
+var generic = generic || {};
+
+generic.endeca.mixins.selectbox = {
+  setupNodes: function(args) {
+    this._super(args);
+    var that = this;
+
+    var selectBox;
+
+    if (this.node.is('select')) {
+      selectBox = this.node;
+    } else if (this.node.find('select').length) {
+      selectBox = this.node.find('select');
+    } else if (this.parentNode.find('select').length) {
+      selectBox = this.parentNode.find('select');
+    }
+
+    if (selectBox) {
+      selectBox.bind('change', that, that.onChange);
+    }
+  },
+
+  onChange: function(event) {
+    var that = event.data;
+    var selectedOption = this.options[this.selectedIndex];
+    jQuery(selectedOption).trigger('simulate:click');
+    event.preventDefault();
+    return false;
+  }
+};
+
+site.endeca.mixins.selectbox = generic.endeca.mixins.selectbox;

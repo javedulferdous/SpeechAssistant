@@ -1,0 +1,21 @@
+/*
+    Endeca catalog class for products endeca instance.
+
+*/
+
+var site = site || {};
+site.endeca = site.endeca || {};
+site.endeca.catalog = site.endeca.catalog || {};
+site.endeca.catalog.product = site.endeca.catalog.product || {};
+
+site.endeca.catalog.product = site.endeca.generic.Class.create( site.endeca.catalog.product, {
+
+    _parseRecord: function( record ) {
+        if ( record.Properties["rec_type"] == 'product') {
+            record.Properties['s_responseDate'] = this.jsonResult.responseDate;
+            record.Properties['p_responseDate'] = this.jsonResult.responseDate;
+            this._super(record);
+        }
+    }
+
+});

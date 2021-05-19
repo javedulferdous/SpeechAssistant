@@ -1,0 +1,8 @@
+_satellite.pushAsyncScript(function(event, target, $variables){
+  window.ttMETA = (typeof(window.ttMETA) != 'undefined') ? window.ttMETA : [];
+		window.ttMETA.push ({
+			'mbox':'${mbox.name encode="escape"}',
+			'campaign': '${campaign.name encode="escape"}',
+			'experience':'${campaign.recipe.name encode="escape"}',
+			'offer':'${offer.name encode="escape"}'});
+});

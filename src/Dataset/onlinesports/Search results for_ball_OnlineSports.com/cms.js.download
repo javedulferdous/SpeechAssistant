@@ -1,0 +1,3 @@
+function switchMenu(obj, obj2) {var el =
+document.getElementById(obj);if(el.style.display != 'none')
+{el.style.display = 'none'; obj2.firstChild.data=" Read More >>"; } else {el.style.display = ''; obj2.firstChild.data=' Hide' ;}  }

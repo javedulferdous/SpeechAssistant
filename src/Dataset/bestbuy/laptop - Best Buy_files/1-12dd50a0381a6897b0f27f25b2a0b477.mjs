@@ -1,0 +1,2 @@
+(window.gvpc_shop_google_adsense=window.gvpc_shop_google_adsense||[]).push([[1],{22:function(o){o.exports=JSON.parse('{"openModal":"openModal","fancyComponent":"fancyComponent","modalYouClickedOpen":"modalYouClickedOpen"}')},23:function(o,n,e){"use strict";e.r(n);var p=e(22);n.default={common:p}}}]);
+//# sourceMappingURL=1-12dd50a0381a6897b0f27f25b2a0b477.mjs.map

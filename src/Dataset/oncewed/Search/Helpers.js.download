@@ -1,0 +1,71 @@
+var Helpers = {
+
+  // grabElement : (id) => {
+  //   return document.getElementById(id);
+  // },
+
+  // splitCompoundVariable : (variable, separator) => {
+  //   return variable.split(separator);
+  // }
+
+  // IE 11 support
+
+  grabElement : function(id){
+    return document.getElementById(id);
+  },
+
+  splitCompoundVariable : function(variable, seperator){
+    return variable.split(seperator);
+  },
+
+  getDateFromManifest : function(month, day, year) {
+    month = parseInt(month);
+    day = parseInt(day);
+    year = parseInt(year);
+
+    return new Date(year, month-1, day)
+  },
+
+  convertToPrice : function(str) {
+    var txt;
+    if (str != ""){
+      if ( str.indexOf('.') > -1 ) {
+        txt = str.split('.')[0] + "<sup>" + str.split('.')[1] + "</sup>";
+      } else {
+        txt = str;
+      }
+    }
+    return txt || "";
+  },
+
+ resizeText: function(idName, fontLimit) {
+    var e = document.getElementById(idName);
+    var childHeight = parseInt(e.clientHeight),
+        childWidth = parseInt(e.clientWidth),
+        parentHeight = 85,
+        parentWidth = 115;
+        
+     
+    if (isNaN(parentHeight) || isNaN(parentWidth)) {
+        parentHeight = 85;
+        parentWidth = 115;
+    }
+
+    while ((childHeight > parentHeight) || (childWidth > parentWidth)) {
+        childFont = parseFloat(window.getComputedStyle(e, null).getPropertyValue("font-size"));
+        e.style.fontSize = (childFont - 1) + "px";
+        e.style.lineHeight = (childFont - 1) + "px";
+    
+        
+        childHeight = e.clientHeight;
+        childWidth = e.scrollWidth;
+
+        if (childFont <= fontLimit) {
+            
+            break;
+        }
+        console.log("Resize")
+    }
+ }
+    
+}

@@ -1,0 +1,560 @@
+;(function($){
+	var SimpleCalendar = function($container, options){
+		this.$container = $container;
+		
+		var today = new Date();
+		
+		this.today = {
+			year : today.getFullYear(),
+			month : today.getMonth(),
+			date : today.getDate(),
+			time : today.getTime()
+		};
+		this.current = $.extend({}, this.today);
+		this.current.firstDay = today.getDay();
+		this.current.lastDate = this.getLastDate(this.current.year, this.current.month);
+		
+		this.defaultSetting = {
+			year : this.current.year,
+			month : this.current.month,
+			date : this.current.date,
+			interval : 1
+		};
+		this.options = {
+			selectType : 'standard',
+			previousLimit : {
+				year : this.today.year,
+				month : this.today.month
+			},
+			nextLimit : {
+				year : this.today.year + 1,
+				month : 11
+			},
+			previousText : '<',
+			nextText : '>',
+			disableBeforeToday : true,
+			showOtherMonthDate : true,
+			showYearLabel : true,
+			paddingMonthLabel : false,
+			closeByCellClicked : false,
+			labelOfDay : SimpleCalendar.LABEL_OF_DAY,
+			minInterval : 1,
+			maxInterval : 1,
+			decorationClassName : SimpleCalendar.DECORATION_CLASS_NAME,
+			enableToChangeMonth : true,
+			enableToSelectDate : true,
+			setting : $.extend({}, this.defaultSetting),
+			defaultDisplay : null
+		};
+		this.setOptions($.extend(true, {}, options));
+		
+		this.cellClassForClear = [
+			this.options.decorationClassName.holidayCell,
+			this.options.decorationClassName.firstSelectedCell,
+			this.options.decorationClassName.selectedCell,
+			this.options.decorationClassName.otherMonthCell,
+			this.options.decorationClassName.disabledCell
+		].join(' ');
+		
+		this.cellClassForRefresh = [
+			this.options.decorationClassName.firstSelectedCell,
+			this.options.decorationClassName.selectedCell
+		].join(' ');
+		
+		this.init(true);
+	};
+	SimpleCalendar.CELL_COUNT = {
+		ROW : 6,
+		COLUMN : 7
+	};
+	SimpleCalendar.DECORATION_CLASS_NAME = {
+		calendar : 'simple-calendar',
+		operationHeader : 'simple-calendar-header-operation',
+		dayHeader : 'simple-calendar-header-day',
+		selectedYearView : 'simple-calendar-selected-year-view',
+		selectedMonthView : 'simple-calendar-selected-month-view',
+		previousContainer : 'simple-calendar-previous-container',
+		nextContainer : 'simple-calendar-next-container',
+		hidden : 'simple-calendar-hidden',
+		disableCalendar : 'simple-calendar-disable-all',
+		sundayCell : 'simple-calendar-sunday-cell',
+		saturdayCell : 'simple-calendar-saturday-cell',
+		holidayCell : 'simple-calendar-holiday-cell',
+		firstSelectedCell : 'simple-calendar-first-selected-cell',
+		selectedCell : 'simple-calendar-selected-cell',
+		otherMonthCell : 'simple-calendar-other-month-cell',
+		disabledCell : 'simple-calendar-disabled-cell'
+	};
+	SimpleCalendar.LABEL_OF_DAY = ['日', '月', '火', '水', '木', '金', '土'];
+	SimpleCalendar.NUMBER_REGEX = /^\d+$/;
+	SimpleCalendar.MONTH = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+	
+	SimpleCalendar.prototype = {
+		init : function(isFirstTime){
+			if(isFirstTime){
+				this.createTable();
+				this.bindEvent();
+			}
+			this.adjustSetting();
+			
+			var defaultDisplay = this.options.defaultDisplay,
+				setting = this.options.setting,
+				offset = 0;
+			
+			if(defaultDisplay){
+				offset = ((defaultDisplay.year - this.current.year) * 12 + defaultDisplay.month - this.current.month);
+			}else if(setting){
+				offset = ((setting.year - this.current.year) * 12 + setting.month - this.current.month);
+			}
+			this.showCalendar(offset, true);
+			this.callIntervalHandler();
+		},
+		decrementMonth : function(element){
+			if(element && element.month && SimpleCalendar.NUMBER_REGEX.test(element.month)){
+				element.month--;
+			}
+		},
+		setOptions : function(options){
+			if(!options){
+				return;
+			}
+			var setting = this.options.setting;
+			
+			this.decrementMonth(options.setting);
+			this.decrementMonth(options.previousLimit);
+			this.decrementMonth(options.nextLimit);
+			this.decrementMonth(options.defaultDisplay);
+			
+			$.extend(true, this.options, options);
+			
+			setting.interval = Math.max(setting.interval, this.options.minInterval);
+			setting.interval = Math.min(setting.interval, this.options.maxInterval);
+		},
+		createTable : function(){
+			var $table = $('<table />'),
+				$thead = $('<thead />'),
+				$tbody = $('<tbody />');
+			
+			$table.addClass(this.options.decorationClassName.calendar);
+			$table.append($thead);
+			$table.append($tbody);
+			
+			var $tr = $('<tr />'),
+				$th = $('<th />'),
+				labelOfDay = this.options.labelOfDay,
+				options = this.options,
+				decorationClassName = options.decorationClassName;
+				
+			$thead.append($tr);
+			$tr.append($th);
+			
+			$th.attr('colspan', SimpleCalendar.CELL_COUNT.COLUMN).addClass(decorationClassName.operationHeader);
+			
+			if(this.options.enableToChangeMonth){
+				var $div = $('<div />');
+				$div.addClass(decorationClassName.previousContainer);
+				
+				this.$previous = $('<a />');
+				this.$previous.attr('href', '#').text(options.previousText);
+				$div.append(this.$previous);
+				$th.append($div);
+				
+				$div = $('<div />');
+				$div.addClass(decorationClassName.nextContainer);
+				
+				this.$next = $('<a />');
+				this.$next.attr('href', '#').text(options.nextText);
+				$div.append(this.$next);
+				$th.append($div);
+			}
+			this.$selectedMonthView = $('<span />');
+			this.$selectedMonthView.addClass(decorationClassName.selectedMonthView);
+			$th.append(this.$selectedMonthView);
+
+			this.$selectedYearView = $('<span />');
+			this.$selectedYearView.addClass(decorationClassName.selectedYearView);
+			$th.append(this.$selectedYearView);
+			
+			$tr = $('<tr />');
+			$thead.append($tr);
+			
+			for(var i = 0, length = labelOfDay.length; i < length; i++){
+				var $th = $('<th />'),
+					index = i % 7;
+					
+				$th.addClass(options.dayClass).text(labelOfDay[i]);
+				$tr.append($th);
+				
+				if(index === 0){
+					$th.addClass(decorationClassName.sundayCell);
+				}else if(index === 6){
+					$th.addClass(decorationClassName.saturdayCell);
+				}
+			}
+			for(var i = 0, lengthi = SimpleCalendar.CELL_COUNT.ROW; i < lengthi; i++){
+				var $tr = $('<tr />');
+				
+				for(var j = 0, lengthj = SimpleCalendar.CELL_COUNT.COLUMN; j < lengthj; j++){
+					var $td = $('<td />'),
+						index = j % 7;
+					
+					$tr.append($td);
+					
+					if(index === 0){
+						$td.addClass(decorationClassName.sundayCell);
+					}else if(index === 6){
+						$td.addClass(decorationClassName.saturdayCell);
+					}
+				}
+				$tbody.append($tr);
+			}
+			this.$container.append($table);
+			this.$cells = $table.find('td');
+		},
+		getLastDate : function(year, month){
+			if(month === 11){
+				return (new Date(year + 1, 0, 0)).getDate();
+			}else if(month === -1){
+				return (new Date(year, 0, 0)).getDate();
+			}else{
+				return (new Date(year, month + 1, 0)).getDate();
+			}
+		},
+		adjustSetting : function(){
+			var options = this.options,
+				setting = options.setting,
+				specified = new Date(setting.year, setting.month, setting.date);
+			
+			if(options.disableBeforeToday && specified.getTime() < this.today.time){
+				options.setting = $.extend({}, this.defaultSetting);
+			}
+		},
+		getDateByOffset : function(monthOffset){
+			return new Date(this.current.year, this.current.month + monthOffset, 1);
+		},
+		controlElementForChange : function(){
+			if(!this.options.enableToChangeMonth){
+				return;
+			}
+			var options = this.options,
+				decorationClassName = options.decorationClassName;
+			
+			if(options.previousLimit && this.current.year === options.previousLimit.year && this.current.month === options.previousLimit.month){
+				this.$previous.addClass(decorationClassName.hidden);
+			}else{
+				this.$previous.removeClass(decorationClassName.hidden);
+			}
+			if(options.nextLimit && this.current.year === options.nextLimit.year && this.current.month === options.nextLimit.month){
+				this.$next.addClass(decorationClassName.hidden);
+			}else{
+				this.$next.removeClass(decorationClassName.hidden);
+			}
+		},
+		showCalendar : function(monthOffset, isFirstTime){
+			var current = this.current,
+				options = this.options,
+				setting = options.setting,
+				decorationClassName = options.decorationClassName,
+				firstSelectedDate = new Date(setting.year, setting.month, setting.date),
+				lastSelectedDate = new Date(setting.year, setting.month, setting.date + setting.interval - (options.selectType === 'lodging' ? 0 : 1));
+				
+			if(isFirstTime || monthOffset != 0){
+				var currentDate = this.getDateByOffset(monthOffset);
+				
+				current.year = currentDate.getFullYear();
+				current.month = currentDate.getMonth();
+				
+				var previousDate = this.getDateByOffset(-1),
+					nextDate = this.getDateByOffset(1),
+					previous = {year : previousDate.getFullYear(), month : previousDate.getMonth()},
+					next = {year : nextDate.getFullYear(), month : nextDate.getMonth()},
+					isThisMonth = (this.today.year === current.year && this.today.month === current.month),
+					isPreviousMonth = (this.today.year > current.year || this.today.year === current.year && this.today.month > current.month),
+					lastDate = current.lastDate = this.getLastDate(current.year, current.month),
+					firstDay = current.firstDay = currentDate.getDay(),
+					lastMonthLastDate = this.getLastDate(current.year, current.month - 1);
+			}
+			this.controlElementForChange();
+			
+			for(var i = 0, length = this.$cells.size(); i < length; i++){
+				var $cell = this.$cells.eq(i);
+				
+				if(isFirstTime || monthOffset != 0){
+					$cell.removeClass(this.cellClassForClear).text('');
+					
+					if(i < firstDay + lastDate){
+						if(options.disableBeforeToday && isThisMonth && i < firstDay + this.today.date - 1){
+							$cell.addClass(decorationClassName.disabledCell);
+						}
+						if(i < firstDay){
+							$cell.addClass(decorationClassName.otherMonthCell);
+							
+							if(options.showOtherMonthDate){
+								$cell.text(lastMonthLastDate - firstDay + i + 1);
+								$cell.data('year', previous.year);
+								$cell.data('month', previous.month);
+								$cell.data('date', lastMonthLastDate - firstDay + i + 1);
+							}else{
+								$cell.html('&nbsp;');
+							}
+						}else{
+							$cell.text(i + 1 - firstDay);
+							$cell.data('year', current.year);
+							$cell.data('month', current.month);
+							$cell.data('date', i + 1 - firstDay);
+						}
+						if(typeof holiday === 'object' && holiday[current.year] && holiday[current.year][current.month + 1] && holiday[current.year][current.month + 1][i - firstDay + 1]){
+							$cell.addClass(decorationClassName.holidayCell);
+						}
+					}else{
+						$cell.addClass(decorationClassName.otherMonthCell);
+						
+						if(options.showOtherMonthDate){
+							$cell.text(i - lastDate - firstDay + 1);
+							$cell.data('year', next.year);
+							$cell.data('month', next.month);
+							$cell.data('date', i - lastDate - firstDay + 1);
+						}else{
+							$cell.html('&nbsp;');
+						}
+					}
+					if((options.disableBeforeToday && isPreviousMonth)
+						|| (options.previousLimit.date && current.year === options.previousLimit.year && current.month === options.previousLimit.month && i < options.previousLimit.date + firstDay - 1)
+						|| (options.nextLimit.date && current.year === options.nextLimit.year && current.month === options.nextLimit.month && i > options.nextLimit.date + firstDay - 1)){
+						$cell.addClass(decorationClassName.disabledCell);
+					}
+				}else{
+					$cell.removeClass(this.cellClassForRefresh);
+				}
+				if(options.enableToSelectDate && setting.interval > 0){
+					if(options.showOtherMonthDate || !$cell.hasClass(decorationClassName.otherMonthCell)){
+						var currentDate = new Date($cell.data('year'), $cell.data('month'), $cell.data('date'));
+						
+						if(currentDate.getTime() == firstSelectedDate.getTime()){
+							$cell.addClass((options.selectType === 'lodging') ? decorationClassName.firstSelectedCell : decorationClassName.selectedCell);
+						}else if(currentDate.getTime() > firstSelectedDate.getTime() && currentDate.getTime() <= lastSelectedDate.getTime()){
+							$cell.addClass(decorationClassName.selectedCell);
+						}
+					}
+				}
+			}
+			if(isFirstTime || monthOffset != 0){
+				if(options.showYearLabel){
+					this.$selectedYearView.text(current.year + ' ');
+				}
+				//this.$selectedMonthView.text((options.paddingMonthLabel ? ('0' + (current.month + 1)).slice(-2) : (current.month + 1)) + '月');
+				this.$selectedMonthView.text(SimpleCalendar.MONTH[current.month]);
+				
+				if(monthOffset != 0 && options.onMonthChange && typeof options.onMonthChange === 'function'){
+					options.onMonthChange(current.year, current.month + 1);
+				}
+			}
+		},
+		showTargetMonth : function(){
+			var options = this.options,
+				setting = options.setting,
+				current = this.current,
+				offset = (setting.year - this.current.year) * 12 + setting.month - this.current.month + ((setting.date +  setting.interval - this.getLastDate(setting.year, setting.month)) > 0 ? 1 : 0),
+				targetDate = new Date(setting.year, setting.month, setting.date + setting.interval - (options.selectType === 'lodging' ? 0 : 1)),
+				firstDate = null,
+				lastDate = null;
+			
+			if(options.showOtherMonthDate){
+				var $firstCell = this.$cells.eq(0),
+					$lastCell = this.$cells.eq(this.$cells.length - 1);
+					
+				firstDate = new Date($firstCell.data('year'), $firstCell.data('month'), $firstCell.data('date')),
+				lastDate = new Date($lastCell.data('year'), $lastCell.data('month'), $lastCell.data('date'));
+			}else{
+				firstDate = new Date(current.year, current.month, 1),
+				lastDate = new Date(current.year, current.month, this.getLastDate(current.year, current.month));
+			}
+			if(firstDate.getTime() > targetDate.getTime() || lastDate.getTime() < targetDate.getTime()){
+				this.showCalendar(offset, false);
+			}
+		},
+		changeInterval : function(offset){
+			var options = this.options,
+				setting = options.setting,
+				decorationClassName = options.decorationClassName;
+			
+			if(setting.interval === 0 || (setting.interval === options.minInterval && offset < 0) || (setting.interval === options.maxInterval && offset > 0)){
+				return;
+			}
+			setting.interval += offset;
+			
+			var lastIndex = -1;
+			
+			for(var i = this.$cells.size() - 1; i >= 0; i--){
+				if(this.$cells.eq(i).hasClass(decorationClassName.selectedCell) || this.$cells.eq(i).hasClass(decorationClassName.firstSelectedCell)){
+					lastIndex = i;
+					break;
+				}
+			}
+			if(offset > 0){
+				var $current = this.$cells.eq(lastIndex + 1);
+				
+				if($current.hasClass(decorationClassName.disabledCell) || (!options.showOtherMonthDate && $current.hasClass(decorationClassName.otherMonthCell)) || lastIndex >= this.$cells.size() - 1){
+					this.showCalendar(offset, false);
+				}else{
+					$current.addClass(decorationClassName.selectedCell);
+				}
+			}else if(offset < 0){
+				var $current = this.$cells.eq(lastIndex);
+				$current.removeClass(decorationClassName.firstSelectedCell + ' ' + decorationClassName.selectedCell);
+				
+				if(!this.$cells.hasClass(decorationClassName.selectedCell)){
+					if(setting.interval === 0){
+						this.$cells.removeClass(decorationClassName.firstSelectedCell);
+					}else{
+						this.showCalendar(offset, false);
+					}
+				}
+			}
+			this.callIntervalHandler();
+		},
+		bindEvent : function(){
+//			var eventName = this.isTouchEnabled() ? 'touchend' : 'click';
+			var eventName = 'click';
+			
+			if(this.options.enableToChangeMonth){
+				this.$previous.on(eventName, $.proxy(function(event){
+					// this.showCalendar(-1, false);
+				}, this)).on('click', $.proxy(function(event){
+					this.preventDefault(event);
+				}, this));
+				
+				this.$next.on(eventName, $.proxy(function(event){
+					// this.showCalendar(1, false);
+				}, this)).on('click', $.proxy(function(event){
+					this.preventDefault(event);
+				}, this));
+			}
+			var self = this;
+			
+			this.$cells.on(eventName, function(){
+				self.resetInterval($(this));
+				
+				if(self.options.closeByCellClicked){
+					self.$container.hide();
+				}
+			});
+		},
+		preventDefault : function(event){
+			if(this.isTouchEnabled()){
+				event.originalEvent.preventDefault();
+			}else{
+				event.preventDefault();
+			}
+		},
+		decrementInterval : function(){
+			var options = this.options,
+				setting = options.setting;
+			
+			if(setting.interval > options.minInterval){
+				this.showTargetMonth();
+				this.changeInterval(-1);
+			}
+		},
+		incrementInterval : function(){
+			var options = this.options,
+				setting = options.setting;
+				
+			if(setting.interval < options.maxInterval){
+				this.showTargetMonth();
+				this.changeInterval(1);
+			}
+		},
+		resetInterval : function($cell){
+			var options = this.options,
+				setting = options.setting,
+				decorationClassName = options.decorationClassName;
+				
+			if(this.$container.hasClass(decorationClassName.disableCalendar) || $cell.hasClass(decorationClassName.disabledCell) || !options.showOtherMonthDate && $cell.hasClass(decorationClassName.otherMonthCell)){
+				return;
+			}
+			setting.year = $cell.data('year');
+			setting.month =  $cell.data('month');
+			setting.date =  $cell.data('date');
+			
+			if(setting.interval === 0){
+				setting.interval = 1;
+			}
+			this.showCalendar(0, false);
+			
+			if(options.onCellClick && typeof options.onCellClick === 'function'){
+				var date = new Date(setting.year, setting.month, setting.date);
+				options.onCellClick(setting.year, setting.month + 1, setting.date, date.getDay());
+			}
+			this.callIntervalHandler();
+		},
+		callIntervalHandler : function(){
+			var options = this.options,
+				setting = options.setting,
+				decorationClassName = options.decorationClassName;
+				
+			if(options.onIntervalChange && typeof options.onIntervalChange === 'function'){
+				var start = new Date(setting.year, setting.month, setting.date),
+					end = new Date(setting.year, setting.month, setting.date + setting.interval - (options.selectType === 'lodging' ? 0 : 1));
+				
+				if(setting.interval === 0){
+					options.onIntervalChange(0, 0, 0, 0, 0, 0, 0, 0, 0);
+				}else{
+					options.onIntervalChange(
+						setting.year,
+						setting.month + 1,
+						setting.date,
+						start.getDay(),
+						end.getFullYear(),
+						end.getMonth() + 1,
+						end.getDate(),
+						end.getDay(),
+						setting.interval
+					);
+				}
+			}
+		},
+		isTouchEnabled : function(){
+			return !!('ontouchstart' in window || window.navigator.msMaxTouchPoints);
+		}
+	};
+	$.fn.setSimpleCalendar = function(options){
+		return this.each(function(){
+		 	$(this).data('simple-calendar', new SimpleCalendar($(this), options));
+		});
+	};
+	$.fn.controlSimpleCalendar = function(command, args){
+		var executeCommand = function(simpleCalendar){
+			switch(command){
+			case 'SHOW_NEXT_MONTH':
+				simpleCalendar.showCalendar(1, false);
+				break;
+			case 'SHOW_PREVIOUS_MONTH':
+				simpleCalendar.showCalendar(-1, false);
+				break;
+			case 'SHOW_OTHER_MONTH':
+				simpleCalendar.showCalendar(args, false);
+				break;
+			case 'SET_SELECTED_DATE':
+				simpleCalendar.decrementMonth(args);
+				simpleCalendar.options.setting = args;
+				simpleCalendar.init(false);
+				break;
+			case 'INCREMENT_SELECTED_RANGE' :
+				simpleCalendar.incrementInterval();
+				break;
+			case 'DECREMENT_SELECTED_RANGE' :
+				simpleCalendar.decrementInterval();
+				break;
+			}
+		};
+		return this.each(function(){
+			var simpleCalendar = $(this).data('simple-calendar');
+			
+			if(!simpleCalendar){
+				return;
+			}
+			executeCommand(simpleCalendar);
+		});
+	};
+})(jQuery);

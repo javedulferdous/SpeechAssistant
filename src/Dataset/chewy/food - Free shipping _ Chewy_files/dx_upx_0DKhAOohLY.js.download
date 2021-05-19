@@ -1,0 +1,375 @@
+(function() {
+
+  var UST_NAME = 'dx_upx_0DKhAOohLY.js';
+  var CONSENT_PARAMETER = 'cs';
+  var PIXELS_PARAMETER = 'pixels';
+  var BTID_PARAMETER = 'dx_btid';
+  var EXCHANGE_MATCH_PARAMETER = "exchangematch";
+  var EXCHANGE_MATCH_IFRAME_SOURCE = '//cti.w55c.net/ct/cms-2c-ex.html?ei=CHEWY';
+  var NEW_CUST_PURCHASE_PIXEL = '864bb339a36d4685ba8fc4a57a530009';
+
+    /* Main function to fire pixel based on matching the current URL to the URL Map */
+  var dxUpx = function () {
+    setBTID();
+
+    var dxPixelIds = [];
+    var pixelFired = false;
+    var scriptParamMap = getScriptParamMap();
+    var normalizedUrl = normalizeUrl(window.location.host + window.location.pathname);
+
+    if (pageTypeMap.hasOwnProperty(scriptParamMap.pagetype)) {
+      // there will only be one pagetype at a time
+      var substringPixels = '';
+
+      if (scriptParamMap.pagetype === 'search') {
+        substringPixels = fireSubstringPixels(window.location.href, searchSubstringMap);
+      }
+
+      if (scriptParamMap.pagetype === 'cart') {
+        substringPixels = fireSubstringPixels(window.location.href, cartSubstringMap);
+      }
+
+      if(substringPixels.length > 0) {
+        dxPixelIds.push(substringPixels);
+      } else {
+        dxPixelIds.push(pageTypeMap[scriptParamMap.pagetype]);
+      }
+
+      pixelFired = true;
+    }
+
+    // check for existence of params requiring unique pixel id's
+    if (scriptParamMap.hasordered === 'yes') {
+      dxPixelIds.push(paramMap.hasordered);
+      pixelFired = true;
+    }
+
+    if (scriptParamMap.new_customer_purchase === 'yes') {
+      dxPixelIds.push(paramMap.new_customer_purchase);
+      pixelFired = true;
+    }
+
+    if (scriptParamMap.existing_customer_purchase === 'yes') {
+      dxPixelIds.push(paramMap.existing_customer_purchase);
+      pixelFired = true;
+    }
+
+    if (scriptParamMap.triedautoship === 'yes') {
+      dxPixelIds.push(paramMap.triedautoship);
+      pixelFired = true;
+    }
+
+    if (!pixelFired) {
+      dxPixelIds.push('76bec9bcbc9a4c97b97fec13b13e9c65'); // Add diagnostic pixel
+    }
+
+    firePixel(dxPixelIds, scriptParamMap);
+    matchExchanges =
+      scriptParamMap[EXCHANGE_MATCH_PARAMETER] && scriptParamMap[EXCHANGE_MATCH_PARAMETER].toLowerCase() === 'true';
+
+    if (pixelFired && matchExchanges) {
+      addExchangeMatchIframe();
+    }
+  };
+
+  var getUSPS = function() {
+    var uspsConsentString = '';
+
+    var ccpaCallback = function (uspData, success) {
+      if (success) {
+        uspsConsentString = uspData.uspString;
+      }
+    };
+
+    // Get CCPA consent string if API is available
+    if (typeof __uspapi == typeof(Function)) {
+      __uspapi('getUSPData', 1, ccpaCallback);
+    }
+
+    return uspsConsentString;
+  };
+
+  // returns map object full of k/v pairs of script params and values *
+  var getScriptParamMap = function () {
+    var scripts = document.getElementsByTagName('script');
+    var dxScript = '';
+    var scriptTokens = [];
+    var paramMap = {};
+
+    for (var i = 0; i < scripts.length; i++) {
+      if (scripts[i].src && scripts[i].src.indexOf(UST_NAME) > -1) {
+        dxScript = scripts[i];
+        scriptTokens = dxScript.src.toLowerCase().split('?');
+
+        if (scriptTokens.length > 1) {
+          break;
+        }
+      }
+    }
+
+    if (dxScript === '' || scriptTokens.length < 2) {
+      return '';
+    }
+
+    var scriptQueryString = scriptTokens[1];
+    var queryStringValues = scriptQueryString.split('&');
+
+    for (var j = 0; j < queryStringValues.length; j++) {
+      var splitValue = queryStringValues[j].split('=');
+      if (splitValue.length == 2) {
+        paramMap[splitValue[0]] = splitValue[1];
+      }
+    }
+
+    return paramMap;
+  };
+
+  // fire pixel only if the URL matches all substrings specified in the key (comma delimited)
+  var fireSubstringPixels = function(normUrl, map) {
+    url = normUrl.toLowerCase();
+    pixelIds = [];
+
+    for (var key in map) {
+      if (map.hasOwnProperty(key)) {
+        pixelId = map[key];
+        substrs = key.split(',');
+        matched = true;
+
+        for (var i = 0; i < substrs.length; i++) {
+          substrMatch = substrs[i];
+          if (url.indexOf(substrMatch) == -1)  {
+            matched = false;
+            break;
+          }
+        }
+
+        if (matched) {
+          pixelIds.push(pixelId);
+        }
+      }
+    }
+
+    return pixelIds;
+  };
+
+  var fire1PDPixel = function (pixelId, queryString) {
+
+    var iframeQueryString = PIXELS_PARAMETER + '=' + pixelId;
+    var btid = dxGetCookie(BTID_PARAMETER);
+    if (btid) {
+      iframeQueryString += '&' + BTID_PARAMETER + '=' + btid;
+    }
+
+    if (queryString) {
+      // The passed param should start with an & if it has values
+      iframeQueryString += queryString;
+    }
+
+    var iframe = document.createElement('iframe');
+    var iframeSrc = '//cti.w55c.net/ct/dx_upx_0DKhAOohLY_1pd.html?' + iframeQueryString;
+    iframe.setAttribute('src', iframeSrc);
+    iframe.style.width = '1px';
+    iframe.style.height = '1px';
+    iframe.style.display = 'none';
+    iframe.style.visibility = 'hidden';
+    document.body.appendChild(iframe);
+  };
+
+  var firePixel = function (pixelIds, scriptParamMap) {
+    if (pixelIds === '') {
+      return;
+    }
+
+    var uspsConsentString = getUSPS();
+    var dxDomain = '//tags.w55c.net/rs?id=';
+    var queryString = '';
+
+    if (scriptParamMap[CONSENT_PARAMETER]) {
+      queryString += '&cs=' + scriptParamMap[CONSENT_PARAMETER];
+    }
+
+    if (uspsConsentString !== '') {
+      queryString += '&us_privacy=' + uspsConsentString;
+    }
+
+    if (scriptParamMap.prodid || scriptParamMap.sku) {
+      queryString += '&sku=' + scriptParamMap.prodid + '|' + scriptParamMap.sku;
+    }
+
+    if (scriptParamMap.totalvalue) {
+      queryString += '&price=' + scriptParamMap.totalvalue;
+    }
+
+    if (scriptParamMap.orderid || scriptParamMap.quantity || scriptParamMap.triedautoship) {
+      var tx = '';
+
+      if (scriptParamMap.orderid) {
+        tx += 'orderid+' + scriptParamMap.orderid;
+      }
+
+      if (scriptParamMap.quantity) {
+        tx += '|quantity+' + scriptParamMap.quantity;
+      }
+
+      if (scriptParamMap.triedautoship) {
+        tx += '|triedautoship+' + scriptParamMap.triedautoship;
+      }
+
+      queryString += '&tx=' + encodeUnsafe(tx);
+    }
+
+    for (var i = 0; i < pixelIds.length; i++) {
+      var dxPixelId = pixelIds[i];
+      var cb = Math.floor(Math.random() * 99999);
+      var pixelSrc = dxDomain + dxPixelId + '&rnd=' + cb;
+
+      if (checkoutPixels.indexOf(dxPixelId) > -1) {
+        fire1PDPixel(dxPixelId, queryString);
+      } else {
+        pixelSrc += queryString + "&nomatch";
+        var img = document.createElement('img');
+        img.src = pixelSrc;
+      }
+    }
+  };
+
+  var getQueryStringParamByName = function(name) {
+    var paramName = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
+    var regex = new RegExp("[\\?&]" + paramName + "=([^&#]*)");
+    var results = regex.exec(location.search);
+    return results === null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
+  };
+
+  var dxSetCookieByName = function(cname, value, expiresAtDate) {
+    if (!cname) {
+      return;
+    }
+
+    var cookieDate = expiresAtDate ? expiresAtDate : getDatePlusSevenDays();
+
+    // just use doamain.tld
+    var cookieDomain = window.location.hostname.replace(/(.*)\.([^.]+\.[^.]+)$/gi, '$2');
+    document.cookie = cname + '=' + value + '; expires=' + cookieDate.toGMTString() + ';domain=.' + cookieDomain + ';path=/';
+  };
+
+  /* return the cookie with the specified name, or null if none exists. */
+  var dxGetCookie = function(cname) {
+    var name = cname + '=';
+    var ca = document.cookie.split(';');
+    for (var i = 0; i < ca.length; i++) {
+      var c = ca[i];
+      while (c.charAt(0) === ' ') {
+        c = c.substring(1);
+      }
+
+      if (c.indexOf(name) === 0) {
+        return c.substring(name.length, c.length);
+      }
+    }
+
+    return null;
+  };
+
+  var getDatePlusSevenDays = function() {
+    var sevenDaysLater = new Date();
+    sevenDaysLater.setDate(sevenDaysLater.getDate() + 7);
+
+    return sevenDaysLater;
+  };
+
+  var UNSAFE_CHAR_LIST = ['|'];
+
+  var encodeUnsafe = function(param) {
+    if (!param) {
+      return param;
+    }
+
+    var needsEncoding = false;
+    for (var index = 0; index < UNSAFE_CHAR_LIST.length; index++) {
+      if (param.indexOf(UNSAFE_CHAR_LIST[index]) > -1) {
+        needsEncoding = true;
+        break;
+      }
+    }
+
+    if (needsEncoding) {
+      return encodeURIComponent(param);
+    }
+
+    return param;
+  };
+
+  var setBTID = function() {
+    var btid = getQueryStringParamByName(BTID_PARAMETER);
+    if (btid && btid !== '[[[BIDTRACKINGID]]]') {
+      dxSetCookieByName(BTID_PARAMETER, btid, getDatePlusSevenDays());
+    }
+  };
+
+  var addExchangeMatchIframe = function () {
+    var iFrame = document.createElement('iframe');
+    iFrame.setAttribute('src', EXCHANGE_MATCH_IFRAME_SOURCE);
+    iFrame.style.width = '1px';
+    iFrame.style.height = '1px';
+    iFrame.style.display = 'none';
+    iFrame.style.visibility = 'hidden';
+    document.body.appendChild(iFrame);
+  };
+
+  var normalizeUrl = function (normURL) {
+    var replacedURL = normURL.replace(/^https?:\/\//, '');
+
+    if (replacedURL.substr(-1) == '/') {
+      replacedURL = replacedURL.substr(0, replacedURL.length - 1);
+    }
+
+    return replacedURL;
+  };
+
+
+
+  var pageTypeMap = {
+    'purchase':       '0d07f028020547569ede66a2f15fe347',
+    'registration':   '00313dde287e476c8015759bae43019d',
+    'checkout':       'cc8c476a2e704b878f898efc222bd01b',
+    'cart':           'b4f4ddd09ca64f2f8cf95cdde3a51ac0',
+    'category':       '6ae1f073ecbb441282fd2dc5dd9fe36e',
+    'deals':          'c07b2beb12684fee8e4c98c7e718961f',
+    'search':         '3d5a2cc1fd4d4ccba4a961b5f89580e4',
+    'homepage':       '99f2985a029749ae907c58e8f35dc1dd',
+    'pdp':            'f2a1ddd66c094b79926770ed3a5b57b4'
+  };
+
+  var paramMap = {
+    'hasordered':                 '0c9cf376eb0e49cf82d280301faa9ae6',
+    'new_customer_purchase':                 NEW_CUST_PURCHASE_PIXEL,
+    'existing_customer_purchase': 'eb86bf7f2704498a8604ed315e644359',
+    'triedautoship':              '1ca6fcb5376941f0a555f0bc99170d79'
+  };
+
+  var searchSubstringMap = {
+    'app/deals' : 'c07b2beb12684fee8e4c98c7e718961f'
+  };
+
+  var cartSubstringMap = {
+    'app/checkout' : 'cc8c476a2e704b878f898efc222bd01b'
+  };
+
+  var checkoutPixels = [
+    '6ae1f073ecbb441282fd2dc5dd9fe36e',
+    '3d5a2cc1fd4d4ccba4a961b5f89580e4',
+    '864bb339a36d4685ba8fc4a57a530009',
+    'f2a1ddd66c094b79926770ed3a5b57b4',
+    '00eb50f112804446a3a8c9b8043c6888'
+  ];
+
+  // be sure page loads before running
+  if (document.readyState !== "loading") {
+    dxUpx();
+  } else {
+    document.addEventListener("DOMContentLoaded", function(event) {
+      dxUpx();
+    });
+  }
+
+})();

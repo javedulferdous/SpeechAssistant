@@ -1,0 +1,20 @@
+_satellite.pushAsyncScript(function(event, target, $variables){
+   //Desktop MOP
+//Addams Family 218443
+    if(_satellite.getVar('Movie ID') == '218443'){
+      if(_satellite.getVar('Page Level 2') == 'movie | overview'){  
+ _satellite.addImage('//insight.adsrvr.org/track/evnt/?adv=dz18eg5&ct=0:83rn4x1&fmt=3')
+}
+}
+
+ //Desktop MSP
+//Addams Family 218443
+    if(_satellite.getVar('Movie ID') == '218443'){
+      if(_satellite.getVar('Page Level 2') == 'movie times | by movie'){  
+ _satellite.addImage('//insight.adsrvr.org/track/evnt/?adv=dz18eg5&ct=0:rcqnk0k&fmt=3')
+}
+}
+
+
+
+});

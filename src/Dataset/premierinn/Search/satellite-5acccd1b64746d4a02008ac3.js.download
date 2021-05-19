@@ -1,0 +1,15 @@
+_satellite.pushAsyncScript(function(event, target, $variables){
+  try{
+  var s = _satellite.getToolsByType('sc')[0].getS();
+  s.clearVars();
+  s.usePlugins=true;
+  s.doPlugins=function(s) {
+    s.clearVars();
+  }
+  s.usePlugins=false;
+  _satellite.notify('Adobe Analytics variables cleared', 2);
+}
+catch(err) {
+  _satellite.notify("Direct Call Rule Error - Resp SRP List Clear Vars: " + err.message,[3]);
+}
+});

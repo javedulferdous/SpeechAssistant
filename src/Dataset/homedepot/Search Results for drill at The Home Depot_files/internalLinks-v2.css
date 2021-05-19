@@ -1,0 +1,71 @@
+.internalLinks {
+  border: 20px solid #eee;
+  background-color: #FFF;
+  padding: 20px;
+  position: relative;
+  max-height: 1500px;
+  overflow-y: hidden;
+  transition: max-height 0.7s linear; }
+  .internalLinks .internalLinksHeading {
+    font-size: 2.2rem;
+    font-family: "helvetica-neue-bold", Helvetica Neue, Helvetica, Arial, sans-serif;
+    font-weight: bold; }
+  .internalLinks .internalLinksSets {
+    padding: 20px 0 20px 0; }
+    @media only screen and (min-width: 1024px) {
+      .internalLinks .internalLinksSets {
+        -webkit-column-count: 3;
+           -moz-column-count: 3;
+                column-count: 3; } }
+    @media only screen and (min-width: 769px) and (max-width: 1023px) {
+      .internalLinks .internalLinksSets {
+        -webkit-column-count: 2;
+           -moz-column-count: 2;
+                column-count: 2; } }
+  .internalLinks .internalLinksSets__set {
+    margin: 0 0 20px 0;
+    height: auto;
+    -webkit-column-break-inside: avoid;
+       -moz-column-break-inside: avoid;
+            break-inside: avoid; }
+  .internalLinks .internalLinksSets__category {
+    font-size: 1.8rem;
+    margin-bottom: 10px; }
+  .internalLinks .internalLinksSets__list {
+    list-style: none; }
+  .internalLinks .internalLinksSets__list__keyword {
+    /* TRUNCATION */
+    font-size: 1.4rem;
+    margin-bottom: 10px;
+    padding-right: 20px; }
+  .internalLinks .internalLinksSets__list__link {
+    color: #3e7697; }
+  .internalLinks .internalLinks__more__overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    text-align: center;
+    margin: 0;
+    padding: 15px 0 15px 0;
+    transition: padding 0.7s linear; }
+  .internalLinks .internalLinks__more__toggle {
+    font-family: "helvetica-neue-bold", Helvetica Neue, Helvetica, Arial, sans-serif;
+    font-weight: bold;
+    font-size: 1.6rem;
+    vertical-align: middle; }
+    .internalLinks .internalLinks__more__toggle:hover {
+      text-decoration: none; }
+  .internalLinks .internalLinks__more__icon {
+    margin-right: 15px;
+    vertical-align: middle;
+    transform: rotate(270deg);
+    height: 18px; }
+  .internalLinks.collapsed {
+    max-height: 260px; }
+    .internalLinks.collapsed .internalLinks__more__overlay {
+      padding: 100px 0 15px 0;
+      background-image: linear-gradient(to bottom, rgba(255, 255, 255, 0.001) 0%, #FFF 70%); }
+    .internalLinks.collapsed .internalLinks__more__icon {
+      transform: rotate(90deg); }
+

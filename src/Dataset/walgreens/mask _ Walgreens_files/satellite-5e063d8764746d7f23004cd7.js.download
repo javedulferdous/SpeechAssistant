@@ -1,0 +1,15 @@
+_satellite.pushAsyncScript(function(event, target, $variables){
+  
+var fcfirst = $("ul .servicelist li").eq(0).text();
+if (fcfirst == "Healthcare Clinic") {
+    $("ul .servicelist li").eq(0).replaceWith('<li><a href="/topic/pharmacy/healthcare-clinic.jsp" aria-label="In-store clinics" tabindex="0" class="active">In-store clinics</a></li>');
+}
+$('#menu-healthinfo').click(function(){
+    $('#menu-healthinfo li:contains("Healthcare Clinic")', $('ul')).find('a').attr('href', '/topic/pharmacy/healthcare-clinic.jsp').removeAttr('aria-label').text('In-store clinics');
+})
+
+$('#hamburger').click(function(){
+$('#menu-healthinfo').click(function(){
+  $('a#healthcare_clinic.menu-items.sub-menu-items','.wag-top-nav').children().text("In-store clinics");
+});});
+});

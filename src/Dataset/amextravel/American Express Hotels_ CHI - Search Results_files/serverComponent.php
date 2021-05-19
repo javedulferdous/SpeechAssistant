@@ -1,0 +1,2 @@
+
+amexhead._serverTime = '2020-11-08 04:32:40'; amexhead._clientIP = '0.0.0.0'; amexhead.insertPageFiles(['https://nexus.ensighten.com/amex/amexhead/code/36e3d0a62714ad43e1d6c3288297187f.js?conditionId0=653456']);amexhead.setPageSpecificDataDefinitionIds([]);

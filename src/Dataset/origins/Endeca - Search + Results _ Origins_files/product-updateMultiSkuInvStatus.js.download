@@ -1,0 +1,48 @@
+(function($, prodcat) {
+
+// Add All To Cart - update inv stat
+$(document).on('product.updateMultiSkuInvStatus', '.js-product', function() {
+  var $addAllToCart = $('.js-add-all-to-cart', this);
+  var $skus = $('.js-multi-sku', this);
+  if (!$addAllToCart.length) {
+    return;
+  }
+  $addAllToCart.addClass('button--disabled').data('disabled', true);
+  _.each($skus, function(sku) {
+    var skuBaseId = $(sku).data().skuId;
+    var productId = $(sku).data().productId;
+    var skuDataL2 = prodcat.data.getSku(skuBaseId);
+    if (!skuDataL2) {
+      return;
+    }
+    var skuInfo = ".js-multi-sku[data-product-id='" + skuDataL2.PRODUCT_ID + "']";
+    var $thisAddAllToCart = $(skuInfo).siblings('.js-add-all-to-cart');
+    $(skuInfo).attr({
+      'data-inventory-status': skuDataL2.INVENTORY_STATUS,
+      'data-is-shoppable': skuDataL2.isShoppable
+    });
+    if (skuDataL2.isShoppable) {
+      $(skuInfo).parent().attr('data-is-shoppable', true);
+      $thisAddAllToCart.removeClass('button--disabled').data('disabled', false);
+    } else {
+      $(skuInfo).parent().attr('data-contains-unshoppable', true);
+      // update data attributes
+      _.each($thisAddAllToCart, function(btn) {
+        // data-product-id
+        var newProductIdData = $(btn).attr('data-product-id');
+        newProductIdData = newProductIdData.replace(productId + ',', '');
+        $(btn).attr({
+          'data-product-id': newProductIdData
+        });
+        // data-sku-base-id
+        var newSkuBaseIdData = $(btn).attr('data-sku-base-id');
+        newSkuBaseIdData = newSkuBaseIdData.replace(skuBaseId + ',', '');
+        $(btn).attr({
+          'data-sku-base-id': newSkuBaseIdData
+        });
+      });
+    }
+  });
+});
+
+})(jQuery, window.prodcat = window.prodcat || {});

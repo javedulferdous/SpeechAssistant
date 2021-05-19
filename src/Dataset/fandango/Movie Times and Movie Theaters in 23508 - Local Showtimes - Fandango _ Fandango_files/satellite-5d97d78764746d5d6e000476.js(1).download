@@ -1,0 +1,44 @@
+_satellite.pushAsyncScript(function(event, target, $variables){
+  //Desktop MOP Template
+//Ford v Ferarri 207162
+if(_satellite.getVar('Movie ID') == '207162'){
+  if(_satellite.getVar('Page Level 2') == 'movie | overview'){
+    //pxl-307
+  _satellite.loadScript('https://www.googletagmanager.com/gtag/js?id=DC-3944448')
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'DC-3944448');
+  gtag('config', 'AW-737840981');
+  gtag('config', 'AW-103221998');
+  gtag('event', 'conversion', { 'send_to': 'AW-1003221998/tlk3CIi6xqwBEO7nr94D', 'transaction_id': '' });
+  gtag('event', 'conversion', {'send_to': 'AW-737840981/EF0RCLbqwKwBENWe6t8C'});
+
+  _satellite.addImage('https://d.agkn.com/iframe/7043/?che=%n&uid=[third_party_user_id]&type=14142000&ouid='+_satellite.getVisitorId().getMarketingCloudVisitorID()+'&imdbid=[Numeric]')
+
+
+    
+
+
+}
+}
+//Desktop MSP Template
+
+//Ford v Ferarri 207162
+if(_satellite.getVar('Movie ID') == '207162'){
+  if(_satellite.getVar('Page Level 2') == 'movie times | by movie'){
+   //pxl-307
+  _satellite.loadScript('https://www.googletagmanager.com/gtag/js?id=DC-3944448')
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'DC-3944448');
+  gtag('config', 'AW-737840981');
+  gtag('config', 'AW-103221998');
+  gtag('event', 'conversion', { 'send_to': 'AW-1003221998/tlk3CIi6xqwBEO7nr94D', 'transaction_id': '' });
+   gtag('event', 'conversion', { 'send_to': 'AW-737840981/C6eoCMfVy6wBENWe6t8C', 'transaction_id': '' });
+
+_satellite.addImage('https://d.agkn.com/iframe/7043/?che=%n&uid=[third_party_user_id]&type=14142001&ouid='+_satellite.getVisitorId().getMarketingCloudVisitorID()+'&imdbid=[Numeric]')
+}
+}
+});

@@ -1,0 +1,23 @@
+_satellite.pushAsyncScript(function(event, target, $variables){
+  //MOP & MSP Onwward Pixar Marathon 222478
+if(_satellite.getVar('Movie ID') == '222478'){
+  //Desktop MOP
+  if(_satellite.getVar('Page Level 2') == 'movie | overview'){
+ _satellite.addImage('https://d.agkn.com/iframe/7043/?che=%n&uid=[third_party_user_id]&type=51279006&ouid='+_satellite.getVisitorId().getMarketingCloudVisitorID());
+    }
+
+//Desktop MSP
+  if(_satellite.getVar('Page Level 2') == 'movie times | by movie'){
+ _satellite.addImage('https://d.agkn.com/iframe/7043/?che=%n&uid=[third_party_user_id]&type=51279007&ouid='+_satellite.getVisitorId().getMarketingCloudVisitorID());
+  }
+  
+  
+  //pxl-489
+  _satellite.loadScript('https://www.googletagmanager.com/gtag/js?id=AW-709805659')
+  window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'AW-709805659');
+gtag('event', 'conversion', { 'send_to': 'AW-709805659/OzTbCOHBh8ABENuMu9IC', 'transaction_id': '' });
+}
+});

@@ -1,0 +1,277 @@
+//~~tv:5052.20170222
+//~~tc: Adding tag Extole
+
+//tealium universal tag - utag.sender.5052 ut4.0.202006301843, Copyright 2020 Tealium.com Inc. All Rights Reserved.
+try {
+  (function (id, loader) {
+    var u = {"id" : id};
+    utag.o[loader].sender[id] = u;
+    // Please do not modify
+    if (utag.ut === undefined) { utag.ut = {}; }
+    // Start Tealium loader 4.41
+    /* utag.js version 4.26 or above is required to avoid errors with this loader function */
+    var match = /ut\d\.(\d*)\..*/.exec(utag.cfg.v);
+    if (utag.ut.loader === undefined || !match || parseInt(match[1]) < 41) { u.loader = function(o, a, b, c, l, m) { utag.DB(o); a = document; if (o.type == "iframe") { m = a.getElementById(o.id); if (m && m.tagName == "IFRAME") { b = m; } else { b = a.createElement("iframe"); } o.attrs = o.attrs || {}; utag.ut.merge(o.attrs, { "height": "1", "width": "1", "style": "display:none" }, 0); } else if (o.type == "img") { utag.DB("Attach img: " + o.src); b = new Image(); } else { b = a.createElement("script"); b.language = "javascript"; b.type = "text/javascript"; b.async = 1; b.charset = "utf-8"; } if (o.id) { b.id = o.id; } for (l in utag.loader.GV(o.attrs)) { b.setAttribute(l, o.attrs[l]); } b.setAttribute("src", o.src); if (typeof o.cb == "function") { if (b.addEventListener) { b.addEventListener("load", function() { o.cb(); }, false); } else { b.onreadystatechange = function() { if (this.readyState == "complete" || this.readyState == "loaded") { this.onreadystatechange = null; o.cb(); } }; } } if (o.type != "img" && !m) { l = o.loc || "head"; c = a.getElementsByTagName(l)[0]; if (c) { utag.DB("Attach to " + l + ": " + o.src); if (l == "script") { c.parentNode.insertBefore(b, c); } else { c.appendChild(b); } } } }; } else { u.loader = utag.ut.loader; }
+    // End Tealium loader
+    // Start Tealium typeOf 4.35
+    if (utag.ut.typeOf === undefined) { u.typeOf = function(e) {return ({}).toString.call(e).match(/\s([a-zA-Z]+)/)[1].toLowerCase();};} else { u.typeOf = utag.ut.typeOf; }
+    // End Tealium typeOf
+
+    u.ev = {"view" : 1};
+    u.initialized = false;
+    u.scriptrequested = false;
+    u.queue = [];
+
+    u.map_func = function (arr, obj, item) {
+      var i = arr.shift();
+      obj[i] = obj[i] || {};
+      if (arr.length > 0) {
+        u.map_func(arr,obj[i], item);
+      } else {
+        obj[i] = item;
+      }
+    };
+
+    u.clearEmptyKeys = function (object) {
+      for (var key in object) {
+        if (object[key] === "" || object[key] === undefined) {
+          delete object[key];
+        }
+      }
+      return object;
+    };
+
+      u.map={"page_type:order":"confirmation","page_type":"page_type","extole_zone_global_footer":"cta.global_footer.id","extole_zone_global_header":"cta.global_header.id","extole_zone_product":"cta.product.id","extole_labels":"labels","extole_base_url":"base_url","extole_zone_homepage_tout":"cta.homepage_tout.id","extole_zone_loyalty_account":"cta.loyalty_account.id","extole_zone_my_account":"cta.my_account.id","extole_zone_homepage_banner":"cta.homepage_banner.id","extole_zone_confirmation":"cta.confirmation.id","order_id":"order_id","extole_zone_offer_tab":"cta.offer_tab.id","extole_zone_mobile_offer_tab":"cta.mobile_offer_tab.id"};
+  u.extend=[];
+
+
+    // Start Loader Callback
+    u.loader_cb = function (a, b, c) {
+      utag.DB("send:884:CALLBACK");
+      u.initialized = true;
+
+      //Handle CTA
+      //Add email to the CTAs and events that require it
+      u.data.cta.confirmation.data.email = u.data.cta.confirmation.data.email || u.data.customer_id;
+      u.data.cta.my_account.data.email = u.data.cta.my_account.data.email || u.data.customer_id;
+      u.data.conversion.email = u.data.conversion.email || u.data.customer_id;
+      u.data.registration.email = u.data.registration.email || u.data.customer_id;
+
+      //list of standard CTA names
+      var standardCTA = ["global_header", "global_footer", "product", "confirmation", "referral_page", "my_account"];
+      for (var zoneName in u.data.cta) {
+        //If standard, an ID must be mapped.
+        if (standardCTA.indexOf(zoneName) !== -1) {
+          if (!u.data.cta[zoneName].id) {
+            // If there is no ID for standard, skip, the CTA has not been signaled to fire.
+            continue;
+          }
+        };
+      
+        //Build param object
+        var extoleParam = {
+          name: zoneName
+        };
+          //If standard, the value of the name is the ID. If custom, then the mapped value is the id. (Unless n/a is mapped)
+          if (u.data.cta[zoneName].id !== "n/a" && u.data.cta[zoneName].id !== "N/A") {
+            if(u.data.target === "element"){
+              extoleParam.element = u.data.cta[zoneName].id;
+            } else {
+             extoleParam.element_id = u.data.cta[zoneName].id;
+            }
+          }
+
+          //If product, load content
+          if (zoneName === "product") {
+            u.data.cta.product.data.labels = u.data.labels;
+            extoleParam.data = u.data.cta.product.data;
+          } else if (u.data.cta[zoneName].data) {
+            u.data.cta[zoneName].data.labels = u.data.labels;
+            extoleParam.data = u.data.cta[zoneName].data;
+          } else {
+            extoleParam.data = {
+                "labels" : u.data.labels
+            }
+          }
+          extole.createZone(extoleParam);
+        }
+      //Handle events
+      if (u.data.event_name) {
+          extole.createZone({
+          name: u.data.event_name,
+          data: u.data[u.data.event_name] || u.data.cta[u.data.event_name].data || {}
+        });
+      }
+
+      utag.DB("send:884:CALLBACK:COMPLETE");
+    };
+    // End Loader Callback
+
+    u.callBack = function () {
+      var data = {};
+      while (data = u.queue.shift()) {
+        u.data = data.data;
+        u.loader_cb(data.a, data.b, data.c);
+      }
+    };
+
+    u.event_lookup = {
+      "registration" : "registration",
+      "confirmation" : "confirmation"
+    };
+
+    u.send = function (a, b) {
+      if (u.ev[a] || u.ev.all !== undefined) {
+        utag.DB("send:884");
+        utag.DB(b);
+
+        var c, d, e, f;
+
+        u.data = {
+          //##UTVARconfig_<id from config>##
+          "qsp_delim" : "&",
+          "kvp_delim" : "=",
+          "base_url" : "//origin.extole.io/##utag_client_name##/core.js",
+          "client_name" : "mac-cosmetics",
+          "target" : "element_id",
+          "event_name" : "",
+          //Call to actions
+           "cta" : {
+            "global_header" : {
+              "id" : ""
+            },
+            "global_footer" : {
+              "id" : ""
+            },
+            "product" : {
+              "id" : "",
+              "data" : {
+                "content" : {}
+              }
+            },
+            "confirmation" : {
+              "id" : "",
+              "data" : {}
+            },
+            "referral_page" : {
+              "id" : ""
+            },
+            "my_account" : {
+              "id" : "",
+              "data" : {}
+            }
+          },
+          //Event Data
+          "conversion" : {},
+          "registration" : {},
+          "labels" : "",
+          "page_type": ""
+        };
+
+        // Start tag-scoped extensions
+        
+        utag.DB("send:884:EXTENSIONS");
+        utag.DB(b);
+        // End tag-scoped extensions
+
+        c = [];
+
+        // Start Mapping
+        for (d in utag.loader.GV(u.map)) {
+          if (b[d] !== undefined && b[d] !== "") {
+            e = u.map[d].split(",");
+            for (f = 0; f < e.length; f++) {
+              // Advanced
+              u.map_func(e[f].split("."), u.data, b[d]);
+            }
+          } else {
+            h = d.split(":");
+            if (h.length === 2 && b[h[0]] === h[1]) {
+              i = "" + u.event_lookup[u.map[d]];
+              if (i !== "") {
+                u.data.event_name = i;
+              }
+            }
+          }
+        }
+        utag.DB("send:884:MAPPINGS");
+        utag.DB(u.data);
+        // End Mapping
+
+        // Pull E-Commerce extension values
+        // Mappings override E-Commerce extension values
+        //u.data.order_id = u.data.order_id || b._corder || "";
+        u.data.order_total = u.data.order_total || b._ctotal || "";
+        u.data.customer_id = u.data.customer_id || b._ccustid || "";
+
+        // Report required config is missing, and stop tag from firing.
+        if (!u.data.client_name) {
+          utag.DB(u.id + ": Tag not fired: Required attribute not populated");
+          return;
+        }
+
+        if (u.data.page_type == "order") {
+          u.data.event_name = "conversion";
+          
+          u.data.conversion.partner_conversion_id = u.data.conversion.partner_conversion_id || u.data.order_id;
+          u.data.conversion.cart_value = u.data.conversion.cart_value || u.data.order_total;
+          
+          u.data.conversion.first_name = b.first_name;
+          u.data.conversion.last_name = b.last_name;
+          u.data.conversion.email = b.email;
+          //u.data.conversion.partner_user_id = u.data.conversion.cart_value || u.data.order_total;
+          u.data.conversion.coupon_code = page_data.extole_coupon_code;
+          // b._cpromo;
+        }
+
+        //jQuery check for element
+        if(u.data.target === "element" && typeof(jQuery) !== 'function'){
+          utag.DB("No jQuery detected on page, unable to use target method 'element'.");
+          return;
+        }
+
+        //Handle jQuery element selection
+        if (u.data.target === "element") {
+          for (var zone in u.data.cta) {
+            if (u.data.cta[zone].id){
+              //If id is mapped
+              htmlObj = jQuery(u.data.cta[zone].id); 
+              if (htmlObj.length !==0) {
+                u.data.cta[zone].id = htmlObj[0];
+              } else {
+                utag.DB("No element found using the provided selector: " + u.data.cta[zone].id);
+                return;
+              }
+            }
+          }
+        }
+
+        u.data.base_url = u.data.base_url.replace("##utag_client_name##", u.data.client_name);
+
+        if (u.initialized) {
+          u.loader_cb(a, b, c);
+        } else {
+          // While waiting for the external library to load, queue up all of the events with their corresponding data objects.
+          u.queue.push({"data" : u.data, "a" : a, "b" : b, "c" : c});
+          if (!u.scriptrequested) {
+            u.scriptrequested = true;
+            u.loader({
+              "type" : "script",
+              "src" : u.data.base_url,
+              "cb" : u.callBack,
+              "loc" : "script",
+              "id" : "utag_884",
+              "attrs" : {}
+            });
+          }
+        }
+        utag.DB("send:884:COMPLETE");
+      }
+    };
+    utag.o[loader].loader.LOAD(id);
+  }("884", "esteelauder.mac-us2"));
+} catch (error) {
+  utag.DB(error);
+}
+//end tealium universal tag
+

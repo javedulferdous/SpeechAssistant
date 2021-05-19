@@ -1,0 +1,71 @@
+var generic = generic || {};
+var Model = Model || {};
+var google = google || {};
+var site = site || {};
+var Drupal = Drupal || {};
+
+/**
+  * Singleton data model that handles collecting door inventory data for a single or set of skus.
+  * This model can also be used to only call door data if needed.
+  * When you pass a sku, or set of skus, with the door query, a door_inventory data object will be included.
+  * Also, the rpc method changes from 'locator.doorsandevents' to 'locator.doorsandskustatus' when a sku is passed.
+  * On success, the event 'DoorsInventory:query:success' is fired and other panels can listen in on that event.
+  * Also available are helper methods that when passed a door id and sku id, can return the inventory object or just let
+  *   you know if a sku is in-stock or not.
+  * NOTE: Each store has a safety stock number and that safety stock is included with the totals coming from the RPC call.
+  * You do not need to factor in the saftey stock when computing if a stock is availble or not.
+*/
+Model.MapApi = (function() {
+  var that = {};
+
+
+  that.loaded = false;
+  that.locatorData = null;
+
+  /**
+    * Init method used to load the google api javascript when the map panel javascript is loaded.
+    * If the module already hasn't been opened, it will call the google api files then
+    *   when finished, it trigger 'map:init:complete'.
+    * Also has protocol detection built in plus language support.
+  */
+  that.init = function(evt) {
+    var evt = evt || 'MapApi:init:complete';
+    // if ( that.loaded || (google && google.maps) || (site && site.locator && site.locator.locationData) ) {
+      if (that.loaded || (google && google.maps)) {
+        $(document).trigger(evt, that.loaded);
+      return null;
+    }
+    that.loaded = true;
+
+    var pg_reqs     = Drupal.settings.perlgem.pg_reqs;
+    var g_language  = 'en	ENGLISH'.substring(0, 'en	ENGLISH'.indexOf('	'));
+    var protocol    = (window.location.protocol == 'https:') ? 'https:' : 'http:';
+    $.when(
+      // $.getScript( protocol + '//' + window.location.host + '/locator/store_data.tmpl?' + ((pg_reqs) ? pg_reqs : '') ),
+      $.getScript( protocol + '//maps.googleapis.com/maps/api/js?client=gme-estee&sensor=false&language=' + g_language + '&v=3.8' )
+    ).done(function() {
+      that.loaded = true;
+      that.locatorData = (site && site.locator && site.locator.locationData) ? site.locator.locationData : null;
+      $(document).trigger(evt, that.data);
+    });
+  };
+
+  that.getLocatorData = function() {
+    return that.locatorData;
+  };
+
+  that.textToLatLng = function( text ) {
+    var geocoder = new google.maps.Geocoder();
+    geocoder.geocode( { 'address': '' + _.trim(text)}, function(results, status) {
+      if (status == 'OK') {
+        var loc = results.geometry.location;
+        $(document).trigger('MapApi:textToLatLng:complete', loc);
+      } else {
+        alert('Geocode was not successful for the following reason: ' + status);
+      }
+    });
+  };
+
+
+  return that;
+}());

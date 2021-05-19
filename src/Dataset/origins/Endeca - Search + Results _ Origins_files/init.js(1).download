@@ -1,0 +1,15 @@
+(function($) {
+
+/**
+ * Wire up behavior on page-load according to js- classnames.
+ */
+Drupal.behaviors.prodcatUiInit = {
+  attach: function(context) {
+    $(context).trigger('products.init-start');
+    $('.js-product', context).trigger('product.init');
+    $('.js-product-pr', context).trigger('product.init-pr');
+    $(context).trigger('products.init-finish');
+  }
+};
+
+})(jQuery);
