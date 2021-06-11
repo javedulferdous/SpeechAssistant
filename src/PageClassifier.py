@@ -1,7 +1,7 @@
 from init import *
 
 def evaluation_process():
-    csv_df = pd.read_csv("pageList_version_three.csv")
+    csv_df = pd.read_csv("pageList_version_four.csv")
     X = csv_df[['NumOfButton','NumOfLinks','commonURL','NumberOfValues','is_page']]
     y = csv_df[['pageClass']]
     filtered_one = csv_df[csv_df['pageClass'] != 0] 
